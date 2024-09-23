@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "18.20.2",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.12.0"
+    },
+    "version": "1.18.2",
+    "libraryName": "spfx-tdsg-cell-format-forms",
+    "libraryId": "b2dba1fb-4855-40c6-a810-77044c8b82a8",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "spfx-tdsg-cell-format-forms",
+    "solutionShortDescription": "spfx-tdsg-cell-format-forms description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}

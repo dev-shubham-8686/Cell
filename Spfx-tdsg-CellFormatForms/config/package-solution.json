@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "spfx-tdsg-cell-format-forms-client-side-solution",
+    "id": "b2dba1fb-4855-40c6-a810-77044c8b82a8",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "spfx-tdsg-cell-format-forms description"
+      },
+      "longDescription": {
+        "default": "spfx-tdsg-cell-format-forms description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "spfx-tdsg-cell-format-forms Feature",
+        "description": "The feature that activates elements of the spfx-tdsg-cell-format-forms solution.",
+        "id": "f9a9df94-886d-438a-8a49-1b3065eb709c",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/spfx-tdsg-cell-format-forms.sppkg"
+  }
+}

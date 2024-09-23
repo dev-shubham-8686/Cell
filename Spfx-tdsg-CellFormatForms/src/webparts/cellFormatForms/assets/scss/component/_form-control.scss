@@ -1,0 +1,149 @@
+.ant-collapse-content-box {
+  padding: 12px;
+}
+
+.ant-collapse-header {
+  &.ant-collapse-header-collapsible-only {
+    flex-direction: row-reverse;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: normal;
+  }
+}
+
+.ant-col {
+  &.ant-form-item-label {
+    margin-bottom: $form-label-margin-bottom;
+    font-size: $form-label-font-size;
+    font-style: $form-label-font-style;
+    font-weight: $form-label-font-weight;
+    color: $form-label-color;
+
+    & > label {
+      margin-bottom: $form-label-margin-bottom;
+      font-size: $form-label-font-size;
+      font-weight: 400;
+    }
+  }
+}
+
+.ant-form-item {
+  &.grey-label {
+    .ant-col {
+      & > label {
+        font-weight: $form-label-font-weight;
+        color: $form-label-color;
+      }
+    }
+  }
+}
+
+.ant-input-number {
+  &.ant-input-number-in-form-item {
+    width: 100%;
+  }
+}
+
+.p-input-type {
+  background-color: white;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  margin-bottom: 0px;
+  @extend .w-100;
+}
+
+.form-value-field {
+  font-family: $font-family;
+  font-weight: 600;
+  color: $black;
+  font-style: normal;
+  @extend .fsz-15;
+  @extend .fw-semibold;
+}
+.ant-form-item {
+  &.form-item {
+    &.static-ant-field {
+      .ant-row {
+        &.ant-form-item-row {
+          display: flex;
+          flex-direction: row;
+          flex-flow: row;
+
+          .ant-form-item-label {
+            margin-top: 5px;
+            width: 125px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.ant-table-tbody td {
+  vertical-align: top;
+}
+
+.horizontal-form-item {
+  display: flex;
+  align-items: center;
+}
+
+.horizontal-form-item label {
+  margin-right: 8px;
+  width: auto; /* Adjust as needed */
+}
+
+.horizontal-form-item .ant-form-item-control {
+  flex-grow: 1;
+}
+
+/* Disable Form Components styles starts */
+
+.ant-input[disabled],
+.ant-input-number[disabled],
+.ant-input-number-disabled .ant-select-disabled .ant-select-selection-item,
+.ant-select-disabled .ant-select-selection-placeholder,
+.ant-select-disabled .ant-select-selection-overflow-item,
+.ant-input-number[disabled],
+.ant-textarea[disabled] {
+  color: black !important;
+}
+.ant-input,         /* Targets Input components */
+.ant-input-number,  /* Targets InputNumber components */
+.ant-select-selector, /* Targets Select components */
+.ant-input-affix-wrapper, /* Targets Input with affix components */
+.ant-select-selection-search-input, /* Targets Select search inputs */
+.ant-select-selection-item, /* Targets Select selected items */
+.ant-textarea,      /* Targets Textarea components */
+.ant-picker-input > input, /* Targets DatePicker and TimePicker input fields */
+.ant-picker {       /* Targets the DatePicker and TimePicker components */
+  font-size: 1rem !important;
+}
+.ant-picker.ant-picker-disabled .ant-picker-input input,
+.ant-picker.ant-picker-disabled .ant-picker-input input::placeholder,
+.ant-picker.ant-picker-disabled .ant-picker-selection-placeholder,
+.ant-picker-input > input[disabled] {
+  color: black !important;
+}
+
+// .radio-group-disabled
+//   .ant-radio-wrapper-disabled
+//   .ant-radio-checked
+//   .ant-radio-inner {
+//   background-color: black !important;
+//   border-color: black !important;
+// }
+
+// .radio-group-disabled .ant-radio-wrapper-disabled {
+//   color: black !important;
+// }
+
+.custom-disabled-select.ant-select-disabled
+  .ant-select-selector
+  span.ant-select-selection-item,
+  .custom-disabled-input .ant-input-number-disabled  {
+  color: black !important;
+}
+
+/* Disable Form Components styles ends */

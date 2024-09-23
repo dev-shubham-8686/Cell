@@ -1,0 +1,1 @@
+// fetch the status of all the sections' data being "submitted" or in "pending" state 
