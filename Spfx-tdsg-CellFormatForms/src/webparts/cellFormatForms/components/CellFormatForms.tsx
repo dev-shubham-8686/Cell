@@ -24,9 +24,6 @@ class CellFormatForms extends React.Component<ICellFormatFormsProps> {
     return (
       <Routes>
         <Route path="/" element={<TroubleReport />} />
-        {/* <Route path="/trouble-report" element={<TroubleReport />} /> */}
-        {/* <Route path="/" element={<Navigate to="/trouble-report" replace />} />
-        <Route path="/trouble-report" element={<TroubleReport />} /> */}
         <Route
           path="/form/:mode/:id?"
           element={
