@@ -1,0 +1,179 @@
+.ant-collapse-content-box {
+  padding: 12px;
+}
+
+.ant-collapse-header {
+  &.ant-collapse-header-collapsible-only {
+    flex-direction: row-reverse;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: normal;
+  }
+}
+
+.ant-col {
+  &.ant-form-item-label {
+    font-family: $theme-font-family, sans-serif;
+    margin-bottom: $form-label-margin-bottom;
+    font-size: $form-label-font-size;
+    font-style: $form-label-font-style;
+    font-weight: $form-label-font-weight;
+    color: $form-label-color;
+
+    & > label {
+      margin-bottom: $form-label-margin-bottom;
+      font-size: $form-label-font-size;
+      font-weight: 400;
+    }
+  }
+}
+
+.ant-form-item {
+  &.grey-label {
+    .ant-col {
+      & > label {
+        font-family: $theme-font-family, sans-serif;
+        font-weight: $form-label-font-weight;
+        color: $form-label-color;
+      }
+    }
+  }
+  &.no-sppace-label {
+    .ant-col {
+      margin: 0;
+      padding: 0;
+      & > label {
+        margin: 0;
+      }
+    }
+  }
+}
+
+.ant-input-number {
+  &.ant-input-number-in-form-item {
+    width: 100%;
+  }
+}
+
+.p-input-type {
+  background-color: white;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  margin-bottom: 0px;
+  @extend .w-100;
+}
+
+.form-value-field {
+  font-family: $theme-font-family, sans-serif;
+  font-weight: 600;
+  color: $black;
+  font-style: normal;
+  @extend .fsz-16;
+  @extend .fw-semibold;
+}
+
+.ant-upload-list-item-name {
+  cursor: pointer;
+}
+
+/* Disable Form Components styles starts */
+
+.ant-input[disabled],
+.ant-input-number[disabled],
+.ant-input-number-disabled .ant-select-disabled .ant-select-selection-item,
+.ant-select-disabled .ant-select-selection-placeholder,
+.ant-select-disabled .ant-select-selection-overflow-item,
+.ant-input-number[disabled],
+.ant-textarea[disabled] {
+  color: black !important;
+}
+
+.ant-picker.ant-picker-disabled .ant-picker-input input,
+.ant-picker.ant-picker-disabled .ant-picker-input input::placeholder,
+.ant-picker.ant-picker-disabled .ant-picker-selection-placeholder,
+.ant-picker-input > input[disabled] {
+  color: black !important;
+}
+
+// .radio-group-disabled
+//   .ant-radio-wrapper-disabled
+//   .ant-radio-checked
+//   .ant-radio-inner {
+//   background-color: black !important;
+//   border-color: black !important;
+// }
+
+// .radio-group-disabled .ant-radio-wrapper-disabled {
+//   color: black !important;
+// }
+
+.custom-disabled-select.ant-select-disabled
+  .ant-select-selector
+  span.ant-select-selection-item {
+  color: black !important;
+}
+
+/* Disable Form Components styles ends */
+
+/* font-family antd & form Components styles starts */
+
+.form-label,
+.ant-select-item-option-content,
+.ant-radio-wrapper,
+.ant-form-item .ant-form-item-explain-error,
+.ant-upload-wrapper,
+.ant-pagination,
+.ant-picker-panel,
+.ant-picker-now,
+.ant-picker-ok {
+  font-family: $theme-font-family, sans-serif;
+}
+
+.ant-collapse-header-text,
+.ant-form-item-control-input-content
+// ,
+// .ant-select-single .ant-select-selector, .ant-input
+{
+  font-family: $theme-font-family, sans-serif;
+  font-size: 1rem;
+}
+
+/* font-family antd & form Components styles ends */
+
+.custom-hide-arrow .ant-select-arrow {
+  display: none;
+}
+
+.custom-centered-upload .ant-form-item-control-input-content {
+  text-align: center !important;
+}
+
+.horizontal-item {
+  .ant-form-item-row:first-of-type {
+    display: flex !important;
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  // .ant-form-item-row:first-of-type .ant-form-item-control {
+  //   width: fit-content;
+  // }
+}
+
+.vertical-item .ant-form-item-control {
+  display: block;
+}
+
+// Form Layout starts
+
+.request-section {
+  margin-top: 38px;
+}
+
+.request-form {
+  @extend .request-section;
+  border: 1px solid #e5eaee !important;
+}
+
+// Form Layout ends

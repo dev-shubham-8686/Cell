@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "18.20.2",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.12.0"
+    },
+    "version": "1.18.2",
+    "libraryName": "spx-tdsg-equipment-report",
+    "libraryId": "4f9d8750-b030-43e1-9f86-742fc0aa997c",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "spx-tdsg-equipment-report",
+    "solutionShortDescription": "spx-tdsg-equipment-report description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
