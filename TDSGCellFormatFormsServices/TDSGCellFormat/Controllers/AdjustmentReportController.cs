@@ -1,0 +1,85 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using TDSGCellFormat.Common;
+using TDSGCellFormat.Interface.Service;
+using TDSGCellFormat.Models;
+using TDSGCellFormat.Models.Add;
+using static TDSGCellFormat.Common.Enums;
+
+namespace TDSGCellFormat.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AdjustmentReportController : Controller
+    {
+
+        private readonly IAdjustMentReporttService _tdsgService;
+
+        ResponseHelper responseHelper = new ResponseHelper();
+        AjaxResult Ajaxresponse = new AjaxResult();
+
+        public AdjustmentReportController(IAdjustMentReporttService tdsgService)
+        {
+            _tdsgService = tdsgService;
+        }
+
+        [HttpGet("getAdjustMentReport")]
+        public async Task<IActionResult> Get()
+        {
+            var res = _tdsgService.GetAll().ToList();
+            if (res.Count > 0)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetById")]
+        public IActionResult GetById(int Id)
+        {
+            var res = _tdsgService.GetById(Id);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpPost("AddOrUpdate")]
+        public async Task<IActionResult> POST(AdjustMentReportAdd report)
+        {
+
+            var result = await _tdsgService.AddOrUpdateReport(report);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpDelete("Delete")]
+
+        public async Task<IActionResult> Delete(int Id)
+        {
+            var result = await _tdsgService.DeleteReport(Id);
+            if (result.StatusCode == Status.Success)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+
+    }
+}

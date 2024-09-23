@@ -1,0 +1,6 @@
+@TDSGCellFormat_HostAddress = http://localhost:5246
+
+GET {{TDSGCellFormat_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

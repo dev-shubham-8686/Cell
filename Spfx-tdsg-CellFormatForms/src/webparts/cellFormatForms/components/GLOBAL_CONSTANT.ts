@@ -87,14 +87,6 @@ export const STATUS_COLOUR_CLASS: { [key: string]: string } = {
   Reviewed: "reviewed",
 };
 
-// export function usePrevious(value: any) {
-//   const ref = React.useRef();
-//   React.useEffect(() => {
-//     ref.current = value;
-//   });
-//   return ref.current;
-// }
-
 export const sessionExpiredStatus = [
   MessageType.SessionTimeOut,
   MessageType.Error,
