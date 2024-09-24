@@ -40,8 +40,8 @@ type IspWebUrl = (typeof arrspWebUrl)[number];
 
 export const spWebUrl: IspWebUrl =
   // "https://synopsandbox.sharepoint.com/sites/Training2024";
-  "https://tdsgj.sharepoint.com/sites/e-app-stage"; //stage
-// "https://tdsgj.sharepoint.com/sites/e-app";                           //prod   TODO: update before deployment
+  // "https://tdsgj.sharepoint.com/sites/e-app-stage"; //stage
+"https://tdsgj.sharepoint.com/sites/e-app";                           //prod   TODO: update before deployment
 
 export const componentMode = {
   Add: "add",
