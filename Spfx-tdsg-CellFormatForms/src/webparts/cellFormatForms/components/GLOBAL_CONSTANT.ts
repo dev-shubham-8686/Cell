@@ -19,8 +19,8 @@ const arrServiceUrls = [
   "https://localhost:44353", //local
   "https://synopsandbox.sharepoint.com/sites/e-app-stage", //dev
   "https://cellformservice-qa.tdsgj.co.in", //qa
-  "https://cellformservice-stage.tdsgj.co.in", //stage
-  "https://tdsg-eapp-cellforms.tdsgj.co.in", //prod
+  "https://cellformservice-stage.tdsgj.co.in",                   //stage
+  "https://tdsg-eapp-cellforms.tdsgj.co.in",                     //prod
 ] as const;
 type IServiceUrl = (typeof arrServiceUrls)[number];
 // current active service url
