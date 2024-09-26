@@ -30,31 +30,14 @@ export const Message = {
     }),
 };
 
-const arrwebServiceSiteUrl = [
-  "http://localhost:59535/TDSGTravelPortal.svc", //dev web service url 1
-  "http://localhost:63157/TDSGTravelPortal.svc", //dev web service url 2
-  "https://travel-request-qa.tdsgj.co.in/TDSGTravelPortal.svc", // QA web service url
-  "https://travel-request-stage.tdsgj.co.in/TDSGTravelPortal.svc", // stage web service url
-  // "https://tdsg-eapp.tds-g.co.in/TDSGServiceAEPPL.svc",
-  // "https://tdsg-epp-ia-prd.tdsgj.co.in/TDSGIAServiceAEPPL.svc",
-] as const;
-type IServiceUrl = (typeof arrwebServiceSiteUrl)[number];
 
-export const webServiceSiteUrl: IServiceUrl =
-  // "http://localhost:63157/TDSGTravelPortal.svc"; //dev    TODO: update before deployment
-  "http://localhost:59535/TDSGTravelPortal.svc"; //dev    TODO: update before deployment
-// "https://travel-request-qa.tdsgj.co.in/TDSGTravelPortal.svc";  //qa
-// "https://travel-request-stage.tdsgj.co.in/TDSGTravelPortal.svc"; //stage
 
-const arrspWebUrl = [
-  "https://synopsandbox.sharepoint.com/sites/e-app-stage", //dev site link
-  "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA", //QA site link
-  "https://tdsgj.sharepoint.com/sites/e-app-stage", //stage site link
-  "https://tdsgj.sharepoint.com/sites/e-app",
-] as const;
-type IspWebUrl = (typeof arrspWebUrl)[number];
+export const SERVICE_URL =
+  "https://localhost:44353/"; //dev    TODO: update before deployment
 
-export const spWebUrl: IspWebUrl =
+
+
+export const WEB_URL =
   "https://synopsandbox.sharepoint.com/sites/e-app-stage"; //dev   TODO: update before deployment
 // "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA";   //QA
 // "https://tdsgj.sharepoint.com/sites/e-app-stage"; //stage

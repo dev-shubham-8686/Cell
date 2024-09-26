@@ -2,105 +2,40 @@ import * as React from "react";
 import{ useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Modal } from "antd";
-import { useAuth } from "../context/AuthContext";
-import Workflow from "../components/EquipmentReport/Workflow";
-import History from "../components/EquipmentReport/History";
-import Form from "../components/EquipmentReport/Form";
+// import { useAuth } from "../../context/AuthContext";
+import Workflow from "../equipmentReport/Workflow";
+import History from "../equipmentReport/History";
+import Form from "../equipmentReport/Form";
+import Page from "../page/page";
+import { UserContext } from "../../context/userContext";
 
 type TabName = "form" | "history" | "workflow";
 
-interface ReportFormPageProps {
+interface EquipmentReportLayoutProps {
 
 }
 
-const ReportFormPage: React.FC<ReportFormPageProps> = ({
+const EquipmentReportLayout: React.FC<EquipmentReportLayoutProps> = ({
 
 }) => {
-  const { userRole } = useAuth(); // Replace with context
+  const user = React.useContext(UserContext);  
   const navigate = useNavigate();
   const { confirm } = Modal;
   const location = useLocation();
   const { isApproverRequest, currentTabState, fromReviewTab } =
     location.state || {};
   const [currentTab, setCurrentTab] = useState<TabName>("form");
-  const [showLoader, setShowLoader] = useState<boolean>(false);
-  const [approverTasks, setApproverTasks] = useState<any[]>([]);
-  const [currentApprovertask, setCurrentApprovertask] =
-    useState<any>(null);
-  const { id } = useParams();
 
   const onBackClick = (): void => {
     console.log("CURRENTSTATE", currentTabState, fromReviewTab);
-    navigate("/trouble-report", {
+    navigate("/equipment-improvement-report", {
       state: {
-        currentTabState: fromReviewTab
-          ? "myreview-tab"
-          : isApproverRequest
+        currentTabState: isApproverRequest
           ? "myapproval-tab"
           : "myrequest-tab",
       },
     });
   };
-
-  const EMPLOYEE_ID = userRole.employeeId; // Replace with context value
-
-//   const fetchWorkflowDetails = async (): Promise<void> => {
-//     try {
-//       const response = await getWorkflowDetails(parseInt(id));
-
-//       if (response?.length > 0) {
-//         setApproverTasks(response);
-//       }
-
-//       console.log("Response workflowDetails ", response);
-//     } catch (error) {
-//       console.error(
-//         "Error in executing the fetchWorkflowDetails function",
-//         error
-//       );
-//     }
-//   };
-
-//   const getCurrentApproverTaskDetails = async (): Promise<void> => {
-//     try {
-//       const response = await getCurrentApproverTask(parseInt(id), EMPLOYEE_ID);
-
-//       console.log("getCurrentApproverTaskDetails", response);
-
-//       if (response) setCurrentApprovertask(response);
-//     } catch (error) {
-//       console.error("Error while fetching the Approver Task Details");
-//     }
-//   };
-
-//   useEffect(() => {
-//     const executeAsyncFunctions = async (): Promise<void> => {
-//       setShowLoader(true);
-//       try {
-//         const results = await Promise.allSettled([
-//           fetchWorkflowDetails(),
-//           getCurrentApproverTaskDetails(),
-//         ]);
-
-//         results.forEach((result, index) => {
-//           if (result.status === "rejected") {
-//             console.error(
-//               `Error during data fetching for function ${index + 1}:`,
-//               result.reason
-//             );
-//           }
-//         });
-//       } finally {
-//         setShowLoader(false);
-//       }
-//     };
-
-//     if (id) {
-//       executeAsyncFunctions().catch((e) =>
-//         console.error("Error during data fetching:", e)
-//       );
-//     }
-//   }, [id, EMPLOYEE_ID]);
 
   const tabs: {
     id: TabName;
@@ -121,7 +56,7 @@ const ReportFormPage: React.FC<ReportFormPageProps> = ({
   ];
 
   return (
-    // <DashboardLayout>
+    <Page title="Equipment Report">
       <div
         className="content w-100 d-flex flex-column"
         style={{
@@ -192,10 +127,10 @@ const ReportFormPage: React.FC<ReportFormPageProps> = ({
           )}
         </div>
       </div>
-  )
-    {/* </DashboardLayout> */}
- 
+  
+    </Page>
+  );
 };
 
 
-export default ReportFormPage;
+export default EquipmentReportLayout;
