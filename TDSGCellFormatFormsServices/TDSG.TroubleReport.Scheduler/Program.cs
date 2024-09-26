@@ -9,6 +9,7 @@ using DocumentFormat.OpenXml.Bibliography;
 using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
+using Castle.Core.Configuration;
 
 public class Program
 {
@@ -21,13 +22,13 @@ public class Program
         var builder = new ConfigurationBuilder();
 
         // Get the directory of the other project where appSettings.json is located
-        string pathToOtherProject = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "TDSGCellFormat");
+        string pathToOtherProject = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "CellFormat");
 
         // Specify the full path to appSettings.json
         builder.SetBasePath(pathToOtherProject)
                .AddJsonFile("appSettings.json", optional: false, reloadOnChange: true);
 
-        IConfiguration config = builder.Build();
+       // IConfiguration config = builder.Build();
         using (var scope = host.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<TdsgCellFormatDivisionContext>();
@@ -107,7 +108,7 @@ public class Program
 
                 dbContext.SaveChanges(); // Save the changes to the database
                 Console.WriteLine($"Sending email for Report ID: {report.TroubleReportId}, Email Type: {report.RaiserEmailSent + 1}");
-               
+               // Console.WriteLine(_configuration);
              
 
             }
@@ -192,18 +193,23 @@ public class Program
         Host.CreateDefaultBuilder(args)
          .ConfigureAppConfiguration((hostingContext, config) =>
          {
+             string path = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
+             Console.WriteLine(path);
              // Specify the path to the appsettings.json file in the other project
-             string pathToSettings = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "TDSGCellFormat", "appsettings.json");
+             string pathToSettings = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "CellFormat", "appsettings.json");
 
              config.AddJsonFile(pathToSettings, optional: false, reloadOnChange: true)
                    .AddEnvironmentVariables();
          })
             .ConfigureServices((_, services) => {
                 services.AddDbContext<TdsgCellFormatDivisionContext>(options =>
-                    options.UseSqlServer("Data Source=192.168.100.30;Initial Catalog=TDSG_CellFormatDivision;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;")
+                options.UseSqlServer("Data Source=WEBAPPSVRSTAG;Initial Catalog=TDSGStage_CellFormatDivision;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;")
+                   // options.UseSqlServer("Data Source=192.168.100.30;Initial Catalog=TDSG_CellFormatDivision;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;")
                 );
                 services.AddDbContext<AepplNewCloneStageContext>(options =>
-                    options.UseSqlServer("Data Source=192.168.100.30;Initial Catalog=AEPPL_NEW_Clone_Stage;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;")
+                   options.UseSqlServer("Data Source=WEBAPPSVRSTAG;Initial Catalog=AEPPLDb_Cell;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;")
+
+                //options.UseSqlServer("Data Source=192.168.100.30;Initial Catalog=AEPPL_NEW_Clone_Stage;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;")
                 );
 
 
