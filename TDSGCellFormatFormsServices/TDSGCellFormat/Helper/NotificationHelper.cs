@@ -1,4 +1,6 @@
 ﻿using Azure.Core;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Net.Mail;
@@ -15,7 +17,6 @@ namespace TDSGCellFormat.Helper
         private readonly TdsgCellFormatDivisionContext _context;
         private readonly AepplNewCloneStageContext _cloneContext;
         private readonly IConfiguration _configuration;
-        private readonly HttpContext httpContext;
 
         public NotificationHelper(TdsgCellFormatDivisionContext context, AepplNewCloneStageContext cloneContext)
         {
@@ -137,7 +138,11 @@ namespace TDSGCellFormat.Helper
                         {
                             foreach (var ccId in ccAddress)
                             {
-                                mm.CC.Add(ccId);
+                                // Ensure ccId is not null or empty before adding
+                                if (!string.IsNullOrEmpty(ccId))
+                                {
+                                    mm.CC.Add(ccId);
+                                }
                             }
                         }
 
@@ -165,6 +170,7 @@ namespace TDSGCellFormat.Helper
 
             return emailSent;
         }
+
         public async Task<bool> SendEmail(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0)
         {
             bool emailSent = false;
@@ -180,11 +186,12 @@ namespace TDSGCellFormat.Helper
                 bool isInReviewTask = false, isInReviewPullBack = false;
                 bool isIsAmendTask = false;
                 bool isRequestorinToEmail = false, isReqCCMail = false;
+               
                 bool isWorkDoneLeadinTOMail = false;
+                bool isWorkDoneLeadCC = false;
+                bool isWorkMembers = false;
                 bool notifyRM = false, notifyRMCC = false, notifyWMCC = false;
-                //bool notifyWorkDone = false;
                 bool notifyReviewManager = false;
-                //bool allow = false, decline = false;
                 string? rmName = null, rmEmail = null;
                 bool isReOpen = false;
                 string? reopenMemName = null, reopenMemEmail = null;
@@ -192,16 +199,22 @@ namespace TDSGCellFormat.Helper
                 string? requesterUserName = null, requesterUserEmail = null;
                 string? workDoneName = null, workDoneEmail = null;
                 string? workDoneLeadName = null, workDoneLeadEmail = null;
+                string? workDonePeopleName = null, workDonePeopleEmail = null;
                 string? templateFile = null, templateFilePath = null;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 bool approvelink = false;
+                bool isEditable = false;
                 //string? templateFilePath = null;
-                string? documentLink = _configuration["SPSiteUrl"] +
-                    "/SitePages/CellFormatForms.aspx#/trouble-report/";
+                //string? documentLink = _configuration["SPSiteUrl"] +
+                 //  "/SitePages/Trouble-Report.aspx#/";
+                 string? documentLink = _configuration["SPSiteUrl"] +
+                "/SitePages/CellFormatStage.aspx#/";
+                
                 StringBuilder emailBody = new StringBuilder();
                 if (requestId > 0)
                 {
                     var troubleReports = _context.TroubleReports.Where(x => x.TroubleReportId == requestId && x.IsDeleted == false).FirstOrDefault();
+                    var reportLevel = troubleReports.ReportLevel;
                     if (troubleReports != null)
                     {
                         if (troubleReports.CreatedBy > 0)
@@ -209,9 +222,6 @@ namespace TDSGCellFormat.Helper
                             EmployeeMaster? requesterUserDetail = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == troubleReports.CreatedBy);
                             requesterUserName = requesterUserDetail?.EmployeeName;
                             requesterUserEmail = requesterUserDetail?.Email;
-
-                            //wokrdone people 
-
                         }
                         var workDoneData = _context.WorkDoneDetails.Where(x => x.TroubleReportId == requestId && x.IsDeleted == false).Select(x => x.EmployeeId).ToList();
                         var workDoneEmails = new List<string?>();
@@ -225,6 +235,8 @@ namespace TDSGCellFormat.Helper
                             }
                         }
 
+
+                        #region WokrDone Poeple
                         var workDoneLead = _context.WorkDoneDetails.Where(x => x.TroubleReportId == requestId && x.IsDeleted == false && x.Lead == true).Select(x => x.EmployeeId).FirstOrDefault();
                         if (workDoneLead != null)
                         {
@@ -232,6 +244,28 @@ namespace TDSGCellFormat.Helper
                             workDoneLeadName = workDoneLeadData?.EmployeeName;
                             workDoneLeadEmail = workDoneLeadData?.Email;
                         }
+
+                       // var workdDoneManager = _context.TroubleReportReviewerTaskMasters.Where(x => x.TroubleReportId == requestId && x.IsClsoed == false && x.ProcessName == Enums.WorkDoneManager).Select(x => x.ReviewerId).FirstOrDefault();
+                        if (workDoneLead != null)
+                        {
+                            var workDoneManager = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == workDoneLead).Select(x => x.ReportingManagerId).FirstOrDefault();
+                            EmployeeMaster? workDoneManagerData = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == workDoneManager);
+                            workManagerName = workDoneManagerData?.EmployeeName;
+                            workManagerEmail = workDoneManagerData?.Email;
+                        }
+                        var workDoneMembers = _context.WorkDoneDetails.Where(x => x.TroubleReportId == requestId && x.IsDeleted == false && x.Lead == false).Select(x => x.EmployeeId).ToList();
+                        var workDonePoepleEmails = new List<string?>();
+                        if (workDoneMembers.Count > 0)
+                        {
+                            foreach(var people in workDoneMembers)
+                            {
+                                EmployeeMaster? workDonePeopleData = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == people);
+                                workDonePeopleName = workDonePeopleData?.EmployeeName;
+                                workDonePoepleEmails.Add(workDonePeopleData?.Email);
+                            }
+                           
+                        }
+                        #endregion
 
                         var reportingManager = _context.TroubleReportReviewerTaskMasters.Where(x => x.TroubleReportId == requestId && x.IsClsoed == false && x.ProcessName == Enums.ReportingManager).Select(x => x.ReviewerId).FirstOrDefault();
                         if (reportingManager != null)
@@ -242,125 +276,227 @@ namespace TDSGCellFormat.Helper
                         }
 
 
-                        var workdDoneManager = _context.TroubleReportReviewerTaskMasters.Where(x => x.TroubleReportId == requestId && x.IsClsoed == false && x.ProcessName == Enums.WorkDoneManager).Select(x => x.ReviewerId).FirstOrDefault();
-                        if (workdDoneManager != null)
-                        {
-                            EmployeeMaster? workDoneManagerData = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == workdDoneManager);
-                            workManagerName = workDoneManagerData?.EmployeeName;
-                            workManagerEmail = workDoneManagerData?.Email;
-                        }
+                       
 
                         var approverData = await _context.GetTroubleReportWorkFlowData(requestId);
                         switch (emailNotification)
                         {
                             case EmailNotificationAction.Submitted:
                                 templateFile = "TroubleReport_Submitted.html";
-                                emailSubject = string.Format("Submitted {0}", troubleReports.TroubleReportNo);
+                                emailSubject = string.Format("[Action required!] Trouble Report_{0} has been Submitted for Approval", troubleReports.TroubleReportNo);
                                 isReqCCMail = true;
                                 isInReviewTask = true;
                                 approvelink = true;
+                                notifyWMCC = true;
+                                isWorkMembers = true;
+                                isWorkDoneLeadCC = true;
                                 break;
 
                             case EmailNotificationAction.ReSubmitted:
                                 templateFile = "TroubleReport_ReSubmitted.html";
-                                emailSubject = string.Format("ReSubmitted {0}", troubleReports.TroubleReportNo);
+                                emailSubject = string.Format("[Action required!] Trouble Report_{0} has been Resubmitted", troubleReports.TroubleReportNo);
                                 isIsAmendTask = true;
+                                isInReviewTask = true;
+                                isReqCCMail = true;
+                                notifyWMCC = true;
+                                isWorkMembers = true;
+                                isWorkDoneLeadCC = true;
                                 break;
 
                             case EmailNotificationAction.Approved:
                                 templateFile = "TroubleReport_Approved.html";
-                                emailSubject = string.Format("[Action required!] Approval required {0}", troubleReports.TroubleReportNo);
+                                emailSubject = string.Format("[Action required!] Trouble Report_{0} has been Approved /rejected/ Asked for Amendment", troubleReports.TroubleReportNo);
                                 isInReviewTask = true;
                                 isApprovedtask = true;
                                 approvelink = true;
+                                notifyWMCC = true;
+                                notifyRMCC = true;
+                                isReqCCMail = true;
+                                isWorkDoneLeadCC = true;
+                                isWorkMembers = true;
                                 break;
 
                             case EmailNotificationAction.ApproveInformed:
                                 templateFile = "TroubleReport_ApprovedInfo.html";
-                                emailSubject = string.Format("[Information!] Approval Done {0}", troubleReports.TroubleReportNo);
+                                emailSubject = string.Format("[Action taken!] Trouble Report_{0} has been Approved", troubleReports.TroubleReportNo);
                                 isApprovedtask = true;
                                 isWorkDoneLeadinTOMail = true;
+                                isReqCCMail = true;
+                                isWorkMembers = true;
+                                notifyWMCC = true;
+                                notifyRMCC = true;
                                 break;
 
                             case EmailNotificationAction.PullBack:
                                 templateFile = "TroubleReport_PullBack.html";
-                                emailSubject = string.Format("Pullback of Trouble Report Request No. {0}", troubleReports.TroubleReportNo);
+                                emailSubject = string.Format("[Action taken!] Trouble Report {0} has been PullBacked", troubleReports.TroubleReportNo);
                                 isApprovedtask = true;
                                 isRequestorinToEmail = true;
                                 notifyRM = true;
                                 notifyReviewManager = true;
                                 isInReviewPullBack = true;
+                                isReqCCMail = true;
+                                notifyWMCC = true;
+                                isWorkDoneLeadinTOMail = true;
+                                isWorkMembers = true;
                                 break;
 
                             case EmailNotificationAction.Amended:
                                 templateFile = "TroubleReport_AskForAmendment.html";
-                                emailSubject = string.Format("Amendment of Trouble Report Request No. {0}", troubleReports.TroubleReportNo);
+                                emailSubject = string.Format("[Action required!] Trouble Report_{0} has been Asked for Amendment", troubleReports.TroubleReportNo);
                                 isIsAmendTask = true;
                                 isWorkDoneLeadinTOMail = true;
+                                isEditable = true;
+                                notifyRMCC = true;
+                                isReqCCMail = true;
+                                notifyWMCC = true;
+                                isWorkMembers = true;
                                 break;
 
                             case EmailNotificationAction.Reopen:
                                 templateFile = "TroubleReport_ReOpen.html";
-                                emailSubject = string.Format("[Information] Trouble Report ReOpen {0}", troubleReports.TroubleReportNo);
+                                emailSubject = string.Format("[Action required!] Trouble Report {0} has been ReOpened", troubleReports.TroubleReportNo);
                                 isReqCCMail = true;
                                 isReOpen = true;
+                                isWorkDoneLeadinTOMail = true;
+                                isWorkMembers = true;
                                 break;
 
                             case EmailNotificationAction.Rejected:
                                 templateFile = "TroubleReport_Rejected.html";
-                                emailSubject = string.Format("[Information] Trouble Report Request Rejected {0}", troubleReports.TroubleReportNo);
-                                isRequestorinToEmail = true;
+                                emailSubject = string.Format("[Action taken!] Trouble Report_{0} has been Rejected", troubleReports.TroubleReportNo);
                                 isWorkDoneLeadinTOMail = true;
+                                notifyRMCC = true;
                                 isReqCCMail = true;
+                                notifyWMCC = true;
+                                isWorkMembers = true;
                                 break;
 
                             case EmailNotificationAction.NotifyManager:
                                 templateFile = "TroubleReport_NotifyRM.html";
-                                emailSubject = string.Format("[Action required!] ", troubleReports.TroubleReportNo);
+                                emailSubject = string.Format("[Action required!] Assign Work Done Members for {0}", troubleReports.TroubleReportNo);
                                 isReqCCMail = true;
                                 notifyRM = true;
+                                isEditable = true;
                                 break;
 
                             case EmailNotificationAction.NotifyWokrDone:
                                 templateFile = "TroubleReport_NotifyWorkDone.html";
-                                emailSubject = string.Format("[Information] {0}", troubleReports.TroubleReportNo);
+                                emailSubject = string.Format("[Action required!] Provide ICA for {0} ", troubleReports.TroubleReportNo);
                                 isWorkDoneLeadinTOMail = true;
+                                isWorkMembers = true;
                                 notifyRMCC = true;
+                                isReqCCMail = true;
+                                notifyWMCC = true;
+                                isEditable = true;
                                 break;
 
                             case EmailNotificationAction.NotifyReviewManager:
                                 templateFile = "TroubleReport_ReviewManager.html";
-                                emailSubject = string.Format("[Action required!] Approval required {0}", troubleReports.TroubleReportNo);
+                                //  emailSubject = string.Format("[Action required!] Approval required {0}", troubleReports.TroubleReportNo);
+                                switch (reportLevel)
+                                {
+                                    case 3:
+                                        emailSubject = string.Format("[Action required!] Review PCA & Closure Date for {0} ", troubleReports.TroubleReportNo);
+                                        break;
+                                    case 2:
+                                        emailSubject = string.Format("[Action required!] Review RCA & PCA Date for {0} ", troubleReports.TroubleReportNo);
+                                        break;
+                                    case 1:
+                                        emailSubject = string.Format("[Action required!] Review ICA for {0} ", troubleReports.TroubleReportNo);
+                                        break;
+                                    default:
+                                        break;
+                                }
                                 notifyRM = true;
-                                notifyReviewManager = true;
                                 isReqCCMail = true;
+                                isWorkMembers = true;
+                                isWorkDoneLeadCC = true;
+                                notifyReviewManager = true;
                                 break;
 
                             case EmailNotificationAction.Allow:
                                 templateFile = "TroubleReport_Allow.html";
-                                emailSubject = string.Format("[Information] {0}", troubleReports.TroubleReportNo);
+                                //emailSubject = string.Format("[Information] {0}", troubleReports.TroubleReportNo);
+                                switch (reportLevel)
+                                {
+                                    case 3:
+                                        emailSubject = string.Format("[Action taken!] PCA & Closure Date Approved for {0} ", troubleReports.TroubleReportNo);
+                                        break;
+                                    case 2:
+                                        emailSubject = string.Format("[Action taken!] RCA & PCA Date Approved for {0} ", troubleReports.TroubleReportNo);
+                                        break;
+                                    case 1:
+                                        emailSubject = string.Format("[Action taken!] ICA Approved for {0} ", troubleReports.TroubleReportNo);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                isWorkMembers = true;
                                 isWorkDoneLeadinTOMail = true;
-                                break;
-
-                            case EmailNotificationAction.AllowBoth:
-                                templateFile = "TroubleReport_AllowBoth.html";
-                                emailSubject = string.Format("[Information] Both Manager Allow {0}", troubleReports.TroubleReportNo);
-                                isWorkDoneLeadinTOMail = true;
+                                isReqCCMail = true;
                                 notifyWMCC = true;
                                 notifyRMCC = true;
                                 break;
 
+                            case EmailNotificationAction.AllowBoth:
+                                templateFile = "TroubleReport_AllowBoth.html";
+                                //emailSubject = string.Format("[Action required!] Both Manager Allowed {0}", troubleReports.TroubleReportNo);
+                                switch (reportLevel)
+                                {
+                                    case 4:
+                                        emailSubject = string.Format("[Action taken!] PCA & Closure Date Approved for {0} ", troubleReports.TroubleReportNo);
+                                        break;
+                                    case 3:
+                                        emailSubject = string.Format("[Action taken!] RCA & PCA Date Approved for {0} ", troubleReports.TroubleReportNo);
+                                        break;
+                                    case 2:
+                                        emailSubject = string.Format("[Action taken!] ICA Approved for {0} ", troubleReports.TroubleReportNo);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                isWorkDoneLeadinTOMail = true;
+                                isEditable = true;
+                                isWorkMembers = true;
+                                isReqCCMail = true;
+                                notifyRMCC = true;
+                                notifyWMCC = true;
+                                break;
+
                             case EmailNotificationAction.Decline:
                                 templateFile = "TroubleReport_Decline.html";
-                                emailSubject = string.Format("[Information] Trouble Report Request Declined {0}", troubleReports.TroubleReportNo);
+                                //emailSubject = string.Format("[Information] Trouble Report Request Declined {0}", troubleReports.TroubleReportNo);
+                                switch (reportLevel)
+                                {
+                                    case 3:
+                                        emailSubject = string.Format("[Action taken!] PCA & Closure Date Rejected for {0} ", troubleReports.TroubleReportNo);
+                                        break;
+                                    case 2:
+                                        emailSubject = string.Format("[Action taken!] RCA & PCA Date Rejected for {0} ", troubleReports.TroubleReportNo);
+                                        break;
+                                    case 1:
+                                        emailSubject = string.Format("[Action taken!] ICA Rejected for {0} ", troubleReports.TroubleReportNo);
+                                        break;
+                                    default:
+                                        break;
+                                }
                                 isWorkDoneLeadinTOMail = true;
+                                isWorkMembers = true;
+                                isEditable = true;
+                                isReqCCMail = true;
+                                notifyWMCC = true;
+                                notifyRMCC = true;
                                 break;
 
                             case EmailNotificationAction.Completed:
                                 templateFile = "TroubleReport_Completed.html";
-                                emailSubject = string.Format("[Information] Trouble Report Request Completed{0}", troubleReports.TroubleReportNo);
-                                isRequestorinToEmail = true;
+                                emailSubject = string.Format("[Action taken!] Trouble Report {0} has been Approved and Completed", troubleReports.TroubleReportNo);
                                 isReqCCMail = true;
+                                isApprovedtask = true;
+                                notifyWMCC = true;
+                                isWorkDoneLeadinTOMail = true;
+                                isWorkMembers = true;
                                 break;
 
                             default:
@@ -370,29 +506,33 @@ namespace TDSGCellFormat.Helper
                         if (isReqCCMail)
                         {
                             emailCCAddressList.Add(requesterUserEmail);
-
                         }
+
                         if (isRequestorinToEmail)
                         {
                             emailToAddressList.Add(requesterUserEmail);
                             emailCCAddressList.Remove(requesterUserEmail);
                         }
-                        if (workDoneData.Count > 0)
-                        {
-                            foreach (var email in workDoneEmails)
-                            {
-                                if (isWorkDoneLeadinTOMail)
-                                {
-                                    emailToAddressList.Add(email);
-                                    emailCCAddressList.Remove(email);
-                                }
-                                else
-                                {
-                                    emailCCAddressList.Add(email);
-                                }
-                            }
 
+                        
+                        if (isWorkDoneLeadinTOMail)
+                        {
+                            emailToAddressList.Add(workDoneLeadEmail);
                         }
+
+                        if (isWorkDoneLeadCC)
+                        {
+                            emailCCAddressList.Add(workDoneLeadEmail);
+                        }
+
+                        if (isWorkMembers)
+                        {
+                            foreach(var email in workDonePoepleEmails)
+                            {
+                                emailCCAddressList.Add(email);
+                            }
+                        }
+                     
                         if (isReOpen)
                         {
                             EmployeeMaster? reopenMemData = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == nextApproverTaskId);
@@ -400,6 +540,7 @@ namespace TDSGCellFormat.Helper
                             reopenMemEmail = reopenMemData?.Email;
                             emailToAddressList.Add(reopenMemEmail);
                         }
+
                         if (notifyRM)
                         {
                             emailToAddressList.Add(rmEmail);
@@ -408,14 +549,17 @@ namespace TDSGCellFormat.Helper
                         {
                             emailCCAddressList.Add(rmEmail);
                         }
+
                         if (notifyWMCC)
                         {
                             emailCCAddressList.Add(workManagerEmail);
                         }
+
                         if (notifyReviewManager)
                         {
                             emailToAddressList.Add(workManagerEmail);
                         }
+
                         if (isInReviewTask)
                         {
                             if (nextApproverTaskId > 0)
@@ -439,6 +583,7 @@ namespace TDSGCellFormat.Helper
                                 }
                             }
                         }
+
                         if (isInReviewPullBack)
                         {
                             if (nextApproverTaskId > 0)
@@ -498,38 +643,47 @@ namespace TDSGCellFormat.Helper
                                     }
                                 }
                             }
+                            else
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.UnderAmendment.ToString())
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+
+                            }
                         }
                         if (!string.IsNullOrEmpty(templateFile))
                         {
                             string baseDirectory = AppContext.BaseDirectory;
-                           // string action = null;
-                            string docLink = null;
+                            // string action = null;
+                            string docLink = documentLink + "form/view/" + requestId;
                            
-                            var query = httpContext.Request.Query;
-                            string? reqId = query["requestId"];
-                            string? action = query["approval"];
-                            //string projectRootDirectory = Directory.GetParent(baseDirectory).Parent.Parent.Parent.Parent.FullName;
-                            //templateFilePath = Path.Combine(projectRootDirectory, templateDirectory, templateFile);
-                            string? projectRootDirectory = null;
-                            if (baseDirectory.Contains("Stage"))
-                            {
-                                // Stage environment path
-                                projectRootDirectory = @"D:\Stage\CellFormat";
-                            }
-                            templateFilePath = Path.Combine(projectRootDirectory, templateDirectory, templateFile);
+                            templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
                             if (!string.IsNullOrEmpty(templateFilePath))
                             {
                                 emailBody.Append(System.IO.File.ReadAllText(templateFilePath));
                             }
                             if (emailBody?.Length > 0)
                             {
-                                if(approvelink) 
+                                if (approvelink)
                                 {
-                                     docLink = documentLink + "form/view/" + reqId + "?action=approval";
+                                    //docLink += "?action=approval";
+                                    docLink = documentLink.Replace("#", "?action=approval#") + "form/view/" + requestId;
                                 }
                                 else
                                 {
-                                    docLink = documentLink + "form/view/" + requestId ;
+                                    if (isEditable)
+                                    {
+                                        docLink = documentLink + "form/edit/" + requestId;
+                                    }
+                                    else
+                                    {
+                                        docLink = documentLink + "form/view/" + requestId;
+                                    }
+
                                 }
                                 emailBody = emailBody.Replace("#TroubleLink#", docLink);
                                 emailBody = emailBody.Replace("#TroubleReportNo#", troubleReports.TroubleReportNo);
@@ -583,39 +737,265 @@ namespace TDSGCellFormat.Helper
             return emailSent;
         }
 
-        public async Task<bool> SendEmail1(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0)
+        public async Task<bool> SendMaterialConsumptionEmail(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0)
         {
             bool emailSent = false;
             try
             {
-                StringBuilder? emailBody = new StringBuilder();
-                emailBody = null;
-                List<string> emailtolist = new List<string>();
-                List<string> emailcclist = new List<string>();
-                string? reuqestuser = "spo_test006@tdsgj.co.in";
-                string? requerscc = "spo_test005@tdsgj.co.in";
-                emailtolist.Add(reuqestuser);
-                emailcclist.Add(requerscc);
-                emailSent = SendEmailNotification(emailtolist, emailcclist, emailBody, "static mail");
-                /* var requestData = new EmailLogMaster()
-                 {
-                     FormId = requestId,
-                     EmailBody = emailBody.ToString(),
-                     EmailCC = string.Join(",", emailtolist.Distinct().ToList()),
-                     EmailTo = string.Join(",", emailcclist.Distinct().ToList()),
-                     EmailSubject = "static mail",
-                     EmailSentTime = DateTime.Now,
-                     isDelete = false,
-                     IsEmailSent = emailSent,
-                 };
-                 _context.EmailLogMasters.Add(requestData);
-                 _context.SaveChanges();*/
+                StringBuilder emailBody = new StringBuilder();
+                
+                string? templateDirectory = _configuration["TemplateSettings:Normal_Mail"];
+
+                //TroubleReports troubleReports = new TroubleReports();
+                List<string?> emailToAddressList = new List<string?>();
+                List<string?> emailCCAddressList = new List<string?>();
+                string? emailSubject = null;
+                string? templateFile = null, templateFilePath = null;
+                bool isApprovedtask = false;
+                bool isInReviewTask = false;
+                bool isRequestorinToEmail = false;
+                bool isDepartMentHead = false;
+                bool isIsAmendTask = false;
+                string? requesterUserName = null, requesterUserEmail = null;
+                string? departmentHeadName = null, departmentHeadEmail = null;
+                bool approvelink = false;
+                string? AdminEmailNotification = _configuration["AdminEmailNotification"];
+                string? documentLink = _configuration["SPSiteUrl"] +
+                "/SitePages/MaterialConsumptionSlip.aspx#/material-consumption-slip/";
+
+                if (requestId > 0)
+                {
+                    var materialData = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == requestId && x.IsDeleted == false).FirstOrDefault();
+                    if (materialData != null)
+                    {
+                        if (materialData.CreatedBy > 0)
+                        {
+                            EmployeeMaster? requestorUserDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == materialData.CreatedBy && x.IsActive == true).FirstOrDefault();
+                            requesterUserName = requestorUserDetails?.EmployeeName;
+                            requesterUserEmail = requestorUserDetails?.Email;
+
+                            ///requestorUserDetails.DepartMentId in DepartmentMaster 
+                            var departMentHead = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID == requestorUserDetails.DepartmentID && x.IsActive == true).Select(x => x.Head).FirstOrDefault();
+                            EmployeeMaster? departMentHeadDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == departMentHead && x.IsActive == true).FirstOrDefault();
+                            departmentHeadName = departMentHeadDetails?.EmployeeName;
+                            departmentHeadEmail = departMentHeadDetails?.Email;
+                        }
+                        var approverData = await _context.GetMaterialWorkFlowData(requestId);
+                        
+                        switch (emailNotification)
+                        {
+                            case EmailNotificationAction.Submitted:
+                                templateFile = "MaterialConsumption_Submitted.html";
+                                emailSubject = string.Format("Submitted {0}", materialData.MaterialConsumptionSlipNo);
+                                isInReviewTask = true;
+                                approvelink = true;
+                                // isRequestorinToEmail = true;
+                                break;
+
+                            case EmailNotificationAction.ReSubmitted:
+                                templateFile = "MaterialConsumption_ReSubmitted.html";
+                                emailSubject = string.Format("Resubmitted {0}", materialData.MaterialConsumptionSlipNo);
+                                isInReviewTask = true;
+                                approvelink = true;
+                                // isRequestorinToEmail = true;
+                                break;
+
+                            case EmailNotificationAction.Approved:
+                                templateFile = "MaterialConsumption_Approved.html";
+                                emailSubject = string.Format("[Action required!] Approval required {0}", materialData.MaterialConsumptionSlipNo);
+                                isInReviewTask = true;
+                                isApprovedtask = true;
+                                approvelink = true;
+                                break;
+
+                            case EmailNotificationAction.ApproveInformed:
+                                templateFile = "MaterialConsumption_ApprovedInfo.html";
+                                emailSubject = string.Format("[Action required!] Approval Information {0}", materialData.MaterialConsumptionSlipNo);
+                                isApprovedtask = true;
+                                isRequestorinToEmail = true;
+                                break;
+
+                            case EmailNotificationAction.Amended:
+                                templateFile = "MaterialConsumption_AskForAmendment .html";
+                                emailSubject = string.Format("Amendment of Material Consumption Request No. {0}", materialData.MaterialConsumptionSlipNo);
+                                isIsAmendTask = true;
+                                isRequestorinToEmail = true;
+                                break;
+
+                            case EmailNotificationAction.PullBack:
+                                templateFile = "MaterialConsumption_PullBack.html";
+                                emailSubject = string.Format("Pullback of Material Consumption Request No. {0}", materialData.MaterialConsumptionSlipNo);
+                                isApprovedtask = true;
+                                isInReviewTask = true;
+                                break;
+
+                            case EmailNotificationAction.Completed:
+                                templateFile = "MaterialConsumption_Completed.html";
+                                emailSubject = string.Format("[Information] Material Consumption Request Completed{0}", materialData.MaterialConsumptionSlipNo);
+                                isRequestorinToEmail = true;
+                                break;
+
+                            case EmailNotificationAction.Closed:
+                                templateFile = "MaterialConsumption_Closed.html";
+                                emailSubject = string.Format("[Information] Material Consumption Request Closed{0}", materialData.MaterialConsumptionSlipNo);
+                                isDepartMentHead = true;
+                                break;
+
+                            default:
+                                break;
+                        }
+
+                        if (isRequestorinToEmail)
+                        {
+                            emailToAddressList.Add(requesterUserEmail);
+                            emailCCAddressList.Remove(requesterUserEmail);
+                        }
+                        else
+                        {
+                            emailCCAddressList.Add(requesterUserEmail);
+                        }
+
+                        if (isDepartMentHead)
+                        {
+                            emailToAddressList.Add(departmentHeadEmail);
+
+                            if (nextApproverTaskId == materialData.CreatedBy)
+                            {
+                                emailCCAddressList.Add(requesterUserEmail);
+                                foreach(var cepDept in approverData)
+                                {
+                                    if(cepDept.SequenceNo == 2)
+                                    {
+                                        emailToAddressList.Add(cepDept.email);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                emailToAddressList.Add(requesterUserEmail);
+                                foreach (var cepDept in approverData)
+                                {
+                                    if (cepDept.SequenceNo == 2)
+                                    {
+                                        emailCCAddressList.Add(cepDept.email);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (isInReviewTask)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.InReview.ToString() && item.ApproverTaskId == nextApproverTaskId)
+                                    {
+                                        emailToAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.InReview.ToString())
+                                    {
+                                        emailToAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (isApprovedtask)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.Approved.ToString() && item.ApproverTaskId == nextApproverTaskId)
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.Approved.ToString())
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (isIsAmendTask)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.UnderAmendment.ToString() && item.ApproverTaskId == nextApproverTaskId)
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(templateFile))
+                        {
+                            string baseDirectory = AppContext.BaseDirectory;
+                            string docLink = documentLink + "view/" + requestId;
+                            templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
+                            if (!string.IsNullOrEmpty(templateFilePath))
+                            {
+                                emailBody.Append(System.IO.File.ReadAllText(templateFilePath));
+                            }
+                            if (emailBody?.Length > 0)
+                            {
+                                if (approvelink)
+                                {
+                                    docLink = documentLink.Replace("#", "?action=approval#") + "view/" + requestId;
+                                }
+                                else
+                                {
+                                    docLink = documentLink + "view/" + requestId;
+                                }
+
+                                emailBody = emailBody.Replace("#MaterialLink#", docLink);
+                                //MaterialConsumptionNo
+                                emailBody = emailBody.Replace("#MaterialConsumptionNo#", materialData.MaterialConsumptionSlipNo);
+                                emailBody = emailBody.Replace("#Requestor#", requesterUserName);
+                                emailBody = emailBody.Replace("#Comment#", comment);
+                               
+                                emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
+                                var requestData = new EmailLogMaster()
+                                {
+                                    FormId = requestId,
+                                    EmailBody = emailBody.ToString(),
+                                    EmailCC = string.Join(",", emailCCAddressList.Distinct().ToList()),
+                                    EmailTo = string.Join(",", emailToAddressList.Distinct().ToList()),
+                                    EmailSubject = emailSubject.ToString(),
+                                    EmailSentTime = DateTime.Now,
+                                    isDelete = false,
+                                    IsEmailSent = emailSent,
+                                };
+                                _context.EmailLogMasters.Add(requestData);
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+
+                    }
+                }
 
             }
             catch (Exception ex)
             {
                 var commonHelper = new CommonHelper(_context);
-                commonHelper.LogException(ex, "SendEmail");
+                commonHelper.LogException(ex, "SendMaterialConsumptionEmail");
                 return false;
             }
             emailSent = true;

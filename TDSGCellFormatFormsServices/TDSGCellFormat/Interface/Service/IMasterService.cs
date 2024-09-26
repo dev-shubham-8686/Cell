@@ -1,6 +1,6 @@
-﻿using TDSGCellFormat.Models;
-using static TDSGCellFormat.Common.Enums;
+﻿using TDSGCellFormat.Models.Add;
 using TDSGCellFormat.Models.View;
+
 namespace TDSGCellFormat.Interface.Service
 {
     public interface IMasterService 
@@ -8,7 +8,12 @@ namespace TDSGCellFormat.Interface.Service
         IQueryable<TroubleTypeView> GetAllTroubles();
         IQueryable<CategoryView> GetAllCategories();
         IQueryable<UnitOfMeasureView> GetAllUnitsOfMeasure();
+        IQueryable<CostCenterView> GetAllCostCenters();
         IQueryable<MaterialView> GetAllMaterials();
+        Task<UnitOfMeasureView> CreateUnitOfMeasure(UnitOfMeasureAdd unitOfMeasure);
+        Task<UnitOfMeasureView> UpdateUnitOfMeasure(UnitOfMeasureUpdate unitOfMeasure);
         IQueryable<EmployeeMasterView> GetAllEmployees();
+        IQueryable<DeviceView> GetAllDevice();
+        IQueryable<FunctionView> GetAllFunction();
     }
 }

@@ -185,7 +185,7 @@ namespace TDSGCellFormat.Models.Add
         public string? ReportTitle { get; set; }
         public string? DateofReportGeneration { get; set; }
         public string? Process { get; set; }
-        public string? Reporter { get; set; }
+        public string? Raiser { get; set; }
         public string?  WorkDoneBy { get; set; }
         public string? SectionHead { get; set; }
         public string? Status { get; set; }
