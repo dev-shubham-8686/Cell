@@ -22,7 +22,7 @@ namespace TDSGCellFormat.Interface.Repository
         Task<AjaxResult> ExportMaterialConsumptionToExcel(int materialConsumptionId);
         Task<AjaxResult> ExportToPdf(int materialConsumptionId);
 
-
+        Task<AjaxResult> GetMaterialConsumptionExcel(DateTime fromDate, DateTime toDate, int employeeId, int type);
         ///new lsiting 
         Task<List<MaterialConsumptionListView>> GetMaterialConsumptionList1(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue);
     }

@@ -18,6 +18,7 @@ using Microsoft.SharePoint.Client;
 using PnP.Framework;
 using iTextSharp.tool.xml;
 using System.IO;
+using ClosedXML.Excel;
 
 
 namespace TDSGCellFormat.Implementation.Repository
@@ -603,6 +604,7 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             return res;
         }
+
         public async Task<AjaxResult> ReSubmitRequest(int materialConsumptionId, int userId, string comment)
         {
             var res = new AjaxResult();
@@ -707,6 +709,7 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             return data;
         }
+
         public void InsertHistoryData(int formId, string formtype, string role, string comment, string status, int actionByUserID, string actionType, int delegateUserId)
         {
             var res = new AjaxResult();
@@ -953,13 +956,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 string baseDirectory = AppContext.BaseDirectory;
                 DirectoryInfo? directoryInfo = new DirectoryInfo(baseDirectory);
 
-                // Move up to the project root
-                //string projectRoot = directoryInfo.Parent?.Parent?.Parent?.FullName;
-
-                // Combine the project root with the desired folder and template file
-               // string templateFolderPath = Path.Combine(projectRoot, htmlTemplatePath);
                 string templateFile = "MaterialConsumptionPDF.html";
-               // string templateFilePath = Path.Combine(templateFolderPath, templateFile);
 
                 string templateFilePath = Path.Combine(baseDirectory, htmlTemplatePath, templateFile);
 
@@ -1039,37 +1036,6 @@ namespace TDSGCellFormat.Implementation.Repository
                     res.ReturnValue = base64String; // Send the Base64 string to the frontend
 
                     return res;
-                //using (var ms = new MemoryStream())
-                //{
-                //    Document document = new Document(PageSize.A4);
-                //    PdfWriter writer = PdfWriter.GetInstance(document, ms);
-                //    document.Open();
-
-                //    using (var sr = new StringReader(sb.ToString()))
-                //    {
-                //        // Convert the HTML to PDF
-                //        var htmlWorker = new HTMLWorker(document);
-                //        htmlWorker.Parse(sr);
-                //    }
-
-                //    document.Close();
-
-                //    var pdfBytes = ms.ToArray();
-
-                //    // Save the PDF file
-                //    var fileName = $"{materialConsumptionId}_MaterialConsumption.pdf";
-                //    var filePath = Path.Combine(AppContext.BaseDirectory, "wwwroot", "GeneratedPDFs", fileName);
-                //    Directory.CreateDirectory(Path.GetDirectoryName(filePath)); // Ensure the directory exists
-                //    await System.IO.File.WriteAllBytesAsync(filePath, pdfBytes);
-
-                //    // Construct the URL for the PDF
-                //    var pdfUrl = $"/GeneratedPDFs/{fileName}";
-
-                    // Set response values
-                    //res.StatusCode = Status.Success;
-                    //res.Message = Enums.MaterialPdf;
-                    //res.ReturnValue = pdfUrl; // Send the URL to the frontend
-                    //return res;
                 }
             }
 
@@ -1086,67 +1052,108 @@ namespace TDSGCellFormat.Implementation.Repository
             }
         }
 
-        // Upload file to SharePoint using PnP Framework
-        //public async Task<string> UploadFileIntoSharePoint(string filePath, string fileName, string folderName)
-        //{
-        //    try
-        //    {
-        //        string userName = _configuration["SharePoint:UserName"];
-        //        string password = _configuration["SharePoint:Password"];
-        //        string siteUrl = _configuration["SharePoint:SiteUrl"];
+        public async Task<AjaxResult> GetMaterialConsumptionExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
+        {
+            var res = new AjaxResult();
 
-        //        // Create a secure password
-        //        var securePassword = new System.Security.SecureString();
-        //        foreach (char c in password) securePassword.AppendChar(c);
+            try
+            {
 
-        //        // Initialize SharePoint Client Context
-        //        using (var authManager = new AuthenticationManager())
-        //        {
-        //            using (var context = new authManager.GetOnlineAuthenticatedContextTenant(siteUrl, userName, securePassword))
-        //            {
-        //                //context.Credentials = new authManager.GetOnlineAuthenticatedContextTenant(siteUrl, userName, securePassword);
+                var excelData = await _context.GetMaterialExcel(fromDate, toDate, employeeId, type);
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Trouble Reports");
 
-        //                // Get the target library
-        //                var list = context.Web.Lists.GetByTitle(folderName);
-        //                context.Load(list.RootFolder);
-        //                context.ExecuteQuery();
+                    // Get properties and determine columns to exclude
+                    var properties = excelData.GetType().GetGenericArguments()[0].GetProperties();
+                    var columnsToExclude = new List<int>(); // Adjust this list based on your exclusion logic
 
-        //                // Define the file URL
-        //                var fileUrl = Path.Combine(list.RootFolder.ServerRelativeUrl, fileName);
+                    // Write header, excluding specified columns
+                    int columnIndex = 1;
 
-        //                // Upload the file
-        //                using (var fs = new FileStream(filePath, FileMode.Open))
-        //                {
-        //                    var fileCreationInfo = new FileCreationInformation
-        //                    {
-        //                        ContentStream = fs,
-        //                        Url = fileUrl,
-        //                        Overwrite = true
-        //                    };
+                    foreach (var property in properties)
+                    {
+                        if (!columnsToExclude.Contains(Array.IndexOf(properties, property)))
+                        {
+                            var cell = worksheet.Cell(1, columnIndex);
+                            string headerText = ColumnHeaderMapping.ContainsKey(property.Name) ? ColumnHeaderMapping[property.Name] : CapitalizeFirstLetter(property.Name);
+                            cell.Value = headerText;
 
-        //                    var uploadFile = list.RootFolder.Files.Add(fileCreationInfo);
-        //                    context.Load(uploadFile);
-        //                    await context.ExecuteQueryAsync();
-        //                }
+                            // Apply style to the header cell
+                            cell.Style.Fill.BackgroundColor = XLColor.LightBlue;
+                            cell.Style.Font.Bold = true;
+                            cell.Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                            columnIndex++;
+                        }
+                    }
 
-        //                // Optionally, delete the local file
-        //                if (System.IO.File.Exists(filePath))
-        //                {
-        //                    System.IO.File.Delete(filePath);
-        //                }
+                    // Write data, excluding specified columns
+                    for (int i = 0; i < excelData.Count; i++)
+                    {
+                        var item = excelData[i];
+                        columnIndex = 1;
 
-        //                // Return the URL to the uploaded file
-        //                return $"{siteUrl}/{fileUrl}";
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Log the exception (implement your own logging mechanism)
-        //        Console.WriteLine($"Exception: {ex.Message}");
-        //        throw;
-        //    }
-        //}
+                        foreach (var property in properties)
+                        {
+                            if (!columnsToExclude.Contains(Array.IndexOf(properties, property)))
+                            {
+                                var value = property.GetValue(item, null);
+                                string stringValue = value != null ? value.ToString() : string.Empty;
+
+                                worksheet.Cell(i + 2, columnIndex).Value = stringValue;
+                                columnIndex++;
+                            }
+                        }
+                    }
+
+                    // Add filter to the header row
+                    worksheet.Range(1, 1, 1, columnIndex - 1).SetAutoFilter();
+
+                    // Adjust column widths to fit the content
+                    worksheet.Columns().AdjustToContents();
+
+                    // Save the workbook to a memory stream
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        stream.Position = 0;
+
+                        // Convert the memory stream to a byte array
+                        byte[] byteArray = stream.ToArray();
+                        string base64String = Convert.ToBase64String(byteArray);
+
+                        // Return the byte array as part of your AjaxResult
+                        res.StatusCode = Status.Success;
+                        res.Message = "File downloaded successfully";
+                        res.ReturnValue = base64String;
+                        return res;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "GetMaterialConsumptionExcel");
+                return res;
+            }
+        }
+
+        private static readonly Dictionary<string, string> ColumnHeaderMapping = new Dictionary<string, string>
+{
+    { "WhenDate", "When Date" },
+            {"MaterialConsumptionSlipNo","Request No" }
+};
+
+        private string CapitalizeFirstLetter(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            return char.ToUpper(input[0]) + input.Substring(1);
+        }
         #endregion
     }
 }

@@ -25,5 +25,6 @@ namespace TDSGCellFormat.Interface.Service
 
         ///new lsiting 
         Task<List<MaterialConsumptionListView>> GetMaterialConsumptionList1(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue);
+        Task<AjaxResult> GetMaterialConsumptionExcel(DateTime fromDate, DateTime toDate, int employeeId, int type);
     }
 }

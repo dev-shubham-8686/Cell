@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using System.ComponentModel.DataAnnotations;
 
 namespace TDSGCellFormat.Models.Add
 {
@@ -82,5 +83,14 @@ namespace TDSGCellFormat.Models.Add
         public string? scrapTicketNo { get; set; }
         public string? scrapRemarks { get; set; }
         public int userId { get; set; }
+    }
+
+    public class MaterialExcel
+    {
+        public string? MaterialConsumptionSlipNo { get; set; }
+        public string? WhenDate { get; set; }
+        public string? Requestor { get; set; }
+        public string? Department { get; set; }
+        public string? Status { get; set; }
     }
 }

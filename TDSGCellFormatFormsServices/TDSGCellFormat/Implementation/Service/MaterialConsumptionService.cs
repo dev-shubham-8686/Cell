@@ -82,6 +82,10 @@ namespace TDSGCellFormat.Implementation.Service
             return await _materialRepository.ExportToPdf(materialConsumptionId);
         }
 
+        public async Task<AjaxResult> GetMaterialConsumptionExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
+        {
+            return await _materialRepository.GetMaterialConsumptionExcel(fromDate, toDate, employeeId, type);
+        }
         //new pne 
         public async Task<List<MaterialConsumptionListView>> GetMaterialConsumptionList1(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {

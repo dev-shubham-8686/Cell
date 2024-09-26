@@ -1670,21 +1670,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     // Write header, excluding specified columns
                     int columnIndex = 1;
-                    /* for (int i = 0; i < properties.Length; i++)
-                     {
-                         if (!columnsToExclude.Contains(i))
-                         {
-                             var cell = worksheet.Cell(1, columnIndex);
-                             string headerText = CapitalizeFirstLetter(properties[i].Name);
-                             cell.Value = headerText;
-
-                             // Apply style to the header cell
-                             cell.Style.Fill.BackgroundColor = XLColor.LightBlue;
-                             cell.Style.Font.Bold = true;
-                             cell.Style.Border.BottomBorder = XLBorderStyleValues.Thick;
-                             columnIndex++;
-                         }
-                     }*/
 
                     foreach (var property in properties)
                     {
@@ -1707,17 +1692,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         var item = excelData[i];
                         columnIndex = 1;
-                        /* for (int j = 0; j < properties.Length; j++)
-                         {
-                             if (!columnsToExclude.Contains(j))
-                             {
-                                 var value = properties[j].GetValue(item, null);
-                                 string stringValue = value != null ? value.ToString() : string.Empty;
-
-                                 worksheet.Cell(i + 2, columnIndex).Value = stringValue;
-                                 columnIndex++;
-                             }
-                         }*/
+                      
                         foreach (var property in properties)
                         {
                             if (!columnsToExclude.Contains(Array.IndexOf(properties, property)))

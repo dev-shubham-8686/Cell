@@ -13,8 +13,8 @@ using static TDSGCellFormat.Common.Enums;
 
 namespace TDSGCellFormat.Controllers
 {
-     [Route("api/[controller]")]
-     [ApiController]
+    [Route("api/[controller]")]
+    [ApiController]
     public class MaterialController : Controller
     {
         private readonly IMaterialConsumptionService _materialService;
@@ -42,7 +42,7 @@ namespace TDSGCellFormat.Controllers
             // Call the IsValidAuthentication method
             AjaxResult authResult;
             bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
-            
+
             if (!isValidAuth)
             {
                 // Return unauthorized response if authentication fails
@@ -143,7 +143,7 @@ namespace TDSGCellFormat.Controllers
             // Call the IsValidAuthentication method
             AjaxResult authResult;
             bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
-           
+
             if (!isValidAuth)
             {
                 // Return unauthorized response if authentication fails
@@ -385,7 +385,7 @@ namespace TDSGCellFormat.Controllers
             else
             {
                 Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
-                
+
             }
             return Ok(Ajaxresponse);
 
@@ -400,11 +400,11 @@ namespace TDSGCellFormat.Controllers
             // Call the IsValidAuthentication method
             AjaxResult authResult;
             bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
-            
+
             if (!isValidAuth)
             {
                 // Return unauthorized response if authentication fails
-                 Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
                 return Unauthorized(Ajaxresponse);
             }
             var result = await _materialService.ExportToPdf(materialConsumptionId);
@@ -416,6 +416,37 @@ namespace TDSGCellFormat.Controllers
             {
                 Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
 
+            }
+            return Ok(Ajaxresponse);
+
+        }
+
+        [HttpGet("MaterialExcelListing")]
+
+        public async Task<IActionResult> GetMaterialConsumptionExcel(DateTime fromDate, DateTime todate, int employeeId, int type)
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
+
+            var result = await _materialService.GetMaterialConsumptionExcel(fromDate, todate, employeeId, type);
+            if (result.StatusCode == Status.Success)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+                
             }
             return Ok(Ajaxresponse);
 
