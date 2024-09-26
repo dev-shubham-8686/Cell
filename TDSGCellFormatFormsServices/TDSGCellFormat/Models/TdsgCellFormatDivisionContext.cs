@@ -110,6 +110,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         modelBuilder.Entity<JsonDataSet>().HasNoKey();
         modelBuilder.Entity<GetUserDetailsView>().HasNoKey();
         modelBuilder.Entity<TroubleReportExcel>().HasNoKey();
+        modelBuilder.Entity<MaterialExcel>().HasNoKey();
         modelBuilder.Ignore<Property>();
         //modelBuilder.Entity<AdjustmentReport>(entity =>
         //{
