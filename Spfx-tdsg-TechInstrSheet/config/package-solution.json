@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "spfx-tdsg-tech-instr-sheet-client-side-solution",
+    "id": "9e15f7b8-e1de-4b15-ab40-5b9d6e899626",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.19.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "spfx-tdsg-tech-instr-sheet description"
+      },
+      "longDescription": {
+        "default": "spfx-tdsg-tech-instr-sheet description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "spfx-tdsg-tech-instr-sheet Feature",
+        "description": "The feature that activates elements of the spfx-tdsg-tech-instr-sheet solution.",
+        "id": "3a1140eb-e301-4ba9-b465-baafb7f8bf63",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/spfx-tdsg-tech-instr-sheet.sppkg"
+  }
+}

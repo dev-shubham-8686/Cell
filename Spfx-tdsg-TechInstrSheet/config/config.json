@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "tech-instr-sheet-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/techInstrSheet/TechInstrSheetWebPart.js",
+          "manifest": "./src/webparts/techInstrSheet/TechInstrSheetWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "TechInstrSheetWebPartStrings": "lib/webparts/techInstrSheet/loc/{locale}.js"
+  }
+}
