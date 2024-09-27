@@ -786,7 +786,7 @@ namespace TDSGCellFormat.Helper
                         {
                             case EmailNotificationAction.Submitted:
                                 templateFile = "MaterialConsumption_Submitted.html";
-                                emailSubject = string.Format("Submitted {0}", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action required!] Material Consumption_{0} has been Submitted for Approval", materialData.MaterialConsumptionSlipNo);
                                 isInReviewTask = true;
                                 approvelink = true;
                                 // isRequestorinToEmail = true;
@@ -794,7 +794,7 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.ReSubmitted:
                                 templateFile = "MaterialConsumption_ReSubmitted.html";
-                                emailSubject = string.Format("Resubmitted {0}", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action required!] Material Consumption {0} has been Resubmitted", materialData.MaterialConsumptionSlipNo);
                                 isInReviewTask = true;
                                 approvelink = true;
                                 // isRequestorinToEmail = true;
@@ -802,7 +802,7 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.Approved:
                                 templateFile = "MaterialConsumption_Approved.html";
-                                emailSubject = string.Format("[Action required!] Approval required {0}", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action required!] Material Consumption_{0} has been Approved /rejected/ Asked for Amendment", materialData.MaterialConsumptionSlipNo);
                                 isInReviewTask = true;
                                 isApprovedtask = true;
                                 approvelink = true;
@@ -810,34 +810,34 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.ApproveInformed:
                                 templateFile = "MaterialConsumption_ApprovedInfo.html";
-                                emailSubject = string.Format("[Action required!] Approval Information {0}", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action taken!] Material Consumption {0} has been Approved", materialData.MaterialConsumptionSlipNo);
                                 isApprovedtask = true;
                                 isRequestorinToEmail = true;
                                 break;
 
                             case EmailNotificationAction.Amended:
                                 templateFile = "MaterialConsumption_AskForAmendment .html";
-                                emailSubject = string.Format("Amendment of Material Consumption Request No. {0}", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action taken!] Material Consumption {0} has been Asked For Amendment", materialData.MaterialConsumptionSlipNo);
                                 isIsAmendTask = true;
                                 isRequestorinToEmail = true;
                                 break;
 
                             case EmailNotificationAction.PullBack:
                                 templateFile = "MaterialConsumption_PullBack.html";
-                                emailSubject = string.Format("Pullback of Material Consumption Request No. {0}", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action taken!] Material Consumption {0} has been PullBacked", materialData.MaterialConsumptionSlipNo);
                                 isApprovedtask = true;
                                 isInReviewTask = true;
                                 break;
 
                             case EmailNotificationAction.Completed:
                                 templateFile = "MaterialConsumption_Completed.html";
-                                emailSubject = string.Format("[Information] Material Consumption Request Completed{0}", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action taken!] Material Consumption {0} has been Completed", materialData.MaterialConsumptionSlipNo);
                                 isRequestorinToEmail = true;
                                 break;
 
                             case EmailNotificationAction.Closed:
                                 templateFile = "MaterialConsumption_Closed.html";
-                                emailSubject = string.Format("[Information] Material Consumption Request Closed{0}", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Information] Material Consumption {0} has been Closed", materialData.MaterialConsumptionSlipNo);
                                 isDepartMentHead = true;
                                 break;
 

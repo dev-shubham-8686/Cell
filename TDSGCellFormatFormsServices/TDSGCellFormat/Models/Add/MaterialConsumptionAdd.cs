@@ -14,6 +14,7 @@ namespace TDSGCellFormat.Models.Add
         public bool? isSubmit { get; set; }
         public bool? isAmendReSubmitTask { get; set; }
         public string? Comment { get; set; }
+        public int? seqNumber { get; set; }
         public List<MaterialConsumptionSlipItemAdd> items { get; set; }
     }
 
@@ -88,9 +89,9 @@ namespace TDSGCellFormat.Models.Add
     public class MaterialExcel
     {
         public string? MaterialConsumptionSlipNo { get; set; }
-        public string? WhenDate { get; set; }
-        public string? Requestor { get; set; }
         public string? Department { get; set; }
+        public string? Requestor { get; set; }
+        public string? WhenDate { get; set; }
         public string? Status { get; set; }
     }
 }

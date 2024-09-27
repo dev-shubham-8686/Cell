@@ -4,12 +4,6 @@ using TDSGCellFormat.Models;
 using Microsoft.EntityFrameworkCore;
 using TDSG.TroubleReport.Scheduler;
 using Microsoft.Extensions.Configuration;
-using TDSGCellFormat;
-using DocumentFormat.OpenXml.Bibliography;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Security.Cryptography;
-using Castle.Core.Configuration;
 
 public class Program
 {

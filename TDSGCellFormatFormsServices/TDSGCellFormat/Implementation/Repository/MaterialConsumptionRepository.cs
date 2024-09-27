@@ -426,24 +426,42 @@ namespace TDSGCellFormat.Implementation.Repository
                     MaterialConsumptionSlipNo = materialConsumptionSlips?.MaterialConsumptionSlipNo
                 };
                 materialConsumptionId = materialConsumptionSlips.MaterialConsumptionSlipId;
-                if (report.isSubmit == true && report.isAmendReSubmitTask == false)
+                if(report.seqNumber == null)
                 {
-                    var data = await SubmitRequest(materialConsumptionId, report.userId);
-                    if (data.StatusCode == Status.Success)
+                    if (report.isSubmit == true && report.isAmendReSubmitTask == false)
                     {
-                        res.Message = Enums.MaterialSubmit;
-                    }
+                        var data = await SubmitRequest(materialConsumptionId, report.userId);
+                        if (data.StatusCode == Status.Success)
+                        {
+                            res.Message = Enums.MaterialSubmit;
+                        }
 
-                }
-                else if (report.isSubmit == true && report.isAmendReSubmitTask == true)
-                {
-                    await ReSubmitRequest(materialConsumptionId, report.userId, report.Comment);
-                    res.Message = Enums.MaterialResubmit;
+                    }
+                    else if (report.isSubmit == true && report.isAmendReSubmitTask == true)
+                    {
+                        await ReSubmitRequest(materialConsumptionId, report.userId, report.Comment);
+                        res.Message = Enums.MaterialResubmit;
+                    }
+                    else
+                    {
+                        InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "Requestor", "Update Status as Draft", "Draft", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+                    }
                 }
                 else
                 {
-                    InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "Requestor", "Update Status as Draft", "Draft", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+                    if(report.seqNumber == 2)
+                    {
+                        InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "DepartMent Head", "Updated By DepartmentHead", "InReview", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+
+                    }
+                    else
+                    {
+                        InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "CPC DepartMent Head", "Updated By CPC DepartmentHead", "InReview", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+
+                    }
+
                 }
+
             }
 
             

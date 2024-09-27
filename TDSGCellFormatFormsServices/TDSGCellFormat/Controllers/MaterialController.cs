@@ -49,7 +49,7 @@ namespace TDSGCellFormat.Controllers
                 Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
                 return Unauthorized(Ajaxresponse);
             }
-            var res = await _materialService.GetMaterialConsumptionList1(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            var res = await _materialService.GetAll(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
             if (res != null)
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
             else
@@ -425,18 +425,18 @@ namespace TDSGCellFormat.Controllers
 
         public async Task<IActionResult> GetMaterialConsumptionExcel(DateTime fromDate, DateTime todate, int employeeId, int type)
         {
-            //var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
-            //// Call the IsValidAuthentication method
-            //AjaxResult authResult;
-            //bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
-            //
-            //
-            //if (!isValidAuth)
-            //{
-            //    // Return unauthorized response if authentication fails
-            //    Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
-            //    return Unauthorized(Ajaxresponse);
-            //}
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+            
+            
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
 
             var result = await _materialService.GetMaterialConsumptionExcel(fromDate, todate, employeeId, type);
             if (result.StatusCode == Status.Success)
