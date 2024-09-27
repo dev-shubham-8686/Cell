@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "18.20.2",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.12.0"
+    },
+    "version": "1.19.0",
+    "libraryName": "spfx-tdsg-adjustment-report",
+    "libraryId": "0fc5a30b-0a6e-48ba-872e-f9dec77fb6ea",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "spfx-tdsg-adjustment-report",
+    "solutionShortDescription": "spfx-tdsg-adjustment-report description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}

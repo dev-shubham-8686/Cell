@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "adjustment-report-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/adjustmentReport/AdjustmentReportWebPart.js",
+          "manifest": "./src/webparts/adjustmentReport/AdjustmentReportWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "AdjustmentReportWebPartStrings": "lib/webparts/adjustmentReport/loc/{locale}.js"
+  }
+}
