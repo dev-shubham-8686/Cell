@@ -72,7 +72,7 @@
         public string? riskAssociated { get; set; }
         public string? factor { get; set; }
         public string? counterMeasures { get; set; }
-        public DateTime? dueDate { get; set; }
+        public string? dueDate { get; set; }
         public int? personInCharge { get; set; }
         public string? results { get; set; }
         public int? CreatedBy { get; set; }

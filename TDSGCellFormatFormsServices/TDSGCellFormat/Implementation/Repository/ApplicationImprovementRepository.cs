@@ -90,7 +90,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     riskAssociated = section.RiskAssociatedWithChanges,
                     factor = section.Factor,
                     counterMeasures = section.CounterMeasures,
-                    dueDate = section.DueDate,
+                    dueDate = section.DueDate.HasValue ? section.DueDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
                     personInCharge = section.PersonInCharge,
                     results = section.Results
 
@@ -171,7 +171,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 RiskAssociatedWithChanges = changeReport.riskAssociated,
                                 Factor = changeReport.factor,
                                 CounterMeasures = changeReport.counterMeasures,
-                                DueDate = changeReport.dueDate,
+                                DueDate = !string.IsNullOrEmpty(changeReport.dueDate) ? DateTime.Parse(changeReport.dueDate) : (DateTime?)null,
                                 PersonInCharge = changeReport.personInCharge,
                                 Results = changeReport.results,
                                 CreatedBy = changeReport.CreatedBy,
@@ -254,7 +254,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 existingChangeRiskData.RiskAssociatedWithChanges = changeReport.riskAssociated;
                                 existingChangeRiskData.Factor = changeReport.factor;
                                 existingChangeRiskData.CounterMeasures = changeReport.counterMeasures;
-                                existingChangeRiskData.DueDate = changeReport.dueDate;
+                                existingChangeRiskData.DueDate = !string.IsNullOrEmpty(changeReport.dueDate) ? DateTime.Parse(changeReport.dueDate) : (DateTime?)null;
                                 existingChangeRiskData.PersonInCharge = changeReport.personInCharge;
                                 existingChangeRiskData.Results = changeReport.results;
                                 existingChangeRiskData.ModifiedBy = changeReport.ModifiedBy;
@@ -271,7 +271,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                     RiskAssociatedWithChanges = changeReport.riskAssociated,
                                     Factor = changeReport.factor,
                                     CounterMeasures = changeReport.counterMeasures,
-                                    DueDate = changeReport.dueDate,
+                                    DueDate = !string.IsNullOrEmpty(changeReport.dueDate) ? DateTime.Parse(changeReport.dueDate) : (DateTime?)null,
                                     PersonInCharge = changeReport.personInCharge,
                                     Results = changeReport.results,
                                     CreatedBy = changeReport.CreatedBy,
