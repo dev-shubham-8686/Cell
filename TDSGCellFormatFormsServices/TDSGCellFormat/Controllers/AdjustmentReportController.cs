@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TDSGCellFormat.Common;
 using TDSGCellFormat.Interface.Service;
-using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
 using static TDSGCellFormat.Common.Enums;
 
@@ -11,7 +10,6 @@ namespace TDSGCellFormat.Controllers
     [ApiController]
     public class AdjustmentReportController : Controller
     {
-
         private readonly IAdjustMentReporttService _tdsgService;
 
         ResponseHelper responseHelper = new ResponseHelper();
@@ -22,7 +20,7 @@ namespace TDSGCellFormat.Controllers
             _tdsgService = tdsgService;
         }
 
-        [HttpGet("getAdjustMentReport")]
+        [HttpGet("GetAdjustmentReport")]
         public async Task<IActionResult> Get()
         {
             var res = _tdsgService.GetAll().ToList();
@@ -47,15 +45,13 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpPost("AddOrUpdate")]
-        public async Task<IActionResult> POST(AdjustMentReportAdd report)
+        public async Task<IActionResult> POST(AdjustMentReportRequest report)
         {
-
             var result = await _tdsgService.AddOrUpdateReport(report);
             if (result != null)
             {
                 Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
             }
-
             else
             {
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
@@ -65,7 +61,6 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpDelete("Delete")]
-
         public async Task<IActionResult> Delete(int Id)
         {
             var result = await _tdsgService.DeleteReport(Id);
@@ -79,7 +74,5 @@ namespace TDSGCellFormat.Controllers
             }
             return Ok(Ajaxresponse);
         }
-
-
     }
 }

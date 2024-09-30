@@ -1,11 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Net.Mail;
-using TDSGCellFormat.Common;
+﻿using TDSGCellFormat.Entities;
 using TDSGCellFormat.Interface.Repository;
 using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
 using static TDSGCellFormat.Common.Enums;
-
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -18,103 +15,148 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             this._context = context;
         }
-        public IQueryable<AdjustMentReportAdd> GetAll()
-        {
 
-            IQueryable<AdjustMentReportAdd> res = _context.AdjustmentReports
-                                  .Where(n => n.IsDeleted == false)  // Filter out deleted records
-                                  .Select(n => new AdjustMentReportAdd
+        public IQueryable<AdjustMentReportRequest> GetAll()
+        {
+            IQueryable<AdjustMentReportRequest> res = _context.AdjustmentReports
+                                  .Where(n => n.IsDeleted == false)
+                                  .Select(n => new AdjustMentReportRequest
                                   {
                                       AdjustMentReportId = n.AdjustMentReportId,
-                                      when = n.When.HasValue ? n.When.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
                                       Area = n.Area,
-                                      linestation = n.Line,
-                                      machinename = n.MachineName,
-                                      machineno = n.MachineNum,
-                                      describeproblem = n.DescribeProblem,
-                                      observation = n.Observation,
-                                      rootcause = n.RootCause,
-                                      adjustmentsuggested = n.AdjustmentSuggestion,
-                                      attachment = n.Attachment,
+                                      MachineName = n.MachineName,
+                                      SubMachineName = n.SubMachineName,
+                                      ReportNo = n.ReportNo,
+                                      RequestBy = n.RequestBy,
+                                      CheckedBy = n.CheckedBy,
+                                      DescribeProblem = n.DescribeProblem,
+                                      Observation = n.Observation,
+                                      RootCause = n.RootCause,
+                                      AdjustmentDescription = n.AdjustmentDescription,
+                                      Photos = n.Photos,
+                                      ConditionAfterAdjustment = n.ConditionAfterAdjustment,
+                                      Status = n.Status,
+                                      WorkFlowStatus = n.WorkFlowStatus,
+                                      IsSubmit = n.IsSubmit,
                                       CreatedDate = n.CreatedDate,
-                                      CreatedBy = n.CreatedBy
-                                      // Add other properties as needed
+                                      CreatedBy = n.CreatedBy,
+                                      ModifiedDate = n.ModifiedDate,
+                                      ModifiedBy = n.ModifiedBy,
+                                      IsDeleted = n.IsDeleted,
                                   });
 
             return res;
 
         }
-        public AdjustMentReportAdd GetById(int Id)
+        public AdjustMentReportRequest GetById(int Id)
         {
-            var res = (from n in _context.AdjustmentReports
-                                                  where n.IsDeleted == false && n.AdjustMentReportId == Id
-                                                  // Filter out deleted records
-                                                  select new AdjustMentReportAdd()
-                                                  {
-                                                      AdjustMentReportId = n.AdjustMentReportId,
-                                                      when = n.When.HasValue ? n.When.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
-                                                      Area = n.Area,
-                                                      linestation = n.Line,
-                                                      machinename = n.MachineName,
-                                                      machineno = n.MachineNum,
-                                                      describeproblem = n.DescribeProblem,
-                                                      observation = n.Observation,
-                                                      rootcause = n.RootCause,
-                                                      adjustmentsuggested = n.AdjustmentSuggestion,
-                                                      attachment = n.Attachment,
-                                                      CreatedDate = n.CreatedDate,
-                                                      CreatedBy = n.CreatedBy
-                                                      // Add other properties as needed
-                                                  }).FirstOrDefault();
-
+            AdjustMentReportRequest? res = _context.AdjustmentReports
+                                  .Where(n => n.IsDeleted == false && n.AdjustMentReportId == Id)
+                                  .Select(n => new AdjustMentReportRequest
+                                  {
+                                      AdjustMentReportId = n.AdjustMentReportId,
+                                      Area = n.Area,
+                                      MachineName = n.MachineName,
+                                      SubMachineName = n.SubMachineName,
+                                      ReportNo = n.ReportNo,
+                                      RequestBy = n.RequestBy,
+                                      CheckedBy = n.CheckedBy,
+                                      DescribeProblem = n.DescribeProblem,
+                                      Observation = n.Observation,
+                                      RootCause = n.RootCause,
+                                      AdjustmentDescription = n.AdjustmentDescription,
+                                      Photos = n.Photos,
+                                      ConditionAfterAdjustment = n.ConditionAfterAdjustment,
+                                      Status = n.Status,
+                                      WorkFlowStatus = n.WorkFlowStatus,
+                                      IsSubmit = n.IsSubmit,
+                                      CreatedDate = n.CreatedDate,
+                                      CreatedBy = n.CreatedBy,
+                                      ModifiedDate = n.ModifiedDate,
+                                      ModifiedBy = n.ModifiedBy,
+                                      IsDeleted = n.IsDeleted,
+                                  }).FirstOrDefault();
             return res;
         }
-        public async Task<AjaxResult> AddOrUpdateReport(AdjustMentReportAdd report)
+
+        public async Task<AjaxResult> AddOrUpdateReport(AdjustMentReportRequest request)
         {
             var res = new AjaxResult();
-            var existingReport = await _context.AdjustmentReports.FindAsync(report.AdjustMentReportId);
+            var existingReport = await _context.AdjustmentReports.FindAsync(request.AdjustMentReportId);
             if (existingReport == null)
             {
                 var newReport = new AdjustmentReport()
                 {
-                    When = DateTime.Parse(report.when), //DateTime.Parse(report.when)
-                    Area = report.Area,
-                    Line = report.linestation,
-                    MachineName = report.machinename,
-                    MachineNum = report.machineno,
-                    DescribeProblem = report.describeproblem,
-                    Observation = report.observation,
-                    RootCause = report.rootcause,
-                    AdjustmentSuggestion = report.adjustmentsuggested,
-                    Attachment = report.attachment,
-                    IsDeleted = false,
+                    Area = request.Area,
+                    MachineName = request.MachineName,
+                    SubMachineName = request.SubMachineName,
+                    ReportNo = request.ReportNo,
+                    RequestBy = request.RequestBy,
+                    CheckedBy = request.CheckedBy,
+                    DescribeProblem = request.DescribeProblem,
+                    Observation = request.Observation,
+                    RootCause = request.RootCause,
+                    AdjustmentDescription = request.AdjustmentDescription,
+                    Photos = request.Photos,
+                    ConditionAfterAdjustment = request.ConditionAfterAdjustment,
+                    Status = request.Status,
+                    WorkFlowStatus = request.WorkFlowStatus,
+                    IsSubmit = request.IsSubmit,
                     CreatedDate = DateTime.Now,
-                    CreatedBy = report.CreatedBy,
-                    ModifiedDate = DateTime.Now,
-                    ModifiedBy = report.CreatedBy,
+                    CreatedBy = request.CreatedBy,
+                    IsDeleted = false,
                 };
-                _context.AdjustmentReports.Add(newReport);
+
+                await _context.AdjustmentReports.AddAsync(newReport);
+
+                // Get ID of newly added record
+                request.AdjustMentReportId = newReport.AdjustMentReportId;
+
+                if (request.ChangeRiskManagement != null)
+                {
+                    await _context.ChangeRiskManagements.AddRangeAsync(request.ChangeRiskManagement);
+                }
+
                 await _context.SaveChangesAsync();
                 res.Message = "Record Created Successfully";
             }
             else
             {
-                existingReport.When = DateTime.Parse(report.when);
-                existingReport.Area = report.Area;
-                existingReport.Line = report.linestation;
-                existingReport.MachineName = report.machinename;
-                existingReport.MachineNum = report.machineno;
-                existingReport.DescribeProblem = report.describeproblem;
-                existingReport.Observation = report.observation;
-                existingReport.RootCause = report.rootcause;
-                existingReport.AdjustmentSuggestion = report.adjustmentsuggested;
-                existingReport.Attachment = report.attachment;
+                existingReport.Area = request.Area;
+                existingReport.MachineName = request.MachineName;
+                existingReport.SubMachineName = request.SubMachineName;
+                existingReport.ReportNo = request.ReportNo;
+                existingReport.RequestBy = request.RequestBy;
+                existingReport.CheckedBy = request.CheckedBy;
+                existingReport.DescribeProblem = request.DescribeProblem;
+                existingReport.Observation = request.Observation;
+                existingReport.RootCause = request.RootCause;
+                existingReport.AdjustmentDescription = request.AdjustmentDescription;
+                existingReport.Photos = request.Photos;
+                existingReport.ConditionAfterAdjustment = request.ConditionAfterAdjustment;
+                existingReport.Status = request.Status;
+                existingReport.WorkFlowStatus = request.WorkFlowStatus;
+                existingReport.IsSubmit = request.IsSubmit;
                 existingReport.ModifiedDate = DateTime.Now;
-                existingReport.ModifiedBy = report.ModifiedBy;
+                existingReport.ModifiedBy = request.ModifiedBy;
+
+                var changeRiskManagements = _context.ChangeRiskManagements.Where(x => x.AdjustMentReportId == request.AdjustMentReportId).ToList();
+                if (changeRiskManagements == null)
+                {
+                    if (request.ChangeRiskManagement != null)
+                    {
+                        await _context.ChangeRiskManagements.AddRangeAsync(request.ChangeRiskManagement);
+                    }
+                }
+                else
+                {
+
+                }
+
                 await _context.SaveChangesAsync();
                 res.Message = "Record Updated Successfully";
             }
-            res.ReturnValue = report;
+            res.ReturnValue = request;
             return res;
         }
 

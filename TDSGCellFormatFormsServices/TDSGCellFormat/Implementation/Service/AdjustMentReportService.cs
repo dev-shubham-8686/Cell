@@ -1,9 +1,8 @@
-﻿using TDSGCellFormat.Interface.Service;
-using TDSGCellFormat.Models;
-using AutoMapper;
+﻿using TDSGCellFormat.Entities;
 using TDSGCellFormat.Interface.Repository;
-using static TDSGCellFormat.Common.Enums;
+using TDSGCellFormat.Interface.Service;
 using TDSGCellFormat.Models.Add;
+using static TDSGCellFormat.Common.Enums;
 
 namespace TDSGCellFormat.Implementation.Service
 {
@@ -17,17 +16,17 @@ namespace TDSGCellFormat.Implementation.Service
             this._adjustMentRepository = tdsgRepository;
         }
 
-        public IQueryable<AdjustMentReportAdd> GetAll()
+        public IQueryable<AdjustMentReportRequest> GetAll()
         {
             return _adjustMentRepository.GetAll();
         }
 
-        public AdjustMentReportAdd GetById(int Id)
+        public AdjustMentReportRequest GetById(int Id)
         {
             return _adjustMentRepository.GetById(Id);
         }
 
-        public async Task<AjaxResult> AddOrUpdateReport(AdjustMentReportAdd reportAdd)
+        public async Task<AjaxResult> AddOrUpdateReport(AdjustMentReportRequest reportAdd)
         {
             //var report = _mapper.Map<AdjustmentReport>(reportAdd);
             return await _adjustMentRepository.AddOrUpdateReport(reportAdd);
@@ -35,7 +34,7 @@ namespace TDSGCellFormat.Implementation.Service
 
         public async Task<AjaxResult> DeleteReport(int Id)
         {
-           
+
             return await _adjustMentRepository.DeleteReport(Id);
         }
     }
