@@ -426,7 +426,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     MaterialConsumptionSlipNo = materialConsumptionSlips?.MaterialConsumptionSlipNo
                 };
                 materialConsumptionId = materialConsumptionSlips.MaterialConsumptionSlipId;
-                if(report.seqNumber == null)
+
+                if(report.seqNumber == 0)
                 {
                     if (report.isSubmit == true && report.isAmendReSubmitTask == false)
                     {
@@ -449,7 +450,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else
                 {
-                    if(report.seqNumber == 2)
+                    if(report.seqNumber == 1)
                     {
                         InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "DepartMent Head", "Updated By DepartmentHead", "InReview", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
 
