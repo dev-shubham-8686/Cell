@@ -2,6 +2,7 @@
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Graph.Models;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -831,6 +832,7 @@ namespace TDSGCellFormat.Helper
                                 templateFile = "MaterialConsumption_Completed.html";
                                 emailSubject = string.Format("[Action required!]  MCS_{0} has been Approved and Submitted for close request", materialData.MaterialConsumptionSlipNo);
                                 isRequestorinToEmail = true;
+                                //cpc department people in cc
                                 break;
 
                             case EmailNotificationAction.Closed:
@@ -855,11 +857,11 @@ namespace TDSGCellFormat.Helper
 
                         if (isDepartMentHead)
                         {
-                            emailToAddressList.Add(departmentHeadEmail);
-
+                            //emailToAddressList.Add(departmentHeadEmail);
+                            //if requestor close the req All CPC people will be in the to
                             if (nextApproverTaskId == materialData.CreatedBy)
                             {
-                                emailCCAddressList.Add(requesterUserEmail);
+                                //emailCCAddressList.Add(requesterUserEmail);
                                 foreach(var cepDept in approverData)
                                 {
                                     if(cepDept.SequenceNo == 2)
@@ -870,12 +872,13 @@ namespace TDSGCellFormat.Helper
                             }
                             else
                             {
-                                emailToAddressList.Add(requesterUserEmail);
+                                // all cpc people will be in to and req in cc
+                                emailCCAddressList.Add(requesterUserEmail);
                                 foreach (var cepDept in approverData)
                                 {
                                     if (cepDept.SequenceNo == 2)
                                     {
-                                        emailCCAddressList.Add(cepDept.email);
+                                        emailToAddressList.Add(cepDept.email);
                                     }
                                 }
                             }
@@ -964,7 +967,6 @@ namespace TDSGCellFormat.Helper
                                 }
 
                                 emailBody = emailBody.Replace("#MaterialLink#", docLink);
-                                //MaterialConsumptionNo
                                 emailBody = emailBody.Replace("#MaterialConsumptionNo#", materialData.MaterialConsumptionSlipNo);
                                 emailBody = emailBody.Replace("#Requestor#", requesterUserName);
                                 emailBody = emailBody.Replace("#Comment#", comment);

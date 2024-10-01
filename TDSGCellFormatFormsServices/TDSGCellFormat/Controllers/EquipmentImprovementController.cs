@@ -10,14 +10,14 @@ namespace TDSGCellFormat.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ApplicationImprovementController : Controller
+    public class EquipmentImprovementController : Controller
     {
         private readonly IApplicationImprovementService _applicationService;
 
         ResponseHelper responseHelper = new ResponseHelper();
         AjaxResult Ajaxresponse = new AjaxResult();
 
-        public ApplicationImprovementController(IApplicationImprovementService applicationService)
+        public EquipmentImprovementController(IApplicationImprovementService applicationService)
         {
             _applicationService = applicationService;
         }
