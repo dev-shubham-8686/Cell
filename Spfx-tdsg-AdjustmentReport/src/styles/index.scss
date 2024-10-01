@@ -39,6 +39,52 @@
   --color-wf-primary-green: #1ab55f;
 }
 
+// font family
+$font-family-sans-serif: "Lato", Helvetica, sans-serif,
+  // Emoji fonts
+  "Apple Color Emoji",
+  "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+$lato: "Lato", serif;
+
+$font-family: "Segoe UI", "Segoe UI Web (West European)", -apple-system,
+  BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+
+// color variable overrides
+$body-bg: white;
+$body-color: #000000; //old origiinal #212529;
+$primary: #c50017;
+$secondary: #3ea7ab;
+$success: #1ab55f;
+$danger: #cf1919;
+$warning: #ab4400;
+$info: #69d3d6;
+$light: #f1f5f9;
+$dark: #6f6f6f;
+
+//blue-shades
+$blue-1: #3762ea;
+$blue-bg: #e1e7fc;
+$blue-2: #16aaee;
+$blue-2-bg: #d0d6d8;
+
+// red shades
+$red-bg: #ffe9e9;
+$red-1: #ff2e2e;
+
+// yelllow shades
+$yellow-bg: #f9e9cd;
+$yellow-1: #e9a121;
+$yellow-highlight: #fff11e;
+
+// green shades
+$green-bg: #e0f7ea;
+$green-1: #1ab55f;
+
+$white: #ffffff;
+$black: #000000;
+$darkgrey: #333333;
+$grey-1: #d9d9d9;
+
 // font style start
 
 // font style end
@@ -71,107 +117,6 @@
 }
 
 // antd scrollbar color width change ENDS
-
-//workflow table styling
-.workflow-table {
-  width: 100%;
-  border-collapse: collapse;
-  // font-family: $lato;
-
-  th,
-  td {
-    min-width: 12rem;
-    max-width: 20rem;
-    text-wrap: wrap;
-    padding: 10px 12px;
-    font-size: 0.875rem;
-    line-height: 1rem;
-    color: #333;
-    font-weight: 400;
-    font-size: 16px;
-    text-transform: capitalize;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  th {
-    background-color: #d7dce4;
-    color: #333333;
-    font-weight: 500;
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    line-height: 1.5rem;
-  }
-
-  th::before {
-    position: absolute;
-    top: 50%;
-    inset-inline-end: 0;
-    width: 1px;
-    height: 1.6em;
-    background-color: #f0f0f0;
-    transform: translateY(-50%);
-    transition: background-color 0.2s;
-    content: "";
-  }
-
-  td::before {
-    position: absolute;
-    top: 50%;
-    inset-inline-end: 0;
-    width: 1px;
-    height: 1.6em;
-    background-color: #d7dce4;
-    transform: translateY(-50%);
-    transition: background-color 0.2s;
-    content: "";
-  }
-
-  td:first-child,
-  th:first-child {
-    position: sticky;
-    left: 0;
-    background-color: #d7dce4;
-    z-index: 3;
-    min-width: 12rem;
-    max-width: 12rem;
-    width: 12rem;
-  }
-
-  td.status-cell-rejected {
-    color: var(--color-wf-primary-red);
-    background-color: var(--color-wf-light-red);
-  }
-
-  td.status-cell-inreview {
-    color: var(--color-wf-primary-yellow);
-    background-color: var(--color-wf-light-yellow);
-  }
-
-  td.status-cell-pending {
-    color: var(--color-wf-primary-blue);
-    background-color: var(--color-wf-light-blue);
-  }
-
-  td.status-cell-approved {
-    color: var(--color-wf-primary-green);
-    background-color: var(--color-wf-light-green);
-  }
-
-  td.status-cell-underamendment {
-    color: orange;
-    /* No variable defined for orange */
-    background-color: rgba(255, 165, 0, 0.1);
-    /* Using rgba with hex code for light orange */
-  }
-
-  td.active-approver,
-  th.active-approver {
-    border: 3px solid var(--color-wf-highlight-yellow);
-  }
-}
 
 .custom-customer-part-no .ant-select-selector .ant-select-selection-overflow {
   display: block !important;
@@ -290,6 +235,202 @@ html {
 .ControlZone.ControlZone--clean.ControlZone--emphasis.root-54 {
   padding: 0 !important;
   margin: 0 !important;
+}
+
+.request-button {
+  color: #ffff;
+  background: #c50017;
+}
+
+.export-excel {
+  color: #000000;
+  background: #ffff;
+  border: 1px solid black;
+}
+
+.status-badge {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: capitalize;
+  font-weight: 500;
+
+  &.status-badge-reviewed,
+  &.status-badge-pending,
+  &.status-badge-draft,
+  &.status-badge-in-process {
+    color: $blue-1;
+    background-color: $blue-bg;
+  }
+
+  &.status-badge-rejected {
+    color: $red-1;
+    background-color: $red-bg;
+  }
+
+  &.status-badge-under-approval,
+  &.status-badge-in-review {
+    color: $yellow-1;
+    background-color: $yellow-bg;
+  }
+
+  &.status-badge-completed,
+  &.status-badge-submitted,
+  &.status-badge-approved {
+    color: $green-1;
+    background-color: $green-bg;
+  }
+
+  &.status-badge-review-declined,
+  &.status-badge-under-review,
+  &.status-badge-under-amendment {
+    color: $warning;
+    background-color: rgba($color: $warning, $alpha: 0.1);
+  }
+}
+
+.ant-table-column-title {
+  padding: 8px !important;
+}
+
+.ant-table-cell {
+  padding: 8px !important;
+  max-height: 10px !important;
+}
+
+// .custom-column-bg {
+//   background-color: #d7dce4;
+// }
+
+// .custom-column-bg:hover {
+//   background-color: #d7dce4 !important; /* Same background color on hover */
+// }
+
+.ant-table-thead .ant-table-cell {
+  background-color: #d7dce4 !important;
+}
+
+.workflow-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: $font-family;
+
+  th,
+  td {
+    min-width: 12rem;
+    max-width: 20rem;
+    text-wrap: wrap;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+    line-height: 1rem;
+    color: #333;
+    font-weight: 400;
+    text-transform: capitalize;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  th {
+    background-color: #d7dce4;
+    color: #333333;
+    font-weight: 500;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    line-height: 1.5rem;
+  }
+
+  th::before {
+    position: absolute;
+    top: 50%;
+    inset-inline-end: 0;
+    width: 1px;
+    height: 1.6em;
+    background-color: #f0f0f0;
+    transform: translateY(-50%);
+    transition: background-color 0.2s;
+    content: "";
+  }
+
+  td:first-child,
+  th:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #d7dce4;
+    z-index: 3;
+    min-width: 12rem;
+    max-width: 12rem;
+    width: 12rem;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: #f4f6f9;
+  }
+
+  td.status-cell-rejected {
+    color: $red-1;
+    background-color: $red-bg;
+  }
+
+  td.status-cell-underapproval {
+    color: $yellow-1;
+    background-color: $yellow-bg;
+  }
+
+  td.status-cell-pending {
+    color: $blue-1;
+    background-color: $blue-bg;
+  }
+
+  td.status-cell-approved {
+    color: $green-1;
+    background-color: $green-bg;
+  }
+
+  td.status-cell-underamendment {
+    color: $warning;
+    background-color: rgba($warning, 0.1);
+  }
+
+  td.active-approver,
+  th.active-approver {
+    border: 3px solid $yellow-1;
+  }
+}
+
+.modal-ok-button {
+  background-color: #c50017;
+}
+
+.ant-tabs-tab-btn {
+  font-size: 1rem !important;
+  font-weight: 700;
+}
+
+.border-form {
+  //   border-bottom: 1px solid #d7dce4;
+  margin-left: 25px;
+  margin-right: 25px;
+  margin-top: 3px;
+}
+
+.title {
+  color: #c50017;
+  font-family: Segoe UI, "Segoe UI Web (West European)", -apple-system,
+    BlinkMacSystemFont, Roboto, Helvetica Neue, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  //   margin: 0 !important;
+  text-transform: uppercase;
+}
+
+.btn-back {
+  margin-bottom: 0.75rem;
+  color: #1e293b;
+  font-size: 18px;
+  text-decoration: none;
 }
 
 /* END */
