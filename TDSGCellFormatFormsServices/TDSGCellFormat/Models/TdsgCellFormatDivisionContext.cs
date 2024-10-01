@@ -80,6 +80,8 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
     public virtual DbSet<Area> Areas { get; set; }
 
+    public virtual DbSet<CPCGroupMaster> CPCGroupMasters { get; set; }
+
     public virtual DbSet<CostCenter> CostCentres { get; set; }
 
 

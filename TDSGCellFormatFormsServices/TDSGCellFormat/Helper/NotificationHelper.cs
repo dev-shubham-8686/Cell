@@ -187,7 +187,7 @@ namespace TDSGCellFormat.Helper
                 bool isInReviewTask = false, isInReviewPullBack = false;
                 bool isIsAmendTask = false;
                 bool isRequestorinToEmail = false, isReqCCMail = false;
-               
+
                 bool isWorkDoneLeadinTOMail = false;
                 bool isWorkDoneLeadCC = false;
                 bool isWorkMembers = false;
@@ -207,10 +207,10 @@ namespace TDSGCellFormat.Helper
                 bool isEditable = false;
                 //string? templateFilePath = null;
                 //string? documentLink = _configuration["SPSiteUrl"] +
-                 //  "/SitePages/Trouble-Report.aspx#/";
-                 string? documentLink = _configuration["SPSiteUrl"] +
-                "/SitePages/CellFormatStage.aspx#/";
-                
+                //  "/SitePages/Trouble-Report.aspx#/";
+                string? documentLink = _configuration["SPSiteUrl"] +
+               "/SitePages/CellFormatStage.aspx#/";
+
                 StringBuilder emailBody = new StringBuilder();
                 if (requestId > 0)
                 {
@@ -246,7 +246,7 @@ namespace TDSGCellFormat.Helper
                             workDoneLeadEmail = workDoneLeadData?.Email;
                         }
 
-                       // var workdDoneManager = _context.TroubleReportReviewerTaskMasters.Where(x => x.TroubleReportId == requestId && x.IsClsoed == false && x.ProcessName == Enums.WorkDoneManager).Select(x => x.ReviewerId).FirstOrDefault();
+                        // var workdDoneManager = _context.TroubleReportReviewerTaskMasters.Where(x => x.TroubleReportId == requestId && x.IsClsoed == false && x.ProcessName == Enums.WorkDoneManager).Select(x => x.ReviewerId).FirstOrDefault();
                         if (workDoneLead != null)
                         {
                             var workDoneManager = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == workDoneLead).Select(x => x.ReportingManagerId).FirstOrDefault();
@@ -258,13 +258,13 @@ namespace TDSGCellFormat.Helper
                         var workDonePoepleEmails = new List<string?>();
                         if (workDoneMembers.Count > 0)
                         {
-                            foreach(var people in workDoneMembers)
+                            foreach (var people in workDoneMembers)
                             {
                                 EmployeeMaster? workDonePeopleData = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == people);
                                 workDonePeopleName = workDonePeopleData?.EmployeeName;
                                 workDonePoepleEmails.Add(workDonePeopleData?.Email);
                             }
-                           
+
                         }
                         #endregion
 
@@ -277,7 +277,7 @@ namespace TDSGCellFormat.Helper
                         }
 
 
-                       
+
 
                         var approverData = await _context.GetTroubleReportWorkFlowData(requestId);
                         switch (emailNotification)
@@ -515,7 +515,7 @@ namespace TDSGCellFormat.Helper
                             emailCCAddressList.Remove(requesterUserEmail);
                         }
 
-                        
+
                         if (isWorkDoneLeadinTOMail)
                         {
                             emailToAddressList.Add(workDoneLeadEmail);
@@ -528,12 +528,12 @@ namespace TDSGCellFormat.Helper
 
                         if (isWorkMembers)
                         {
-                            foreach(var email in workDonePoepleEmails)
+                            foreach (var email in workDonePoepleEmails)
                             {
                                 emailCCAddressList.Add(email);
                             }
                         }
-                     
+
                         if (isReOpen)
                         {
                             EmployeeMaster? reopenMemData = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == nextApproverTaskId);
@@ -661,7 +661,7 @@ namespace TDSGCellFormat.Helper
                             string baseDirectory = AppContext.BaseDirectory;
                             // string action = null;
                             string docLink = documentLink + "form/view/" + requestId;
-                           
+
                             templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
                             if (!string.IsNullOrEmpty(templateFilePath))
                             {
@@ -744,7 +744,7 @@ namespace TDSGCellFormat.Helper
             try
             {
                 StringBuilder emailBody = new StringBuilder();
-                
+
                 string? templateDirectory = _configuration["TemplateSettings:Normal_Mail"];
 
                 //TroubleReports troubleReports = new TroubleReports();
@@ -760,6 +760,7 @@ namespace TDSGCellFormat.Helper
                 string? requesterUserName = null, requesterUserEmail = null;
                 string? departmentHeadName = null, departmentHeadEmail = null;
                 bool approvelink = false;
+                bool cpcDeptPeople = false;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? documentLink = _configuration["SPSiteUrl"] +
                 "/SitePages/MaterialConsumptionSlip.aspx#/material-consumption-slip/";
@@ -782,7 +783,7 @@ namespace TDSGCellFormat.Helper
                             departmentHeadEmail = departMentHeadDetails?.Email;
                         }
                         var approverData = await _context.GetMaterialWorkFlowData(requestId);
-                        
+
                         switch (emailNotification)
                         {
                             case EmailNotificationAction.Submitted:
@@ -832,7 +833,7 @@ namespace TDSGCellFormat.Helper
                                 templateFile = "MaterialConsumption_Completed.html";
                                 emailSubject = string.Format("[Action required!]  MCS_{0} has been Approved and Submitted for close request", materialData.MaterialConsumptionSlipNo);
                                 isRequestorinToEmail = true;
-                                //cpc department people in cc
+                                cpcDeptPeople = true;
                                 break;
 
                             case EmailNotificationAction.Closed:
@@ -855,31 +856,35 @@ namespace TDSGCellFormat.Helper
                             emailCCAddressList.Add(requesterUserEmail);
                         }
 
+                        if (cpcDeptPeople)
+                        {
+                            var cpcDeptPeopleList = _context.CPCGroupMasters.Where(x => x.IsActive == true).Select(x => x.Email).ToList();
+
+                            foreach (var cepDept in cpcDeptPeopleList)
+                            {
+                                emailCCAddressList.Add(cepDept);
+                            }
+
+                        }
+
                         if (isDepartMentHead)
                         {
-                            //emailToAddressList.Add(departmentHeadEmail);
-                            //if requestor close the req All CPC people will be in the to
+                            var cpcDeptPeopleList = _context.CPCGroupMasters.Where(x => x.IsActive == true).Select(x => x.Email).ToList();
+
                             if (nextApproverTaskId == materialData.CreatedBy)
                             {
-                                //emailCCAddressList.Add(requesterUserEmail);
-                                foreach(var cepDept in approverData)
+                                foreach (var cepDept in cpcDeptPeopleList)
                                 {
-                                    if(cepDept.SequenceNo == 2)
-                                    {
-                                        emailToAddressList.Add(cepDept.email);
-                                    }
+                                    emailToAddressList.Add(cepDept);
                                 }
                             }
                             else
                             {
                                 // all cpc people will be in to and req in cc
                                 emailCCAddressList.Add(requesterUserEmail);
-                                foreach (var cepDept in approverData)
+                                foreach (var cepDept in cpcDeptPeopleList)
                                 {
-                                    if (cepDept.SequenceNo == 2)
-                                    {
-                                        emailToAddressList.Add(cepDept.email);
-                                    }
+                                    emailToAddressList.Add(cepDept);
                                 }
                             }
                         }
@@ -970,7 +975,7 @@ namespace TDSGCellFormat.Helper
                                 emailBody = emailBody.Replace("#MaterialConsumptionNo#", materialData.MaterialConsumptionSlipNo);
                                 emailBody = emailBody.Replace("#Requestor#", requesterUserName);
                                 emailBody = emailBody.Replace("#Comment#", comment);
-                               
+
                                 emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
                                 var requestData = new EmailLogMaster()
                                 {
