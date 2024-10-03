@@ -755,6 +755,7 @@ namespace TDSGCellFormat.Helper
                 bool isApprovedtask = false;
                 bool isInReviewTask = false;
                 bool isRequestorinToEmail = false;
+                bool isRequestorinCCEmail = false;
                 bool isDepartMentHead = false;
                 bool isIsAmendTask = false;
                 string? requesterUserName = null, requesterUserEmail = null;
@@ -791,7 +792,7 @@ namespace TDSGCellFormat.Helper
                                 emailSubject = string.Format("[Action required!] MCS_{0} has been Submitted for Approval", materialData.MaterialConsumptionSlipNo);
                                 isInReviewTask = true;
                                 approvelink = true;
-                                // isRequestorinToEmail = true;
+                                isRequestorinCCEmail = true;
                                 break;
 
                             case EmailNotificationAction.ReSubmitted:
@@ -799,7 +800,7 @@ namespace TDSGCellFormat.Helper
                                 emailSubject = string.Format("[Action required!] MCS_{0} has been amended", materialData.MaterialConsumptionSlipNo);
                                 isInReviewTask = true;
                                 approvelink = true;
-                                // isRequestorinToEmail = true;
+                                isRequestorinCCEmail = true;
                                 break;
 
                             case EmailNotificationAction.Approved:
@@ -808,6 +809,7 @@ namespace TDSGCellFormat.Helper
                                 isInReviewTask = true;
                                 isApprovedtask = true;
                                 approvelink = true;
+                                isRequestorinCCEmail = true;
                                 break;
 
                             case EmailNotificationAction.ApproveInformed:
@@ -827,6 +829,7 @@ namespace TDSGCellFormat.Helper
                                 emailSubject = string.Format("[Action taken!] MCS_{0} has been Pull Backed", materialData.MaterialConsumptionSlipNo);
                                 isApprovedtask = true;
                                 isInReviewTask = true;
+                                isRequestorinCCEmail = true;
                                 break;
 
                             case EmailNotificationAction.Completed:
@@ -851,7 +854,7 @@ namespace TDSGCellFormat.Helper
                             emailToAddressList.Add(requesterUserEmail);
                             emailCCAddressList.Remove(requesterUserEmail);
                         }
-                        else
+                        if(isRequestorinCCEmail)
                         {
                             emailCCAddressList.Add(requesterUserEmail);
                         }

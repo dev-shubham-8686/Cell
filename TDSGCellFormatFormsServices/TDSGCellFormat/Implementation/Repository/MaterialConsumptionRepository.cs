@@ -567,6 +567,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         var nextApproveTask = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.MaterialConsumptionId == requestTaskData.MaterialConsumptionId && x.IsActive == true
                                  && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (requestTaskData.SequenceNo) + 1).ToList();
+
                         if (nextApproveTask.Any())
                         {
                             foreach (var nextTask in nextApproveTask)
@@ -586,7 +587,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             {
                                 troubleData.Status = ApprovalTaskStatus.Completed.ToString();
                                 await _context.SaveChangesAsync();
-                                await notificationHelper.SendEmail(materialConsumptionId, EmailNotificationAction.Completed, null, 0);
+                                await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Completed, null, 0);
                             }
                         }
                     }
