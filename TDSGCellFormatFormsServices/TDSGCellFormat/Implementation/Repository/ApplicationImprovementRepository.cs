@@ -64,8 +64,11 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 EquipmentImprovementId = res.EquipmentImprovementId,
                 when = res.When.HasValue ? res.When.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
-                deviceName = !string.IsNullOrEmpty(res.DeviceId) ? res.DeviceId.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
+                deviceName = res.DeviceId,
+                subDeviceName = !string.IsNullOrEmpty(res.SubDeviceId) ? res.SubDeviceId.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
                 purpose = res.Purpose,
+                sectionId = res.SectionId,
+                improvementName = res.ImprovementName,
                 currentSituation = res.CurrentSituation,
                 improvement = res.Imrovement,
                 targetDate = res.TargetDate.HasValue ? res.TargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
@@ -135,7 +138,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     var newReport = new EquipmentImprovementApplication();
 
                     newReport.When = DateTime.Parse(report.when);
-                    newReport.DeviceId = report.deviceName != null ? string.Join(",", report.deviceName) : string.Empty;
+                    newReport.DeviceId = report.deviceName;
+                    newReport.SubDeviceId = report.subDeviceName != null ? string.Join(",", report.subDeviceName) : string.Empty;
+                    newReport.SectionId = report.sectionId;
+                    newReport.ImprovementName = report.improvementName;
                     newReport.Purpose = report.purpose;
                     newReport.CurrentSituation = report.currentSituation;
                     newReport.Imrovement = report.improvement;
@@ -225,7 +231,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 else
                 {
                     existingReport.When = DateTime.Parse(report.when);
-                    existingReport.DeviceId = report.deviceName != null ? string.Join(",", report.deviceName) : string.Empty;
+                    existingReport.DeviceId = report.deviceName;
+                    existingReport.SubDeviceId = report.subDeviceName != null ? string.Join(",", report.subDeviceName) : string.Empty;
+                    existingReport.SectionId = report.sectionId;
+                    existingReport.ImprovementName = report.improvementName;
                     existingReport.Purpose = report.purpose;
                     existingReport.CurrentSituation = report.currentSituation;
                     existingReport.Imrovement = report.improvement;

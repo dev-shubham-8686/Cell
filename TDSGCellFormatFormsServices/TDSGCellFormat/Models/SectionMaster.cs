@@ -19,6 +19,6 @@ public class SectionMaster
     public DateTime? ModifiedDate { get; set; }
 
     public bool? IsActive { get; set; }
-
+    public virtual ICollection<EquipmentImprovementApplication> EquipmentImprovementApplication { get; set; } = new List<EquipmentImprovementApplication>();
 }
 

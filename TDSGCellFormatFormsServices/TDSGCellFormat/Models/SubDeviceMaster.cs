@@ -22,7 +22,7 @@ public class SubDeviceMaster
     public DateTime? ModifiedDate { get; set; }
 
     public bool? IsActive { get; set; }
-
+    [ForeignKey("DeviceId")]
     public virtual DeviceMaster? DeviceMasters { get; set; }
 }
 

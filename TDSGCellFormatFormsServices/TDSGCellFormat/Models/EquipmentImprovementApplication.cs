@@ -14,8 +14,12 @@ public partial class EquipmentImprovementApplication
 
     public DateTime? When { get; set; }
 
-    public string? DeviceId { get; set; }
+    public int? SectionId  { get; set; }
 
+    public int? DeviceId { get; set; }
+
+    public string? SubDeviceId  { get; set; }
+    public string? ImprovementName { get; set; }
     public string? Purpose { get; set; }
 
     public string? CurrentSituation { get; set; }
@@ -47,5 +51,11 @@ public partial class EquipmentImprovementApplication
     public virtual ICollection<ChangeRiskManagement> ChangeRiskManagement { get; set; } = new List<ChangeRiskManagement>();
     public virtual ICollection<EquipmentCurrSituationAttachment> EquipmentCurrSituationAttachment { get; set; } = new List<EquipmentCurrSituationAttachment>();
     public virtual ICollection<EquipmentImprovementAttachment> EquipmentImprovementAttachment { get; set; } = new List<EquipmentImprovementAttachment>();
-   
+
+    [ForeignKey("DeviceId")]
+    public virtual DeviceMaster? DeviceMaster { get; set; }
+
+    [ForeignKey("DeviceId")]
+    public virtual SectionMaster? SectionMaster { get; set; }
+
 }
