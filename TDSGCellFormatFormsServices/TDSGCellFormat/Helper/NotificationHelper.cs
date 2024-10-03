@@ -978,7 +978,7 @@ namespace TDSGCellFormat.Helper
                                 emailBody = emailBody.Replace("#MaterialConsumptionNo#", materialData.MaterialConsumptionSlipNo);
                                 emailBody = emailBody.Replace("#Requestor#", requesterUserName);
                                 emailBody = emailBody.Replace("#Comment#", comment);
-
+                                emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
                                 emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
                                 var requestData = new EmailLogMaster()
                                 {
