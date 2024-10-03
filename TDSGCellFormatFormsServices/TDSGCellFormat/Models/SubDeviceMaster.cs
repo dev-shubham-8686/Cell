@@ -3,8 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TDSGCellFormat.Models;
 
-[Table("DeviceMaster")]
-public class DeviceMaster
+
+[Table("SubDeviceMaster")]
+public class SubDeviceMaster
 {
     [Key]
     public int DeviceId { get; set; }
@@ -21,6 +22,6 @@ public class DeviceMaster
 
     public bool? IsActive { get; set; }
 
-    public virtual ICollection<SubDeviceMaster> SubDeviceMaster { get; set; } = new List<SubDeviceMaster>();
+    public virtual DeviceMaster? DeviceMasters { get; set; }
 }
 
