@@ -59,6 +59,21 @@
         public string? deviceName { get; set; }
     }
 
+    public class SubDeviceView
+    {
+        public int subDeviceId { get; set; }
+
+        public string? subDeviceName { get; set; }
+    }
+
+    public class SectionView
+    {
+        public int sectionId { get; set; }
+
+        public string? sectionName { get; set; }
+    }
+
+
     public class FunctionView
     {
         public int functionId { get; set; }

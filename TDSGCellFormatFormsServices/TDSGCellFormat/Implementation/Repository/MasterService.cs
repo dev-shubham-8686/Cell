@@ -203,5 +203,31 @@ namespace TDSGCellFormat.Implementation.Repository
 
             return res;
         }
+
+        public IQueryable<SubDeviceView> GetAllSubDevice()
+        {
+            IQueryable<SubDeviceView> res = _context.SubDeviceMaster.Where(x => x.IsActive == true)
+                                            .Select(x => new SubDeviceView
+                                            {
+                                                subDeviceId = x.SubDeviceId,
+
+                                                subDeviceName = x.SubDeviceName
+                                            });
+
+            return res;
+        }
+
+        public IQueryable<SectionView> GetAllSection()
+        {
+            IQueryable<SectionView> res = _context.SectionMasters.Where(x => x.IsActive == true)
+                                            .Select(x => new SectionView
+                                            {
+                                                sectionId = x.SectionId,
+
+                                                sectionName = x.SectionName
+                                            });
+
+            return res;
+        }
     }
 }

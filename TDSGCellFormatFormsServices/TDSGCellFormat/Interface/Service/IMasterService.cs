@@ -14,6 +14,8 @@ namespace TDSGCellFormat.Interface.Service
         Task<UnitOfMeasureView> UpdateUnitOfMeasure(UnitOfMeasureUpdate unitOfMeasure);
         IQueryable<EmployeeMasterView> GetAllEmployees();
         IQueryable<DeviceView> GetAllDevice();
+        IQueryable<SubDeviceView> GetAllSubDevice();
+        IQueryable<SectionView> GetAllSection();
         IQueryable<FunctionView> GetAllFunction();
     }
 }

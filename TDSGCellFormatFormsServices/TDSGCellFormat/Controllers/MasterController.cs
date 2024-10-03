@@ -183,6 +183,30 @@ namespace TDSGCellFormat.Controllers
             return Ok(Ajaxresponse);
         }
 
+        [HttpGet("GetAllSubDevice")]
+        public async Task<IActionResult> GetAllSubDevice()
+        {
+            var res = _masterService.GetAllSubDevice().ToList();
+            if (res.Count > 0)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetAllSection")]
+        public async Task<IActionResult> GetAllSection()
+        {
+            var res = _masterService.GetAllSection().ToList();
+            if (res.Count > 0)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
         [HttpGet("GetAllFunction")]
         public async Task<IActionResult> GetAllFunction()
         {
