@@ -2,9 +2,9 @@
 {
     public class EquipmentImprovementApplicationAdd
     {
-        public int EquipmentImprovementId { get; set; }
+        public int? EquipmentImprovementId { get; set; }
 
-        public string when { get; set; }
+        public string? when { get; set; }
 
         public List<int>? deviceName { get; set; }
 
