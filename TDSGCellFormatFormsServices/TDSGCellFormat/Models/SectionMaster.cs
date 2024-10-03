@@ -4,15 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace TDSGCellFormat.Models;
 
 
-[Table("SubDeviceMaster")]
-public class SubDeviceMaster
+[Table("SectionMaster")]
+public class SectionMaster
 {
     [Key]
-    public int SubDeviceId { get; set; }
-    public int? DeviceId { get; set; }
-
-    public string? SubDeviceName { get; set; }
-
+    public int SectionId { get; set; }
+    public string? SectionName { get; set; }
     public int? CreatedBy { get; set; }
 
     public DateTime? CreatedDate { get; set; }
@@ -23,6 +20,5 @@ public class SubDeviceMaster
 
     public bool? IsActive { get; set; }
 
-    public virtual DeviceMaster? DeviceMasters { get; set; }
 }
 

@@ -7,7 +7,7 @@
         public string? when { get; set; }
 
         public List<int>? deviceName { get; set; }
-
+       // public int? sectionId {  get; set; }
         public string? purpose { get; set; }
 
         public string? currentSituation { get; set; }
