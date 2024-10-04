@@ -37,11 +37,11 @@ namespace TDSGCellFormat.Implementation.Repository
                                  .Select(n => new EquipmentImprovementApplicationAdd
                                  {
                                      EquipmentImprovementId = n.EquipmentImprovementId,
-                                     when = n.When.HasValue ? n.When.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                                     When = n.When.HasValue ? n.When.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
                                      //deviceName = !string.IsNullOrEmpty(n.DeviceName) ? n.DeviceName.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
-                                     purpose = n.Purpose,
-                                     currentSituation = n.CurrentSituation,
-                                     improvement = n.Imrovement,
+                                     Purpose = n.Purpose,
+                                     CurrentSituation = n.CurrentSituation,
+                                     Improvement = n.Imrovement,
                                      Status = n.Status,
                                      CreatedDate = n.CreatedDate,
                                      CreatedBy = n.CreatedBy
@@ -63,19 +63,19 @@ namespace TDSGCellFormat.Implementation.Repository
             EquipmentImprovementApplicationAdd applicationData = new EquipmentImprovementApplicationAdd()
             {
                 EquipmentImprovementId = res.EquipmentImprovementId,
-                when = res.When.HasValue ? res.When.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
-                deviceName = res.DeviceId,
-                subDeviceName = !string.IsNullOrEmpty(res.SubDeviceId) ? res.SubDeviceId.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
-                purpose = res.Purpose,
-                sectionId = res.SectionId,
-                improvementName = res.ImprovementName,
-                currentSituation = res.CurrentSituation,
-                improvement = res.Imrovement,
-                targetDate = res.TargetDate.HasValue ? res.TargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
-                actualDate = res.ActualDate.HasValue ? res.ActualDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
-                resultStatus = res.ResultStatus,
-                pcrnDocName = res.PCRNDocName,
-                pcrnFilePath = res.PCRNDocFilePath,
+                When = res.When.HasValue ? res.When.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                DeviceName = res.DeviceId,
+                SubDeviceName = !string.IsNullOrEmpty(res.SubDeviceId) ? res.SubDeviceId.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
+                Purpose = res.Purpose,
+                SectionId = res.SectionId,
+                ImprovementName = res.ImprovementName,
+                CurrentSituation = res.CurrentSituation,
+                Improvement = res.Imrovement,
+                TargetDate = res.TargetDate.HasValue ? res.TargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                ActualDate = res.ActualDate.HasValue ? res.ActualDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                ResultStatus = res.ResultStatus,
+                PcrnDocName = res.PCRNDocName,
+                PcrnFilePath = res.PCRNDocFilePath,
                 Status = res.Status,
                 CreatedDate = res.CreatedDate,
                 CreatedBy = res.CreatedBy
@@ -88,14 +88,14 @@ namespace TDSGCellFormat.Implementation.Repository
                 applicationData.ChangeRiskManagementDetails = changeRiskManagement.Select(section => new ChangeRiskManagementData
                 {
                     ChangeRiskManagementId = section.ChangeRiskManagementId,
-                    changes = section.Changes,
-                    functionId = section.FunctionId,
-                    riskAssociated = section.RiskAssociatedWithChanges,
-                    factor = section.Factor,
-                    counterMeasures = section.CounterMeasures,
-                    dueDate = section.DueDate.HasValue ? section.DueDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
-                    personInCharge = section.PersonInCharge,
-                    results = section.Results
+                    Changes = section.Changes,
+                    FunctionId = section.FunctionId,
+                    RiskAssociated = section.RiskAssociatedWithChanges,
+                    Factor = section.Factor,
+                    CounterMeasures = section.CounterMeasures,
+                    DueDate = section.DueDate.HasValue ? section.DueDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                    PersonInCharge = section.PersonInCharge,
+                    Results = section.Results
 
                 }).ToList();
 
@@ -107,8 +107,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 applicationData.EquipmentCurrSituationAttachmentDetails = equipmentCurrAttach.Select(attach => new EquipmentCurrSituationAttachData
                 {
                     EquipmentCurrSituationAttachmentId = attach.EquipmentCurrentSituationAttachmentId,
-                    currSituationDocFilePath = attach.CurrSituationDocFilePath,
-                    currSituationDocName = attach.CurrSituationDocName
+                    CurrSituationDocFilePath = attach.CurrSituationDocFilePath,
+                    CurrSituationDocName = attach.CurrSituationDocName
                 }).ToList();
             }
 
@@ -118,8 +118,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 applicationData.EquipmentImprovementAttachmentDetails = equipmentImprovementAttach.Select(attach => new EquipmentImprovementAttachData
                 {
                     EquipmentImprovementAttachmentId = attach.EquipmentImprovementAttachmentId,
-                    improvementDocName = attach.ImprovementDocName,
-                    improvementDocFilePath = attach.ImprovementDocFilePath
+                    ImprovementDocName = attach.ImprovementDocName,
+                    ImprovementDocFilePath = attach.ImprovementDocFilePath
                 }).ToList();
             }
 
@@ -137,19 +137,19 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     var newReport = new EquipmentImprovementApplication();
 
-                    newReport.When = DateTime.Parse(report.when);
-                    newReport.DeviceId = report.deviceName;
-                    newReport.SubDeviceId = report.subDeviceName != null ? string.Join(",", report.subDeviceName) : string.Empty;
-                    newReport.SectionId = report.sectionId;
-                    newReport.ImprovementName = report.improvementName;
-                    newReport.Purpose = report.purpose;
-                    newReport.CurrentSituation = report.currentSituation;
-                    newReport.Imrovement = report.improvement;
-                    newReport.PCRNDocName = report.pcrnDocName;
-                    newReport.PCRNDocFilePath = report.pcrnFilePath;
-                    newReport.ResultStatus = report.resultStatus;
-                    newReport.ActualDate = !string.IsNullOrEmpty(report.actualDate) ? DateTime.Parse(report.actualDate) : (DateTime?)null;
-                    newReport.TargetDate = !string.IsNullOrEmpty(report.targetDate) ? DateTime.Parse(report.targetDate) : (DateTime?)null;
+                    newReport.When = DateTime.Parse(report.When);
+                    newReport.DeviceId = report.DeviceName;
+                    newReport.SubDeviceId = report.SubDeviceName != null ? string.Join(",", report.SubDeviceName) : string.Empty;
+                    newReport.SectionId = report.SectionId;
+                    newReport.ImprovementName = report.ImprovementName;
+                    newReport.Purpose = report.Purpose;
+                    newReport.CurrentSituation = report.CurrentSituation;
+                    newReport.Imrovement = report.Improvement;
+                    newReport.PCRNDocName = report.PcrnDocName;
+                    newReport.PCRNDocFilePath = report.PcrnFilePath;
+                    newReport.ResultStatus = report.ResultStatus;
+                    newReport.ActualDate = !string.IsNullOrEmpty(report.ActualDate) ? DateTime.Parse(report.ActualDate) : (DateTime?)null;
+                    newReport.TargetDate = !string.IsNullOrEmpty(report.TargetDate) ? DateTime.Parse(report.TargetDate) : (DateTime?)null;
                     newReport.IsDeleted = false;
                     newReport.CreatedDate = DateTime.Now;
                     newReport.CreatedBy = report.CreatedBy;
@@ -172,14 +172,14 @@ namespace TDSGCellFormat.Implementation.Repository
                             var changeRiskData = new ChangeRiskManagement()
                             {
                                 EquipmentImprovementId = newReport.EquipmentImprovementId,
-                                Changes = changeReport.changes,
-                                FunctionId = changeReport.functionId,
-                                RiskAssociatedWithChanges = changeReport.riskAssociated,
-                                Factor = changeReport.factor,
-                                CounterMeasures = changeReport.counterMeasures,
-                                DueDate = !string.IsNullOrEmpty(changeReport.dueDate) ? DateTime.Parse(changeReport.dueDate) : (DateTime?)null,
-                                PersonInCharge = changeReport.personInCharge,
-                                Results = changeReport.results,
+                                Changes = changeReport.Changes,
+                                FunctionId = changeReport.FunctionId,
+                                RiskAssociatedWithChanges = changeReport.RiskAssociated,
+                                Factor = changeReport.Factor,
+                                CounterMeasures = changeReport.CounterMeasures,
+                                DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null,
+                                PersonInCharge = changeReport.PersonInCharge,
+                                Results = changeReport.Results,
                                 CreatedBy = changeReport.CreatedBy,
                                 CreatedDate = DateTime.Now,
                                 IsDeleted = false,
@@ -196,8 +196,8 @@ namespace TDSGCellFormat.Implementation.Repository
                             var attachment = new EquipmentCurrSituationAttachment()
                             {
                                 EquipmentImprovementId = newReport.EquipmentImprovementId,
-                                CurrSituationDocName = attach.currSituationDocName,
-                                CurrSituationDocFilePath = attach.currSituationDocFilePath,
+                                CurrSituationDocName = attach.CurrSituationDocName,
+                                CurrSituationDocFilePath = attach.CurrSituationDocFilePath,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
                                 CreatedDate = DateTime.Now,
@@ -214,8 +214,8 @@ namespace TDSGCellFormat.Implementation.Repository
                             var attachment = new EquipmentImprovementAttachment()
                             {
                                 EquipmentImprovementId = newReport.EquipmentImprovementId,
-                                ImprovementDocFilePath = attach.improvementDocFilePath,
-                                ImprovementDocName = attach.improvementDocName,
+                                ImprovementDocFilePath = attach.ImprovementDocFilePath,
+                                ImprovementDocName = attach.ImprovementDocName,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
                                 CreatedDate = DateTime.Now,
@@ -230,19 +230,19 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else
                 {
-                    existingReport.When = DateTime.Parse(report.when);
-                    existingReport.DeviceId = report.deviceName;
-                    existingReport.SubDeviceId = report.subDeviceName != null ? string.Join(",", report.subDeviceName) : string.Empty;
-                    existingReport.SectionId = report.sectionId;
-                    existingReport.ImprovementName = report.improvementName;
-                    existingReport.Purpose = report.purpose;
-                    existingReport.CurrentSituation = report.currentSituation;
-                    existingReport.Imrovement = report.improvement;
-                    existingReport.PCRNDocName = report.pcrnDocName;
-                    existingReport.PCRNDocFilePath = report.pcrnFilePath;
-                    existingReport.ResultStatus = report.resultStatus;
-                    existingReport.ActualDate = !string.IsNullOrEmpty(report.actualDate) ? DateTime.Parse(report.actualDate) : (DateTime?)null;
-                    existingReport.TargetDate = !string.IsNullOrEmpty(report.targetDate) ? DateTime.Parse(report.targetDate) : (DateTime?)null;
+                    existingReport.When = DateTime.Parse(report.When);
+                    existingReport.DeviceId = report.DeviceName;
+                    existingReport.SubDeviceId = report.SubDeviceName != null ? string.Join(",", report.SubDeviceName) : string.Empty;
+                    existingReport.SectionId = report.SectionId;
+                    existingReport.ImprovementName = report.ImprovementName;
+                    existingReport.Purpose = report.Purpose;
+                    existingReport.CurrentSituation = report.CurrentSituation;
+                    existingReport.Imrovement = report.Improvement;
+                    existingReport.PCRNDocName = report.PcrnDocName;
+                    existingReport.PCRNDocFilePath = report.PcrnFilePath;
+                    existingReport.ResultStatus = report.ResultStatus;
+                    existingReport.ActualDate = !string.IsNullOrEmpty(report.ActualDate) ? DateTime.Parse(report.ActualDate) : (DateTime?)null;
+                    existingReport.TargetDate = !string.IsNullOrEmpty(report.TargetDate) ? DateTime.Parse(report.TargetDate) : (DateTime?)null;
                     existingReport.ModifiedDate = DateTime.Now;
                     existingReport.ModifiedBy = report.ModifiedBy;
                     await _context.SaveChangesAsync();
@@ -258,14 +258,14 @@ namespace TDSGCellFormat.Implementation.Repository
                             var existingChangeRiskData = _context.ChangeRiskManagement.Where(x => x.EquipmentImprovementId == changeReport.ApplicationImprovementId).FirstOrDefault();
                             if (existingChangeRiskData != null)
                             {
-                                existingChangeRiskData.Changes = changeReport.changes;
-                                existingChangeRiskData.FunctionId = changeReport.functionId;
-                                existingChangeRiskData.RiskAssociatedWithChanges = changeReport.riskAssociated;
-                                existingChangeRiskData.Factor = changeReport.factor;
-                                existingChangeRiskData.CounterMeasures = changeReport.counterMeasures;
-                                existingChangeRiskData.DueDate = !string.IsNullOrEmpty(changeReport.dueDate) ? DateTime.Parse(changeReport.dueDate) : (DateTime?)null;
-                                existingChangeRiskData.PersonInCharge = changeReport.personInCharge;
-                                existingChangeRiskData.Results = changeReport.results;
+                                existingChangeRiskData.Changes = changeReport.Changes;
+                                existingChangeRiskData.FunctionId = changeReport.FunctionId;
+                                existingChangeRiskData.RiskAssociatedWithChanges = changeReport.RiskAssociated;
+                                existingChangeRiskData.Factor = changeReport.Factor;
+                                existingChangeRiskData.CounterMeasures = changeReport.CounterMeasures;
+                                existingChangeRiskData.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null;
+                                existingChangeRiskData.PersonInCharge = changeReport.PersonInCharge;
+                                existingChangeRiskData.Results = changeReport.Results;
                                 existingChangeRiskData.ModifiedBy = changeReport.ModifiedBy;
                                 existingChangeRiskData.ModifiedDate = DateTime.Now;
                                 existingChangeRiskData.IsDeleted = false;
@@ -275,14 +275,14 @@ namespace TDSGCellFormat.Implementation.Repository
                                 var changeRiskData = new ChangeRiskManagement()
                                 {
                                     EquipmentImprovementId = existingReport.EquipmentImprovementId,
-                                    Changes = changeReport.changes,
-                                    FunctionId = changeReport.functionId,
-                                    RiskAssociatedWithChanges = changeReport.riskAssociated,
-                                    Factor = changeReport.factor,
-                                    CounterMeasures = changeReport.counterMeasures,
-                                    DueDate = !string.IsNullOrEmpty(changeReport.dueDate) ? DateTime.Parse(changeReport.dueDate) : (DateTime?)null,
-                                    PersonInCharge = changeReport.personInCharge,
-                                    Results = changeReport.results,
+                                    Changes = changeReport.Changes,
+                                    FunctionId = changeReport.FunctionId,
+                                    RiskAssociatedWithChanges = changeReport.RiskAssociated,
+                                    Factor = changeReport.Factor,
+                                    CounterMeasures = changeReport.CounterMeasures,
+                                    DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null,
+                                    PersonInCharge = changeReport.PersonInCharge,
+                                    Results = changeReport.Results,
                                     CreatedBy = changeReport.CreatedBy,
                                     CreatedDate = DateTime.Now,
                                     IsDeleted = false,
@@ -304,8 +304,8 @@ namespace TDSGCellFormat.Implementation.Repository
                             var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == attach.EquipmentCurrSituationAttachmentId).FirstOrDefault();
                             if (existingAttachData != null)
                             {
-                                existingAttachData.CurrSituationDocName = attach.currSituationDocName;
-                                existingAttachData.CurrSituationDocFilePath = attach.currSituationDocFilePath;
+                                existingAttachData.CurrSituationDocName = attach.CurrSituationDocName;
+                                existingAttachData.CurrSituationDocFilePath = attach.CurrSituationDocFilePath;
                                 existingAttachData.IsDeleted = false;
                                 existingAttachData.ModifiedBy = attach.ModifiedBy;
                                 existingAttachData.ModifiedDate = DateTime.Now;
@@ -315,8 +315,8 @@ namespace TDSGCellFormat.Implementation.Repository
                                 var attachment = new EquipmentCurrSituationAttachment()
                                 {
                                     EquipmentImprovementId = existingReport.EquipmentImprovementId,
-                                    CurrSituationDocName = attach.currSituationDocName,
-                                    CurrSituationDocFilePath = attach.currSituationDocFilePath,
+                                    CurrSituationDocName = attach.CurrSituationDocName,
+                                    CurrSituationDocFilePath = attach.CurrSituationDocFilePath,
                                     IsDeleted = false,
                                     CreatedBy = attach.CreatedBy,
                                     CreatedDate = DateTime.Now,
@@ -338,8 +338,8 @@ namespace TDSGCellFormat.Implementation.Repository
                             var existingAttachData = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentImprovementAttachmentId == attach.EquipmentImprovementAttachmentId).FirstOrDefault();
                             if (existingAttachData != null)
                             {
-                                existingAttachData.ImprovementDocName = attach.improvementDocName;
-                                existingAttachData.ImprovementDocFilePath = attach.improvementDocFilePath;
+                                existingAttachData.ImprovementDocName = attach.ImprovementDocName;
+                                existingAttachData.ImprovementDocFilePath = attach.ImprovementDocFilePath;
                                 existingAttachData.IsDeleted = false;
                                 existingAttachData.ModifiedBy = attach.ModifiedBy;
                                 existingAttachData.ModifiedDate = DateTime.Now;
@@ -349,8 +349,8 @@ namespace TDSGCellFormat.Implementation.Repository
                                 var attachment = new EquipmentImprovementAttachment()
                                 {
                                     EquipmentImprovementId = existingReport.EquipmentImprovementId,
-                                    ImprovementDocName = attach.improvementDocName,
-                                    ImprovementDocFilePath = attach.improvementDocFilePath,
+                                    ImprovementDocName = attach.ImprovementDocName,
+                                    ImprovementDocFilePath = attach.ImprovementDocFilePath,
                                     IsDeleted = false,
                                     CreatedBy = attach.CreatedBy,
                                     CreatedDate = DateTime.Now,

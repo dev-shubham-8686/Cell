@@ -4,23 +4,23 @@
     {
         public int? EquipmentImprovementId { get; set; }
 
-        public string? when { get; set; }
+        public string? When { get; set; }
 
-        public int? deviceName { get; set; }
-        public List<int>? subDeviceName { get; set; }
-        public int? sectionId { get; set; }
-        public string? purpose { get; set; }
-        public string? improvementName { get; set; }
-        public string? currentSituation { get; set; }
+        public int? DeviceName { get; set; }
+        public List<int>? SubDeviceName { get; set; }
+        public int? SectionId { get; set; }
+        public string? Purpose { get; set; }
+        public string? ImprovementName { get; set; }
+        public string? CurrentSituation { get; set; }
 
-        public string? improvement { get; set; }
+        public string? Improvement { get; set; }
 
-        public string? attachment { get; set; }
-        public string? targetDate { get; set; }
-        public string? actualDate {  get; set; }
-        public string? resultStatus { get; set; }
-        public string? pcrnDocName { get; set; }
-        public string? pcrnFilePath { get; set; }
+        public string? Attachment { get; set; }
+        public string? TargetDate { get; set; }
+        public string? ActualDate {  get; set; }
+        public string? ResultStatus { get; set; }
+        public string? PcrnDocName { get; set; }
+        public string? PcrnFilePath { get; set; }
         public string? Status { get; set; }
 
         public bool? IsSubmit { get; set; }
@@ -45,8 +45,8 @@
     {
         public int EquipmentCurrSituationAttachmentId { get; set; }
         public int? EquipmentImprovementId { get; set; }
-        public string? currSituationDocName { get; set; }
-        public string? currSituationDocFilePath { get; set; }
+        public string? CurrSituationDocName { get; set; }
+        public string? CurrSituationDocFilePath { get; set; }
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
 
@@ -57,8 +57,8 @@
     {
         public int EquipmentImprovementAttachmentId { get; set; }
         public int? EquipmentImprovementId { get; set; }
-        public string? improvementDocName { get; set; }
-        public string? improvementDocFilePath { get; set; }
+        public string? ImprovementDocName { get; set; }
+        public string? ImprovementDocFilePath { get; set; }
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
 
@@ -68,14 +68,14 @@
     {
         public int ChangeRiskManagementId { get; set; }
         public int? ApplicationImprovementId { get; set; }
-        public string? changes { get; set; }
-        public int? functionId { get; set; }
-        public string? riskAssociated { get; set; }
-        public string? factor { get; set; }
-        public string? counterMeasures { get; set; }
-        public string? dueDate { get; set; }
-        public int? personInCharge { get; set; }
-        public string? results { get; set; }
+        public string? Changes { get; set; }
+        public int? FunctionId { get; set; }
+        public string? RiskAssociated { get; set; }
+        public string? Factor { get; set; }
+        public string? CounterMeasures { get; set; }
+        public string? DueDate { get; set; }
+        public int? PersonInCharge { get; set; }
+        public string? Results { get; set; }
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
 
