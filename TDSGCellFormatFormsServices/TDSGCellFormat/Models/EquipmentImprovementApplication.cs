@@ -55,7 +55,7 @@ public partial class EquipmentImprovementApplication
     [ForeignKey("DeviceId")]
     public virtual DeviceMaster? DeviceMaster { get; set; }
 
-    [ForeignKey("DeviceId")]
+    [ForeignKey("SectionId")]
     public virtual SectionMaster? SectionMaster { get; set; }
 
 }
