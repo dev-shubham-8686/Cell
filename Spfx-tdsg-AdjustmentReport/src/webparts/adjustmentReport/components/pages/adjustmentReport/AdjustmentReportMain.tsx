@@ -14,8 +14,9 @@ const AdjustmentReportMain: React.FC = () => {
 
   const operations = (
     <Button
-      onClick={() => onAddRequest()}
+      type="primary"
       className="request-button"
+      onClick={() => onAddRequest()}
       icon={<PlusCircleOutlined />}
     >
       Request
@@ -25,7 +26,7 @@ const AdjustmentReportMain: React.FC = () => {
   const items: TabsProps["items"] = [
     {
       key: "1",
-      label: "Requests",
+      label: "My Requests",
       children: <AdjustmentReportRequests />,
     },
     {

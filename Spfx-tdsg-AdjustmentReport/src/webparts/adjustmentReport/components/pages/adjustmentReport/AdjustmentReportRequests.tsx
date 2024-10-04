@@ -5,9 +5,9 @@ import { AnyObject } from "antd/es/_util/type";
 import { DATE_FORMAT, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
 import * as dayjs from "dayjs";
 import {
-  DeleteOutlined,
-  EditOutlined,
-  EyeOutlined,
+  DeleteFilled,
+  EditFilled,
+  EyeFilled,
   FileExcelOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
@@ -123,23 +123,23 @@ const AdjustmentReportRequests = () => {
       width: 140,
       sorter: false,
       render: (_, record) => (
-        <div className="flex gap-x-3">
+        <div className="flex">
           <Button
-            title="Edit"
-            className="text-green-500 hover:text-green-600"
-            icon={<EditOutlined className="text-lg" />}
-            onClick={() => ViewHandler(record.requestNo)}
-          />
-          <Button
+            type="link"
             title="View"
-            className="text-green-500 hover:text-green-600"
-            icon={<EyeOutlined className="text-lg" />}
+            icon={<EyeFilled className="text-black" />} // Black icon
             onClick={() => EditHandler(record.requestNo)}
           />
           <Button
+            type="link"
+            title="Edit"
+            icon={<EditFilled className="text-black" />} // Black icon
+            onClick={() => ViewHandler(record.requestNo)}
+          />
+          <Button
+            type="link"
             title="Delete"
-            className="text-red-500 hover:text-red-600"
-            icon={<DeleteOutlined className="text-lg" />}
+            icon={<DeleteFilled className="text-black" />} // Black icon
             onClick={() => onDelete()}
           />
         </div>
@@ -150,7 +150,7 @@ const AdjustmentReportRequests = () => {
   const dataSource = [
     {
       Key: 1,
-      requestNo: "MCS-2024-0033",
+      requestNo: "ADJUST-001",
       department: "Quality Control (Module)",
       requestor: "Test1 SPO",
       whenDate: new Date(),
@@ -158,15 +158,15 @@ const AdjustmentReportRequests = () => {
     },
     {
       Key: 2,
-      requestNo: "MCS-2024-0033",
+      requestNo: "ADJUST-002",
       department: "Quality Control (Module)",
       requestor: "Test1 SPO",
       whenDate: new Date(),
-      status: "Close",
+      status: "Completed",
     },
     {
       Key: 3,
-      requestNo: "MCS-2024-0033",
+      requestNo: "ADJUST-003",
       department: "Quality Control (Module)",
       requestor: "Test1 SPO",
       whenDate: new Date(),
@@ -174,15 +174,15 @@ const AdjustmentReportRequests = () => {
     },
     {
       Key: 4,
-      requestNo: "MCS-2024-0033",
+      requestNo: "ADJUST-004",
       department: "Quality Control (Module)",
       requestor: "Test1 SPO",
       whenDate: new Date(),
-      status: "Close",
+      status: "Completed",
     },
     {
       Key: 5,
-      requestNo: "MCS-2024-0033",
+      requestNo: "ADJUST-005",
       department: "Quality Control (Module)",
       requestor: "Test1 SPO",
       whenDate: new Date(),
@@ -190,7 +190,7 @@ const AdjustmentReportRequests = () => {
     },
   ];
   return (
-    <div className="p-4">
+    <div className="p-4 custom-table">
       <div className="flex justify-between items-center mb-3">
         <div className="flex gap-3">
           <Input
@@ -228,7 +228,6 @@ const AdjustmentReportRequests = () => {
 
         {/* Export to Excel button on the right */}
         <Button
-          type="primary"
           className="export-excel"
           onClick={() => onExportToExcel()}
           icon={<FileExcelOutlined />}

@@ -59,7 +59,7 @@ const History = () => {
   ];
 
   return (
-    <div>
+    <div className="py-3 history-table">
       <Table
         bordered
         columns={columns}

@@ -90,7 +90,7 @@ const Workflow = () => {
     },
   ];
   return (
-    <div>
+    <div className="py-3 history-table">
       <Table
         bordered
         columns={columns}

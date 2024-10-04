@@ -3,7 +3,7 @@ import * as React from "react";
 import AdjustmentRequestForm from "./AdjustmentRequestForm";
 import Workflow from "./Workflow";
 import History from "./History";
-import { LeftOutlined } from "@ant-design/icons";
+import { LeftCircleFilled } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
 // type TabName = "form" | "history" | "workflow";
@@ -33,7 +33,6 @@ const ReportFormPage = () => {
 
   const handleFormFinish = (values: any) => {
     console.log("Form submitted with values:", values);
-    // Perform your API call here
   };
   const items: TabsProps["items"] = [
     {
@@ -57,7 +56,7 @@ const ReportFormPage = () => {
   return (
     <div>
       <Button
-        icon={<LeftOutlined />}
+        icon={<LeftCircleFilled />}
         onClick={goBack}
         type="text"
         className="btn-back no-styles"
@@ -69,7 +68,11 @@ const ReportFormPage = () => {
         onChange={handleTabChange} // Trigger on tab change
         tabBarExtraContent={
           activeTabKey === "1" && ( // Conditionally render Save button if Form tab is active
-            <Button onClick={onSaveRequest} className="request-button">
+            <Button
+              type="primary"
+              onClick={onSaveRequest}
+              className="request-button"
+            >
               Save
             </Button>
           )
