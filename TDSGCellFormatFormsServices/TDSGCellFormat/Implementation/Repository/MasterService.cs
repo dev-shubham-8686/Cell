@@ -113,7 +113,7 @@ namespace TDSGCellFormat.Implementation.Repository
         public IQueryable<MachineView> GetAllMachines()
         {
             IQueryable<MachineView> res = _context.Machines
-                .Where(x => x.IsDeleted == false)
+                .Where(x => !x.IsDeleted.HasValue || !x.IsDeleted.Value)
                 .Select(x => new MachineView
                 {
                     MachineId = x.MachineId,
@@ -126,7 +126,7 @@ namespace TDSGCellFormat.Implementation.Repository
         public IQueryable<MachineView> GetAllSubMachines(int machineId)
         {
             IQueryable<MachineView> res = _context.SubMachines
-                .Where(x => x.IsDeleted == false && x.MachineId == machineId)
+                .Where(x => (!x.IsDeleted.HasValue || !x.IsDeleted.Value) && x.MachineId == machineId)
                 .Select(x => new MachineView
                 {
                     MachineId = x.SubMachineId,
