@@ -11,6 +11,8 @@ namespace TDSGCellFormat.Interface.Service
         IQueryable<MaterialView> GetAllMaterials();
         IQueryable<EmployeeMasterView> GetAllEmployees();
 
+        IQueryable<EmployeeMasterView> GetEmployeeDetailsById(int id, string email);
+
         IQueryable<AreaMasterView> GetAllAreas();
 
         IQueryable<MachineView> GetAllMachines();

@@ -89,6 +89,21 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+        public IQueryable<EmployeeMasterView> GetEmployeeDetailsById(int id, string email)
+        {
+            IQueryable<EmployeeMasterView> res = _cloneContext.EmployeeMasters
+                .Join(_cloneContext.DepartmentMasters, em => em.DepartmentID, dm => dm.DepartmentID, (em, dm) => new { em, dm })
+                .Where(x => x.em.IsActive == true && x.dm.Name == "Cell Production" && (id <= 0 ? x.em.Email == email : x.em.EmployeeID == id))
+                .Select(x => new EmployeeMasterView
+                {
+                    employeeId = x.em.EmployeeID,
+                    employeeName = x.em.EmployeeName,
+                    Email = x.em.Email,
+                });
+
+            return res;
+        }
+
         public IQueryable<AreaMasterView> GetAllAreas()
         {
             IQueryable<AreaMasterView> res = null;
