@@ -1,14 +1,21 @@
-﻿namespace TDSGCellFormat.Entities
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TDSGCellFormat.Entities
 {
+    [Table("ChangeRiskManagement_AdjustmentReport")]
     public class ChangeRiskManagement
     {
+        [DisplayName("Id")]
+        [Key]
         public int ChangeRiskManagementId { get; set; }
 
         public int AdjustMentReportId { get; set; }
 
         public string? Changes { get; set; }
 
-        public string? Function { get; set; }
+        public int? FunctionId { get; set; }
 
         public string? RisksWithChanges { get; set; }
 
@@ -16,9 +23,9 @@
 
         public string? CounterMeasures { get; set; }
 
-        public DateTime? DueDate { get; set; }
+        public DateOnly? DueDate { get; set; }
 
-        public string? PersonInCharge { get; set; }
+        public int? PersonInCharge { get; set; }
 
         public string? Results { get; set; }
 

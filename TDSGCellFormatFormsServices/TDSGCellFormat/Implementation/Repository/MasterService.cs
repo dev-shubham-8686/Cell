@@ -18,10 +18,10 @@ namespace TDSGCellFormat.Implementation.Repository
         public IQueryable<TroubleTypeView> GetAllTroubles()
         {
             IQueryable<TroubleTypeView> res = _context.TroubleTypes.Where(x => x.IsActive == true)
-                                            .Select(x  => new TroubleTypeView
+                                            .Select(x => new TroubleTypeView
                                             {
                                                 troubleId = x.TroubleId,
-                                               
+
                                                 name = x.Name
                                             });
 
@@ -33,7 +33,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                             .Select(x => new CategoryView
                                             {
                                                 categoryId = x.CategoryId,
-                                               
+
                                                 name = x.Name
                                             });
 
@@ -46,7 +46,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                             .Select(x => new UnitOfMeasureView
                                             {
                                                 uomid = x.UOMId,
-                                               
+
                                                 name = x.Name
                                             });
 
@@ -59,7 +59,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                             .Select(x => new MaterialView
                                             {
                                                 materialId = x.MaterialId,
-                                               
+
                                                 name = x.Name
                                             });
 
@@ -85,6 +85,53 @@ namespace TDSGCellFormat.Implementation.Repository
 
                                                 employeeName = x.EmployeeName
                                             });
+
+            return res;
+        }
+
+        public IQueryable<AreaMasterView> GetAllAreas()
+        {
+            IQueryable<AreaMasterView> res = null;
+            try
+            {
+                res = _context.Areas
+                    .Where(x => x.IsActive == true)
+                    .Select(x => new AreaMasterView
+                    {
+                        AreaId = x.AreaId,
+                        AreaName = x.AreaName
+                    });
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<MachineView> GetAllMachines()
+        {
+            IQueryable<MachineView> res = _context.Machines
+                .Where(x => x.IsDeleted == false)
+                .Select(x => new MachineView
+                {
+                    MachineId = x.MachineId,
+                    MachineName = x.MachineName
+                });
+
+            return res;
+        }
+
+        public IQueryable<MachineView> GetAllSubMachines(int machineId)
+        {
+            IQueryable<MachineView> res = _context.SubMachines
+                .Where(x => x.IsDeleted == false && x.MachineId == machineId)
+                .Select(x => new MachineView
+                {
+                    MachineId = x.SubMachineId,
+                    MachineName = x.SubMachineName
+                });
 
             return res;
         }

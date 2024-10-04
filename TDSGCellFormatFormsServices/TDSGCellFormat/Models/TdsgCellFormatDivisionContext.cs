@@ -77,12 +77,22 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
     public virtual DbSet<ChangeRiskManagement> ChangeRiskManagements { get; set; }
 
+    public virtual DbSet<AdjustmentReportPhoto> Photos { get; set; }
+
+    public virtual DbSet<Machine> Machines { get; set; }
+
+    public virtual DbSet<SubMachine> SubMachines { get; set; }
+
+    public virtual DbSet<FunctionMaster> FunctionMasters { get; set; }
+
+    public virtual DbSet<Area> Areas { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
         {
             // Use a connection string from a configuration file or environment variable
-            optionsBuilder.UseSqlServer("Data Source=192.168.100.30;Initial Catalog=TDSG_CellFormatDivision;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;");
+            optionsBuilder.UseSqlServer("Data Source=172.30.222.38;Initial Catalog=TDSG_CellFormatDivision;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;");
         }
 
         // Enable lazy loading proxies

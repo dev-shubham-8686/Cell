@@ -9,9 +9,9 @@ public partial class AdjustmentReport
     [Key]
     public int AdjustMentReportId { get; set; }
 
-    public string? Area { get; set; }
+    public int? Area { get; set; }
 
-    public string? MachineName { get; set; }
+    public int? MachineName { get; set; }
 
     public string? SubMachineName { get; set; }
 
@@ -19,7 +19,7 @@ public partial class AdjustmentReport
 
     public string? RequestBy { get; set; }
 
-    public string? CheckedBy { get; set; }
+    public int? CheckedBy { get; set; }
 
     public string? DescribeProblem { get; set; }
 
@@ -28,8 +28,6 @@ public partial class AdjustmentReport
     public string? RootCause { get; set; }
 
     public string? AdjustmentDescription { get; set; }
-
-    public string? Photos { get; set; }
 
     public string? ConditionAfterAdjustment { get; set; }
 

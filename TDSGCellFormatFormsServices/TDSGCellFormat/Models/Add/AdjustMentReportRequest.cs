@@ -6,17 +6,17 @@ namespace TDSGCellFormat.Models.Add
     {
         public int AdjustMentReportId { get; set; }
 
-        public string? Area { get; set; }
+        public int? Area { get; set; }
 
-        public string? MachineName { get; set; }
+        public int? MachineName { get; set; }
 
-        public string? SubMachineName { get; set; }
+        public List<int>? SubMachineName { get; set; }
 
         public string? ReportNo { get; set; }
 
         public string? RequestBy { get; set; }
 
-        public string? CheckedBy { get; set; }
+        public int? CheckedBy { get; set; }
 
         public string? DescribeProblem { get; set; }
 
@@ -26,11 +26,13 @@ namespace TDSGCellFormat.Models.Add
 
         public string? AdjustmentDescription { get; set; }
 
-        public string? Photos { get; set; }
+        public List<Photos>? Photos { get; set; }
 
-        public string? ConditionAfterAdjustment { get; set; }
+        public bool? ChangeRiskManagementRequired { get; set; }
 
         public List<ChangeRiskManagement>? ChangeRiskManagement { get; set; }
+
+        public string? ConditionAfterAdjustment { get; set; }
 
         public string? WorkFlowStatus { get; set; }
 

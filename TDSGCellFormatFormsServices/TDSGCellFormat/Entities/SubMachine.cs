@@ -3,13 +3,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TDSGCellFormat.Entities
 {
-    [Table("FunctionMaster")]
-    public class FunctionMaster
+    [Table("SubMachine")]
+    public class SubMachine
     {
         [Key]
-        public int FunctionId { get; set; }
+        public int SubMachineId { get; set; }
 
-        public string? FunctionName { get; set; }
+        public int? MachineId { get; set; }
+
+        public string? SubMachineName { get; set; }
 
         public DateTime? CreatedDate { get; set; }
 

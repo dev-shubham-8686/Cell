@@ -1,8 +1,13 @@
-﻿namespace TDSGCellFormat.Entities
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TDSGCellFormat.Entities
 {
-    public class MachineNameMaster
+    [Table("Machine")]
+    public class Machine
     {
-        public int MachineNameId { get; set; }
+        [Key]
+        public int MachineId { get; set; }
 
         public string? MachineName { get; set; }
 
