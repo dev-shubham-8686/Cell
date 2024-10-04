@@ -6,7 +6,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { DATE_FORMAT, DATE_TIME_FORMAT } from "../../GLOBAL_CONSTANT";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { ColumnsType } from "antd/es/table";
 import { IAttachments, IChangeRiskData, IEquipmentImprovementReport } from "../../interface";
 
