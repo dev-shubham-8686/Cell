@@ -11,7 +11,6 @@ import * as strings from 'EquipmentReportWebPartStrings';
 import { IEquipmentReportProps } from './components/IEquipmentReportProps';
 import EquipmentReportWp from './components/EquipmentReport.WP';
 import "./assets/scss/style.scss";
-import EquipmentReport from './components/EquipmentReport';
 
 export interface IEquipmentReportWebPartProps {
   description: string;
@@ -24,15 +23,13 @@ export default class EquipmentReportWebPart extends BaseClientSideWebPart<IEquip
 
   public render(): void {
     const element: React.ReactElement<IEquipmentReportProps> = React.createElement(
-      EquipmentReport,
+      EquipmentReportWp,
       {
         description: this.properties.description,
         isDarkTheme: this._isDarkTheme,
         environmentMessage: this._environmentMessage,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
-        userDisplayName: this.context.pageContext.user.displayName,
-        userEmail: this.context.pageContext.user.email,
-        context: this.context,
+        userDisplayName: this.context.pageContext.user.displayName
       }
     );
 

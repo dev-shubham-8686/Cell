@@ -7,6 +7,5 @@ export interface IEquipmentReportProps {
   hasTeamsContext?: boolean;
   userDisplayName?: string;
   context?: WebPartContext;
-  userEmail: string;
   version?: string;
 }
