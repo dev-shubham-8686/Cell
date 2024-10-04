@@ -1,0 +1,21 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "18.20.2",
+    "sdksVersions": {
+      "@microsoft/microsoft-graph-client": "3.0.2",
+      "@microsoft/teams-js": "2.12.0"
+    },
+    "version": "1.19.0",
+    "libraryName": "spfx-tdsg-tech-instr-sheet",
+    "libraryId": "9e15f7b8-e1de-4b15-ab40-5b9d6e899626",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "spfx-tdsg-tech-instr-sheet",
+    "solutionShortDescription": "spfx-tdsg-tech-instr-sheet description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}

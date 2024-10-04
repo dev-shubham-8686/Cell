@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "spfx-tdsg-adjustment-report-client-side-solution",
+    "id": "0fc5a30b-0a6e-48ba-872e-f9dec77fb6ea",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.19.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "spfx-tdsg-adjustment-report description"
+      },
+      "longDescription": {
+        "default": "spfx-tdsg-adjustment-report description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "spfx-tdsg-adjustment-report Feature",
+        "description": "The feature that activates elements of the spfx-tdsg-adjustment-report solution.",
+        "id": "934e8739-ea4a-434d-ad96-a30fc6e27cc7",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/spfx-tdsg-adjustment-report.sppkg"
+  }
+}
