@@ -60,7 +60,7 @@ namespace TDSGCellFormat.Controllers
             return Ok(Ajaxresponse);
         }
 
-        [HttpDelete("Delete")]
+        [HttpDelete("Delete/{Id}")]
         public async Task<IActionResult> Delete(int Id)
         {
             var result = await _tdsgService.DeleteReport(Id);

@@ -214,8 +214,9 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         if (deleted > 0)
                         {
-                            var deletedRecords = changeRiskManagements.Except(changeRiskManagementToUpdate).Where(u => request.ChangeRiskManagement.Select(l2 => l2.ChangeRiskManagementId)
-                                            .Contains(u.ChangeRiskManagementId));
+                            var deletedRecords = changeRiskManagements.Except(changeRiskManagementToUpdate)
+                                .Where(u => request.ChangeRiskManagement
+                                .Select(l2 => l2.ChangeRiskManagementId).Contains(u.ChangeRiskManagementId));
 
                             foreach (var record in deletedRecords)
                             {
@@ -257,6 +258,12 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             await _context.ChangeRiskManagements.AddRangeAsync(request.ChangeRiskManagement.Where(x => x.ChangeRiskManagementId == 0));
                         }
+                    }
+
+                    if (request.Photos != null)
+                    {
+                        var oldBeforeImages = _context.Photos.Where(x => x.AdjustmentReportId == request.AdjustMentReportId && x.IsOldPhoto == true && (x.IsDeleted == false || x.IsDeleted == null));
+                        var oldAfterImages = _context.Photos.Where(x => x.AdjustmentReportId == request.AdjustMentReportId && x.IsOldPhoto == false && (x.IsDeleted == false || x.IsDeleted == null));
                     }
                 }
 
