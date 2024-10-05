@@ -1,14 +1,17 @@
-﻿using TDSGCellFormat.Models;
+﻿using TDSGCellFormat.Entities;
 using TDSGCellFormat.Models.Add;
 using static TDSGCellFormat.Common.Enums;
 
 namespace TDSGCellFormat.Interface.Repository
 {
-    public interface IAdjustMentReportRepository  :  IBaseRepository<AdjustmentReport>
+    public interface IAdjustMentReportRepository : IBaseRepository<AdjustmentReport>
     {
-        IQueryable<AdjustMentReportAdd> GetAll();
-        AdjustMentReportAdd GetById(int Id);
-        Task<AjaxResult> AddOrUpdateReport(AdjustMentReportAdd report);
+        IQueryable<AdjustMentReportRequest> GetAll();
+
+        AdjustMentReportRequest GetById(int Id);
+
+        Task<AjaxResult> AddOrUpdateReport(AdjustMentReportRequest report);
+
         Task<AjaxResult> DeleteReport(int Id);
     }
 }
