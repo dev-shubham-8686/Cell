@@ -1,22 +1,31 @@
-import { Button, Tabs, TabsProps } from "antd";
+import { Button, Modal, Tabs, TabsProps } from "antd";
 import * as React from "react";
 import AdjustmentRequestForm from "./AdjustmentRequestForm";
 import Workflow from "./Workflow";
 import History from "./History";
 import { LeftCircleFilled } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { MESSAGES } from "../../../GLOBAL_CONSTANT";
+// import { useAddUpdateReport } from "../../../hooks/useAddUpdateReport";
+// import { AnyObject } from "antd/es/_util/type";
+import { IAddUpdateReportPayload } from "../../../api/AddUpdateReport.api";
+import { AnyObject } from "antd/es/_util/type";
+import * as dayjs from "dayjs";
+
+const { confirm } = Modal;
 
 // type TabName = "form" | "history" | "workflow";
 
 const ReportFormPage = () => {
   const navigate = useNavigate();
   const [activeTabKey, setActiveTabKey] = React.useState<string>("1");
+  const [isSave, setIsSave] = React.useState<boolean>(true);
+
+  // const { mutate: addUpdateReport } = useAddUpdateReport();
 
   const handleTabChange = (key: string) => {
-    setActiveTabKey(key); // Update activeTabKey when tab changes
+    setActiveTabKey(key);
   };
-
-  //   const fetchInitialValues = async (id: string) => {};
 
   const goBack = () => {
     navigate(-1);
@@ -24,22 +33,83 @@ const ReportFormPage = () => {
 
   const formRef = React.useRef<any>(null);
 
-  const onSaveRequest = () => {
-    if (formRef.current) {
-      console.log("Calling submitForm on AdjustmentRequestForm");
-      formRef.current.submitForm();
+  const CreatePayload = (values: AnyObject) => {
+    const payload: IAddUpdateReportPayload = {
+      ReportNo: values.reportNo, //done
+      RequestBy: values.requestedBy, //done
+      CheckedBy: values.CheckedBy, //done
+      When: values.dateTime, // need to confirm
+      Area: values.area, //done
+      MachineName: values.machineName, //done
+      SubMachineName: values.subMachineName, //done
+      DescribeProblem: values.describeProblem, //done
+      Observation: values.observation, //done
+      RootCause: values.rootCause, //done
+      AdjustmentDescription: values.adjustmentDescription, //done
+      ConditionAfterAdjustment: values.conditionAfterAdjustment, // done
+      Photos: values.Photos,
+      ChangeRiskManagementRequired: values.changeRiskManagementRequired, // done
+      ChangeRiskManagementList: values.ChangeRiskManagementList, // Ensure this is an array of ChangeRiskManagement objects
+      IsSubmit: !isSave, //done
+      CreatedBy: 1, //need to change
+      CreatedDate: dayjs(),
+      ModifiedBy: values.ModifiedById, // need to change conditionally
+      ModifiedDate: dayjs(), // change conditionally , if modifying then pass only
+    };
+    console.log({ payload });
+  };
+
+  const onSaveFormHandler = (showPopUp: boolean, values: any) => {
+    if (showPopUp) {
+      confirm({
+        title: MESSAGES.onSave,
+        icon: (
+          <i
+            className="fa-solid fa-circle-exclamation"
+            style={{ marginRight: "10px", marginTop: "7px" }}
+          />
+        ),
+        okText: "Yes",
+        okType: "primary",
+        cancelText: "No",
+        okButtonProps: { className: "modal-ok-button" },
+        onOk: async () => {
+          console.log("Data:", values);
+          // try {
+          //   await addUpdateReport();
+          // } catch (error) {
+          //   console.error("Error submitting form:", error);
+          // }
+          CreatePayload(values);
+        },
+        onCancel() {
+          console.log("Cancel submission");
+        },
+      });
     }
   };
 
-  const handleFormFinish = (values: any) => {
-    console.log("Form submitted with values:", values);
+  const handleSave = (isSave: boolean) => {
+    setIsSave(isSave);
+    if (formRef.current) {
+      formRef.current.submit();
+    }
   };
+
+  // const CreatePhotosPayload = (photos: AnyObject) => {
+
+  // }
+
+  const handleFormSubmit = (values: any) => {
+    onSaveFormHandler(true, values);
+  };
+
   const items: TabsProps["items"] = [
     {
       key: "1",
       label: "Form",
       children: (
-        <AdjustmentRequestForm ref={formRef} onFinish={handleFormFinish} />
+        <AdjustmentRequestForm ref={formRef} onFormSubmit={handleFormSubmit} />
       ),
     },
     {
@@ -53,6 +123,7 @@ const ReportFormPage = () => {
       children: <Workflow />,
     },
   ];
+
   return (
     <div>
       <Button
@@ -64,17 +135,27 @@ const ReportFormPage = () => {
         Back
       </Button>
       <Tabs
-        activeKey={activeTabKey} // Set active tab key
-        onChange={handleTabChange} // Trigger on tab change
+        activeKey={activeTabKey}
+        onChange={handleTabChange}
         tabBarExtraContent={
-          activeTabKey === "1" && ( // Conditionally render Save button if Form tab is active
-            <Button
-              type="primary"
-              onClick={onSaveRequest}
-              className="request-button"
-            >
-              Save
-            </Button>
+          activeTabKey === "1" && (
+            <div>
+              <Button
+                type="primary"
+                onClick={handleSave(true)}
+                className="request-button"
+                style={{ marginRight: "10px" }}
+              >
+                Save
+              </Button>
+              <Button
+                type="primary"
+                onClick={handleSave(false)}
+                className="request-button"
+              >
+                Submit
+              </Button>
+            </div>
           )
         }
         items={items}

@@ -5,7 +5,6 @@ import {
   DatePicker,
   Form,
   Input,
-  Modal,
   Radio,
   Row,
   Select,
@@ -15,15 +14,13 @@ import * as React from "react";
 import * as dayjs from "dayjs";
 import { disabledDate } from "../../../utils/helper";
 // import { useLocation } from "react-router-dom";
-import { MESSAGES } from "../../../GLOBAL_CONSTANT";
 import ChangeRiskManagementForm from "./ChangeRiskManagementForm";
 
 const { TextArea } = Input;
 const { Option } = Select;
-const { confirm } = Modal;
 
 interface AdjustmentRequestFormProps {
-  onFinish: (values: any) => void;
+  onFormSubmit: (values: any) => void;
 }
 
 const AdjustmentRequestForm = React.forwardRef(
@@ -31,13 +28,17 @@ const AdjustmentRequestForm = React.forwardRef(
     // const location = useLocation();
 
     // const { requestNo } = location.state;
-
-    const { onFinish } = props;
+    const [form] = Form.useForm();
 
     const [formSections, setFormSections] = React.useState<number[]>([0]); // Initially, one form section
-    const [selectedValue, setSelectedValue] = React.useState<string | null>(
+    const [selectedValue, setSelectedValue] = React.useState<boolean | null>(
       null
     );
+
+    const onFinish = (values: any) => {
+      values.ChangeRiskManagementRequired = selectedValue;
+      props.onFormSubmit(values);
+    };
 
     const handleChange = (e: any) => {
       setSelectedValue(e.target.value);
@@ -48,35 +49,24 @@ const AdjustmentRequestForm = React.forwardRef(
       setFormSections((prevSections) => [...prevSections, prevSections.length]);
     };
 
-    const onSaveFormHandler = (showPopUp: boolean) => {
-      if (showPopUp) {
-        confirm({
-          title: MESSAGES.onSave,
-          icon: (
-            <i
-              className="fa-solid fa-circle-exclamation"
-              style={{ marginRight: "10px", marginTop: "7px" }}
-            />
-          ),
-          okText: "Yes",
-          okType: "primary",
-          cancelText: "No",
-          okButtonProps: { className: "modal-ok-button" },
-          onOk: async () => {
-            console.log("Saving Data");
-            // await saveData();
-          },
-          onCancel() {
-            console.log("Cancel submission");
-          },
-        });
+    // Function to handle the file validation
+    const beforeUpload = (file: File) => {
+      const isJpgOrPng =
+        file.type === "image/jpeg" || file.type === "image/png";
+      if (!isJpgOrPng) {
+        console.error("You can only upload JPG or PNG file!");
       }
+      const isLt10M = file.size / 1024 / 1024 < 10;
+      if (!isLt10M) {
+        console.error("Image must smaller than 10MB!");
+      }
+      return isJpgOrPng && isLt10M;
     };
 
+    // Forward form instance to parent component
     React.useImperativeHandle(ref, () => ({
-      submitForm() {
-        console.log("Submit form method called");
-        onSaveFormHandler(true);
+      submit: () => {
+        form.submit();
       },
     }));
 
@@ -87,6 +77,7 @@ const AdjustmentRequestForm = React.forwardRef(
         <Form
           layout="vertical"
           onFinish={onFinish}
+          form={form}
           initialValues={{
             dateTime: currentDateTime,
             reportNo: "",
@@ -94,36 +85,32 @@ const AdjustmentRequestForm = React.forwardRef(
         >
           <Row gutter={48}>
             <Col span={6}>
-              {/* Report No */}
               <Form.Item label="Report No" name="reportNo">
                 <Input placeholder="Enter Report No" />
               </Form.Item>
             </Col>
 
             <Col span={6}>
-              {/* Requested By */}
               <Form.Item label="Requested By" name="requestedBy">
                 <Input placeholder="Enter Your Name" />
               </Form.Item>
             </Col>
 
             <Col span={6}>
-              {/* Checked By */}
               <Form.Item
                 label="Checked By"
                 name="checkedBy"
                 rules={[{ required: true }]}
               >
                 <Select placeholder="Select Checked By">
-                  <Option value="checkedBy1">Checked By 1</Option>
-                  <Option value="checkedBy2">Checked By 2</Option>
-                  <Option value="checkedBy3">Checked By 3</Option>
+                  <Option value={1}>Checked By 1</Option>
+                  <Option value={2}>Checked By 2</Option>
+                  <Option value={3}>Checked By 3</Option>
                 </Select>
               </Form.Item>
             </Col>
 
             <Col span={6}>
-              {/* Date & Time */}
               <Form.Item
                 label="When"
                 name="dateTime"
@@ -141,7 +128,6 @@ const AdjustmentRequestForm = React.forwardRef(
           </Row>
 
           <Row gutter={48}>
-            {/* Area */}
             <Col span={6}>
               <Row gutter={16}>
                 <Col span={24}>
@@ -151,9 +137,9 @@ const AdjustmentRequestForm = React.forwardRef(
                     rules={[{ required: true }]}
                   >
                     <Select placeholder="Select Area">
-                      <Option value="area1">Area 1</Option>
-                      <Option value="area2">Area 2</Option>
-                      <Option value="area3">Area 3</Option>
+                      <Option value={1}>Area 1</Option>
+                      <Option value={2}>Area 2</Option>
+                      <Option value={3}>Area 3</Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -176,17 +162,25 @@ const AdjustmentRequestForm = React.forwardRef(
               </Row>
               <Row gutter={16}>
                 <Col span={12}>
-                  {/* Photos */}
                   <Form.Item
-                    label="Photos"
-                    name="photos"
-                    rules={[{ required: true }]}
+                    label="Before Images"
+                    name="beforeImages"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please upload before images!",
+                      },
+                    ]}
                   >
                     <Upload
-                      beforeUpload={() => false} // Prevent automatic upload
-                      listType="picture"
+                      accept=".jpg,.jpeg,.png"
+                      beforeUpload={beforeUpload}
+                      maxCount={5} // Max attachments
+                      showUploadList={{ showRemoveIcon: true }}
                     >
-                      <Button icon={<UploadOutlined />}>Upload Photos</Button>
+                      <Button icon={<UploadOutlined />}>
+                        Upload Before Images
+                      </Button>
                     </Upload>
                   </Form.Item>
                 </Col>
@@ -203,9 +197,9 @@ const AdjustmentRequestForm = React.forwardRef(
                     rules={[{ required: true }]}
                   >
                     <Select placeholder="Select Machine Name">
-                      <Option value="machine1">Machine 1</Option>
-                      <Option value="machine2">Machine 2</Option>
-                      <Option value="machine3">Machine 3</Option>
+                      <Option value={1}>Machine 1</Option>
+                      <Option value={2}>Machine 2</Option>
+                      <Option value={3}>Machine 3</Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -225,28 +219,51 @@ const AdjustmentRequestForm = React.forwardRef(
                   </Form.Item>
                 </Col>
               </Row>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item
+                    label="After Images"
+                    name="afterImages"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please upload after images!",
+                      },
+                    ]}
+                  >
+                    <Upload
+                      accept=".jpg,.jpeg,.png"
+                      beforeUpload={beforeUpload}
+                      maxCount={5} // Max attachments
+                      showUploadList={{ showRemoveIcon: true }}
+                    >
+                      <Button icon={<UploadOutlined />}>
+                        Upload After Images
+                      </Button>
+                    </Upload>
+                  </Form.Item>
+                </Col>
+              </Row>
             </Col>
 
             <Col span={6}>
               <Row gutter={16}>
                 <Col span={24}>
-                  {/* Sub-Machine Name */}
                   <Form.Item
                     label="Sub-Machine Name"
                     name="subMachineName"
                     rules={[{ required: true }]}
                   >
                     <Select placeholder="Select Sub-Machine Name">
-                      <Option value="subMachine1">Sub-Machine 1</Option>
-                      <Option value="subMachine2">Sub-Machine 2</Option>
-                      <Option value="subMachine3">Sub-Machine 3</Option>
+                      <Option value={1}>Sub-Machine 1</Option>
+                      <Option value={2}>Sub-Machine 2</Option>
+                      <Option value={3}>Sub-Machine 3</Option>
                     </Select>
                   </Form.Item>
                 </Col>
               </Row>
               <Row gutter={16}>
                 <Col span={24}>
-                  {/* Adjustment Description */}
                   <Form.Item
                     label="Adjustment Description"
                     name="adjustmentDescription"
@@ -265,7 +282,6 @@ const AdjustmentRequestForm = React.forwardRef(
             <Col span={6}>
               <Row gutter={16}>
                 <Col span={24}>
-                  {/* Describe Problem */}
                   <Form.Item
                     label="Describe Problem"
                     name="describeProblem"
@@ -281,7 +297,6 @@ const AdjustmentRequestForm = React.forwardRef(
               </Row>
               <Row gutter={16}>
                 <Col span={24}>
-                  {/* Condition After Adjustment */}
                   <Form.Item
                     label="Condition After Adjustment"
                     name="conditionAfterAdjustment"
@@ -303,15 +318,16 @@ const AdjustmentRequestForm = React.forwardRef(
                 Change Risk Management Required ?
               </span>
               <Radio.Group onChange={handleChange} value={selectedValue}>
-                <Radio value="yes" style={{ marginRight: 16 }}>
+                <Radio value={true} style={{ marginRight: 16 }}>
                   Yes
                 </Radio>
-                <Radio value="no">No</Radio>
+                <Radio value={false}>No</Radio>
               </Radio.Group>
             </div>
           </div>
+
           {/* Render multiple form sections */}
-          {selectedValue == "yes" &&
+          {selectedValue &&
             formSections.map((sectionIndex) => (
               <ChangeRiskManagementForm
                 key={sectionIndex}
@@ -319,7 +335,7 @@ const AdjustmentRequestForm = React.forwardRef(
               />
             ))}
           {/* Button to add new form section */}
-          {selectedValue == "yes" && (
+          {selectedValue && (
             <div className="flex justify-end items-center my-3">
               <div className="flex items-center gap-x-4">
                 <Button type="primary" onClick={addFormSection}>

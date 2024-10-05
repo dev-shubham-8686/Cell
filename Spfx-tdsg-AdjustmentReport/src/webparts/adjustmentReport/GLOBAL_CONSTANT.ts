@@ -1,4 +1,5 @@
 export const DATE_FORMAT = "DD-MM-YYYY";
+export const basePath = `https://localhost:7232/api`;
 
 //Process Status
 export const ProcessStatus = [
@@ -70,9 +71,13 @@ export const MESSAGES = {
   onReviewByManager: "Do you wish to proceed with the reviewal process?",
   onSave: "Are you sure you want to save the form?",
   onSubmit: "Are you sure you want to Submit the form?",
-  SubmitSuccess: "Trouble report submitted successfully!",
+  SubmitSuccess: "Adjustment report submitted successfully!",
   onDeleteFile: "Do you want to permanently delete this file?",
   reviewBeforeSubmit:
     "You need to get the report reviewed before you can submit it. Please review the form before proceeding.",
   redirection: "Redirecting you to homepage...",
+};
+
+export const DocumentLibraries = {
+  Adjustment_Attachments: "AdjustmentDocuments",
 };

@@ -26,12 +26,6 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
             </Col>
 
             <Col span={6}>
-              <Form.Item label="Function" name={`function-${index}`}>
-                <TextArea rows={2} placeholder="Function" />
-              </Form.Item>
-            </Col>
-
-            <Col span={6}>
               <Form.Item
                 label="Risk Associated With Changes"
                 name={`riskWithChanges-${index}`}
@@ -45,12 +39,35 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
             </Col>
 
             <Col span={6}>
-              <Form.Item label="Factor/causes" name={`factor-${index}`}>
+              <Form.Item label="Factor/Causes" name={`factor-${index}`}>
                 <TextArea rows={2} maxLength={1000} placeholder="Factor" />
+              </Form.Item>
+            </Col>
+
+            <Col span={6}>
+              <Form.Item
+                label="Counter Measures"
+                name={`counterMeasures-${index}`}
+              >
+                <TextArea
+                  rows={2}
+                  maxLength={1000}
+                  placeholder="Counter Measures"
+                />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={48}>
+            <Col span={6}>
+              <Form.Item label="Function" name={`function-${index}`}>
+                <Select placeholder="Select Function">
+                  <Option value="john">Function 1</Option>
+                  <Option value="mike">Function 2</Option>
+                  <Option value="matt">Function 3</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+
             <Col span={6}>
               <Form.Item
                 label="Due Date"
@@ -83,19 +100,6 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
             <Col span={6}>
               <Form.Item label="Results" name={`results-${index}`}>
                 <TextArea rows={2} maxLength={1000} placeholder="Results" />
-              </Form.Item>
-            </Col>
-
-            <Col span={6}>
-              <Form.Item
-                label="Counter Measures"
-                name={`counterMeasures-${index}`}
-              >
-                <TextArea
-                  rows={2}
-                  maxLength={1000}
-                  placeholder="Counter Measures"
-                />
               </Form.Item>
             </Col>
           </Row>

@@ -1,4 +1,4 @@
-import { REQUEST_STATUS } from "../GLOBAL_CONSTANT";
+import { DocumentLibraries, REQUEST_STATUS } from "../GLOBAL_CONSTANT";
 
 export const displayRequestStatus = (status: string): string => {
   let statusText: string;
@@ -63,4 +63,26 @@ export const displayRequestStatus = (status: string): string => {
   }
 
   return statusText;
+};
+
+export const getAttachmentPath = (
+  folderName: string,
+  fileName: string,
+  libraryType?: "troubleReport"
+): string => {
+  let libraryName = "";
+
+  switch (libraryType) {
+    case "troubleReport":
+      libraryName = DocumentLibraries.Adjustment_Attachments;
+      break;
+
+    default:
+      libraryName = DocumentLibraries.Adjustment_Attachments;
+      break;
+  }
+
+  const path = `/${libraryName}/${folderName}/${fileName}`; // /TroubleDocuments/TR-2024-00001/Trouble Report.pdf
+
+  return path;
 };
