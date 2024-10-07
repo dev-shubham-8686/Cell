@@ -53,7 +53,7 @@ public partial class EquipmentImprovementApplication
     public virtual ICollection<EquipmentImprovementAttachment> EquipmentImprovementAttachment { get; set; } = new List<EquipmentImprovementAttachment>();
 
     [ForeignKey("MachineId")]
-    public virtual DeviceMaster? DeviceMaster { get; set; }
+    public virtual Machine? Machine { get; set; }
 
     [ForeignKey("SectionId")]
     public virtual SectionMaster? SectionMaster { get; set; }

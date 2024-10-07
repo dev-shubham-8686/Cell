@@ -20,5 +20,8 @@ namespace TDSGCellFormat.Models
         public int? ModifiedBy { get; set; }
 
         public bool? IsDeleted { get; set; }
+
+        public virtual ICollection<EquipmentImprovementApplication> EquipmentImprovementApplication { get; set; } = new List<EquipmentImprovementApplication>();
+        public virtual ICollection<SubMachine> SubMachine { get; set; } = new List<SubMachine>();
     }
 }

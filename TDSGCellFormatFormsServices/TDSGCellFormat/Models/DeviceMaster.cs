@@ -20,7 +20,7 @@ public class DeviceMaster
     public DateTime? ModifiedDate { get; set; }
 
     public bool? IsActive { get; set; }
-    public virtual ICollection<EquipmentImprovementApplication> EquipmentImprovementApplication { get; set; } = new List<EquipmentImprovementApplication>();
+   
     public virtual ICollection<SubDeviceMaster> SubDeviceMaster { get; set; } = new List<SubDeviceMaster>();
 }
 
