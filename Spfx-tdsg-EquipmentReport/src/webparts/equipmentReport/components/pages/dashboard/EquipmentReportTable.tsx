@@ -49,9 +49,9 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
 
   const columns: ColumnsType<AnyObject> = [
     {
-      title: "Request No",
-      dataIndex: "MaterialConsumptionSlipNo",
-      key: "MaterialConsumptionSlipNo",
+      title: "Application No",
+      dataIndex: "EquipmentImprovementNo",
+      key: "EquipmentImprovementNo",
       width: "20%",
       sorter: true,
       // filterDropdown: ColumnFilter,
@@ -60,9 +60,9 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       ),
     },
     {
-      title: "Current Situation",
-      dataIndex: "currentSituation",
-      key: "currentSituation",
+      title: "Section Name",
+      dataIndex: "SectionName",
+      key: "SectionName",
       width: "15%",
       sorter: true,
       // filterDropdown: ColumnFilter,
@@ -71,9 +71,9 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       ),
     },
     {
-      title: "Improvement",
-      dataIndex: "improvement",
-      key: "improvement",
+      title: "Improvement Name",
+      dataIndex: "ImprovementName",
+      key: "ImprovementName",
       width: "15%",
       sorter: true,
       // filterDropdown: ColumnFilter,
@@ -82,9 +82,9 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       ),
     },
     {
-      title: "Purpose",
-      dataIndex: "purpose",
-      key: "purpose",
+      title: "Device Name",
+      dataIndex: "DeviceName",
+      key: "DeviceName",
       width: "15%",
       sorter: true,
       // filterDropdown: ColumnFilter,
@@ -92,11 +92,21 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
-
     {
-      title: "When Date",
-      dataIndex: "when",
-      key: "when",
+      title: "Sub Device Name",
+      dataIndex: "SubDeviceName",
+      key: "SubDeviceName",
+      width: "15%",
+      sorter: true,
+      // filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
+    },
+    {
+      title: "Issue Date",
+      dataIndex: "IssueDate",
+      key: "IssueDate",
       width: "15%",
       sorter: true,
       // render: (text) => (
@@ -109,8 +119,8 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
     },
     {
       title: "Created By",
-      dataIndex: "CreatedBy",
-      key: "CreatedBy",
+      dataIndex: "Requestor",
+      key: "Requestor",
       width: "15%",
       sorter: true,
       // render: (text) => (
@@ -182,7 +192,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
     <Table
       columns={columns}
       paginationRequired={true}
-      url="/api/EquipmentImprovement/Get"
+      url="/api/EquipmentImprovement/EqupimentList"
     />
   );
 };

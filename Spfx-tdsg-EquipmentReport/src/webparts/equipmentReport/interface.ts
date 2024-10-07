@@ -21,18 +21,25 @@ export interface IUser {
 }
 
 export  interface IEquipmentImprovementReport {
-  when: string;
-  deviceName: string;
-  purpose: string;
-  currentSituation: string;
-  improvement: string;
+  EquipmentImprovementId?:number;
+  When: string;
+  DeviceName: string;
+  SubDeviceName:number[]
+  Purpose: string;
+  CurrentSituation: string;
+  ImprovementName:string;
+  Improvement: string;
+  sectionId:string;
   IsSubmit:boolean;
+  TargetDate:string;
+  ActualDate:string;
+  CreatedDate:string;
   CreatedBy:number;
   ModifiedBy:number;
   IsDeleted:boolean;
   EquipmentCurrSituationAttachmentDetails:IAttachments;
   EquipmentImprovementAttachmentDetails:IAttachments;
-  ChangeRiskManagementDetails:IChangeRiskData;
+  ChangeRiskManagementDetails:IChangeRiskData[];
   // attachment: File;
 }
 
@@ -43,14 +50,14 @@ export interface IAttachments{
 }
 export interface IChangeRiskData {
   key:number;
-  changes: string;
-  functionId : number;
-  riskAssociated : string;
-  factor : string;
-  counterMeasures : string;
-  dueDate : string;
-  personInCharge :string;
-  results :string
+  Changes: string;
+  FunctionId : number;
+  RiskAssociated : string;
+  Factor : string;
+  CounterMeasures : string;
+  DueDate : string;
+  PersonInCharge :string;
+  Results :string
 }
 
 export type ObjectType = { [key: string]: string | number | undefined };

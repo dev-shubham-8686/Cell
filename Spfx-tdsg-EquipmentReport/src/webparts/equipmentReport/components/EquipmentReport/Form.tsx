@@ -7,30 +7,46 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { DATE_FORMAT, DATE_TIME_FORMAT } from "../../GLOBAL_CONSTANT";
 import { ColumnsType } from "antd/es/table";
-import { IAttachments, IChangeRiskData, IEquipmentImprovementReport } from "../../interface";
+import {
+  IAttachments,
+  IChangeRiskData,
+  IEquipmentImprovementReport,
+} from "../../interface";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import useCreateEditEQReport from "../../apis/equipmentReport/useCreateEditEQReport/useCreateEditEQReport";
+import useDeviceMaster from "../../apis/masters/useDeviceMaster";
+import useSubDeviceMaster from "../../apis/masters/useSubDeviceMaster";
+import useSectionMaster from "../../apis/masters/useSectionMaster";
+import useFunctionMaster from "../../apis/masters/useFunctionMaster";
 
 const { TextArea } = Input;
-
-
-
-
 
 interface ICreateEditEquipmentReportProps {
   existingEquipmentReport?: IEquipmentImprovementReport;
   mode?: string;
 }
 
-const EquipmentReportForm :React.FC<
-ICreateEditEquipmentReportProps
->= ({existingEquipmentReport}) => {
+const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
+  existingEquipmentReport,
+}) => {
   dayjs.extend(customParseFormat);
 
   const navigate = useNavigate();
   const { confirm } = Modal;
 
   const [form] = Form.useForm();
-  const [formValues, setFormValues] = useState<IEquipmentImprovementReport| []>([]);
-  const [changeRiskData, setchangeRiskData] = useState<IChangeRiskData[]>([]);
+  const [formValues, setFormValues] = useState<
+    IEquipmentImprovementReport | []
+  >([]);
+  const [ChangeRiskManagementDetails, setChangeRiskManagementDetails] =useState<IChangeRiskData[]>([]);
+  const eqReportSave = useCreateEditEQReport();
+  const { data: devices, isLoading: deviceIsLoading } = useDeviceMaster();
+  const { data: subDevices, isLoading: subDeviceIsLoading } =useSubDeviceMaster();
+  const { data: sections, isLoading: sectionIsLoading } = useSectionMaster();
+  const { data: functions, isLoading: functionIsLoading } = useFunctionMaster();
+  // const { data: employees, isLoading: employeeisLoading } = useEmployeeMaster();
+
 
 
   const onSubmitFormHandler = async (): Promise<void> => {
@@ -38,21 +54,9 @@ ICreateEditEquipmentReportProps
   };
 
   const onSaveAsDraftHandler = async (): Promise<void> => {
-    confirm({
-      title: (
-        <p className="text-black-50_e8274897">
-          Only the completed sections will be saved as draft. Do you want to proceed?
-        </p>
-      ),
-      icon: <i className="fa-solid fa-circle-exclamation" />,
-      onOk() {
-        console.log("form saved as draft");
-        navigate("/");
-      },
-      onCancel() {
-        console.log("Cancel");
-      },
-    });
+    const values = form.getFieldsValue();
+    console.log("form saved as draft data", values);
+    navigate("/");
   };
 
   const handleChange = (changedValues: { [key: string]: any }) => {
@@ -66,7 +70,9 @@ ICreateEditEquipmentReportProps
     when: [{ required: true, message: "Please enter when" }],
     deviceName: [{ required: true, message: "Please enter device name" }],
     purpose: [{ required: true, message: "Please enter purpose" }],
-    currentSituation: [{ required: true, message: "Please enter current situation" }],
+    currentSituation: [
+      { required: true, message: "Please enter current situation" },
+    ],
     improvement: [{ required: true, message: "Please enter improvement" }],
     attachment: [{ required: true, message: "Please upload attachment" }],
   };
@@ -75,7 +81,8 @@ ICreateEditEquipmentReportProps
     confirm({
       title: (
         <p className="text-black-50_e8274897">
-          Only the completed sections will be saved as draft. Do you want to proceed?
+          Only the completed sections will be saved as draft. Do you want to
+          proceed?
         </p>
       ),
       icon: <i className="fa-solid fa-circle-exclamation" />,
@@ -90,48 +97,73 @@ ICreateEditEquipmentReportProps
   };
 
   useEffect(() => {
-    debugger
-    form.setFieldsValue({
-      changeRiskData: existingEquipmentReport?.ChangeRiskManagementDetails??changeRiskData,
-    });
-    form.setFieldsValue(existingEquipmentReport)
+    // form.setFieldsValue({
+    //   ChangeRiskManagementDetails: existingEquipmentReport?.ChangeRiskManagementDetails??ChangeRiskManagementDetails,
+    // });
+    debugger;
+    if (existingEquipmentReport) {
+      debugger;
+      const changeRiskData =
+        existingEquipmentReport.ChangeRiskManagementDetails?.map(
+          (obj, index) => {
+            return {
+              key: index,
+              ...obj,
+            };
+          }
+        );
+      form.setFieldsValue(existingEquipmentReport);
+      setChangeRiskManagementDetails(changeRiskData);
+      console.log(
+        "CHangeRisk data ",
+        existingEquipmentReport?.ChangeRiskManagementDetails,
+        changeRiskData
+      );
+    }
 
-  }, [changeRiskData,existingEquipmentReport]);
+    console.log(
+      "CHangeRisk data ",
+      existingEquipmentReport?.ChangeRiskManagementDetails
+    );
+  }, [existingEquipmentReport]);
   const handleAdd = (): void => {
-    
     const newData: IChangeRiskData[] = [
-      ...changeRiskData,
+      ...ChangeRiskManagementDetails,
       {
-        key: changeRiskData?.length,
-        changes: "",
-        functionId: 0,
-        riskAssociated: "",
-        factor:"",
-        counterMeasures:"",
-        dueDate:"",
-        personInCharge:"",
-        results:""
+        key: ChangeRiskManagementDetails?.length,
+        Changes: "",
+        FunctionId: 0,
+        RiskAssociated: "",
+        Factor: "",
+        CounterMeasures: "",
+        DueDate: "",
+        PersonInCharge: "",
+        Results: "",
       },
     ];
-    setchangeRiskData(newData);
-    console.log("after adding change req data",changeRiskData, newData);
+    setChangeRiskManagementDetails(newData);
+    console.log(
+      "after adding change req data",
+      ChangeRiskManagementDetails,
+      newData
+    );
   };
 
   const handleDelete = (key: React.Key): void => {
- 
-    const newData = changeRiskData
-      .filter((item) => item.key !== key)
-      .map((item, index) => {
-        return {
-          ...item,
-          key: index,
-        };
-      });
-    console.log("after deleting", changeRiskData, newData);
-    setchangeRiskData(newData);
+    debugger;
+    const newData = ChangeRiskManagementDetails.filter(
+      (item) => item.key !== key
+    ).map((item, index) => {
+      return {
+        ...item,
+        key: index,
+      };
+    });
+    console.log("after deleting", ChangeRiskManagementDetails, newData);
+    setChangeRiskManagementDetails(newData);
     // form.resetFields();
     form.setFieldsValue({
-      ["changeRiskData"]: newData,
+      ["ChangeRiskManagementDetails"]: newData,
     });
   };
 
@@ -140,32 +172,34 @@ ICreateEditEquipmentReportProps
     updateField: string,
     value: string | number | string[] | boolean
   ): void => {
-    
-    const newData = changeRiskData.map((item: IChangeRiskData) => {
+    const newData = ChangeRiskManagementDetails.map((item: IChangeRiskData) => {
       if (item.key == key) {
         item[updateField] = value;
       }
       return item;
     });
-    setchangeRiskData(newData);
-    console.log("Uppdated Change risk", changeRiskData,  newData);
+    setChangeRiskManagementDetails(newData);
+    console.log("Uppdated Change risk", ChangeRiskManagementDetails, newData);
   };
 
-  console.log("Latest Change risk data",changeRiskData)
+  console.log("Latest Change risk data", ChangeRiskManagementDetails);
   const nestedTableColumns: ColumnsType<any> = [
     {
       title: "Changes",
-      dataIndex: "changes",
-      key: "changes",
+      dataIndex: "Changes",
+      key: "Changes",
       render: (_, record, index) => {
         return (
           <Form.Item
-            name={["changeRiskData", record.key, "changes"]}
+            name={["ChangeRiskManagementDetails", record.key, "Changes"]}
             initialValue={
-              form.getFieldValue(["changeRiskData", record.key, "changes"]) ??
-              record.employeeId
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "Changes",
+              ]) ?? record.employeeId
             }
-            rules={validationRules["changes"]}
+            rules={validationRules["Changes"]}
           >
             <Input
               style={{ width: "100%" }}
@@ -183,34 +217,38 @@ ICreateEditEquipmentReportProps
     },
     {
       title: "Function",
-      dataIndex: "functionId ",
-      key: "functionId ", 
+      dataIndex: "FunctionId",
+      key: "FunctionId",
       render: (_, record, index) => {
         return (
           <Form.Item
-            name={["changeRiskData", record.key, "functionId "]}
+            name={["ChangeRiskManagementDetails", record.key, "FunctionId"]}
             initialValue={
-              form.getFieldValue(["changeRiskData", record.key, "functionId "]) ??
-              record.employeeId
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "FunctionId",
+              ]) ?? record.employeeId
             }
-            rules={validationRules["function"]}
+            rules={validationRules["FunctionId"]}
           >
             <Select
               showSearch
-              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
               style={{ width: "100%" }}
               placeholder="Select function"
               onChange={(value) => {
-                onChangeTableData(record.key, "functionId", value);
+                onChangeTableData(record.key, "FunctionId", value);
               }}
-              filterOption={(input, option) =>
-                option?.children
-                  .toString()
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
+             options={functions?.map((fun)=>({
+                    label:fun.functionName,
+                    value:fun.functionId
+                  }))}
               className="custom-disabled-select"
-             
+           
+              loading={functionIsLoading}
             >
               {/* {employee?.map((employee) => (
                 <Select.Option
@@ -229,15 +267,18 @@ ICreateEditEquipmentReportProps
     },
     {
       title: "Risk Associated with Changes",
-      dataIndex: "riskAssociated ",
-      key: "riskAssociated ",
+      dataIndex: "RiskAssociated ",
+      key: "RiskAssociated ",
       render: (_, record) => {
         return (
           <Form.Item
-            name={["changeRiskData", record.key, "riskAssociated"]}
+            name={["ChangeRiskManagementDetails", record.key, "RiskAssociated"]}
             initialValue={
-              form.getFieldValue(["changeRiskData", record.key, "riskAssociated"]) ??
-              record.comment
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "RiskAssociated",
+              ]) ?? record.comment
             }
             style={{ margin: 0 }}
           >
@@ -246,9 +287,8 @@ ICreateEditEquipmentReportProps
               placeholder="Enter risks"
               rows={2}
               onChange={(e) => {
-                onChangeTableData(record.key, "riskAssociated", e.target.value);
+                onChangeTableData(record.key, "RiskAssociated", e.target.value);
               }}
-              
             />
           </Form.Item>
         );
@@ -258,15 +298,18 @@ ICreateEditEquipmentReportProps
     },
     {
       title: "factor/causes",
-      dataIndex: "factor",
-      key: "factor",
+      dataIndex: "Factor",
+      key: "Factor",
       render: (_, record) => {
         return (
           <Form.Item
-            name={["changeRiskData", record.key, "factor"]}
+            name={["ChangeRiskManagementDetails", record.key, "Factor"]}
             initialValue={
-              form.getFieldValue(["changeRiskData", record.key, "factor"]) ??
-              record.comment
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "factor",
+              ]) ?? record.comment
             }
             style={{ margin: 0 }}
           >
@@ -275,9 +318,8 @@ ICreateEditEquipmentReportProps
               placeholder="Add Factor"
               rows={2}
               onChange={(e) => {
-                onChangeTableData(record.key, "factor", e.target.value);
+                onChangeTableData(record.key, "Factor", e.target.value);
               }}
-              
             />
           </Form.Item>
         );
@@ -287,15 +329,22 @@ ICreateEditEquipmentReportProps
     },
     {
       title: "Counter Measures",
-      dataIndex: "counterMeasures",
-      key: "counterMeasures",
+      dataIndex: "CounterMeasures",
+      key: "CounterMeasures",
       render: (_, record) => {
         return (
           <Form.Item
-            name={["changeRiskData", record.key, "counterMeasures"]}
+            name={[
+              "ChangeRiskManagementDetails",
+              record.key,
+              "CounterMeasures",
+            ]}
             initialValue={
-              form.getFieldValue(["changeRiskData", record.key, "counterMeasures"]) ??
-              record.comment
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "CounterMeasures",
+              ]) ?? record.comment
             }
             style={{ margin: 0 }}
           >
@@ -304,9 +353,12 @@ ICreateEditEquipmentReportProps
               placeholder="Add Counter Measures"
               rows={2}
               onChange={(e) => {
-                onChangeTableData(record.key, "counterMeasures", e.target.value);
+                onChangeTableData(
+                  record.key,
+                  "CounterMeasures",
+                  e.target.value
+                );
               }}
-              
             />
           </Form.Item>
         );
@@ -315,18 +367,59 @@ ICreateEditEquipmentReportProps
       sorter: false,
     },
     {
+      title: "Due Date",
+      dataIndex: "DueDate",
+      key: "DueDate",
+      render: (_, record) => {
+        return (
+          <Form.Item
+            name={["ChangeRiskManagementDetails", record.key, "DueDate"]}
+            initialValue={
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "DueDate",
+              ]) ?? record.DueDate
+            }
+            rules={[
+              {
+                required: true,
+                message: "Please select a valid due date",
+              },
+            ]}
+          >
+            {/* <DatePicker
+             
+              onChange={(date, dateString)=> {
+                onChangeTableData(
+                  record.key,
+                  "DueDate",
+                  dateString
+                );
+              }}
+            /> */}
+          </Form.Item>
+        );
+      },
+      width: "40%",
+      sorter: false,
+    },
+    {
       title: "Person in Charge",
-      dataIndex: "personInCharge",
-      key: "personInCharge",
+      dataIndex: "PersonInCharge",
+      key: "PersonInCharge",
       render: (_, record, index) => {
         return (
           <Form.Item
-            name={["changeRiskData", record.key, "personInCharge"]}
+            name={["ChangeRiskManagementDetails", record.key, "PersonInCharge"]}
             initialValue={
-              form.getFieldValue(["changeRiskData", record.key, "personInCharge"]) ??
-              record.employeeId
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "personInCharge",
+              ]) ?? record.employeeId
             }
-            rules={validationRules["personInCharge"]}
+            rules={validationRules["PersonInCharge"]}
           >
             <Select
               showSearch
@@ -337,13 +430,16 @@ ICreateEditEquipmentReportProps
                 onChangeTableData(record.key, "personInCharge", value);
               }}
               filterOption={(input, option) =>
-                option?.children
+                option?.label
                   .toString()
                   .toLowerCase()
                   .includes(input.toLowerCase())
               }
+              options={devices?.map((device)=>({
+                label:device.deviceName,
+                value:device.deviceId
+              }))}
               className="custom-disabled-select"
-             
             >
               {/* {employee?.map((employee) => (
                 <Select.Option
@@ -362,15 +458,18 @@ ICreateEditEquipmentReportProps
     },
     {
       title: "Results",
-      dataIndex: "results",
-      key: "results",
+      dataIndex: "Results",
+      key: "Results",
       render: (_, record) => {
         return (
           <Form.Item
-            name={["changeRiskData", record.key, "results"]}
+            name={["ChangeRiskManagementDetails", record.key, "Results"]}
             initialValue={
-              form.getFieldValue(["changeRiskData", record.key, "results"]) ??
-              record.comment
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "Results",
+              ]) ?? record.comment
             }
             style={{ margin: 0 }}
           >
@@ -381,7 +480,6 @@ ICreateEditEquipmentReportProps
               onChange={(e) => {
                 onChangeTableData(record.key, "results", e.target.value);
               }}
-              
             />
           </Form.Item>
         );
@@ -398,10 +496,14 @@ ICreateEditEquipmentReportProps
             <button
               type="button"
               style={{ background: "none", border: "none" }}
-              onClick={() => handleDelete(record.key)}
+              onClick={() => {
+                debugger;
+                handleDelete(record.key);
+                debugger;
+              }}
             >
               <span>
-                <i title="Delete" className="fas fa-trash text-danger" />
+                <FontAwesomeIcon icon={faTrash} />
               </span>
             </button>
           </div>
@@ -441,16 +543,22 @@ ICreateEditEquipmentReportProps
             },
           }}
         >
-          {console.log("Form Data",existingEquipmentReport)}
-          <Form layout="vertical" form={form} initialValues={existingEquipmentReport}>
+          {console.log("Form Data", existingEquipmentReport)}
+          <Form
+            layout="vertical"
+            form={form}
+            initialValues={existingEquipmentReport}
+          >
             <div className="row ">
               <div className="col">
                 <Form.Item
                   label={
-                    <label className="text-muted mb-0 w-95">Application No.</label>
+                    <label className="text-muted mb-0 w-95">
+                      Application No.
+                    </label>
                   }
-                  name="applicationNo"
-                  rules={validationRules["applicationNo"]}
+                  name="ApplicationNo"
+                  rules={validationRules["ApplicationNo"]}
                 >
                   <Input disabled maxLength={100} />
                 </Form.Item>
@@ -458,9 +566,11 @@ ICreateEditEquipmentReportProps
 
               <div className="col">
                 <Form.Item
-                  label={<label className="text-muted mb-0 w-95">When Date</label>}
-                  name="whenDate"
-                  rules={validationRules["whenDate"]}
+                  label={
+                    <label className="text-muted mb-0 w-95">When Date</label>
+                  }
+                  // name="When"
+                  rules={validationRules["When"]}
                 >
                   <DatePicker className="w-100" disabled />
                 </Form.Item>
@@ -469,10 +579,20 @@ ICreateEditEquipmentReportProps
               <div className="col">
                 <Form.Item
                   label={<span className="text-muted w-95">Device Name</span>}
-                  name="deviceName"
-                  rules={validationRules["deviceName"]}
+                  name="DeviceName"
+                  rules={validationRules["DeviceName"]}
                 >
-                  <Select>
+                  <Select
+                  showSearch
+                  
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+                  options={devices?.map((device)=>({
+                    label:device.deviceName,
+                    value:device.deviceId
+                  }))}
+                  loading={deviceIsLoading}>
                     {/* {troubles?.map((trouble) => (
                       <Select.Option
                         key={trouble.troubleId}
@@ -487,11 +607,62 @@ ICreateEditEquipmentReportProps
 
               <div className="col">
                 <Form.Item
-                  label={<span className="text-muted w-95">Purpose</span>}
-                  name="purpose"
-                  rules={validationRules.attachment}
+                  label={
+                    <span className="text-muted w-95">Sub Device Name</span>
+                  }
+                  name="SubDeviceName"
+                  rules={validationRules["SubDeviceName"]}
                 >
-                  <TextArea maxLength={500} rows={1} />
+                  <Select
+                      showSearch
+                  
+                      filterOption={(input, option) =>
+                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                      }
+                  mode="multiple"
+                  options={subDevices?.map((subdevice)=>({
+                    label:subdevice.subDeviceName,
+                    value:subdevice.subDeviceId
+                  }))}
+                  loading={subDeviceIsLoading}> 
+                    {/* {troubles?.map((trouble) => (
+                      <Select.Option
+                        key={trouble.troubleId}
+                        value={trouble.troubleId}
+                      >
+                        {trouble.name}
+                      </Select.Option>
+                    ))} */}
+                  </Select>
+                </Form.Item>
+              </div>
+
+              <div className="col">
+                <Form.Item
+                  label={<span className="text-muted w-95">Section Name</span>}
+                  name="SectionName"
+                  rules={validationRules["SectionName"]}
+                >
+                  <Select
+                      showSearch
+                  
+                      filterOption={(input, option) =>
+                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                      }
+                   options={sections?.map((section)=>({
+                    label:section.sectionName,
+                    value:section.sectionId
+                  }))}
+                  loading={sectionIsLoading}>
+                    {/* {troubles?.map((trouble) => (
+                      <Select.Option
+                        key={trouble.troubleId}
+                        value={trouble.troubleId}
+                      >
+                        {trouble.name}
+                      </Select.Option>
+                    ))} */}
+                  </Select>
                 </Form.Item>
               </div>
             </div>
@@ -500,7 +671,7 @@ ICreateEditEquipmentReportProps
               <div className="col">
                 <Form.Item
                   label={<span className="text-muted">Current Situation</span>}
-                  name="currentSituation"
+                  name="CurrentSituation"
                   rules={validationRules.attachment}
                 >
                   <TextArea className="w-95" maxLength={500} rows={3} />
@@ -509,11 +680,31 @@ ICreateEditEquipmentReportProps
 
               <div className="col">
                 <Form.Item
-                  label={<span className="text-muted">Improvement</span>}
-                  name="improvement"
+                  label={<span className="text-muted w-95">Purpose</span>}
+                  name="Purpose"
                   rules={validationRules.attachment}
                 >
-                  <TextArea  maxLength={500} rows={3} />
+                  <TextArea maxLength={500} rows={3} />
+                </Form.Item>
+              </div>
+
+              <div className="col">
+                <Form.Item
+                  label={<span className="text-muted">Improvement Name</span>}
+                  name="ImprovementName"
+                  rules={validationRules.attachment}
+                >
+                  <Input maxLength={100} />
+                </Form.Item>
+              </div>
+
+              <div className="col">
+                <Form.Item
+                  label={<span className="text-muted">Improvement</span>}
+                  name="Improvement"
+                  rules={validationRules.attachment}
+                >
+                  <TextArea maxLength={500} rows={3} />
                 </Form.Item>
               </div>
             </div>
@@ -556,14 +747,18 @@ ICreateEditEquipmentReportProps
               <div className="d-flex justify-content-between my-3">
                 <p className="text-muted mb-0">Change Risk Management</p>
                 {true && (
-                  <button className="btn btn-primary" type="button"  onClick={handleAdd}>
+                  <button
+                    className="btn btn-primary"
+                    type="button"
+                    onClick={handleAdd}
+                  >
                     <i className="fa-solid fa-circle-plus" /> Add
                   </button>
                 )}
               </div>
               <Table
                 className="hotel-details-table"
-                dataSource={changeRiskData}
+                dataSource={ChangeRiskManagementDetails}
                 columns={nestedTableColumns}
                 scroll={{ x: "max-content" }}
               />
@@ -582,12 +777,12 @@ ICreateEditEquipmentReportProps
                   </Upload>
                 </Form.Item>
               </div>
-              
+
               <div className="col">
                 <Form.Item
                   label={<label className="text-muted mb-0">Target Date</label>}
-                  name="targetDate "
-                  rules={validationRules["targetDate"]}
+                  name="TargetDate "
+                  rules={validationRules["TargetDate"]}
                 >
                   <DatePicker className="w-100" disabled />
                 </Form.Item>
@@ -596,8 +791,8 @@ ICreateEditEquipmentReportProps
               <div className="col">
                 <Form.Item
                   label={<label className="text-muted mb-0">Actual Date</label>}
-                  name="actualDate"
-                  rules={validationRules["actualDate"]}
+                  name="ActualDate"
+                  rules={validationRules["ActualDate"]}
                 >
                   <DatePicker className="w-100" disabled />
                 </Form.Item>
@@ -615,7 +810,6 @@ ICreateEditEquipmentReportProps
                 </Form.Item>
               </div>
             </div>
-
           </Form>
         </ConfigProvider>
       </div>

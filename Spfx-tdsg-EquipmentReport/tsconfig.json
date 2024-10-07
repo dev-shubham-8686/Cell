@@ -16,6 +16,9 @@
     "noImplicitAny": false,
     "strictNullChecks": false,
     "noUnusedLocals": false,
+    "allowSyntheticDefaultImports": true,
+    "strictNullChecks": false,
+    "noUnusedLocals": false,
 
     "typeRoots": ["./node_modules/@types", "./node_modules/@microsoft"],
     "types": ["webpack-env"],
