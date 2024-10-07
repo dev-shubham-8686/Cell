@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "TDSG.TroubleReport.Scheduler": {
+      "commandName": "Project",
+      "workingDirectory": "D:\\Synoptek_DevOps\\TDSG_Cell_Format_Forms\\TDSGCellFormatFormsServices\\TDSG.TroubleReport.Scheduler",
+      "sqlDebugging": false,
+      "jsWebView2Debugging": false,
+      "nativeDebugging": false,
+      "hotReloadEnabled": true
+    }
+  }
+}

@@ -4,30 +4,34 @@ using TDSGCellFormat.Models;
 using Microsoft.EntityFrameworkCore;
 using TDSG.TroubleReport.Scheduler;
 using Microsoft.Extensions.Configuration;
-using TDSGCellFormat;
-using DocumentFormat.OpenXml.Bibliography;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Security.Cryptography;
 
 public class Program
 {
     public static void Main(string[] args)
     {
-
         var host = CreateHostBuilder(args).Build();
+
+        // Access the configuration
+        var config = host.Services.GetRequiredService<IConfiguration>();
+        
+        // Get the connection string from appsettings.json
+        string connectionString = config.GetConnectionString("DefaultConnection");
+
+        Console.WriteLine($"Connecting to database with connection string: {connectionString}");
+
         string? templateFile = null;
         string? emailSubject = null;
-        var builder = new ConfigurationBuilder();
+        //  var host = CreateHostBuilder(args).Build();
+        //var builder = new ConfigurationBuilder();
 
         // Get the directory of the other project where appSettings.json is located
-        string pathToOtherProject = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "TDSGCellFormat");
+        // string pathToOtherProject = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "CellFormat");
 
         // Specify the full path to appSettings.json
-        builder.SetBasePath(pathToOtherProject)
-               .AddJsonFile("appSettings.json", optional: false, reloadOnChange: true);
+        //builder.SetBasePath(pathToOtherProject)
+        // .AddJsonFile("appSettings.json", optional: false, reloadOnChange: true);
 
-        IConfiguration config = builder.Build();
+        // IConfiguration config = builder.Build();
         using (var scope = host.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<TdsgCellFormatDivisionContext>();
@@ -107,7 +111,7 @@ public class Program
 
                 dbContext.SaveChanges(); // Save the changes to the database
                 Console.WriteLine($"Sending email for Report ID: {report.TroubleReportId}, Email Type: {report.RaiserEmailSent + 1}");
-               
+               // Console.WriteLine(_configuration);
              
 
             }
@@ -188,24 +192,67 @@ public class Program
         }
     }
 
+    //static IHostBuilder CreateHostBuilder(string[] args) =>
+    //    Host.CreateDefaultBuilder(args)
+    //     .ConfigureAppConfiguration((hostingContext, config) =>
+    //     {
+    //         string path = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
+    //         Console.WriteLine(path);
+    //         // Specify the path to the appsettings.json file in the other project
+    //         string pathToSettings = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "CellFormat", "appsettings.json");
+
+    //         config.AddJsonFile(pathToSettings, optional: false, reloadOnChange: true)
+    //               .AddEnvironmentVariables();
+    //     })
+    //        .ConfigureServices((_, services) => {
+    //            services.AddDbContext<TdsgCellFormatDivisionContext>(options =>
+    //            options.UseSqlServer("Data Source=WEBAPPSVRSTAG;Initial Catalog=TDSGStage_CellFormatDivision;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;")
+    //               // options.UseSqlServer("Data Source=192.168.100.30;Initial Catalog=TDSG_CellFormatDivision;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;")
+    //            );
+    //            services.AddDbContext<AepplNewCloneStageContext>(options =>
+    //               options.UseSqlServer("Data Source=WEBAPPSVRSTAG;Initial Catalog=AEPPLDb_Cell;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;")
+
+    //            //options.UseSqlServer("Data Source=192.168.100.30;Initial Catalog=AEPPL_NEW_Clone_Stage;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;")
+    //            );
+
+
+    //            }); // Use your actual connection string
+
+
     static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-         .ConfigureAppConfiguration((hostingContext, config) =>
-         {
-             // Specify the path to the appsettings.json file in the other project
-             string pathToSettings = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "TDSGCellFormat", "appsettings.json");
+       Host.CreateDefaultBuilder(args)
+           .ConfigureAppConfiguration((hostingContext, config) =>
+           {
+               // Get the base directory and navigate to the project root
+               string baseDirectory = AppContext.BaseDirectory;
+               string projectRoot = Path.GetFullPath(Path.Combine(baseDirectory, @"..\..\..\..\TDSGCellFormat"));
 
-             config.AddJsonFile(pathToSettings, optional: false, reloadOnChange: true)
-                   .AddEnvironmentVariables();
-         })
-            .ConfigureServices((_, services) => {
-                services.AddDbContext<TdsgCellFormatDivisionContext>(options =>
-                    options.UseSqlServer("Data Source=192.168.100.30;Initial Catalog=TDSG_CellFormatDivision;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;")
-                );
-                services.AddDbContext<AepplNewCloneStageContext>(options =>
-                    options.UseSqlServer("Data Source=192.168.100.30;Initial Catalog=AEPPL_NEW_Clone_Stage;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;")
-                );
+               // Path to appsettings.json in the project root
+               string pathToSettings = Path.Combine(projectRoot, "appsettings.json");
 
+               // Output the settings path for debugging
+               Console.WriteLine($"Settings Path: {pathToSettings}");
 
-                }); // Use your actual connection string
+               // Load the appsettings.json from the project root
+               config.AddJsonFile(pathToSettings, optional: false, reloadOnChange: true)
+                     .AddEnvironmentVariables();
+           })
+           .ConfigureServices((context, services) =>
+           {
+               // Retrieve the connection strings from appsettings.json
+               var cellString = context.Configuration.GetConnectionString("DefaultConnection");
+               var aepplConnectionString = context.Configuration.GetConnectionString("EmployeeConnection");
+
+               // Register TdsgCellFormatDivisionContext
+               services.AddDbContext<TdsgCellFormatDivisionContext>(options =>
+                   options.UseSqlServer(cellString));
+
+               // Register AepplNewCloneStageContext
+               services.AddDbContext<AepplNewCloneStageContext>(options =>
+                   options.UseSqlServer(aepplConnectionString));
+
+               // Register the configuration in DI
+               services.AddSingleton<IConfiguration>(context.Configuration);
+               services.AddSingleton<IConfiguration>(context.Configuration);
+           });
 }

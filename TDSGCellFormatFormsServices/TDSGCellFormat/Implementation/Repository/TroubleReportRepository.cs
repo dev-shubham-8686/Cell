@@ -871,7 +871,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         await _context.SaveChangesAsync();
                     }
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.SendEmail(troubleReportId, EmailNotificationAction.Decline, comment, 0);
+                    await notificationHelper.SendEmail(troubleReportId, EmailNotificationAction.Decline, comment, userId);
                     InsertHistoryData(troubleReportId, FormType.TroubleReport.ToString(), "Review Manager", comment, ApprovalTaskStatus.ReviewDeclined.ToString(), userId, HistoryAction.Decline.ToString(), 0);
 
                 }
@@ -985,11 +985,6 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
                     res.Message = Enums.TroubleSubmit;
                     InsertHistoryData(onSubmit.troubleReportId, FormType.TroubleReport.ToString(), Enums.WorkDoneLead, "Submit the Form ", ApprovalTaskStatus.UnderApproval.ToString(), Convert.ToInt16(onSubmit.modifiedBy), HistoryAction.Submit.ToString(), 0);
-
-                }
-
-                if (trouble.CreatedBy > 0 && trouble.TroubleReportId > 0 && onSubmit.isSubmit == true && onSubmit.isAmendReSubmitTask == false)
-                {
                     //history
                     //InsertHistoryData(trouble.TroubleReportId, "Trouble", Enums.WorkDoneLead, "Update Status as In Review", "InReview", trouble.CreatedBy ?? 0, "Submit", 0);
 
@@ -1001,9 +996,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     await notificationHelper.SendEmail(onSubmit.troubleReportId, EmailNotificationAction.Submitted, onSubmit.comment, 0);
 
                     //approver process
-                    finalResult = ApprovedCheck(trouble.TroubleReportId, trouble.CreatedBy ?? 0);
-
+                     ApprovedCheck(trouble.TroubleReportId, trouble.CreatedBy ?? 0);
                 }
+
                 if (onSubmit.isAmendReSubmitTask == true && onSubmit.isSubmit == true)
                 {
                     var processTask = _context.TroubleReportReviewerTaskMasters.Where(x => x.TroubleReportId == onSubmit.troubleReportId && x.IsActive == true && x.IsClsoed == false && x.DisplayName == Enums.WorkDoneLead).FirstOrDefault();
@@ -1462,8 +1457,14 @@ namespace TDSGCellFormat.Implementation.Repository
             var approverData = await _context.GetTroubleReportWorkFlowData(troubelReportId);
             // Process data to combine entries for SequenceNo = 3
             var processedData = new List<TroubleReportApproverTaskMasterAdd>();
-
+            //var approverData = await _context.GetMaterialWorkFlowData(materialConsumptionId);
+            //var processedData = new List<MaterialConsumptionApproverTaskMasterAdd>();
             foreach (var entry in approverData)
+            {
+                processedData.Add(entry);
+            }
+            return processedData;
+          /*  foreach (var entry in approverData)
             {
                 if (entry.SequenceNo == 3 && (entry.Status == ApprovalTaskStatus.Pending.ToString() || entry.Status == ApprovalTaskStatus.UnderApproval.ToString()))
                 {
@@ -1504,9 +1505,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     // Add entry as is
                     processedData.Add(entry);
                 }
-            }
+            }*/
 
-            return processedData;
+           // return processedData;
         }
         //GetUserDetailsView
         public async Task<GetUserDetailsView> GetUserRole(string userEmail)
@@ -1669,21 +1670,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     // Write header, excluding specified columns
                     int columnIndex = 1;
-                    /* for (int i = 0; i < properties.Length; i++)
-                     {
-                         if (!columnsToExclude.Contains(i))
-                         {
-                             var cell = worksheet.Cell(1, columnIndex);
-                             string headerText = CapitalizeFirstLetter(properties[i].Name);
-                             cell.Value = headerText;
-
-                             // Apply style to the header cell
-                             cell.Style.Fill.BackgroundColor = XLColor.LightBlue;
-                             cell.Style.Font.Bold = true;
-                             cell.Style.Border.BottomBorder = XLBorderStyleValues.Thick;
-                             columnIndex++;
-                         }
-                     }*/
 
                     foreach (var property in properties)
                     {
@@ -1706,17 +1692,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         var item = excelData[i];
                         columnIndex = 1;
-                        /* for (int j = 0; j < properties.Length; j++)
-                         {
-                             if (!columnsToExclude.Contains(j))
-                             {
-                                 var value = properties[j].GetValue(item, null);
-                                 string stringValue = value != null ? value.ToString() : string.Empty;
-
-                                 worksheet.Cell(i + 2, columnIndex).Value = stringValue;
-                                 columnIndex++;
-                             }
-                         }*/
+                      
                         foreach (var property in properties)
                         {
                             if (!columnsToExclude.Contains(Array.IndexOf(properties, property)))
@@ -1763,6 +1739,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 return res;
             }
         }
+
         private static readonly Dictionary<string, string> ColumnHeaderMapping = new Dictionary<string, string>
 {
     { "DateofReportGeneration", "Date of Report Generation" },

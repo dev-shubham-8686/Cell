@@ -10,14 +10,14 @@ namespace TDSGCellFormat.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ApplicationImprovementController : Controller
+    public class EquipmentImprovementController : Controller
     {
         private readonly IApplicationImprovementService _applicationService;
 
         ResponseHelper responseHelper = new ResponseHelper();
         AjaxResult Ajaxresponse = new AjaxResult();
 
-        public ApplicationImprovementController(IApplicationImprovementService applicationService)
+        public EquipmentImprovementController(IApplicationImprovementService applicationService)
         {
             _applicationService = applicationService;
         }
@@ -47,7 +47,7 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpPost("AddOrUpdate")]
-        public async Task<IActionResult> POST(ApplicationImprovementAdd report)
+        public async Task<IActionResult> POST(EquipmentImprovementApplicationAdd report)
         {
             if (ModelState.IsValid)
             {
@@ -76,6 +76,18 @@ namespace TDSGCellFormat.Controllers
             {
                 Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
             }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("EqupimentList")]
+        public async Task<IActionResult> GetEqupimentImprovementList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            var res = await _applicationService.GetEqupimentImprovementList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
             return Ok(Ajaxresponse);
         }
     }
