@@ -16,9 +16,9 @@ public partial class EquipmentImprovementApplication
 
     public int? SectionId  { get; set; }
 
-    public int? DeviceId { get; set; }
+    public int? MachineId { get; set; }
 
-    public string? SubDeviceId  { get; set; }
+    public string? SubMachineId  { get; set; }
     public string? ImprovementName { get; set; }
     public string? Purpose { get; set; }
 
@@ -52,7 +52,7 @@ public partial class EquipmentImprovementApplication
     public virtual ICollection<EquipmentCurrSituationAttachment> EquipmentCurrSituationAttachment { get; set; } = new List<EquipmentCurrSituationAttachment>();
     public virtual ICollection<EquipmentImprovementAttachment> EquipmentImprovementAttachment { get; set; } = new List<EquipmentImprovementAttachment>();
 
-    [ForeignKey("DeviceId")]
+    [ForeignKey("MachineId")]
     public virtual DeviceMaster? DeviceMaster { get; set; }
 
     [ForeignKey("SectionId")]

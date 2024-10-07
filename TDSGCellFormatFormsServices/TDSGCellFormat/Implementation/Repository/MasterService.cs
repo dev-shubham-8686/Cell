@@ -209,8 +209,8 @@ namespace TDSGCellFormat.Implementation.Repository
             IQueryable<SubDeviceView> res = _context.SubDeviceMaster.Where(x => x.IsActive == true)
                                             .Select(x => new SubDeviceView
                                             {
+                                                deviceId = x.DeviceId,
                                                 subDeviceId = x.SubDeviceId,
-
                                                 subDeviceName = x.SubDeviceName
                                             });
 

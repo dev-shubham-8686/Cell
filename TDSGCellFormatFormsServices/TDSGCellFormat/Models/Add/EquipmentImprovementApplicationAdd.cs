@@ -6,8 +6,8 @@
 
         public string? When { get; set; }
 
-        public int? DeviceName { get; set; }
-        public List<int>? SubDeviceName { get; set; }
+        public int? MachineName { get; set; }
+        public List<int>? SubMachineName { get; set; }
         public int? SectionId { get; set; }
         public string? Purpose { get; set; }
         public string? ImprovementName { get; set; }

@@ -62,7 +62,7 @@
     public class SubDeviceView
     {
         public int subDeviceId { get; set; }
-
+        public int? deviceId { get; set; }
         public string? subDeviceName { get; set; }
     }
 
