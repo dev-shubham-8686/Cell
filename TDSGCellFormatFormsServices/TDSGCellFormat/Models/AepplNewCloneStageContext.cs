@@ -37,7 +37,7 @@ public partial class AepplNewCloneStageContext : DbContext
         if (!optionsBuilder.IsConfigured)
         {
             // Use a connection string from a configuration file or environment variable
-            optionsBuilder.UseSqlServer("Data Source = 192.168.100.30;Initial Catalog=AEPPL_NEW_Clone_Stage;User Id=sa;Password=Made1981@;TrustServerCertificate=True;");
+            optionsBuilder.UseSqlServer("Data Source = 172.30.222.38;Initial Catalog=AEPPL_NEW_Clone_Stage;User Id=sa;Password=Made1981@;TrustServerCertificate=True;");
         }
 
         // Enable lazy loading proxies
