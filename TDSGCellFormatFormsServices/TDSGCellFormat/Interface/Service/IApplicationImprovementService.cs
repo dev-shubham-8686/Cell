@@ -1,15 +1,18 @@
 ﻿using static TDSGCellFormat.Common.Enums;
 using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
+using TDSGCellFormat.Models.View;
 
 namespace TDSGCellFormat.Interface.Service
 {
-    public interface IApplicationImprovementService : IBaseService<ApplicationEquipmentImprovement> 
+    public interface IApplicationImprovementService : IBaseService<EquipmentImprovementApplication> 
     {
 
-        IQueryable<ApplicationImprovementAdd> GetAll();
-        ApplicationImprovementAdd GetById(int Id);
+        IQueryable<EquipmentImprovementApplicationAdd> GetAll();
+        EquipmentImprovementApplicationAdd GetById(int Id);
         Task<AjaxResult> DeleteReport(int Id);
-        Task<AjaxResult> AddOrUpdateReport(ApplicationImprovementAdd report);
+        Task<AjaxResult> AddOrUpdateReport(EquipmentImprovementApplicationAdd report);
+        Task<List<EquipmentImprovementView>> GetEqupimentImprovementList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue);
+
     }
 }
