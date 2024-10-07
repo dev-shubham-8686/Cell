@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.SqlClient;
-using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations.Schema;
+using TDSGCellFormat.Entities;
 using TDSGCellFormat.Models.Add;
 using TDSGCellFormat.Models.View;
 
@@ -26,12 +21,14 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         : base(options)
     {
     }
+
     public TdsgCellFormatDivisionContext()
         : base()
     {
     }
 
     public virtual DbSet<TroubleReportReviewerTaskMaster> TroubleReportReviewerTaskMasters { get; set; }
+
     public virtual DbSet<AdjustmentReport> AdjustmentReports { get; set; }
 
     public virtual DbSet<EquipmentImprovementApplication> EquipmentImprovementApplication { get; set; }
@@ -39,15 +36,19 @@ public partial class TdsgCellFormatDivisionContext : DbContext
     public virtual DbSet<EquipmentImprovementAttachment> EquipmentImprovementAttachment { get; set; }
     public virtual DbSet<ChangeRiskManagement> ChangeRiskManagement { get; set; }
     public virtual DbSet<TroubleAttachment> TroubleAttachments { get; set; }
+
     public DbSet<TroubleReportNumberResult> TroubleReportNumberResults { get; set; }
 
     [NotMapped]
     public DbSet<TroubleReportResult> TroubleReportResults { get; set; }
+
     [NotMapped]
     public DbSet<TroubleRevisionResult> TroubleRevisionResults { get; set; }
 
     public virtual DbSet<Category> Categories { get; set; }
+
     public DbSet<JsonDataSet> JsonResults { get; set; }
+
     public virtual DbSet<Material> Materials { get; set; }
 
     public virtual DbSet<MaterialConsumptionSlip> MaterialConsumptionSlips { get; set; }
@@ -91,17 +92,31 @@ public partial class TdsgCellFormatDivisionContext : DbContext
     public virtual DbSet<EmailLogMaster> EmailLogMasters { get; set; }
 
     public virtual DbSet<ExceptionLog> ExceptionLogs { get; set; }
+
+    public virtual DbSet<ChangeRiskManagement> ChangeRiskManagements { get; set; }
+
+    public virtual DbSet<AdjustmentReportPhoto> Photos { get; set; }
+
+    public virtual DbSet<Machine> Machines { get; set; }
+
+    public virtual DbSet<SubMachine> SubMachines { get; set; }
+
+    public virtual DbSet<FunctionMaster> FunctionMasters { get; set; }
+
+    public virtual DbSet<Area> Areas { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
         {
             // Use a connection string from a configuration file or environment variable
-            optionsBuilder.UseSqlServer("Data Source=192.168.100.30;Initial Catalog=TDSG_CellFormatDivision;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;");
+            optionsBuilder.UseSqlServer("Data Source=172.30.222.38;Initial Catalog=TDSG_CellFormatDivision;User Id=sa;Password=Made1981@;TrustServerCertificate=True;MultipleActiveResultSets=true;Encrypt=True;");
         }
 
         // Enable lazy loading proxies
         optionsBuilder.UseLazyLoadingProxies();
     }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
 
@@ -333,6 +348,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
         Database.ExecuteSqlRaw("EXECUTE dbo.SPP_TraceExceptionLog @ExceptionMessage, @ExceptionType , @ExceptionStackTrack ,@WebMethodName,@EmployeeId", exMessage, exType, exStackTrace, webMethod, empId);
     }
+
     public async Task<List<TroubleReportApproverTaskMasterAdd>> GetTroubleReportWorkFlowData(int troubelReportId)
     {
         var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@TroubleReportId", troubelReportId);
@@ -349,14 +365,14 @@ public partial class TdsgCellFormatDivisionContext : DbContext
             .ToListAsync();
     }
     public async Task<GetUserDetailsView> GetUserRole(string email)
-    { 
+    {
         var emailParam = new Microsoft.Data.SqlClient.SqlParameter("@UserEmail", email);
-        var result =  await this.Set<GetUserDetailsView>()
-            .FromSqlRaw("EXEC SPP_GetUserDetails @UserEmail",emailParam)
+        var result = await this.Set<GetUserDetailsView>()
+            .FromSqlRaw("EXEC SPP_GetUserDetails @UserEmail", emailParam)
             .ToListAsync();
 
         return result.FirstOrDefault();
-     
+
     }
 
     public async Task<List<TroubleReportExcel>> GetTroubleReportExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
@@ -366,7 +382,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         var employeeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@EmployeeId", employeeId);
         var typeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@Type", type);
         var result = await this.Set<TroubleReportExcel>()
-        .FromSqlRaw("EXEC GetTroubleReportExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam,typeIdParam)
+        .FromSqlRaw("EXEC GetTroubleReportExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
         .ToListAsync();
         return result;
 

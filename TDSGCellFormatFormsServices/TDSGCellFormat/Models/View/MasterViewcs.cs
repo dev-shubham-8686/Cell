@@ -50,6 +50,22 @@
     {
         public int employeeId { get; set; }
         public string? employeeName { get; set; }
+
+        public string? Email { get; set; }
+    }
+
+    public class AreaMasterView
+    {
+        public int AreaId { get; set; }
+
+        public string? AreaName { get; set; }
+    }
+
+    public class MachineView
+    {
+        public int MachineId { get; set; }
+
+        public string? MachineName { get; set; }
     }
 
     public class DeviceView
