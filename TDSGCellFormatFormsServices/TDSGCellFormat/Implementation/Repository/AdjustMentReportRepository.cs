@@ -1,5 +1,4 @@
 ﻿using DocumentFormat.OpenXml.Bibliography;
-using TDSGCellFormat.Entities;
 using TDSGCellFormat.Interface.Repository;
 using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
@@ -151,9 +150,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 // Get ID of newly added record
                 request.AdjustMentReportId = newReport.AdjustMentReportId;
 
-                if (request.ChangeRiskManagement != null)
+                if (request.ChangeRiskManagement_AdjustmentReport != null)
                 {
-                    await _context.ChangeRiskManagements.AddRangeAsync(request.ChangeRiskManagement);
+                    await _context.ChangeRiskManagement_AdjustmentReport.AddRangeAsync(request.ChangeRiskManagement_AdjustmentReport);
                 }
 
                 if (request.Photos != null)
@@ -192,44 +191,44 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.ModifiedDate = DateTime.Now;
                 existingReport.ModifiedBy = request.ModifiedBy;
 
-                var changeRiskManagements = _context.ChangeRiskManagements.Where(x => x.AdjustMentReportId == request.AdjustMentReportId).ToList();
+                var changeRiskManagements = _context.ChangeRiskManagement_AdjustmentReport.Where(x => x.AdjustMentReportId == request.AdjustMentReportId).ToList();
                 if (changeRiskManagements == null)
                 {
-                    if (request.ChangeRiskManagement != null)
+                    if (request.ChangeRiskManagement_AdjustmentReport != null)
                     {
-                        await _context.ChangeRiskManagements.AddRangeAsync(request.ChangeRiskManagement);
+                        await _context.ChangeRiskManagement_AdjustmentReport.AddRangeAsync(request.ChangeRiskManagement_AdjustmentReport);
                     }
                 }
                 else
                 {
-                    if (request.ChangeRiskManagement != null)
+                    if (request.ChangeRiskManagement_AdjustmentReport != null)
                     {
                         var changeRiskManagementToUpdate = changeRiskManagements
-                          .Where(u => request.ChangeRiskManagement.Select(l2 => l2.ChangeRiskManagementId)
+                          .Where(u => request.ChangeRiskManagement_AdjustmentReport.Select(l2 => l2.ChangeRiskManagementId)
                                             .Contains(u.ChangeRiskManagementId)).ToList();
 
-                        int newRecords = request.ChangeRiskManagement.Count(x => x.ChangeRiskManagementId == 0);
-                        int totalRecords = changeRiskManagements.Count;
-                        int deleted = totalRecords - changeRiskManagementToUpdate.Count;
+                        int newRecords = request.ChangeRiskManagement_AdjustmentReport.Count(x => x.ChangeRiskManagementId == 0);
+                        int totalRecords = changeRiskManagements.Count();
+                        int deleted = totalRecords - changeRiskManagementToUpdate.Count();
 
                         if (deleted > 0)
                         {
                             var deletedRecords = changeRiskManagements.Except(changeRiskManagementToUpdate)
-                                .Where(u => request.ChangeRiskManagement
+                                .Where(u => request.ChangeRiskManagement_AdjustmentReport
                                 .Select(l2 => l2.ChangeRiskManagementId).Contains(u.ChangeRiskManagementId));
 
                             foreach (var record in deletedRecords)
                             {
-                                var entity = await _context.ChangeRiskManagements.FindAsync(record.ChangeRiskManagementId);
+                                var entity = await _context.ChangeRiskManagement_AdjustmentReport.FindAsync(record.ChangeRiskManagementId);
                                 if (entity != null)
                                 {
                                     entity.IsDeleted = true;
-                                    _context.ChangeRiskManagements.Update(entity);
+                                    _context.ChangeRiskManagement_AdjustmentReport.Update(entity);
                                 }
                             }
                         }
 
-                        if (changeRiskManagementToUpdate.Count != 0)
+                        if (changeRiskManagementToUpdate.Count() != 0)
                         {
                             foreach (var entity in changeRiskManagements)
                             {
@@ -256,7 +255,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         if (newRecords > 0)
                         {
-                            await _context.ChangeRiskManagements.AddRangeAsync(request.ChangeRiskManagement.Where(x => x.ChangeRiskManagementId == 0));
+                            await _context.ChangeRiskManagement_AdjustmentReport.AddRangeAsync(request.ChangeRiskManagement_AdjustmentReport.Where(x => x.ChangeRiskManagementId == 0));
                         }
                     }
 

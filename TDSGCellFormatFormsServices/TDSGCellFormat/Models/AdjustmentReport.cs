@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TDSGCellFormat.Entities;
+namespace TDSGCellFormat.Models;
 
 [Table("AdjustmentReport")]
 public partial class AdjustmentReport

@@ -2,10 +2,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TDSGCellFormat.Entities
+namespace TDSGCellFormat.Models
 {
     [Table("ChangeRiskManagement_AdjustmentReport")]
-    public class ChangeRiskManagement
+    public class ChangeRiskManagement_AdjustmentReport
     {
         [DisplayName("Id")]
         [Key]

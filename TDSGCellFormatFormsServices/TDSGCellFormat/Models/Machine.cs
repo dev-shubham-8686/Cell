@@ -1,15 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TDSGCellFormat.Entities
+namespace TDSGCellFormat.Models
 {
-    [Table("FunctionMaster")]
-    public class FunctionMaster
+    [Table("Machine")]
+    public class Machine
     {
         [Key]
-        public int FunctionId { get; set; }
+        public int MachineId { get; set; }
 
-        public string? FunctionName { get; set; }
+        public string? MachineName { get; set; }
 
         public DateTime? CreatedDate { get; set; }
 

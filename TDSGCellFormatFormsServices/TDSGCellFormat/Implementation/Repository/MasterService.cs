@@ -17,17 +17,27 @@ namespace TDSGCellFormat.Implementation.Repository
             this._cloneContext = cloneContext;
         }
 
-        public IQueryable<AreaView> GetAllAreas()
+        public IQueryable<AreaMasterView> GetAllAreas()
         {
-            IQueryable<AreaView> areas = _context.Areas.Where(x => x.IsActive == true)
-                                            .Select(x => new AreaView
-                                            {
-                                                areaId = x.AreaId,
-                                                areaName = x.AreaName
-                                            });
+            IQueryable<AreaMasterView> res = null;
+            try
+            {
+                res = _context.Areas
+                    .Where(x => x.IsActive == true)
+                    .Select(x => new AreaMasterView
+                    {
+                        AreaId = x.AreaId,
+                        AreaName = x.AreaName
+                    });
 
-            return areas;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
         }
+
 
         public AreaView CreateArea(AreaAdd area)
         {
@@ -150,7 +160,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                                 category = x.Category,
                                                 costCenter = x.CostCenter,
 
-                                                name = x.Name
+                                                //name = x.Name
                                             });
 
             return res;
@@ -195,27 +205,7 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public IQueryable<AreaMasterView> GetAllAreas()
-        {
-            IQueryable<AreaMasterView> res = null;
-            try
-            {
-                res = _context.Areas
-                    .Where(x => x.IsActive == true)
-                    .Select(x => new AreaMasterView
-                    {
-                        AreaId = x.AreaId,
-                        AreaName = x.AreaName
-                    });
-
-            }
-            catch (Exception ex)
-            {
-
-            }
-            return res;
-        }
-
+       
         public IQueryable<MachineView> GetAllMachines()
         {
             IQueryable<MachineView> res = _context.Machines
@@ -240,6 +230,102 @@ namespace TDSGCellFormat.Implementation.Repository
                 });
 
             return res;
+        }
+
+        public IQueryable<SectionView> GetAllSection()
+
+        {
+
+            IQueryable<SectionView> res = _context.SectionMasters.Where(x => x.IsActive == true)
+
+                                            .Select(x => new SectionView
+
+                                            {
+
+                                                sectionId = x.SectionId,
+
+
+
+                                                sectionName = x.SectionName
+
+                                            });
+
+
+
+            return res;
+
+        }
+
+        public IQueryable<SubDeviceView> GetAllSubDevice()
+
+        {
+
+            IQueryable<SubDeviceView> res = _context.SubDeviceMaster.Where(x => x.IsActive == true)
+
+                                            .Select(x => new SubDeviceView
+
+                                            {
+
+                                                deviceId = x.DeviceId,
+
+                                                subDeviceId = x.SubDeviceId,
+
+                                                subDeviceName = x.SubDeviceName
+
+                                            });
+
+
+
+            return res;
+
+        }
+
+        public IQueryable<FunctionView> GetAllFunction()
+
+        {
+
+            IQueryable<FunctionView> res = _context.FunctionMaster.Where(x => x.IsActive == true)
+
+                                            .Select(x => new FunctionView
+
+                                            {
+
+                                                functionId = x.FunctionId,
+
+
+
+                                                functionName = x.FunctionName
+
+                                            });
+
+
+
+            return res;
+
+        }
+
+        public IQueryable<DeviceView> GetAllDevice()
+
+        {
+
+            IQueryable<DeviceView> res = _context.DeviceMasters.Where(x => x.IsActive == true)
+
+                                            .Select(x => new DeviceView
+
+                                            {
+
+                                                deviceId = x.DeviceId,
+
+
+
+                                                deviceName = x.DeviceName
+
+                                            });
+
+
+
+            return res;
+
         }
     }
 }

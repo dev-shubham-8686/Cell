@@ -1,6 +1,4 @@
-﻿using TDSGCellFormat.Entities;
-
-namespace TDSGCellFormat.Models.Add
+﻿namespace TDSGCellFormat.Models.Add
 {
     public class AdjustMentReportRequest
     {
@@ -30,7 +28,7 @@ namespace TDSGCellFormat.Models.Add
 
         public bool? ChangeRiskManagementRequired { get; set; }
 
-        public List<ChangeRiskManagement>? ChangeRiskManagement { get; set; }
+        public List<ChangeRiskManagement_AdjustmentReport>? ChangeRiskManagement_AdjustmentReport { get; set; }
 
         public string? ConditionAfterAdjustment { get; set; }
 

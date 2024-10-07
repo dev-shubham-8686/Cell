@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations.Schema;
-using TDSGCellFormat.Entities;
 using TDSGCellFormat.Models.Add;
 using TDSGCellFormat.Models.View;
 
@@ -95,6 +94,8 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
     public virtual DbSet<ChangeRiskManagement> ChangeRiskManagements { get; set; }
 
+    public virtual DbSet<ChangeRiskManagement_AdjustmentReport> ChangeRiskManagement_AdjustmentReport { get; set; }
+
     public virtual DbSet<AdjustmentReportPhoto> Photos { get; set; }
 
     public virtual DbSet<Machine> Machines { get; set; }
@@ -103,7 +104,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
     public virtual DbSet<FunctionMaster> FunctionMasters { get; set; }
 
-    public virtual DbSet<Area> Areas { get; set; }
+    
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
