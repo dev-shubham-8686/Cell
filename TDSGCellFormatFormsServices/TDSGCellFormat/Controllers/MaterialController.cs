@@ -139,17 +139,17 @@ namespace TDSGCellFormat.Controllers
         [HttpPost("AddOrUpdate")]
         public async Task<IActionResult> POST(MaterialConsumptionSlipAdd report)
         {
-            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
-            // Call the IsValidAuthentication method
-            AjaxResult authResult;
-            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
-
-            if (!isValidAuth)
-            {
-                // Return unauthorized response if authentication fails
-                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
-                return Unauthorized(Ajaxresponse);
-            }
+           // var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+           // // Call the IsValidAuthentication method
+           // AjaxResult authResult;
+           // bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+           //
+           // if (!isValidAuth)
+           // {
+           //     // Return unauthorized response if authentication fails
+           //     Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+           //     return Unauthorized(Ajaxresponse);
+           // }
             if (ModelState.IsValid)
             {
                 var result = await _materialService.AddOrUpdateReport(report);

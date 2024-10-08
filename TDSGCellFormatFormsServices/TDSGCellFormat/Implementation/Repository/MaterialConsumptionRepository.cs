@@ -134,6 +134,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 materialConsumptionSlipId = materialConsumptionSlips.MaterialConsumptionSlipId,
                 materialConsumptionSlipNo = materialConsumptionSlips.MaterialConsumptionSlipNo,
                 createdDate = materialConsumptionSlips.CreatedDate?.ToString("dd-MM-yyyy"),
+                closedDate = materialConsumptionSlips.ClosedDate?.ToString("dd-MM-yyyy"),
                 requestor = requestor.EmployeeName,
                 department = department,
                 remarks = materialConsumptionSlips.Remarks,
@@ -200,10 +201,10 @@ namespace TDSGCellFormat.Implementation.Repository
 
 
                 var materialConsumptionSlipIdParams = new Microsoft.Data.SqlClient.SqlParameter("@materialConsumptionSlipId", newMaterialConsumptionSlip.MaterialConsumptionSlipId);
-                await _context.Set<TroubleReportNumberResult>()
+                 _context.Set<TroubleReportNumberResult>()
                             .FromSqlRaw("EXEC [dbo].[SPP_GenerateMaterialConsumptionSlipNumber] @materialConsumptionSlipId", materialConsumptionSlipIdParams)
-                            .ToListAsync();
-
+                            .ToList();
+               
                 var troubleReportnum = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == newMaterialConsumptionSlip.MaterialConsumptionSlipId && x.IsDeleted == false).Select(x => x.MaterialConsumptionSlipNo).FirstOrDefault();
                 
                 foreach (var item in report.items)
@@ -780,7 +781,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     materialData.IsClosed = true;
                     materialData.IsScraped = report.isScraped;
-
+                    materialData.ClosedDate = DateTime.Now;
                     materialData.ScrapRemarks = report.scrapRemarks;
                     materialData.ScrapTicketNo = report.scrapTicketNo;
                     materialData.Status = ApprovalTaskStatus.Closed.ToString();
@@ -1082,7 +1083,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var excelData = await _context.GetMaterialExcel(fromDate, toDate, employeeId, type);
                 using (var workbook = new XLWorkbook())
                 {
-                    var worksheet = workbook.Worksheets.Add("Trouble Reports");
+                    var worksheet = workbook.Worksheets.Add("Material Consumpiton");
 
                     // Get properties and determine columns to exclude
                     var properties = excelData.GetType().GetGenericArguments()[0].GetProperties();
@@ -1163,8 +1164,9 @@ namespace TDSGCellFormat.Implementation.Repository
 
         private static readonly Dictionary<string, string> ColumnHeaderMapping = new Dictionary<string, string>
 {
-    { "WhenDate", "When Date" },
-            {"MaterialConsumptionSlipNo","Request No" }
+    { "RequestedDate", "Requested Date" },
+            {"MaterialConsumptionSlipNo","Request No" },
+            {"ClosedDate","Closed Date" }
 };
 
         private string CapitalizeFirstLetter(string input)
