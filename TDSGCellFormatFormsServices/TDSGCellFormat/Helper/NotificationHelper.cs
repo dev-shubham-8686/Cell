@@ -769,6 +769,7 @@ namespace TDSGCellFormat.Helper
                 if (requestId > 0)
                 {
                     var materialData = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == requestId && x.IsDeleted == false).FirstOrDefault();
+                    var materialNum = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == requestId && x.IsDeleted == false).Select(x => x.MaterialConsumptionSlipNo).FirstOrDefault();
                     if (materialData != null)
                     {
                         if (materialData.CreatedBy > 0)
@@ -975,7 +976,7 @@ namespace TDSGCellFormat.Helper
                                 }
 
                                 emailBody = emailBody.Replace("#MaterialLink#", docLink);
-                                emailBody = emailBody.Replace("#MaterialConsumptionNo#", materialData.MaterialConsumptionSlipNo);
+                                emailBody = emailBody.Replace("#MaterialConsumptionNo#", materialNum);
                                 emailBody = emailBody.Replace("#Requestor#", requesterUserName);
                                 emailBody = emailBody.Replace("#Comment#", comment);
                                 emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
