@@ -25,6 +25,7 @@ namespace TDSGCellFormat.Models.View
         public string department { get; set; }
 
         public string? createdDate {  get; set; }
+        public string? closedDate { get; set; }
 
         public string remarks { get; set; }
         public string? status { get; set; }

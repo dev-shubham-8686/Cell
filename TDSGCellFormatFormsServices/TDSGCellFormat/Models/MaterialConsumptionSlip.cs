@@ -18,6 +18,7 @@ public partial class MaterialConsumptionSlip
     public string? Status { get; set; }
     public bool? IsSubmit { get; set; }
     public bool? IsClosed {  get; set; }
+    public DateTime? ClosedDate {  get; set; }
     public string? ScrapTicketNo { get; set; }
     public string? ScrapRemarks { get; set; }
     public bool? IsDeleted { get; set; }

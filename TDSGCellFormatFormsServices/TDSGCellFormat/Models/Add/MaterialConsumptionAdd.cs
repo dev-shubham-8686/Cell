@@ -91,7 +91,8 @@ namespace TDSGCellFormat.Models.Add
         public string? MaterialConsumptionSlipNo { get; set; }
         public string? Department { get; set; }
         public string? Requestor { get; set; }
-        public string? WhenDate { get; set; }
+        public string? RequestedDate { get; set; }
+        public string? ClosedDate { get; set; }
         public string? Status { get; set; }
     }
 }
