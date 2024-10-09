@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Modal } from "antd";
 // import { useAuth } from "../../context/AuthContext";
-import Workflow from "../EquipmentReport/Workflow";
-import History from "../EquipmentReport/History";
+import Workflow from "../equipmentReport/Workflow";
+import History from "../equipmentReport/History";
 import Page from "../page/page";
 import { UserContext } from "../../context/userContext";
-import EquipmentReportForm from "../EquipmentReport/Form";
+import EquipmentReportForm from "../equipmentReport/Form";
 import useEquipmentReportByID from "../../apis/equipmentReport/useEquipmentReport/useEquipmentReportById";
 
 type TabName = "form" | "history" | "workflow";

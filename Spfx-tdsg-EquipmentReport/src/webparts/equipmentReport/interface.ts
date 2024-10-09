@@ -37,16 +37,27 @@ export  interface IEquipmentImprovementReport {
   CreatedBy:number;
   ModifiedBy:number;
   IsDeleted:boolean;
-  EquipmentCurrSituationAttachmentDetails:IAttachments;
-  EquipmentImprovementAttachmentDetails:IAttachments;
+  EquipmentCurrSituationAttachmentDetails:ICurrentSituationAttachments;
+  EquipmentImprovementAttachmentDetails:IImprovementAttachments;
   ChangeRiskManagementDetails:IChangeRiskData[];
   // attachment: File;
 }
 
-export interface IAttachments{
-  id:string;
-  fileName:string;
-  filePath:string;
+export interface ICurrentSituationAttachments{
+  CurrSituationAttachmentId:number;
+  EquipmentImprovementId:number;
+  CurrSituationDocName:string;
+  CurrSituationDocFilePath:string;
+  CreatedBy:number;
+  ModifiedBy:number;
+}
+export interface IImprovementAttachments{
+  ImprovementAttachmentId:number;
+  EquipmentImprovementId:number;
+  ImprovementDocName:string;
+  ImprovementDocFilePath:string;
+  CreatedBy:number;
+  ModifiedBy:number;
 }
 export interface IChangeRiskData {
   key:number;

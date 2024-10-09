@@ -2,13 +2,12 @@ import { ConfigProvider, Modal, Select, Table, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { DatePicker, Input, Button, Upload, Form } from "antd";
 import { ArrowLeftOutlined, UploadOutlined } from "@ant-design/icons";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { DATE_FORMAT, DATE_TIME_FORMAT } from "../../GLOBAL_CONSTANT";
 import { ColumnsType } from "antd/es/table";
 import {
-  IAttachments,
   IChangeRiskData,
   IEquipmentImprovementReport,
 } from "../../interface";
@@ -19,6 +18,7 @@ import useDeviceMaster from "../../apis/masters/useDeviceMaster";
 import useSubDeviceMaster from "../../apis/masters/useSubDeviceMaster";
 import useSectionMaster from "../../apis/masters/useSectionMaster";
 import useFunctionMaster from "../../apis/masters/useFunctionMaster";
+import FileUpload from "../fileUpload/FileUpload";
 
 const { TextArea } = Input;
 
@@ -34,7 +34,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
   const navigate = useNavigate();
   const { confirm } = Modal;
-
+   const {id}=useParams();
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState<
     IEquipmentImprovementReport | []
@@ -51,11 +51,18 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
   const onSubmitFormHandler = async (): Promise<void> => {
     console.log("form submission", formValues);
+    const values =form.getFieldsValue();
+    values.When = dayjs().format("YYYY-MM-DD");    
+    eqReportSave.mutate(values)
   };
 
   const onSaveAsDraftHandler = async (): Promise<void> => {
     const values = form.getFieldsValue();
     console.log("form saved as draft data", values);
+    if(id){
+        values.EquipmentImprovementId=id;
+    }
+    eqReportSave.mutate(values)
     navigate("/");
   };
 
@@ -579,8 +586,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               <div className="col">
                 <Form.Item
                   label={<span className="text-muted w-95">Device Name</span>}
-                  name="DeviceName"
-                  rules={validationRules["DeviceName"]}
+                  name="MachineName"
+                  rules={validationRules["MachineName"]}
                 >
                   <Select
                   showSearch
@@ -610,8 +617,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   label={
                     <span className="text-muted w-95">Sub Device Name</span>
                   }
-                  name="SubDeviceName"
-                  rules={validationRules["SubDeviceName"]}
+                  name="SubMachineName"
+                  rules={validationRules["SubMachineName"]}
                 >
                   <Select
                       showSearch
@@ -640,8 +647,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               <div className="col">
                 <Form.Item
                   label={<span className="text-muted w-95">Section Name</span>}
-                  name="SectionName"
-                  rules={validationRules["SectionName"]}
+                  name="SectionId"
+                  rules={validationRules["SectionId"]}
                 >
                   <Select
                       showSearch
@@ -720,10 +727,30 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="currentSituationAttachment"
                   rules={validationRules.attachment}
                 >
-                  <Upload>
+                  {/* <Upload>
                     {" "}
                     <Button icon={<UploadOutlined />}>Attach Document</Button>
-                  </Upload>
+                  </Upload> */}
+                  <FileUpload
+                   key={`file-upload-current-situation`}
+                   folderName={"foldername"}
+                   libraryName={"lbname"}
+                  files={form.getFieldValue("currentSituationAttachment").map((a)=>({
+                         ...a,
+                         uid:a.EquipmentCurrSituationAttachmentId?.toString()??"",
+                         url:`${a.url}`
+                  }))}
+                  setIsLoading={(loading: boolean) => {
+                    // setIsLoading(loading);
+                  }}       
+                  isLoading={false}
+                  onAddFile={(name: string, url: string) => {
+                   console.log("File Added")
+                  }}
+                  onRemoveFile={(documentName: string) => {
+                    console.log("File Removed")
+                  }}
+               />
                 </Form.Item>
               </div>
 
@@ -735,10 +762,26 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="improvementAttachment"
                   rules={validationRules.attachment}
                 >
-                  <Upload>
-                    {" "}
-                    <Button icon={<UploadOutlined />}>Attach Document</Button>
-                  </Upload>
+                  <FileUpload
+                  key={`file-upload-improvement`}
+                   folderName={"foldername"}
+                   libraryName={"lbname"}
+                   files={form.getFieldValue("improvementAttachment").map((a)=>({
+                    ...a,
+                    uid:a.EquipmentImprovementAttachmentId?.toString()??"",
+                    url:`${a.url}`
+             }))}
+                  setIsLoading={(loading: boolean) => {
+                    // setIsLoading(loading);
+                  }}       
+                  isLoading={false}
+                  onAddFile={(name: string, url: string) => {
+                   console.log("File Added")
+                  }}
+                  onRemoveFile={(documentName: string) => {
+                    console.log("File Removed")
+                  }}
+               />
                 </Form.Item>
               </div>
             </div>
@@ -771,10 +814,26 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="pcrnAttachment"
                   rules={validationRules.attachment}
                 >
-                  <Upload className="w-100">
-                    {" "}
-                    <Button icon={<UploadOutlined />}>Attach Document</Button>
-                  </Upload>
+                    <FileUpload
+                  key={`file-upload-pcrn`}
+                   folderName={"foldername"}
+                   libraryName={"lbname"}
+                  files={form.getFieldValue("pcrnAttachment").map((a)=>({
+                    ...a,
+                    uid:a.PCRNId?.toString()??"",
+                    url:`${a.url}`
+             }))}
+                  setIsLoading={(loading: boolean) => {
+                    // setIsLoading(loading);
+                  }}       
+                  isLoading={false}
+                  onAddFile={(name: string, url: string) => {
+                   console.log("File Added")
+                  }}
+                  onRemoveFile={(documentName: string) => {
+                    console.log("File Removed")
+                  }}
+               />
                 </Form.Item>
               </div>
 
