@@ -996,16 +996,16 @@ namespace TDSGCellFormat.Implementation.Repository
                     tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
 
                     // Add the serial number to the first column
-                    tableBuilder.Append("<td style=\"width:10%; border:0.25px; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
+                    tableBuilder.Append("<td style=\"width:5%; border:0.25px; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
 
                     // Add the rest of the data to the respective columns
-                    tableBuilder.Append("<td style=\"width:10%; border:0.25px; height: 20px; padding: 5px\">" + item.Category + "</td>");
-                    tableBuilder.Append("<td style=\"width:20%; border:0.25px; height: 20px; padding: 5px\">" + item.MaterialDescription + "</td>");
-                    tableBuilder.Append("<td style=\"width:10%; border:0.25px; height: 20px; padding: 5px\">" + item.MaterialNo + "</td>");
-                    tableBuilder.Append("<td style=\"width:10%; border:0.25px; height: 20px; padding: 5px\">" + item.Quantity + "</td>");
-                    tableBuilder.Append("<td style=\"width:10%; border:0.25px; height: 20px; padding: 5px\">" + item.UOM + "</td>");
-                    tableBuilder.Append("<td style=\"width:10%; border:0.25px; height: 20px; padding: 5px\">" + item.CostCenter + "</td>");
-                    tableBuilder.Append("<td style=\"width:10%; border:0.25px; height: 20px; padding: 5px\">" + item.GLCode + "</td>");
+                    tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.Category + "</td>");
+                    tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.MaterialDescription + "</td>");
+                    tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.MaterialNo + "</td>");
+                    tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.Quantity + "</td>");
+                    tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.UOM + "</td>");
+                    tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.CostCenter + "</td>");
+                    tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.GLCode + "</td>");
                     tableBuilder.Append("<td style=\"width:20%; border:0.25px; height: 20px; padding: 5px\">" + item.Purpose + "</td>");
 
                     tableBuilder.Append("</tr>");

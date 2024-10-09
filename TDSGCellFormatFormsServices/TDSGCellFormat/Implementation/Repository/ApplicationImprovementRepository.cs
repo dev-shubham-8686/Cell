@@ -137,7 +137,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     var newReport = new EquipmentImprovementApplication();
 
-                    newReport.When = DateTime.Parse(report.When);
+                    newReport.When = DateTime.Now;
                     newReport.MachineId = report.MachineName;
                     newReport.SubMachineId = report.SubMachineName != null ? string.Join(",", report.SubMachineName) : string.Empty;
                     newReport.SectionId = report.SectionId;
