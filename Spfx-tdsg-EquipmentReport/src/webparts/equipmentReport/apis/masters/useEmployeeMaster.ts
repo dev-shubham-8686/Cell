@@ -11,9 +11,9 @@ export interface IEmployeeMaster {
 const getEmployeeMaster = async () => {
   try {
     const response = await http.get<{ReturnValue: IEmployeeMaster[]}>(GET_EMPLOYEE_MASTER);
-     debugger
+     
     if (response) {
-      debugger
+      
       const tabledata = response.data.ReturnValue ?? [];
       return tabledata;
     }

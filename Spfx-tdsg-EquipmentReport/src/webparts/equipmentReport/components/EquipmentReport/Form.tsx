@@ -10,6 +10,7 @@ import { ColumnsType } from "antd/es/table";
 import {
   IChangeRiskData,
   IEquipmentImprovementReport,
+  IImprovementAttachments,
 } from "../../interface";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -34,35 +35,39 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
   const navigate = useNavigate();
   const { confirm } = Modal;
-   const {id}=useParams();
+  const { id } = useParams();
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState<
     IEquipmentImprovementReport | []
   >([]);
-  const [ChangeRiskManagementDetails, setChangeRiskManagementDetails] =useState<IChangeRiskData[]>([]);
+  const [ChangeRiskManagementDetails, setChangeRiskManagementDetails] =
+    useState<IChangeRiskData[]>([]);
   const eqReportSave = useCreateEditEQReport();
   const { data: devices, isLoading: deviceIsLoading } = useDeviceMaster();
-  const { data: subDevices, isLoading: subDeviceIsLoading } =useSubDeviceMaster();
+  const { data: subDevices, isLoading: subDeviceIsLoading } =
+    useSubDeviceMaster();
   const { data: sections, isLoading: sectionIsLoading } = useSectionMaster();
   const { data: functions, isLoading: functionIsLoading } = useFunctionMaster();
+  const [improvementAttchments, setImprovementAttchments] = useState<
+    IImprovementAttachments[] | []
+  >([]);
+
   // const { data: employees, isLoading: employeeisLoading } = useEmployeeMaster();
-
-
 
   const onSubmitFormHandler = async (): Promise<void> => {
     console.log("form submission", formValues);
-    const values =form.getFieldsValue();
-    values.When = dayjs().format("YYYY-MM-DD");    
-    eqReportSave.mutate(values)
+    const values = form.getFieldsValue();
+    values.When = dayjs().format("YYYY-MM-DD");
+    eqReportSave.mutate(values);
   };
 
   const onSaveAsDraftHandler = async (): Promise<void> => {
     const values = form.getFieldsValue();
     console.log("form saved as draft data", values);
-    if(id){
-        values.EquipmentImprovementId=id;
+    if (id) {
+      values.EquipmentImprovementId = id;
     }
-    eqReportSave.mutate(values)
+    eqReportSave.mutate(values);
     navigate("/");
   };
 
@@ -120,6 +125,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           }
         );
       form.setFieldsValue(existingEquipmentReport);
+      setImprovementAttchments(
+        existingEquipmentReport?.EquipmentImprovementAttachmentDetails ?? []
+      );
+      debugger;
       setChangeRiskManagementDetails(changeRiskData);
       console.log(
         "CHangeRisk data ",
@@ -127,7 +136,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         changeRiskData
       );
     }
-
+    debugger;
     console.log(
       "CHangeRisk data ",
       existingEquipmentReport?.ChangeRiskManagementDetails
@@ -242,19 +251,20 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             <Select
               showSearch
               filterOption={(input, option) =>
-                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
               }
               style={{ width: "100%" }}
               placeholder="Select function"
               onChange={(value) => {
                 onChangeTableData(record.key, "FunctionId", value);
               }}
-             options={functions?.map((fun)=>({
-                    label:fun.functionName,
-                    value:fun.functionId
-                  }))}
+              options={functions?.map((fun) => ({
+                label: fun.functionName,
+                value: fun.functionId,
+              }))}
               className="custom-disabled-select"
-           
               loading={functionIsLoading}
             >
               {/* {employee?.map((employee) => (
@@ -442,9 +452,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   .toLowerCase()
                   .includes(input.toLowerCase())
               }
-              options={devices?.map((device)=>({
-                label:device.deviceName,
-                value:device.deviceId
+              options={devices?.map((device) => ({
+                label: device.deviceName,
+                value: device.deviceId,
               }))}
               className="custom-disabled-select"
             >
@@ -555,6 +565,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             layout="vertical"
             form={form}
             initialValues={existingEquipmentReport}
+            onValuesChange={(changedValues, allValues) => {
+              debugger;
+              console.log("Form Changed Values: ", allValues, changedValues);
+            }}
           >
             <div className="row ">
               <div className="col">
@@ -590,16 +604,18 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules["MachineName"]}
                 >
                   <Select
-                  showSearch
-                  
-              filterOption={(input, option) =>
-                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-              }
-                  options={devices?.map((device)=>({
-                    label:device.deviceName,
-                    value:device.deviceId
-                  }))}
-                  loading={deviceIsLoading}>
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={devices?.map((device) => ({
+                      label: device.deviceName,
+                      value: device.deviceId,
+                    }))}
+                    loading={deviceIsLoading}
+                  >
                     {/* {troubles?.map((trouble) => (
                       <Select.Option
                         key={trouble.troubleId}
@@ -621,17 +637,19 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules["SubMachineName"]}
                 >
                   <Select
-                      showSearch
-                  
-                      filterOption={(input, option) =>
-                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                      }
-                  mode="multiple"
-                  options={subDevices?.map((subdevice)=>({
-                    label:subdevice.subDeviceName,
-                    value:subdevice.subDeviceId
-                  }))}
-                  loading={subDeviceIsLoading}> 
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    mode="multiple"
+                    options={subDevices?.map((subdevice) => ({
+                      label: subdevice.subDeviceName,
+                      value: subdevice.subDeviceId,
+                    }))}
+                    loading={subDeviceIsLoading}
+                  >
                     {/* {troubles?.map((trouble) => (
                       <Select.Option
                         key={trouble.troubleId}
@@ -651,16 +669,18 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules["SectionId"]}
                 >
                   <Select
-                      showSearch
-                  
-                      filterOption={(input, option) =>
-                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                      }
-                   options={sections?.map((section)=>({
-                    label:section.sectionName,
-                    value:section.sectionId
-                  }))}
-                  loading={sectionIsLoading}>
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={sections?.map((section) => ({
+                      label: section.sectionName,
+                      value: section.sectionId,
+                    }))}
+                    loading={sectionIsLoading}
+                  >
                     {/* {troubles?.map((trouble) => (
                       <Select.Option
                         key={trouble.troubleId}
@@ -724,7 +744,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       Current Situation Attachments
                     </span>
                   }
-                  name="currentSituationAttachment"
+                  name="EquipmentCurrSituationAttachmentDetails"
                   rules={validationRules.attachment}
                 >
                   {/* <Upload>
@@ -732,56 +752,139 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     <Button icon={<UploadOutlined />}>Attach Document</Button>
                   </Upload> */}
                   <FileUpload
-                   key={`file-upload-current-situation`}
-                   folderName={"foldername"}
-                   libraryName={"lbname"}
-                  files={form.getFieldValue("currentSituationAttachment").map((a)=>({
-                         ...a,
-                         uid:a.EquipmentCurrSituationAttachmentId?.toString()??"",
-                         url:`${a.url}`
-                  }))}
-                  setIsLoading={(loading: boolean) => {
-                    // setIsLoading(loading);
-                  }}       
-                  isLoading={false}
-                  onAddFile={(name: string, url: string) => {
-                   console.log("File Added")
-                  }}
-                  onRemoveFile={(documentName: string) => {
-                    console.log("File Removed")
-                  }}
-               />
+                    key={`file-upload-current-situation`}
+                    folderName={
+                      form.getFieldValue("EquipmentImprovementId") ??
+                      "NewFolder"
+                    }
+                    subFolderName={"CurrentSituation"}
+                    libraryName={"EqReportDocuments"}
+                    files={form
+                      .getFieldValue("EquipmentCurrSituationAttachmentDetails")
+                      ?.map((a) => ({
+                        ...a,
+                        uid:
+                          a.EquipmentCurrSituationAttachmentId?.toString() ??
+                          "",
+                        name: a.CurrSituationDocName,
+                        url: `${a.CurrSituationDocFilePath}`,
+                      }))}
+                    setIsLoading={(loading: boolean) => {
+                      // setIsLoading(loading);
+                    }}
+                    isLoading={false}
+                    onAddFile={(name: string, url: string) => {
+                      debugger;
+                      const existingAttachments =
+                        form.getFieldValue(
+                          "EquipmentCurrSituationAttachmentDetails"
+                        ) || [];
+                      console.log("FILES", existingAttachments);
+                      const newAttachment: IImprovementAttachments = {
+                        EquipmentImprovementAttachmentId: 0,
+                        ImprovementDocName: name,
+                        ImprovementDocFilePath: url,
+                        EquipmentImprovementId: parseInt(id),
+                        CreatedBy: 76,
+                        ModifiedBy: 76,
+                      };
+                      const updatedAttachments =
+                        existingAttachments.length > 0
+                          ? [...existingAttachments, newAttachment] // If existing attachments, append the new one
+                          : [newAttachment];
+                      debugger;
+                      form.setFieldValue(
+                        "EquipmentCurrSituationAttachmentDetails",
+                        updatedAttachments
+                      );
+                      console.log("File Added");
+                    }}
+                    onRemoveFile={(documentName: string) => {
+                      debugger;
+                      const existingAttachments = form.getFieldValue(
+                        "EquipmentCurrSituationAttachmentDetails"
+                      );
+                      const updatedAttachments = existingAttachments?.filter(
+                        (doc) => doc.name !== documentName
+                      );
+                      form.setFieldValue(
+                        "EquipmentCurrSituationAttachmentDetails",
+                        updatedAttachments
+                      );
+                      console.log("File Removed");
+                    }}
+                  />
                 </Form.Item>
               </div>
-
+              {console.log(
+                "FILES",
+                form.getFieldValue("EquipmentImprovementAttachmentDetails"),
+                improvementAttchments
+              )}
               <div className="col">
                 <Form.Item
                   label={
                     <span className="text-muted">Improvement Attachments</span>
                   }
-                  name="improvementAttachment"
+                  name="EquipmentImprovementAttachmentDetails"
                   rules={validationRules.attachment}
                 >
                   <FileUpload
-                  key={`file-upload-improvement`}
-                   folderName={"foldername"}
-                   libraryName={"lbname"}
-                   files={form.getFieldValue("improvementAttachment").map((a)=>({
-                    ...a,
-                    uid:a.EquipmentImprovementAttachmentId?.toString()??"",
-                    url:`${a.url}`
-             }))}
-                  setIsLoading={(loading: boolean) => {
-                    // setIsLoading(loading);
-                  }}       
-                  isLoading={false}
-                  onAddFile={(name: string, url: string) => {
-                   console.log("File Added")
-                  }}
-                  onRemoveFile={(documentName: string) => {
-                    console.log("File Removed")
-                  }}
-               />
+                    key={`file-upload-improvement`}
+                    folderName={
+                      form.getFieldValue("EquipmentImprovementId") ??
+                      "NewFolder"
+                    }
+                    subFolderName={"Improvement Attachments"}
+                    libraryName={"EqReportDocuments"}
+                    files={improvementAttchments?.map((a) => ({
+                      ...a,
+                      uid: a.EquipmentImprovementAttachmentId?.toString() ?? "",
+                      name: a.ImprovementDocName,
+                      url: `${a.ImprovementDocFilePath}`,
+                    }))}
+                    setIsLoading={(loading: boolean) => {
+                      // setIsLoading(loading);
+                    }}
+                    isLoading={false}
+                    onAddFile={(name: string, url: string) => {
+                      debugger;
+                      const existingAttachments =
+                        form.getFieldValue(
+                          "EquipmentImprovementAttachmentDetails"
+                        ) ?? [];
+                      console.log("FILES", existingAttachments);
+                      const newAttachment: IImprovementAttachments = {
+                        EquipmentImprovementAttachmentId: 0,
+                        EquipmentImprovementId: parseInt(id),
+                        ImprovementDocName: name,
+                        ImprovementDocFilePath: url,
+                        CreatedBy: 76,
+                        ModifiedBy: 76,
+                      };
+                      debugger;
+                      const updatedAttachments: IImprovementAttachments[] = [
+                        ...existingAttachments,
+                        newAttachment,
+                      ];
+                      debugger;
+                      setImprovementAttchments(updatedAttachments);
+                      debugger;
+                      console.log("File Added");
+                    }}
+                    onRemoveFile={(documentName: string) => {
+                      debugger;
+                      const existingAttachments = form.getFieldValue(
+                        "EquipmentImprovementAttachmentDetails"
+                      );
+                      debugger;
+                      const updatedAttachments = existingAttachments?.filter(
+                        (doc) => doc.ImprovementDocName !== documentName
+                      );
+                      setImprovementAttchments(updatedAttachments);
+                      console.log("File Removed");
+                    }}
+                  />
                 </Form.Item>
               </div>
             </div>
@@ -814,26 +917,26 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="pcrnAttachment"
                   rules={validationRules.attachment}
                 >
-                    <FileUpload
-                  key={`file-upload-pcrn`}
-                   folderName={"foldername"}
-                   libraryName={"lbname"}
-                  files={form.getFieldValue("pcrnAttachment").map((a)=>({
-                    ...a,
-                    uid:a.PCRNId?.toString()??"",
-                    url:`${a.url}`
-             }))}
-                  setIsLoading={(loading: boolean) => {
-                    // setIsLoading(loading);
-                  }}       
-                  isLoading={false}
-                  onAddFile={(name: string, url: string) => {
-                   console.log("File Added")
-                  }}
-                  onRemoveFile={(documentName: string) => {
-                    console.log("File Removed")
-                  }}
-               />
+                  <FileUpload
+                    key={`file-upload-pcrn`}
+                    folderName={"foldername"}
+                    libraryName={"lbname"}
+                    files={form.getFieldValue("pcrnAttachment")?.map((a) => ({
+                      ...a,
+                      uid: a.PCRNId?.toString() ?? "",
+                      url: `${a.url}`,
+                    }))}
+                    setIsLoading={(loading: boolean) => {
+                      // setIsLoading(loading);
+                    }}
+                    isLoading={false}
+                    onAddFile={(name: string, url: string) => {
+                      console.log("File Added");
+                    }}
+                    onRemoveFile={(documentName: string) => {
+                      console.log("File Removed");
+                    }}
+                  />
                 </Form.Item>
               </div>
 

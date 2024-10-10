@@ -37,22 +37,22 @@ export  interface IEquipmentImprovementReport {
   CreatedBy:number;
   ModifiedBy:number;
   IsDeleted:boolean;
-  EquipmentCurrSituationAttachmentDetails:ICurrentSituationAttachments;
-  EquipmentImprovementAttachmentDetails:IImprovementAttachments;
+  EquipmentCurrSituationAttachmentDetails:ICurrentSituationAttachments[];
+  EquipmentImprovementAttachmentDetails:IImprovementAttachments[];
   ChangeRiskManagementDetails:IChangeRiskData[];
   // attachment: File;
 }
 
 export interface ICurrentSituationAttachments{
-  CurrSituationAttachmentId:number;
+  EquipmentCurrSituationAttachmentId:number;
   EquipmentImprovementId:number;
   CurrSituationDocName:string;
   CurrSituationDocFilePath:string;
-  CreatedBy:number;
-  ModifiedBy:number;
+  CreatedBy?:number;
+  ModifiedBy?:number;
 }
 export interface IImprovementAttachments{
-  ImprovementAttachmentId:number;
+  EquipmentImprovementAttachmentId:number;
   EquipmentImprovementId:number;
   ImprovementDocName:string;
   ImprovementDocFilePath:string;

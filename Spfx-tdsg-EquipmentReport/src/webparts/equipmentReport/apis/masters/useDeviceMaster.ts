@@ -11,9 +11,9 @@ export interface IDeviceMaster {
 const getDeviceMaster = async () => {
   try {
     const response = await http.get<{ReturnValue: IDeviceMaster[]}>(GET_DEVICE_MASTER);
-     debugger
+     
     if (response) {
-      debugger
+      
       const tabledata = response.data.ReturnValue ?? [];
       return tabledata;
     }
