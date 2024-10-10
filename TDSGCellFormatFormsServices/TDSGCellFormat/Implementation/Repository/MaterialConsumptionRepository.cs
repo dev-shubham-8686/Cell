@@ -586,7 +586,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             var troubleData = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == materialConsumptionId && x.IsDeleted == false && x.IsDeleted == false).FirstOrDefault();
                             if (troubleData != null)
                             {
-                                troubleData.Status = ApprovalTaskStatus.Completed.ToString();
+                                troubleData.Status = ApprovalTaskStatus.Approved.ToString();
                                 await _context.SaveChangesAsync();
                                 await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Completed, null, 0);
                             }
