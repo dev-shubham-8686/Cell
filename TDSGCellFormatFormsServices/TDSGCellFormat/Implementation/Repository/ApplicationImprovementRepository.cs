@@ -63,6 +63,7 @@ namespace TDSGCellFormat.Implementation.Repository
             EquipmentImprovementApplicationAdd applicationData = new EquipmentImprovementApplicationAdd()
             {
                 EquipmentImprovementId = res.EquipmentImprovementId,
+                EquipmentImprovementNo = res.EquipmentImprovementNo,
                 When = res.When.HasValue ? res.When.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
                 MachineName = res.MachineId,
                 SubMachineName = !string.IsNullOrEmpty(res.SubMachineId) ? res.SubMachineId.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
@@ -155,6 +156,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.CreatedBy = report.CreatedBy;
                     newReport.ModifiedDate = DateTime.Now;
                     newReport.ModifiedBy = report.CreatedBy;
+                    newReport.IsSubmit = report.IsSubmit;
+                    newReport.Status = ApprovalTaskStatus.Draft.ToString();
                     _context.EquipmentImprovementApplication.Add(newReport);
                     await _context.SaveChangesAsync();
 
@@ -164,6 +167,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.Set<TroubleReportNumberResult>()
                                 .FromSqlRaw("EXEC [dbo].[SPP_GenerateEquipmentImprovementNumber] @EquipmentImprovementId", applicationEqipMentParams)
                                 .ToListAsync();
+
+                    var equipmentNo = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == newReport.EquipmentImprovementId && x.IsDeleted == false).Select(x => x.EquipmentImprovementNo).FirstOrDefault();
 
                     if (report.ChangeRiskManagementDetails != null)
                     {
@@ -225,8 +230,13 @@ namespace TDSGCellFormat.Implementation.Repository
                         await _context.SaveChangesAsync();
                     }
 
-                    res.ReturnValue = applicationImprovementId;
-                    res.Message = Enums.ApplicationEquipment;
+                    res.ReturnValue = new
+                    {
+                        EquipmentImprovementId = applicationImprovementId,
+                        EquipmentImprovementNo = equipmentNo
+                    };
+                    res.StatusCode = Status.Success;
+                    res.Message = Enums.EquipmentSave;
                 }
                 else
                 {
@@ -255,7 +265,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         foreach (var changeReport in report.ChangeRiskManagementDetails)
                         {
-                            var existingChangeRiskData = _context.ChangeRiskManagement.Where(x => x.EquipmentImprovementId == changeReport.ApplicationImprovementId).FirstOrDefault();
+                            var existingChangeRiskData = _context.ChangeRiskManagement.Where(x => x.EquipmentImprovementId == changeReport.ApplicationImprovementId && x.ChangeRiskManagementId == changeReport.ChangeRiskManagementId).FirstOrDefault();
                             if (existingChangeRiskData != null)
                             {
                                 existingChangeRiskData.Changes = changeReport.Changes;
@@ -289,7 +299,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 };
                                 _context.ChangeRiskManagement.Add(changeRiskData);
                             }
-                            _context.SaveChanges();
+                            await _context.SaveChangesAsync();
                         }
                     }
 
@@ -361,8 +371,13 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                     }
 
-                    res.Message = Enums.ApplicationEquipment;
-                    res.ReturnValue = existingReport.EquipmentImprovementId;
+                    res.ReturnValue = new
+                    {
+                        EquipmentImprovementId = existingReport.EquipmentImprovementId,
+                        EquipmentImprovementNo = existingReport.EquipmentImprovementNo
+                    };
+                    res.StatusCode = Status.Success;
+                    res.Message = Enums.EquipmentSave;
                 }
                 //res.ReturnValue = report;
                 return res;
