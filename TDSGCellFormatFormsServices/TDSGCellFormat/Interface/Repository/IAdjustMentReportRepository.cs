@@ -1,5 +1,6 @@
-﻿using TDSGCellFormat.Entities;
+﻿using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
+using TDSGCellFormat.Models.View;
 using static TDSGCellFormat.Common.Enums;
 
 namespace TDSGCellFormat.Interface.Repository
@@ -13,5 +14,7 @@ namespace TDSGCellFormat.Interface.Repository
         Task<AjaxResult> AddOrUpdateReport(AdjustMentReportRequest report);
 
         Task<AjaxResult> DeleteReport(int Id);
+        
+
     }
 }

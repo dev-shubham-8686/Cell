@@ -4,17 +4,17 @@
     {
         public int ApplicationImprovementId { get; set; }
 
-        public string when { get; set; }
+        public string When { get; set; }
 
-        public string? deviceName { get; set; }
+        public string? DeviceName { get; set; }
 
-        public string? purpose { get; set; }
+        public string? Purpose { get; set; }
 
-        public string? currentSituation { get; set; }
+        public string? CurrentSituation { get; set; }
 
-        public string? improvement { get; set; }
+        public string? Improvement { get; set; }
 
-        public string? attachment { get; set; }
+        public string? Attachment { get; set; }
 
         public string? Status { get; set; }
 

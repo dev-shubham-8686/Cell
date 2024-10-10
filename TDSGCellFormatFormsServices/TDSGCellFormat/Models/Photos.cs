@@ -1,6 +1,4 @@
-﻿using TDSGCellFormat.Entities;
-
-namespace TDSGCellFormat.Models
+﻿namespace TDSGCellFormat.Models
 {
     public class Photos
     {

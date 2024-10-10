@@ -1,6 +1,4 @@
-﻿using TDSGCellFormat.Entities;
-
-namespace TDSGCellFormat.Models.Add
+﻿namespace TDSGCellFormat.Models.Add
 {
     public class AdjustMentReportRequest
     {
@@ -30,11 +28,10 @@ namespace TDSGCellFormat.Models.Add
 
         public bool? ChangeRiskManagementRequired { get; set; }
 
-        public List<ChangeRiskManagement>? ChangeRiskManagement { get; set; }
+        public List<ChangeRiskManagement_AdjustmentReports>? ChangeRiskManagement_AdjustmentReport { get; set; }
 
         public string? ConditionAfterAdjustment { get; set; }
 
-        public string? WorkFlowStatus { get; set; }
 
         public string? Status { get; set; }
 
@@ -49,5 +46,22 @@ namespace TDSGCellFormat.Models.Add
         public int? ModifiedBy { get; set; }
 
         public bool? IsDeleted { get; set; }
+    }
+
+    public class ChangeRiskManagement_AdjustmentReports
+    {
+        public int ChangeRiskManagementId { get; set; }
+        public int? AdjustMentReportId { get; set; }
+        public string? Changes { get; set; }
+        public int? FunctionId { get; set; }
+        public string? RiskAssociated { get; set; }
+        public string? Factor { get; set; }
+        public string? CounterMeasures { get; set; }
+        public string? DueDate { get; set; }
+        public int? PersonInCharge { get; set; }
+        public string? Results { get; set; }
+        public int? CreatedBy { get; set; }
+        public int? ModifiedBy { get; set; }
+
     }
 }

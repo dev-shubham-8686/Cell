@@ -1,6 +1,7 @@
 ﻿using static TDSGCellFormat.Common.Enums;
 using TDSGCellFormat.Models.Add;
-using TDSGCellFormat.Entities;
+using TDSGCellFormat.Models.View;
+using TDSGCellFormat.Models;
 
 namespace TDSGCellFormat.Interface.Service
 {

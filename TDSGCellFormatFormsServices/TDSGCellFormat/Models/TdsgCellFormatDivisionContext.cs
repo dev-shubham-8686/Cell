@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations.Schema;
-using TDSGCellFormat.Entities;
 using TDSGCellFormat.Models.Add;
 using TDSGCellFormat.Models.View;
 
@@ -31,8 +30,10 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
     public virtual DbSet<AdjustmentReport> AdjustmentReports { get; set; }
 
-    public virtual DbSet<ApplicationEquipmentImprovement> ApplicationEquipmentImprovements { get; set; }
-
+    public virtual DbSet<EquipmentImprovementApplication> EquipmentImprovementApplication { get; set; }
+    public virtual DbSet<EquipmentCurrSituationAttachment> EquipmentCurrSituationAttachment { get; set; }
+    public virtual DbSet<EquipmentImprovementAttachment> EquipmentImprovementAttachment { get; set; }
+    public virtual DbSet<ChangeRiskManagement> ChangeRiskManagement { get; set; }
     public virtual DbSet<TroubleAttachment> TroubleAttachments { get; set; }
 
     public DbSet<TroubleReportNumberResult> TroubleReportNumberResults { get; set; }
@@ -51,31 +52,49 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
     public virtual DbSet<MaterialConsumptionSlip> MaterialConsumptionSlips { get; set; }
 
+    public virtual DbSet<MaterialConsumptionSlipItem> MaterialConsumptionSlipItem { get; set; }
+
+    public virtual DbSet<MaterialConsumptionSlipItemAttachment> MaterialConsumptionSlipItemAttachment { get; set; }
+
     public virtual DbSet<TechnicalInstructionSheet> TechnicalInstructionSheets { get; set; }
 
     public virtual DbSet<TroubleReports> TroubleReports { get; set; }
 
     public virtual DbSet<TroubleReportApproverTaskMaster> TroubleReportApproverTaskMasters { get; set; }
-
+    public virtual DbSet<MaterialConsumptionApproverTaskMaster> MaterialConsumptionApproverTaskMasters { get; set; }
     public virtual DbSet<TroubleReportHistoryMaster> TroubleReportHistoryMasters { get; set; }
-
+    public virtual DbSet<MaterialConsumptionHistoryMaster> MaterialConsumptionHistoryMasters { get; set; }
     public virtual DbSet<TroubleRevisionDetail> TroubleRevisionDetails { get; set; }
+    public virtual DbSet<FunctionMaster> FunctionMaster { get; set; }
+    public virtual DbSet<DeviceMaster> DeviceMasters { get; set; }
 
+    public virtual DbSet<SectionMaster> SectionMasters { get; set; }
+    public virtual DbSet<SubDeviceMaster> SubDeviceMaster { get; set; }
     public virtual DbSet<TroubleType> TroubleTypes { get; set; }
 
     public virtual DbSet<UnitOfMeasure> UnitOfMeasures { get; set; }
 
     public virtual DbSet<WorkDoneDetail> WorkDoneDetails { get; set; }
 
+
     public virtual DbSet<GetUserDetailsView> GetUserDetailsViews { get; set; }
 
     public virtual DbSet<TroubleReportExcel> TroubleReportExcels { get; set; }
+
+    public virtual DbSet<Area> Areas { get; set; }
+
+    public virtual DbSet<CPCGroupMaster> CPCGroupMasters { get; set; }
+
+    public virtual DbSet<CostCenter> CostCentres { get; set; }
+
 
     public virtual DbSet<EmailLogMaster> EmailLogMasters { get; set; }
 
     public virtual DbSet<ExceptionLog> ExceptionLogs { get; set; }
 
     public virtual DbSet<ChangeRiskManagement> ChangeRiskManagements { get; set; }
+
+    public virtual DbSet<ChangeRiskManagement_AdjustmentReport> ChangeRiskManagement_AdjustmentReport { get; set; }
 
     public virtual DbSet<AdjustmentReportPhoto> Photos { get; set; }
 
@@ -85,7 +104,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
     public virtual DbSet<FunctionMaster> FunctionMasters { get; set; }
 
-    public virtual DbSet<Area> Areas { get; set; }
+    
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -105,10 +124,14 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         modelBuilder.Entity<TroubleReportResult>().HasNoKey();
         modelBuilder.Entity<TroubleRevisionResult>().HasNoKey();
         modelBuilder.Entity<TroubleReportApproverTaskMasterAdd>().HasNoKey();
+        modelBuilder.Entity<MaterialConsumptionApproverTaskMasterAdd>().HasNoKey();
+        modelBuilder.Entity<EquipmentImprovementView>().HasNoKey();
+        modelBuilder.Entity<MaterialConsumptionListView>().HasNoKey();
         //JsonDataSet
         modelBuilder.Entity<JsonDataSet>().HasNoKey();
         modelBuilder.Entity<GetUserDetailsView>().HasNoKey();
         modelBuilder.Entity<TroubleReportExcel>().HasNoKey();
+        modelBuilder.Entity<MaterialExcel>().HasNoKey();
         modelBuilder.Ignore<Property>();
         //modelBuilder.Entity<AdjustmentReport>(entity =>
         //{
@@ -308,6 +331,14 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         Database.ExecuteSqlRaw("EXECUTE dbo.SPP_TroubleReportApproverMatrix @UserId, @TroubleReportId", userIdParam, troubleReportIdParam);
     }
 
+    public void CallMaterialConsumptionApproverMatrix(int? userId, int materialConsumptionId)
+    {
+        var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@UserId", userId);
+        var materialConsumptionIdParam = new Microsoft.Data.SqlClient.SqlParameter("@MaterialConsumptionId", materialConsumptionId);
+
+        Database.ExecuteSqlRaw("EXECUTE dbo.SPP_MaterialConsuptionApproverMatrix @UserId, @MaterialConsumptionId", userIdParam, materialConsumptionIdParam);
+    }
+
     public void ExceptionLog(string exceptionMessage, string exceptionType, string exceptionStackTrack, string webMethodName, Nullable<int> employeeId)
     {
         var exMessage = new Microsoft.Data.SqlClient.SqlParameter("@ExceptionMessage", exceptionMessage);
@@ -327,6 +358,13 @@ public partial class TdsgCellFormatDivisionContext : DbContext
             .ToListAsync();
     }
 
+    public async Task<List<MaterialConsumptionApproverTaskMasterAdd>> GetMaterialWorkFlowData(int materialConsumptionId)
+    {
+        var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@MaterialConsumptionId", materialConsumptionId);
+        return await this.Set<MaterialConsumptionApproverTaskMasterAdd>()
+            .FromSqlRaw("EXEC SPP_GetMaterialConsumptionWorkFlowDetails @MaterialConsumptionId", userIdParam)
+            .ToListAsync();
+    }
     public async Task<GetUserDetailsView> GetUserRole(string email)
     {
         var emailParam = new Microsoft.Data.SqlClient.SqlParameter("@UserEmail", email);
@@ -351,5 +389,47 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
     }
 
+    public async Task<List<MaterialExcel>> GetMaterialExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
+    {
+        var fromDateParam = new Microsoft.Data.SqlClient.SqlParameter("@FromDate", fromDate.ToString("yyyy-MM-dd"));
+        var toDateParam = new Microsoft.Data.SqlClient.SqlParameter("@ToDate", toDate.ToString("yyyy-MM-dd"));
+        var employeeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@EmployeeId", employeeId);
+        var typeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@Type", type);
+        var result = await this.Set<MaterialExcel>()
+        .FromSqlRaw("EXEC GetMaterialConsumptionListExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
+        .ToListAsync();
+        return result;
+
+    }
+
+    public async Task<List<EquipmentImprovementView>> GetEquipmentImprovementApplication(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+    {
+        var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@createdOne", createdBy);
+        var skipParam = new Microsoft.Data.SqlClient.SqlParameter("@skip", skip);
+        var takeParam = new Microsoft.Data.SqlClient.SqlParameter("@take", take);
+        var orderParam = new Microsoft.Data.SqlClient.SqlParameter("@order", order ?? string.Empty);
+        var orderByParam = new Microsoft.Data.SqlClient.SqlParameter("@orderBy", orderBy ?? string.Empty);
+        var columnParam = new Microsoft.Data.SqlClient.SqlParameter("@searchColumn", searchColumn ?? string.Empty);
+        var valueParam = new Microsoft.Data.SqlClient.SqlParameter("@searchValue", searchValue ?? string.Empty);
+
+        return await this.Set<EquipmentImprovementView>()
+            .FromSqlRaw("EXEC GetEquipmentImprovementApplication @createdOne,@skip,@take,@order,@orderBy,@searchColumn,@searchValue", createdParam,skipParam,takeParam,orderParam,orderByParam,columnParam,valueParam)
+            .ToListAsync();
+    }
+
+    public async Task<List<MaterialConsumptionListView>> GetMaterialConsumptionList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+    {
+        var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@createdOne", createdBy);
+        var skipParam = new Microsoft.Data.SqlClient.SqlParameter("@skip", skip);
+        var takeParam = new Microsoft.Data.SqlClient.SqlParameter("@take", take);
+        var orderParam = new Microsoft.Data.SqlClient.SqlParameter("@order", order ?? string.Empty);
+        var orderByParam = new Microsoft.Data.SqlClient.SqlParameter("@orderBy", orderBy ?? string.Empty);
+        var columnParam = new Microsoft.Data.SqlClient.SqlParameter("@searchColumn", searchColumn ?? string.Empty);
+        var valueParam = new Microsoft.Data.SqlClient.SqlParameter("@searchValue", searchValue ?? string.Empty);
+
+        return await this.Set<MaterialConsumptionListView>()
+            .FromSqlRaw("EXEC GetMaterialConsumptionSlips1 @createdOne,@skip,@take,@order,@orderBy,@searchColumn,@searchValue", createdParam, skipParam, takeParam, orderParam, orderByParam, columnParam, valueParam)
+            .ToListAsync();
+    }
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
