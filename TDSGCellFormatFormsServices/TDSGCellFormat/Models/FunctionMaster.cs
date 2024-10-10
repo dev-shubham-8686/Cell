@@ -23,5 +23,6 @@ public class FunctionMaster
 
     public bool? IsActive { get; set; }
     public virtual ICollection<ChangeRiskManagement> ChangeRiskManagements { get; set; } = new List<ChangeRiskManagement>();
+    public virtual ICollection<ChangeRiskManagement_AdjustmentReport> ChangeRiskManagement_AdjustmentReport { get; set; } = new List<ChangeRiskManagement_AdjustmentReport>();
 }
 

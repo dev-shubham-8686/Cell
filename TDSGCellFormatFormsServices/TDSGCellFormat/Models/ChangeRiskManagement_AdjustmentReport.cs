@@ -7,7 +7,7 @@ namespace TDSGCellFormat.Models
     [Table("ChangeRiskManagement_AdjustmentReport")]
     public class ChangeRiskManagement_AdjustmentReport
     {
-        [DisplayName("Id")]
+       
         [Key]
         public int ChangeRiskManagementId { get; set; }
 
@@ -40,5 +40,10 @@ namespace TDSGCellFormat.Models
         public int? ModifiedBy { get; set; }
 
         public bool? IsDeleted { get; set; }
+
+        [ForeignKey("AdjustMentReportId")]
+        public virtual AdjustmentReport? AdjustmentReport { get; set; }
+        [ForeignKey("FunctionId")]
+        public virtual FunctionMaster? FunctionMaster { get; set; }
     }
 }
