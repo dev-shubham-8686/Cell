@@ -5,10 +5,16 @@ import { ArrowLeftOutlined, UploadOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { DATE_FORMAT, DATE_TIME_FORMAT } from "../../GLOBAL_CONSTANT";
+import {
+  DATE_FORMAT,
+  DATE_TIME_FORMAT,
+  DocumentLibraries,
+  WEB_URL,
+} from "../../GLOBAL_CONSTANT";
 import { ColumnsType } from "antd/es/table";
 import {
   IChangeRiskData,
+  ICurrentSituationAttachments,
   IEquipmentImprovementReport,
   IImprovementAttachments,
 } from "../../interface";
@@ -20,6 +26,8 @@ import useSubDeviceMaster from "../../apis/masters/useSubDeviceMaster";
 import useSectionMaster from "../../apis/masters/useSectionMaster";
 import useFunctionMaster from "../../apis/masters/useFunctionMaster";
 import FileUpload from "../fileUpload/FileUpload";
+import { renameFolder } from "../../utility/utility";
+import { WebPartContext } from "../../context/webpartContext";
 
 const { TextArea } = Input;
 
@@ -35,7 +43,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
   const navigate = useNavigate();
   const { confirm } = Modal;
-  const { id } = useParams();
+  const webPartContext = React.useContext(WebPartContext);
+  const { id, mode } = useParams();
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState<
     IEquipmentImprovementReport | []
@@ -51,7 +60,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const [improvementAttchments, setImprovementAttchments] = useState<
     IImprovementAttachments[] | []
   >([]);
-
+  const [currSituationAttchments, setcurrSituationAttchments] = useState<
+    ICurrentSituationAttachments[] | []
+  >([]);
+  const [selectedMachine, setselectedMachine] = useState<number | 0>(0);
   // const { data: employees, isLoading: employeeisLoading } = useEmployeeMaster();
 
   const onSubmitFormHandler = async (): Promise<void> => {
@@ -62,13 +74,35 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   };
 
   const onSaveAsDraftHandler = async (): Promise<void> => {
-    const values = form.getFieldsValue();
+    const values: IEquipmentImprovementReport = form.getFieldsValue();
+    values.EquipmentImprovementAttachmentDetails = improvementAttchments;
+    values.EquipmentCurrSituationAttachmentDetails = currSituationAttchments;
     console.log("form saved as draft data", values);
     if (id) {
-      values.EquipmentImprovementId = id;
+      values.EquipmentImprovementId = parseInt(id);
     }
-    eqReportSave.mutate(values);
-    navigate("/");
+    console.log("values", values);
+    eqReportSave.mutate(
+      { ...values },
+      {
+        onSuccess: (Response: any) => {
+          console.log("ONSAVE RES", Response);
+          if (mode == "add") {
+            void renameFolder(
+              DocumentLibraries.EQ_Report,
+              WEB_URL,
+              webPartContext.spHttpClient,
+              "EQReportDocs",
+              Response.ReturnValue.EquipmentImprovementNo
+            );
+          }
+          navigate(`/equipment-improvement-report`);
+        },
+        onError: (error) => {
+          console.error("On Save error:", error);
+        },
+      }
+    );
   };
 
   const handleChange = (changedValues: { [key: string]: any }) => {
@@ -128,6 +162,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       setImprovementAttchments(
         existingEquipmentReport?.EquipmentImprovementAttachmentDetails ?? []
       );
+      setcurrSituationAttchments(
+        existingEquipmentReport?.EquipmentCurrSituationAttachmentDetails ?? []
+      );
       debugger;
       setChangeRiskManagementDetails(changeRiskData);
       console.log(
@@ -142,6 +179,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       existingEquipmentReport?.ChangeRiskManagementDetails
     );
   }, [existingEquipmentReport]);
+
   const handleAdd = (): void => {
     const newData: IChangeRiskData[] = [
       ...ChangeRiskManagementDetails,
@@ -199,6 +237,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   };
 
   console.log("Latest Change risk data", ChangeRiskManagementDetails);
+  console.log("SubMachine", subDevices);
   const nestedTableColumns: ColumnsType<any> = [
     {
       title: "Changes",
@@ -578,7 +617,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       Application No.
                     </label>
                   }
-                  name="ApplicationNo"
+                  name="EquipmentImprovementNo"
                   rules={validationRules["ApplicationNo"]}
                 >
                   <Input disabled maxLength={100} />
@@ -599,7 +638,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
               <div className="col">
                 <Form.Item
-                  label={<span className="text-muted w-95">Device Name</span>}
+                  label={<span className="text-muted w-95">Machine Name</span>}
                   name="MachineName"
                   rules={validationRules["MachineName"]}
                 >
@@ -613,7 +652,14 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     options={devices?.map((device) => ({
                       label: device.deviceName,
                       value: device.deviceId,
-                    }))}
+                    })
+                  )}
+                  onChange={(value) => {
+                    setselectedMachine(value)
+                    form.setFieldsValue({
+                      SubMachineName: [],
+                      });
+                  }}
                     loading={deviceIsLoading}
                   >
                     {/* {troubles?.map((trouble) => (
@@ -627,11 +673,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   </Select>
                 </Form.Item>
               </div>
-
-              <div className="col">
+{             console.log("selectedmachine",selectedMachine)
+}              <div className="col">
                 <Form.Item
                   label={
-                    <span className="text-muted w-95">Sub Device Name</span>
+                    <span className="text-muted w-95">Sub Machine Name</span>
                   }
                   name="SubMachineName"
                   rules={validationRules["SubMachineName"]}
@@ -644,10 +690,13 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         .includes(input.toLowerCase())
                     }
                     mode="multiple"
-                    options={subDevices?.map((subdevice) => ({
-                      label: subdevice.subDeviceName,
-                      value: subdevice.subDeviceId,
-                    }))}
+                    options={subDevices?.filter((submachine)=>
+                      submachine.deviceId===selectedMachine
+                    )
+                      ?.map((subdevice) => ({
+                        label: subdevice.subDeviceName,
+                        value: subdevice.subDeviceId,
+                      }))|| []}
                     loading={subDeviceIsLoading}
                   >
                     {/* {troubles?.map((trouble) => (
@@ -754,63 +803,50 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   <FileUpload
                     key={`file-upload-current-situation`}
                     folderName={
-                      form.getFieldValue("EquipmentImprovementId") ??
-                      "NewFolder"
+                      form.getFieldValue("EquipmentImprovementNo") ??
+                      "EQReportDocs"
                     }
-                    subFolderName={"CurrentSituation"}
-                    libraryName={"EqReportDocuments"}
-                    files={form
-                      .getFieldValue("EquipmentCurrSituationAttachmentDetails")
-                      ?.map((a) => ({
-                        ...a,
-                        uid:
-                          a.EquipmentCurrSituationAttachmentId?.toString() ??
-                          "",
-                        name: a.CurrSituationDocName,
-                        url: `${a.CurrSituationDocFilePath}`,
-                      }))}
+                    subFolderName={"Current Situation Attachments"}
+                    libraryName={DocumentLibraries.EQ_Report}
+                    files={currSituationAttchments?.map((a) => ({
+                      ...a,
+                      uid:
+                        a.EquipmentCurrSituationAttachmentId?.toString() ?? "",
+                      name: a.CurrSituationDocName,
+                      url: `${a.CurrSituationDocFilePath}`,
+                    }))}
                     setIsLoading={(loading: boolean) => {
                       // setIsLoading(loading);
                     }}
                     isLoading={false}
                     onAddFile={(name: string, url: string) => {
                       debugger;
-                      const existingAttachments =
-                        form.getFieldValue(
-                          "EquipmentCurrSituationAttachmentDetails"
-                        ) || [];
+                      const existingAttachments = currSituationAttchments ?? [];
                       console.log("FILES", existingAttachments);
-                      const newAttachment: IImprovementAttachments = {
-                        EquipmentImprovementAttachmentId: 0,
-                        ImprovementDocName: name,
-                        ImprovementDocFilePath: url,
+                      const newAttachment: ICurrentSituationAttachments = {
+                        EquipmentCurrSituationAttachmentId: 0,
                         EquipmentImprovementId: parseInt(id),
+                        CurrSituationDocName: name,
+                        CurrSituationDocFilePath: url,
                         CreatedBy: 76,
                         ModifiedBy: 76,
                       };
-                      const updatedAttachments =
-                        existingAttachments.length > 0
-                          ? [...existingAttachments, newAttachment] // If existing attachments, append the new one
-                          : [newAttachment];
                       debugger;
-                      form.setFieldValue(
-                        "EquipmentCurrSituationAttachmentDetails",
-                        updatedAttachments
-                      );
+                      const updatedAttachments: ICurrentSituationAttachments[] =
+                        [...existingAttachments, newAttachment];
+                      debugger;
+                      setcurrSituationAttchments(updatedAttachments);
+                      debugger;
                       console.log("File Added");
                     }}
                     onRemoveFile={(documentName: string) => {
                       debugger;
-                      const existingAttachments = form.getFieldValue(
-                        "EquipmentCurrSituationAttachmentDetails"
-                      );
+                      const existingAttachments = currSituationAttchments ?? [];
+                      debugger;
                       const updatedAttachments = existingAttachments?.filter(
-                        (doc) => doc.name !== documentName
+                        (doc) => doc.CurrSituationDocName !== documentName
                       );
-                      form.setFieldValue(
-                        "EquipmentCurrSituationAttachmentDetails",
-                        updatedAttachments
-                      );
+                      setcurrSituationAttchments(updatedAttachments);
                       console.log("File Removed");
                     }}
                   />
@@ -832,11 +868,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   <FileUpload
                     key={`file-upload-improvement`}
                     folderName={
-                      form.getFieldValue("EquipmentImprovementId") ??
-                      "NewFolder"
+                      form.getFieldValue("EquipmentImprovementNo") ??
+                      "EQReportDocs"
                     }
                     subFolderName={"Improvement Attachments"}
-                    libraryName={"EqReportDocuments"}
+                    libraryName={DocumentLibraries.EQ_Report}
                     files={improvementAttchments?.map((a) => ({
                       ...a,
                       uid: a.EquipmentImprovementAttachmentId?.toString() ?? "",
@@ -849,10 +885,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     isLoading={false}
                     onAddFile={(name: string, url: string) => {
                       debugger;
-                      const existingAttachments =
-                        form.getFieldValue(
-                          "EquipmentImprovementAttachmentDetails"
-                        ) ?? [];
+                      const existingAttachments = improvementAttchments ?? [];
                       console.log("FILES", existingAttachments);
                       const newAttachment: IImprovementAttachments = {
                         EquipmentImprovementAttachmentId: 0,
@@ -874,9 +907,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     }}
                     onRemoveFile={(documentName: string) => {
                       debugger;
-                      const existingAttachments = form.getFieldValue(
-                        "EquipmentImprovementAttachmentDetails"
-                      );
+                      const existingAttachments = improvementAttchments ?? [];
                       debugger;
                       const updatedAttachments = existingAttachments?.filter(
                         (doc) => doc.ImprovementDocName !== documentName

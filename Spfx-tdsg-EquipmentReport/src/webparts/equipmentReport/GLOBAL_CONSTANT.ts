@@ -48,10 +48,9 @@ export const DATE_FORMAT = "DD-MM-YYYY";
 export const TIME_FORMAT = "HH:mm:ss";
 
 export const DocumentLibraries = {
-  TR_Attachments: "TRDocuments",
-  Policy_Attachemnts: "TravelPolicyDocuments",
-  TC_Attachemnts: "TCDocuments",
+  EQ_Report:"EqReportDocuments"
 };
+
 
 export const REQUEST_STATUS = {
   InReview: "InReview",

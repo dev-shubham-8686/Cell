@@ -13,13 +13,13 @@ const createEditEQReport = async (
   const config: ICustomAxiosConfig = {
     SHOW_NOTIFICATION: true,
   };
-
+debugger
   const response = await http.post<string>(
     CREATE_EDIT_EQ_REPORT,
     eqReport,
     config
   );
-
+  debugger
   return response.data;
 };
 

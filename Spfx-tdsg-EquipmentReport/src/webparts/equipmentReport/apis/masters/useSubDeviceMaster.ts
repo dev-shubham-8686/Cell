@@ -7,6 +7,7 @@ import {  GET_SUB_DEVICE_MASTER } from "../../URLs";
 
 export interface ISubDeviceMaster {
     subDeviceId: number;
+    deviceId:number;
     subDeviceName: string;
   }
 

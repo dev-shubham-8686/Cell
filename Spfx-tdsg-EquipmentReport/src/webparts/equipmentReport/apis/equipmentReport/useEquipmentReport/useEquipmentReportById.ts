@@ -17,7 +17,7 @@ const getEquipmentReport = async (id?: number) => {
 
 const useEquipmentReportByID = (id: number, onError?: (error: any) => void) =>
   useQuery<IEquipmentImprovementReport | undefined>({
-    queryKey: ["get-material-consumption-slip", id],
+    queryKey: ["eq-report", id],
     queryFn: () => getEquipmentReport(id),
     cacheTime: 0,
     onError,
