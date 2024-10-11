@@ -228,7 +228,7 @@ public class Program
                string projectRoot = Path.GetFullPath(Path.Combine(baseDirectory, @"..\..\..\..\TDSGCellFormat"));
 
                // Path to appsettings.json in the project root
-               string pathToSettings = Path.Combine(projectRoot, "appsettings.json");
+               string pathToSettings = Path.Combine(baseDirectory, "appsettings.json");
 
                // Output the settings path for debugging
                Console.WriteLine($"Settings Path: {pathToSettings}");
