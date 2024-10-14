@@ -219,86 +219,53 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public IQueryable<MachineView> GetAllSubMachines(int machineId)
+        public IQueryable<SubMachineView> GetAllSubMachines()
         {
-            IQueryable<MachineView> res = _context.SubMachines
-                .Where(x => (!x.IsDeleted.HasValue || !x.IsDeleted.Value) && x.MachineId == machineId)
-                .Select(x => new MachineView
-                {
-                    MachineId = x.SubMachineId,
-                    MachineName = x.SubMachineName
-                });
+            IQueryable<SubMachineView> res = _context.SubMachines.Where(x => x.IsDeleted == false)
+                                              .Select(x => new SubMachineView
+                                              {
+                                                  MachineId = x.MachineId,
+                                                  SubMachineId = x.SubMachineId,
+                                                  SubMachineName = x.SubMachineName
+                                              });
 
             return res;
         }
 
         public IQueryable<SectionView> GetAllSection()
-
         {
-
             IQueryable<SectionView> res = _context.SectionMasters.Where(x => x.IsActive == true)
-
                                             .Select(x => new SectionView
-
                                             {
-
                                                 sectionId = x.SectionId,
-
-
-
                                                 sectionName = x.SectionName
-
                                             });
 
-
-
             return res;
-
         }
 
         public IQueryable<SubDeviceView> GetAllSubDevice()
-
         {
-
             IQueryable<SubDeviceView> res = _context.SubDeviceMaster.Where(x => x.IsActive == true)
-
                                             .Select(x => new SubDeviceView
-
                                             {
-
                                                 deviceId = x.DeviceId,
-
                                                 subDeviceId = x.SubDeviceId,
-
                                                 subDeviceName = x.SubDeviceName
-
                                             });
-
-
 
             return res;
 
         }
 
         public IQueryable<FunctionView> GetAllFunction()
-
         {
-
             IQueryable<FunctionView> res = _context.FunctionMaster.Where(x => x.IsActive == true)
-
                                             .Select(x => new FunctionView
-
                                             {
-
                                                 functionId = x.FunctionId,
-
-
-
                                                 functionName = x.FunctionName
-
                                             });
-
-
 
             return res;
 

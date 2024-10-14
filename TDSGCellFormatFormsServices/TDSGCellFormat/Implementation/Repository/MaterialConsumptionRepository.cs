@@ -11,13 +11,9 @@ using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
 using TDSGCellFormat.Models.View;
 using static TDSGCellFormat.Common.Enums;
-using iTextSharp.text.html.simpleparser;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
-using Microsoft.SharePoint.Client;
-using PnP.Framework;
 using iTextSharp.tool.xml;
-using System.IO;
 using ClosedXML.Excel;
 
 
@@ -26,7 +22,7 @@ namespace TDSGCellFormat.Implementation.Repository
     public class MaterialConsumptionRepository : BaseRepository<MaterialConsumptionSlip>, IMatrialConsumptionRepository
     {
         private readonly IConfiguration _configuration;
-        private readonly string _connectionString;
+        private readonly string? _connectionString;
         private readonly TdsgCellFormatDivisionContext _context;
         private readonly AepplNewCloneStageContext _cloneContext;
 
