@@ -22,7 +22,7 @@ namespace TDSG.TroubleReport.Scheduler
         {
             this._context = context;
             this._cloneContext = cloneContext;
-            var basePath = Path.Combine(Directory.GetCurrentDirectory());
+            var basePath = AppContext.BaseDirectory;
             var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(basePath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -199,13 +199,9 @@ namespace TDSG.TroubleReport.Scheduler
                     string baseDirectory = AppContext.BaseDirectory;
                     //string projectRootDirectory = Directory.GetParent(baseDirectory).Parent.Parent.Parent.Parent.FullName;
                     //templateFilePath = Path.Combine(projectRootDirectory, templateDirectory, templateFile);
-                    string? projectRootDirectory = null;
-                    if (baseDirectory.Contains("Stage"))
-                    {
-                        // Stage environment path
-                        projectRootDirectory = @"D:\Stage\CellFormat";
-                    }
-                    templateFilePath = Path.Combine(projectRootDirectory, templateDirectory, templateFile);
+                    //string? projectRootDirectory = null;
+                    
+                    templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
                     if (!string.IsNullOrEmpty(templateFilePath))
                     {
                         emailBody.Append(System.IO.File.ReadAllText(templateFilePath));
@@ -217,7 +213,6 @@ namespace TDSG.TroubleReport.Scheduler
                         emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
                         emailBody = emailBody.Replace("#TroubleReportNo#", troubleReportNo);
                         emailBody = emailBody.Replace("#ReporTitle#", reportTitle);
-                        emailBody = emailBody.Replace("#TroubleReportLink#", docLink);
 
                         emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), null, emailBody, emailSubject);
 

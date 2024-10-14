@@ -19,8 +19,7 @@ namespace TDSGCellFormat.Interface.Service
         IQueryable<AreaMasterView> GetAllAreas();
 
         IQueryable<MachineView> GetAllMachines();
-
-        IQueryable<MachineView> GetAllSubMachines(int machineId);
+        IQueryable<SubMachineView> GetAllSubMachines();
         IQueryable<DeviceView> GetAllDevice();
         IQueryable<SubDeviceView> GetAllSubDevice();
         IQueryable<SectionView> GetAllSection();

@@ -296,8 +296,8 @@ namespace TDSGCellFormat.Controllers
             return Ok(Ajaxresponse);
         }
 
-        [HttpGet("GetAllSubMachines/{machineId}")]
-        public async Task<IActionResult> GetAllSubMachines(int machineId)
+        [HttpGet("GetAllSubMachines")]
+        public async Task<IActionResult> GetAllSubMachines()
         {
             var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
             // Call the IsValidAuthentication method
@@ -311,7 +311,7 @@ namespace TDSGCellFormat.Controllers
                 return Unauthorized(Ajaxresponse);
             }
 
-            var res = _masterService.GetAllSubMachines(machineId).ToList();
+            var res = _masterService.GetAllSubMachines().ToList();
             if (res.Count > 0)
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
             else
