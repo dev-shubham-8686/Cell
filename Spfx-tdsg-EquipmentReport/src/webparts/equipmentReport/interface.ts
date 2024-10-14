@@ -23,8 +23,8 @@ export interface IUser {
 export  interface IEquipmentImprovementReport {
   EquipmentImprovementId?:number;
   When: string;
-  DeviceName: string;
-  SubDeviceName:number[]
+  MachineName: string;
+  SubMachineName:number[]
   Purpose: string;
   CurrentSituation: string;
   ImprovementName:string;

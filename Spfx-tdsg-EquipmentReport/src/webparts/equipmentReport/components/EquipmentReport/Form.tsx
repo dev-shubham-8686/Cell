@@ -166,6 +166,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         existingEquipmentReport?.EquipmentCurrSituationAttachmentDetails ?? []
       );
       debugger;
+        setselectedMachine(parseInt(existingEquipmentReport?.MachineName??"0"))
       setChangeRiskManagementDetails(changeRiskData);
       console.log(
         "CHangeRisk data ",
@@ -623,7 +624,6 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   <Input disabled maxLength={100} />
                 </Form.Item>
               </div>
-
               <div className="col">
                 <Form.Item
                   label={
@@ -632,10 +632,18 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   // name="When"
                   rules={validationRules["When"]}
                 >
-                  <DatePicker className="w-100" disabled />
+                  <Input
+                    className="w-100"
+                    disabled
+                    value={
+                      existingEquipmentReport?.When 
+                      ? dayjs(existingEquipmentReport.When)
+                      .format(DATE_FORMAT)
+                      : dayjs().format(DATE_FORMAT)
+                    }
+                  />
                 </Form.Item>
               </div>
-
               <div className="col">
                 <Form.Item
                   label={<span className="text-muted w-95">Machine Name</span>}
@@ -652,14 +660,13 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     options={devices?.map((device) => ({
                       label: device.deviceName,
                       value: device.deviceId,
-                    })
-                  )}
-                  onChange={(value) => {
-                    setselectedMachine(value)
-                    form.setFieldsValue({
-                      SubMachineName: [],
+                    }))}
+                    onChange={(value) => {
+                      setselectedMachine(value);
+                      form.setFieldsValue({
+                        SubMachineName: [],
                       });
-                  }}
+                    }}
                     loading={deviceIsLoading}
                   >
                     {/* {troubles?.map((trouble) => (
@@ -673,8 +680,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   </Select>
                 </Form.Item>
               </div>
-{             console.log("selectedmachine",selectedMachine)
-}              <div className="col">
+              {console.log("selectedmachine", selectedMachine)}{" "}
+              <div className="col">
                 <Form.Item
                   label={
                     <span className="text-muted w-95">Sub Machine Name</span>
@@ -690,13 +697,17 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         .includes(input.toLowerCase())
                     }
                     mode="multiple"
-                    options={subDevices?.filter((submachine)=>
-                      submachine.deviceId===selectedMachine
-                    )
-                      ?.map((subdevice) => ({
-                        label: subdevice.subDeviceName,
-                        value: subdevice.subDeviceId,
-                      }))|| []}
+                    options={
+                      subDevices
+                        ?.filter(
+                          (submachine) =>
+                            submachine.deviceId === selectedMachine
+                        )
+                        ?.map((subdevice) => ({
+                          label: subdevice.subDeviceName,
+                          value: subdevice.subDeviceId,
+                        })) || []
+                    }
                     loading={subDeviceIsLoading}
                   >
                     {/* {troubles?.map((trouble) => (
@@ -710,7 +721,6 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   </Select>
                 </Form.Item>
               </div>
-
               <div className="col">
                 <Form.Item
                   label={<span className="text-muted w-95">Section Name</span>}
