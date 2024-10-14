@@ -445,7 +445,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               },
             ]}
           >
-            {/* <DatePicker
+            <DatePicker
              
               onChange={(date, dateString)=> {
                 onChangeTableData(
@@ -454,7 +454,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   dateString
                 );
               }}
-            /> */}
+            />
           </Form.Item>
         );
       },
@@ -585,7 +585,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           </button>
         </div>
       </div>
-      <div className="bg-white p-5">
+      <div className="bg-white">
         <ConfigProvider
           theme={{
             token: {
@@ -642,6 +642,47 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       : dayjs().format(DATE_FORMAT)
                     }
                   />
+                </Form.Item>
+              </div>
+              <div className="col">
+                <Form.Item
+                  label={<span className="text-muted">Area</span>}
+                  // name="Area"
+                  rules={validationRules.attachment}
+                >
+                  <TextArea maxLength={500} rows={1} />
+                </Form.Item>
+              </div>
+              </div>
+              <div className="row ">
+              <div className="col">
+                <Form.Item
+                  label={<span className="text-muted w-95">Section Name</span>}
+                  name="SectionId"
+                  rules={validationRules["SectionId"]}
+                >
+                  <Select
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={sections?.map((section) => ({
+                      label: section.sectionName,
+                      value: section.sectionId,
+                    }))}
+                    loading={sectionIsLoading}
+                  >
+                    {/* {troubles?.map((trouble) => (
+                      <Select.Option
+                        key={trouble.troubleId}
+                        value={trouble.troubleId}
+                      >
+                        {trouble.name}
+                      </Select.Option>
+                    ))} */}
+                  </Select>
                 </Form.Item>
               </div>
               <div className="col">
@@ -721,50 +762,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   </Select>
                 </Form.Item>
               </div>
-              <div className="col">
-                <Form.Item
-                  label={<span className="text-muted w-95">Section Name</span>}
-                  name="SectionId"
-                  rules={validationRules["SectionId"]}
-                >
-                  <Select
-                    showSearch
-                    filterOption={(input, option) =>
-                      (option?.label ?? "")
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    options={sections?.map((section) => ({
-                      label: section.sectionName,
-                      value: section.sectionId,
-                    }))}
-                    loading={sectionIsLoading}
-                  >
-                    {/* {troubles?.map((trouble) => (
-                      <Select.Option
-                        key={trouble.troubleId}
-                        value={trouble.troubleId}
-                      >
-                        {trouble.name}
-                      </Select.Option>
-                    ))} */}
-                  </Select>
-                </Form.Item>
-              </div>
+            
             </div>
 
             <div className="row mb-3">
-              <div className="col">
-                <Form.Item
-                  label={<span className="text-muted">Current Situation</span>}
-                  name="CurrentSituation"
-                  rules={validationRules.attachment}
-                >
-                  <TextArea className="w-95" maxLength={500} rows={3} />
-                </Form.Item>
-              </div>
-
-              <div className="col">
+            <div className="col">
                 <Form.Item
                   label={<span className="text-muted w-95">Purpose</span>}
                   name="Purpose"
@@ -776,26 +778,14 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
               <div className="col">
                 <Form.Item
-                  label={<span className="text-muted">Improvement Name</span>}
-                  name="ImprovementName"
+                  label={<span className="text-muted">Current Situation</span>}
+                  name="CurrentSituation"
                   rules={validationRules.attachment}
                 >
-                  <Input maxLength={100} />
+                  <TextArea  maxLength={500} rows={3} />
                 </Form.Item>
               </div>
 
-              <div className="col">
-                <Form.Item
-                  label={<span className="text-muted">Improvement</span>}
-                  name="Improvement"
-                  rules={validationRules.attachment}
-                >
-                  <TextArea maxLength={500} rows={3} />
-                </Form.Item>
-              </div>
-            </div>
-
-            <div className="row mb-3">
               <div className="col">
                 <Form.Item
                   label={
@@ -862,6 +852,32 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   />
                 </Form.Item>
               </div>
+             
+
+            </div>
+          
+            <div className="row mb-3">
+
+            <div className="col">
+                <Form.Item
+                  label={<span className="text-muted">Improvement Name</span>}
+                  name="ImprovementName"
+                  rules={validationRules.attachment}
+                >
+                  <TextArea maxLength={500} rows={3} />
+                </Form.Item>
+              </div>
+
+              <div className="col">
+                <Form.Item
+                  label={<span className="text-muted">Improvement Description</span>}
+                  name="Improvement"
+                  rules={validationRules.attachment}
+                >
+                  <TextArea maxLength={500} rows={3} />
+                </Form.Item>
+              </div>
+            
               {console.log(
                 "FILES",
                 form.getFieldValue("EquipmentImprovementAttachmentDetails"),
@@ -930,9 +946,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               </div>
             </div>
 
+            <hr style={{ border: "1px solid black" }} />
             <div>
               <div className="d-flex justify-content-between my-3">
-                <p className="text-muted mb-0">Change Risk Management</p>
+                <p className=" mb-0" style={{fontSize:"20px",color:"#C50017"}}>Change Risk Management</p>
                 {true && (
                   <button
                     className="btn btn-primary"
@@ -944,14 +961,14 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 )}
               </div>
               <Table
-                className="hotel-details-table"
+                className="change-risk-table"
                 dataSource={ChangeRiskManagementDetails}
                 columns={nestedTableColumns}
                 scroll={{ x: "max-content" }}
               />
             </div>
 
-            <div className="row mt-4">
+            <div className="row">
               <div className="col">
                 <Form.Item
                   label={<span className="text-muted">PCRN Attachments</span>}
@@ -980,7 +997,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   />
                 </Form.Item>
               </div>
-
+              </div>
+              <hr style={{ border: "1px solid black" }} />
+              <div>
+              <p className=" mb-0" style={{fontSize:"20px",color:"#C50017"}}>Result Section</p>
+              <div className="row mt-3">
               <div className="col">
                 <Form.Item
                   label={<label className="text-muted mb-0">Target Date</label>}
@@ -1000,6 +1021,16 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   <DatePicker className="w-100" disabled />
                 </Form.Item>
               </div>
+               
+              <div className="col">
+                <Form.Item
+                  label={<label className="text-muted mb-0">Result Date</label>}
+                  // name="ResultDate "
+                  rules={validationRules["TargetDate"]}
+                >
+                  <DatePicker className="w-100" disabled />
+                </Form.Item>
+              </div>
 
               <div className="col">
                 <Form.Item
@@ -1009,8 +1040,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="resultStatus"
                   rules={validationRules["resultStatus"]}
                 >
-                  <TextArea className="w-100" />
+                  <TextArea className="w-100" cols={1}/>
                 </Form.Item>
+              </div>
               </div>
             </div>
           </Form>

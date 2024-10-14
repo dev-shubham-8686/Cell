@@ -315,11 +315,12 @@ debugger
   };
 
   return (
-    <>
+    < >
       {itemLoading && <Spin />}
 
       <Upload
         maxCount={10}
+        className="custom-upload"
         disabled={disabled}
         onRemove={onDelete}
         beforeUpload={onBeforeUpload}
@@ -343,7 +344,7 @@ debugger
         }}
         fileList={files}
       >
-        <Button disabled={disabled} icon={<UploadOutlined />}>
+        <Button    disabled={disabled} icon={<UploadOutlined />}>
           Attach Document
         </Button>
       </Upload>
