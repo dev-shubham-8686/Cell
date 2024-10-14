@@ -206,10 +206,10 @@ namespace TDSGCellFormat.Helper
                 bool approvelink = false;
                 bool isEditable = false;
                 //string? templateFilePath = null;
-                //string? documentLink = _configuration["SPSiteUrl"] +
-                //  "/SitePages/Trouble-Report.aspx#/";
                 string? documentLink = _configuration["SPSiteUrl"] +
-               "/SitePages/CellFormatStage.aspx#/";
+                  "/SitePages/Trouble-Report.aspx#/";
+              //  string? documentLink = _configuration["SPSiteUrl"] +
+              // "/SitePages/CellFormatStage.aspx#/";
 
                 StringBuilder emailBody = new StringBuilder();
                 if (requestId > 0)
