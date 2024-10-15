@@ -457,5 +457,16 @@ namespace TDSGCellFormat.Implementation.Repository
             return equpmentData;
         }
 
+        public async Task<List<EquipmentImprovementView>> GetEqupimentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            var listData = await _context.GetEquipmentImprovementApproverList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            var equpmentData = new List<EquipmentImprovementView>();
+            foreach (var item in listData)
+            {
+                equpmentData.Add(item);
+            }
+            return equpmentData;
+        }
+
     }
 }

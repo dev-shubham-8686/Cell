@@ -90,5 +90,17 @@ namespace TDSGCellFormat.Controllers
 
             return Ok(Ajaxresponse);
         }
+
+        [HttpGet("EqupimentApproverList")]
+        public async Task<IActionResult> GetEqupimentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            var res = await _applicationService.GetEqupimentImprovementApproverList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
     }
 }
