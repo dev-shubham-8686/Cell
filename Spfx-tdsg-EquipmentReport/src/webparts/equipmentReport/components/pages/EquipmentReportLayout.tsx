@@ -106,7 +106,7 @@ console.log("EQ Report data",equipmentReport?.data)
             );
           })}
         </ul>
-        <div className="px-4 pt-3 pb-4 d-flex gap-3 flex-grow-1 row ">
+        <div className="px-4 pb-4 d-flex  flex-grow-1 row ">
           {currentTab === "form" ? (
             <>
               <div>

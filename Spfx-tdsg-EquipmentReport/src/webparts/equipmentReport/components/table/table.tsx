@@ -45,95 +45,29 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
   const staticData = [
     {
       key: '1',
-      actionType: 'Approved',
-      comment: 'The document has been reviewed and approved.',
-      actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-01', // Adjust the format as needed for rendering
+      EquipmentImprovementNo: 'EIR-001',
+      SectionName: 'Production',
+      ImprovementName: 'Safety Upgrade',
+      MachineName: 'Press Machine',
+      SubMachineName: 'Hydraulic Press',
+      IssueDate: '2023-09-15',
+      Requestor: 'John Doe',
+      Status: 'InProgress',
+      EquipmentImprovementId: 1,
     },
     {
       key: '2',
-      actionType: 'Rejected',
-      comment: 'The request was rejected due to missing information.',
-      actionTakenBy: 'Jinal Panchal',
-      actionTakenDate: '2024-09-02', 
-    },
-    {
-      key: '3',
-      actionType: 'Pending',
-      comment: 'Awaiting further information from the requester.',
-      actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
-    },
-    {
-      key: '4',
-      actionType: 'Approved',
-      comment: 'Final approval given after all revisions were made.',
-      actionTakenBy: 'Jinal Panchal',
-      actionTakenDate: '2024-09-04', 
-    },
-    {
-      key: '5',
-      actionType: 'Pending',
-      comment: 'Awaiting further information from the requester.',
-      actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
-    },
-    {
-      key: '6',
-      actionType: 'Pending',
-      comment: 'Awaiting further information from the requester.',
-      actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
-    },
-    {
-      key: '7',
-      actionType: 'Pending',
-      comment: 'Awaiting further information from the requester.',
-      actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
-    },
-    {
-      key: '8',
-      actionType: 'Pending',
-      comment: 'Awaiting further information from the requester.',
-      actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
-    },
-    {
-      key: '9',
-      actionType: 'Pending',
-      comment: 'Awaiting further information from the requester.',
-      actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
-    },
-    {
-      key: '10',
-      actionType: 'Pending',
-      comment: 'Awaiting further information from the requester.',
-      actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
-    },
-    {
-      key: '11',
-      actionType: 'Pending',
-      comment: 'Awaiting further information from the requester.',
-      actionTakenBy: 'Raj',
-      actionTakenDate: '2024-09-03', 
-    },
-    {
-      key: '12',
-      actionType: 'Pending',
-      comment: 'Awaiting further information from the requester.',
-      actionTakenBy: 'Raj ',
-      actionTakenDate: '2024-09-03', 
-    },
-    {
-      key: '13',
-      actionType: 'Pending',
-      comment: 'Awaiting further information from the requester.',
-      actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
-    },
+      EquipmentImprovementNo: 'EIR-002',
+      SectionName: 'Maintenance',
+      ImprovementName: 'Efficiency Improvement',
+      MachineName: 'Lathe Machine',
+      SubMachineName: 'CNC Lathe',
+      IssueDate: '2023-09-10',
+      Requestor: 'Jane Smith',
+      Status: 'Completed',
+      EquipmentImprovementId: 2,
+    }
+   
   ];
   
   
@@ -280,7 +214,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
       </div>
       <AntdTable
         columns={columns}
-        dataSource={data}
+        dataSource={staticData}
         scroll={{ x: "max-content" }}
         loading={isLoading}
         onChange={onChange}

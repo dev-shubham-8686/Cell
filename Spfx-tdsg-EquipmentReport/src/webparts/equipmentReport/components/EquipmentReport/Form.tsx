@@ -1,4 +1,4 @@
-import { ConfigProvider, Modal, Select, Table, message } from "antd";
+import { ConfigProvider, Empty, Modal, Select, Table, message } from "antd";
 import React, { useEffect, useState } from "react";
 import { DatePicker, Input, Button, Upload, Form } from "antd";
 import { ArrowLeftOutlined, UploadOutlined } from "@ant-design/icons";
@@ -585,7 +585,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           </button>
         </div>
       </div>
-      <div className="bg-white">
+      <div className="bg-white p-4">
         <ConfigProvider
           theme={{
             token: {
@@ -961,15 +961,23 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 )}
               </div>
               <Table
+               
                 className="change-risk-table"
                 dataSource={ChangeRiskManagementDetails}
                 columns={nestedTableColumns}
                 scroll={{ x: "max-content" }}
+                // locale={{
+                //   emptyText: (
+                //     <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                //       <Empty description="No Data Available" />
+                //     </div>
+                //   ),
+                // }}
               />
             </div>
 
             <div className="row">
-              <div className="col">
+              <div className="col mt-3">
                 <Form.Item
                   label={<span className="text-muted">PCRN Attachments</span>}
                   name="pcrnAttachment"
