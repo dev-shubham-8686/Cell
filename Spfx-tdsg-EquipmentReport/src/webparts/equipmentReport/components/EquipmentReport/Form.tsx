@@ -49,6 +49,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const [formValues, setFormValues] = useState<
     IEquipmentImprovementReport | []
   >([]);
+  const isModeView = mode==="view"?true:false
   const [ChangeRiskManagementDetails, setChangeRiskManagementDetails] =
     useState<IChangeRiskData[]>([]);
   const eqReportSave = useCreateEditEQReport();
@@ -82,6 +83,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       values.EquipmentImprovementId = parseInt(id);
     }
     console.log("values", values);
+    await form.validateFields();
     eqReportSave.mutate(
       { ...values },
       {
@@ -113,13 +115,26 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   };
 
   const validationRules = {
-    when: [{ required: true, message: "Please enter when" }],
-    deviceName: [{ required: true, message: "Please enter device name" }],
-    purpose: [{ required: true, message: "Please enter purpose" }],
-    currentSituation: [
-      { required: true, message: "Please enter current situation" },
+    When: [{ required: true, message: "Please enter When Date" }],
+    Area: [{ required: true, message: "Please select Area" }],
+    Section: [{ required: true, message: "Please select Section Name" }],
+    Machine: [{ required: true, message: "Please select Machine Name" }],
+    SubMachine: [{ required: true, message: "Please select Sub Machine Name" }],
+    ImpName: [
+      { required: true, message: "Please enter Improvement Name" },
     ],
-    improvement: [{ required: true, message: "Please enter improvement" }],
+    ImpDesc: [{ required: true, message: "Please enter Improvement Description" }],
+    Purpose: [{ required: true, message: "Please enter Purpose" }],
+    CurrSituation: [{ required: true, message: "Please enter Current Situation" }],
+    Changes: [{ required: true, message: "Please enter Changes" }],
+    Function: [{ required: true, message: "Please select Function" }],
+    Risks: [{ required: true, message: "Please enter Risk " }],
+    Factor: [{ required: true, message: "Please enter Factor/causes" }],
+    CounterMeasure: [{ required: true, message: "Please enter Counter Measure" }],
+    DueDate: [{ required: true, message: "Please select Due Date" }],
+    Person: [{ required: true, message: "Please select Person In Charge" }],
+    Results: [{ required: true, message: "Please enter Results " }],
+    
     attachment: [{ required: true, message: "Please upload attachment" }],
   };
 
@@ -255,9 +270,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 "Changes",
               ]) ?? record.employeeId
             }
-            rules={validationRules["Changes"]}
+            rules={validationRules.Changes}
           >
             <Input
+            maxLength={100}
+            disabled={isModeView}
               style={{ width: "100%" }}
               placeholder="Please enter Changes"
               onChange={(e) => {
@@ -286,9 +303,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 "FunctionId",
               ]) ?? record.employeeId
             }
-            rules={validationRules["FunctionId"]}
+            rules={validationRules.Function}
           >
             <Select
+              disabled={isModeView}
               showSearch
               filterOption={(input, option) =>
                 (option?.label ?? "")
@@ -340,7 +358,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             style={{ margin: 0 }}
           >
             <TextArea
-              maxLength={500}
+              disabled={isModeView}
+              maxLength={1000}
               placeholder="Enter risks"
               rows={2}
               onChange={(e) => {
@@ -369,9 +388,12 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               ]) ?? record.comment
             }
             style={{ margin: 0 }}
+            rules={validationRules.Factor}
+
           >
             <TextArea
-              maxLength={500}
+            disabled={isModeView}
+              maxLength={1000}
               placeholder="Add Factor"
               rows={2}
               onChange={(e) => {
@@ -404,9 +426,12 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               ]) ?? record.comment
             }
             style={{ margin: 0 }}
+            rules={validationRules.CounterMeasure}
+
           >
             <TextArea
-              maxLength={500}
+            disabled={isModeView}
+              maxLength={1000}
               placeholder="Add Counter Measures"
               rows={2}
               onChange={(e) => {
@@ -438,15 +463,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 "DueDate",
               ]) ?? record.DueDate
             }
-            rules={[
-              {
-                required: true,
-                message: "Please select a valid due date",
-              },
-            ]}
+            rules={validationRules.DueDate}
+
           >
             <DatePicker
-             
+             disabled={isModeView}
               onChange={(date, dateString)=> {
                 onChangeTableData(
                   record.key,
@@ -476,9 +497,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 "personInCharge",
               ]) ?? record.employeeId
             }
-            rules={validationRules["PersonInCharge"]}
+            rules={validationRules.Person}
           >
             <Select
+            disabled={isModeView}
               showSearch
               optionFilterProp="children"
               style={{ width: "100%" }}
@@ -529,9 +551,12 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               ]) ?? record.comment
             }
             style={{ margin: 0 }}
+            rules={validationRules.Results}
+
           >
             <TextArea
-              maxLength={500}
+            disabled={isModeView}
+              maxLength={1000}
               placeholder="Enter results"
               rows={2}
               onChange={(e) => {
@@ -630,16 +655,16 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     <label className="text-muted mb-0 w-95">When Date</label>
                   }
                   // name="When"
-                  rules={validationRules["When"]}
+                  rules={validationRules.When}
                 >
                   <Input
                     className="w-100"
                     disabled
                     value={
                       existingEquipmentReport?.When 
-                      ? dayjs(existingEquipmentReport.When)
+                      ? dayjs(existingEquipmentReport.When,DATE_TIME_FORMAT)
                       .format(DATE_FORMAT)
-                      : dayjs().format(DATE_FORMAT)
+                      : "-"
                     }
                   />
                 </Form.Item>
@@ -648,20 +673,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 <Form.Item
                   label={<span className="text-muted">Area</span>}
                   // name="Area"
-                  rules={validationRules.attachment}
-                >
-                  <TextArea maxLength={500} rows={1} />
-                </Form.Item>
-              </div>
-              </div>
-              <div className="row ">
-              <div className="col">
-                <Form.Item
-                  label={<span className="text-muted w-95">Section Name</span>}
-                  name="SectionId"
-                  rules={validationRules["SectionId"]}
+                  rules={validationRules.Area}
                 >
                   <Select
+                  disabled={isModeView}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -673,6 +688,32 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       value: section.sectionId,
                     }))}
                     loading={sectionIsLoading}
+                    className="custom-disabled-select"
+                  />
+                </Form.Item>
+              </div>
+              </div>
+              <div className="row ">
+              <div className="col">
+                <Form.Item
+                  label={<span className="text-muted w-95">Section Name</span>}
+                  name="SectionId"
+                  rules={validationRules.Section}
+                >
+                  <Select
+                  disabled={isModeView}
+                    showSearch
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={sections?.map((section) => ({
+                      label: section.sectionName,
+                      value: section.sectionId,
+                    }))}
+                    loading={sectionIsLoading}
+                    className="custom-disabled-select"
                   >
                     {/* {troubles?.map((trouble) => (
                       <Select.Option
@@ -689,9 +730,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 <Form.Item
                   label={<span className="text-muted w-95">Machine Name</span>}
                   name="MachineName"
-                  rules={validationRules["MachineName"]}
+                  rules={validationRules.Machine}
                 >
                   <Select
+                  disabled={isModeView}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -709,16 +751,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       });
                     }}
                     loading={deviceIsLoading}
-                  >
-                    {/* {troubles?.map((trouble) => (
-                      <Select.Option
-                        key={trouble.troubleId}
-                        value={trouble.troubleId}
-                      >
-                        {trouble.name}
-                      </Select.Option>
-                    ))} */}
-                  </Select>
+                    className="custom-disabled-select"
+                  />
+            
                 </Form.Item>
               </div>
               {console.log("selectedmachine", selectedMachine)}{" "}
@@ -728,9 +763,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     <span className="text-muted w-95">Sub Machine Name</span>
                   }
                   name="SubMachineName"
-                  rules={validationRules["SubMachineName"]}
+                  rules={validationRules.SubMachine}
                 >
                   <Select
+                  disabled={isModeView}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -750,16 +786,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         })) || []
                     }
                     loading={subDeviceIsLoading}
-                  >
-                    {/* {troubles?.map((trouble) => (
-                      <Select.Option
-                        key={trouble.troubleId}
-                        value={trouble.troubleId}
-                      >
-                        {trouble.name}
-                      </Select.Option>
-                    ))} */}
-                  </Select>
+                    className="custom-disabled-select"
+                  />
+                   
                 </Form.Item>
               </div>
             
@@ -768,23 +797,24 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             <div className="row mb-3">
             <div className="col">
                 <Form.Item
-                  label={<span className="text-muted w-95">Purpose</span>}
-                  name="Purpose"
-                  rules={validationRules.attachment}
+                  label={<span className="text-muted">Improvement Name</span>}
+                  name="ImprovementName"
+                  rules={validationRules.ImpName}
                 >
-                  <TextArea maxLength={500} rows={3} />
+                  <TextArea disabled={isModeView} maxLength={100} rows={3} />
                 </Form.Item>
               </div>
-
               <div className="col">
                 <Form.Item
-                  label={<span className="text-muted">Current Situation</span>}
-                  name="CurrentSituation"
-                  rules={validationRules.attachment}
+                  label={<span className="text-muted w-95">Purpose</span>}
+                  name="Purpose"
+                  rules={validationRules.Purpose}
                 >
-                  <TextArea  maxLength={500} rows={3} />
+                  <TextArea  disabled={isModeView} maxLength={1000} rows={3} />
                 </Form.Item>
               </div>
+           
+            
 
               <div className="col">
                 <Form.Item
@@ -796,10 +826,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="EquipmentCurrSituationAttachmentDetails"
                   rules={validationRules.attachment}
                 >
-                  {/* <Upload>
-                    {" "}
-                    <Button icon={<UploadOutlined />}>Attach Document</Button>
-                  </Upload> */}
+                  {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
                     key={`file-upload-current-situation`}
                     folderName={
@@ -860,11 +887,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
             <div className="col">
                 <Form.Item
-                  label={<span className="text-muted">Improvement Name</span>}
-                  name="ImprovementName"
-                  rules={validationRules.attachment}
+                  label={<span className="text-muted">Current Situation</span>}
+                  name="CurrentSituation"
+                  rules={validationRules.CurrSituation}
                 >
-                  <TextArea maxLength={500} rows={3} />
+                  <TextArea  disabled={isModeView}  maxLength={1000} rows={3} />
                 </Form.Item>
               </div>
 
@@ -872,9 +899,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 <Form.Item
                   label={<span className="text-muted">Improvement Description</span>}
                   name="Improvement"
-                  rules={validationRules.attachment}
+                  rules={validationRules.ImpDesc}
                 >
-                  <TextArea maxLength={500} rows={3} />
+                  <TextArea disabled={isModeView} maxLength={1000} rows={3} />
                 </Form.Item>
               </div>
             
@@ -891,6 +918,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="EquipmentImprovementAttachmentDetails"
                   rules={validationRules.attachment}
                 >
+                {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
                     key={`file-upload-improvement`}
                     folderName={
@@ -1016,7 +1044,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="TargetDate "
                   rules={validationRules["TargetDate"]}
                 >
-                  <DatePicker className="w-100" disabled />
+                  <DatePicker disabled={isModeView} className="w-100"  />
                 </Form.Item>
               </div>
 
@@ -1026,17 +1054,17 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="ActualDate"
                   rules={validationRules["ActualDate"]}
                 >
-                  <DatePicker className="w-100" disabled />
+                  <DatePicker disabled={isModeView} className="w-100"  />
                 </Form.Item>
               </div>
                
               <div className="col">
                 <Form.Item
-                  label={<label className="text-muted mb-0">Result Date</label>}
+                  label={<label className="text-muted mb-0">Result Monitoring Till Date</label>}
                   // name="ResultDate "
                   rules={validationRules["TargetDate"]}
                 >
-                  <DatePicker className="w-100" disabled />
+                  <DatePicker disabled={isModeView} className="w-100"  />
                 </Form.Item>
               </div>
 
@@ -1048,7 +1076,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="resultStatus"
                   rules={validationRules["resultStatus"]}
                 >
-                  <TextArea className="w-100" cols={1}/>
+                  <TextArea disabled={isModeView} className="w-100" rows={1}/>
                 </Form.Item>
               </div>
               </div>

@@ -214,7 +214,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
       </div>
       <AntdTable
         columns={columns}
-        dataSource={staticData}
+        dataSource={data}
         scroll={{ x: "max-content" }}
         loading={isLoading}
         onChange={onChange}

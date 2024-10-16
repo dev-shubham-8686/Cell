@@ -14,7 +14,7 @@ import {
 
 const EquipmentReportTable: React.FC<{}> = ({}) => {
   const navigate = useNavigate();
-
+  
   // const handleExportToExcel = (id: any) => {
   //   try {
   //     console.log("MATERIALID",id)

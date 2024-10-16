@@ -19,19 +19,10 @@ interface ExtendedUploadFile extends UploadFile {
 
 const VALIDATIONS = {
   attachment: {
-    fileSize: 5000000,
+    fileSize: 32505856 , // 31 MB cause max size is 30 MB
     fileSizeErrMsg: "File size must be less than or equal to 5 MB!",
     fileNamingErrMsg: "File must not contain Invalid Characters(*'\"%,&#^@)!",
-    allowedFileTypes: [
-      "image/jpeg",
-      "application/pdf",
-      "image/jpg",
-      "image/png",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MS Excel (xlsx)
-      "application/vnd.ms-excel", // MS Excel (xls)
-      "application/vnd.ms-outlook", // .msg (Outlook email)
-      "message/rfc822", // .eml (generic email)
-    ],
+    allowedFileTypes: "application/x-msdownload",
     uploadAcceptTypes: ".jpeg,.pdf,.jpg,.png,.xlsx,.xls,.msg,.eml",
     noOfFiles: "Maximum 2 Files are allowed! ",
     maxFileCount: 10,
@@ -80,11 +71,9 @@ const FileUpload: FC<IFileUpload> = ({
     // Check file type
     else if (
       file.type &&
-      !VALIDATIONS.attachment.allowedFileTypes.some(
-        (type) => type === file.type
-      )
+      VALIDATIONS.attachment.allowedFileTypes==file.type
     ) {
-      description = `Only JPEG, PDF, JPG, PNG , Excel and Email Attachments are allowed.`;
+      description = `exe Files are not allowed.`;
     }
 
     if (description) {

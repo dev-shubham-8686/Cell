@@ -122,7 +122,9 @@ console.log("EQ Report data",equipmentReport?.data)
             </div>
           ) : currentTab === "workflow" ? (
             <div>
-              <Workflow />
+              <Workflow 
+              // approverTasks={[]}
+              />
             </div>
           ) : (
             <></>
