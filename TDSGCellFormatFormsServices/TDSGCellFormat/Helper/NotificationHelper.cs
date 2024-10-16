@@ -206,10 +206,14 @@ namespace TDSGCellFormat.Helper
                 bool approvelink = false;
                 bool isEditable = false;
                 //string? templateFilePath = null;
+
+                //prod link
                 string? documentLink = _configuration["SPSiteUrl"] +
-                  "/SitePages/Trouble-Report.aspx#/";
-              //  string? documentLink = _configuration["SPSiteUrl"] +
-              // "/SitePages/CellFormatStage.aspx#/";
+                 "/SitePages/Trouble-Report.aspx#/";
+
+                //stage link
+               // string? documentLink = _configuration["SPSiteUrl"] +
+                //"/SitePages/CellFormatStage.aspx#/";
 
                 StringBuilder emailBody = new StringBuilder();
                 if (requestId > 0)
@@ -823,6 +827,7 @@ namespace TDSGCellFormat.Helper
                                 templateFile = "MaterialConsumption_AskForAmendment .html";
                                 emailSubject = string.Format("[Action taken!] MCS_{0} has been Asked for Amendment", materialData.MaterialConsumptionSlipNo);
                                 isRequestorinToEmail = true;
+                                approvelink = true;
                                 break;
 
                             case EmailNotificationAction.PullBack:
@@ -855,7 +860,7 @@ namespace TDSGCellFormat.Helper
                             emailToAddressList.Add(requesterUserEmail);
                             emailCCAddressList.Remove(requesterUserEmail);
                         }
-                        if(isRequestorinCCEmail)
+                        if (isRequestorinCCEmail)
                         {
                             emailCCAddressList.Add(requesterUserEmail);
                         }
