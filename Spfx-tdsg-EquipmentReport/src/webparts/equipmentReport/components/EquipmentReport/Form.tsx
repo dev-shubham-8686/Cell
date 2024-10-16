@@ -356,6 +356,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               ]) ?? record.comment
             }
             style={{ margin: 0 }}
+            rules={validationRules.Risks}
+
           >
             <TextArea
               disabled={isModeView}
@@ -467,6 +469,12 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
           >
             <DatePicker
+             value={
+              existingEquipmentReport?.When 
+              ? dayjs(record.ChangeRiskManagementDetails.DueDate,DATE_TIME_FORMAT)
+              .format(DATE_FORMAT)
+              : "-"
+            }
              disabled={isModeView}
               onChange={(date, dateString)=> {
                 onChangeTableData(
@@ -1003,7 +1011,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 // }}
               />
             </div>
-
+            {false&&
+            ( 
+              <>
             <div className="row">
               <div className="col mt-3">
                 <Form.Item
@@ -1081,6 +1091,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               </div>
               </div>
             </div>
+            </>)}
           </Form>
         </ConfigProvider>
       </div>

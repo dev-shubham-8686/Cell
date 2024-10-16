@@ -20,9 +20,9 @@ interface ExtendedUploadFile extends UploadFile {
 const VALIDATIONS = {
   attachment: {
     fileSize: 32505856 , // 31 MB cause max size is 30 MB
-    fileSizeErrMsg: "File size must be less than or equal to 5 MB!",
+    fileSizeErrMsg: "File size must be less than or equal to 30 MB!",
     fileNamingErrMsg: "File must not contain Invalid Characters(*'\"%,&#^@)!",
-    allowedFileTypes: "application/x-msdownload",
+    notallowedFileTypes: "application/x-msdownload",
     uploadAcceptTypes: ".jpeg,.pdf,.jpg,.png,.xlsx,.xls,.msg,.eml",
     noOfFiles: "Maximum 2 Files are allowed! ",
     maxFileCount: 10,
@@ -71,7 +71,7 @@ const FileUpload: FC<IFileUpload> = ({
     // Check file type
     else if (
       file.type &&
-      VALIDATIONS.attachment.allowedFileTypes==file.type
+      VALIDATIONS.attachment.notallowedFileTypes==file.type
     ) {
       description = `exe Files are not allowed.`;
     }
