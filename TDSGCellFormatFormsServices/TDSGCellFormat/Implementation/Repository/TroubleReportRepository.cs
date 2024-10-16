@@ -659,7 +659,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var workDoneLeadExist = _context.TroubleReportReviewerTaskMasters.Where(x => x.TroubleReportId == troubleReportId && x.DisplayName == Enums.WorkDoneLead && x.IsActive == true && x.IsClsoed == false).FirstOrDefault();
                 if (workDoneLeadExist != null)
                 {
-                    workDoneLeadExist.ReviewerId = _context.WorkDoneDetails.Where(x => x.TroubleReportId == troubleReportId && x.Lead == true).Select(x => x.EmployeeId).FirstOrDefault();
+                    workDoneLeadExist.ReviewerId = _context.WorkDoneDetails.Where(x => x.TroubleReportId == troubleReportId && x.Lead == true && x.IsDeleted == false).Select(x => x.EmployeeId).FirstOrDefault();
                     workDoneLeadExist.ModifiedDate = DateTime.Now;
                     workDoneLeadExist.ModifiedBy = userId;
                     await _context.SaveChangesAsync();
@@ -668,7 +668,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     notifyMembersData.ReviewerTaskMasterId = 0;
                     notifyMembersData.TroubleReportId = troubleReportId;
-                    notifyMembersData.ReviewerId = _context.WorkDoneDetails.Where(x => x.TroubleReportId == troubleReportId && x.Lead == true).Select(x => x.EmployeeId).FirstOrDefault();
+                    notifyMembersData.ReviewerId = _context.WorkDoneDetails.Where(x => x.TroubleReportId == troubleReportId && x.Lead == true && x.IsDeleted == false).Select(x => x.EmployeeId).FirstOrDefault();
                     notifyMembersData.DisplayName = Enums.WorkDoneLead;
                     notifyMembersData.ProcessName = Enums.WorkDoneLead;
                     notifyMembersData.IsActive = true;
@@ -691,7 +691,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     troubleData.Status = ApprovalTaskStatus.InProcess.ToString();
                     troubleData.IsReview = false;
-                    var workDone = _context.WorkDoneDetails.Where(x => x.TroubleReportId == troubleData.TroubleReportId && x.Lead == true).FirstOrDefault();
+                    var workDone = _context.WorkDoneDetails.Where(x => x.TroubleReportId == troubleData.TroubleReportId && x.Lead == true && x.IsDeleted == false).FirstOrDefault();
                     if(workDone != null)
                     {
                         troubleData.ReportLevel = 1;

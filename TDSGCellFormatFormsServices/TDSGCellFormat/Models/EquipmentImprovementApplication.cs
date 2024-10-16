@@ -36,9 +36,11 @@ public partial class EquipmentImprovementApplication
     public string? PCRNDocFilePath { get; set; }
 
     public string? Status { get; set; }
-
+    public string? WorkFlowStatus { get; set; }
+    public int? WorkFlowLevel { get; set; }
     public bool? IsSubmit { get; set; }
 
+    public bool? IsResultSubmit {  get; set; }
     public DateTime? CreatedDate { get; set; }
 
     public int? CreatedBy { get; set; }
