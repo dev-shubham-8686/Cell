@@ -26,21 +26,29 @@ public partial class EquipmentImprovementApplication
 
     public string? Imrovement { get; set; }
 
-    public DateTime? TargetDate { get; set; }
-
-    public DateTime? ActualDate { get; set; }
-
-    public string? ResultStatus { get; set; }   
-    public string? PCRNDocName { get; set; }
-
-    public string? PCRNDocFilePath { get; set; }
-
     public string? Status { get; set; }
     public string? WorkFlowStatus { get; set; }
     public int? WorkFlowLevel { get; set; }
     public bool? IsSubmit { get; set; }
+    public DateTime? TargetDate { get; set; }
 
-    public bool? IsResultSubmit {  get; set; }
+    public DateTime? ActualDate { get; set; }
+
+    public string? ResultStatus { get; set; }
+
+    public DateTime? ResultMonitorDate { get; set; }
+
+    public bool? IsResultSubmit { get; set; }
+
+    public bool? ToshibaTeamDiscussion { get; set; }
+
+    public DateTime? ToshibaDiscussionTargetDate { get; set; }
+    public bool? ToshibaApprovalRequired { get; set; }
+
+    public DateTime? ToshibaApprovalTargetDate { get; set; }
+
+
+  
     public DateTime? CreatedDate { get; set; }
 
     public int? CreatedBy { get; set; }
