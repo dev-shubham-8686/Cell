@@ -15,7 +15,7 @@ public class EquipmentImprovementApproverTaskMaster
 
     public int? WorkFlowlevel { get; set; }
 
-    public int MaterialConsumptionId { get; set; }
+    public int EquipmentImprovementId { get; set; }
 
     public int? AssignedToUserId { get; set; }
 

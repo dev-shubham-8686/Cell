@@ -242,7 +242,8 @@ namespace TDSGCellFormat.Common
         public const string TroubleReject = "Trouble Report rejected";
         public const string TroubleReOpen = "Trouble Report reopened";
 
-        public const string EquipmentSave = "Application Equipment Report saved successfully";
+        public const string EquipmentSave = "Equipment Improvement form saved successfully";
+        public const string EquipmentPullback = "Equipment Improvement form has been pulled back successfully";
 
         public const string AdjustMentSave = "Adjustment Report saved successfully";
 
