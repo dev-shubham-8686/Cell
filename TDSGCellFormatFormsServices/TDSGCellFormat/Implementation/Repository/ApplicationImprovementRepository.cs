@@ -157,7 +157,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.ModifiedDate = DateTime.Now;
                     newReport.ModifiedBy = report.CreatedBy;
                     newReport.IsSubmit = report.IsSubmit;
+                    newReport.IsSubmit = false;
                     newReport.Status = ApprovalTaskStatus.Draft.ToString();
+                    newReport.WorkFlowLevel = 1;
+                    newReport.WorkFlowStatus = ApprovalTaskStatus.Draft.ToString();
                     _context.EquipmentImprovementApplication.Add(newReport);
                     await _context.SaveChangesAsync();
 
@@ -468,5 +471,67 @@ namespace TDSGCellFormat.Implementation.Repository
             return equpmentData;
         }
 
+        #region Pull Back requets 
+
+        public async Task<AjaxResult> PullBackRequest(EquipmentPullBack data)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var equipmentTask = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.equipmentId && x.IsDeleted == false).FirstOrDefault();
+                if (equipmentTask != null) 
+                {
+                    if(equipmentTask.WorkFlowLevel == 1)
+                    {
+                        equipmentTask.IsSubmit = false;
+                        equipmentTask.IsResultSubmit = false;
+                        equipmentTask.Status = ApprovalTaskStatus.Draft.ToString();
+                        equipmentTask.ModifiedBy = data.userId;
+                        // mention the WorkFlow status 
+                        await _context.SaveChangesAsync();
+
+                        var approverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.equipmentId && x.IsActive == true && x.WorkFlowlevel == 1).ToList();
+                        approverTask.ForEach(a =>
+                        {
+                            a.IsActive = false;
+                            a.ModifiedBy = data.userId;
+                            a.ModifiedDate = DateTime.Now;
+                        });
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        equipmentTask.IsSubmit = true;
+                        equipmentTask.IsResultSubmit = false;
+                        equipmentTask.Status = ApprovalTaskStatus.Draft.ToString();
+                        equipmentTask.ModifiedBy = data.userId;
+                        // mention the WorkFlow status
+                        await _context.SaveChangesAsync();
+
+                        var approverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.equipmentId && x.IsActive == true && x.WorkFlowlevel == 2).ToList();
+                        approverTask.ForEach(a =>
+                        {
+                            a.IsActive = false;
+                            a.ModifiedBy = data.userId;
+                            a.ModifiedDate = DateTime.Now;
+                        });
+                        await _context.SaveChangesAsync();
+                    }
+                }
+                res.Message = Enums.MaterialPullback;
+                res.StatusCode = Status.Success;
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "Equipment PullbackRequest");
+              
+            }
+            return res;
+        }
+
+        #endregion
     }
 }
