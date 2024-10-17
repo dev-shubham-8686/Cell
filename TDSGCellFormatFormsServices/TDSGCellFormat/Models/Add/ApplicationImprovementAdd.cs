@@ -31,4 +31,11 @@
         public bool? IsDeleted { get; set; }
     }
 
+
+    public class EquipmentPullBack
+    {
+        public int? equipmentId { get; set; }
+        public int? userId { get; set; }
+        public string? comment { get; set; }
+    }
 }
