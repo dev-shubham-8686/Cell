@@ -5,7 +5,7 @@
         public int? EquipmentImprovementId { get; set; }
         public string? EquipmentImprovementNo { get; set; }
         public string? When { get; set; }
-
+        public int? AreaId { get; set; }
         public int? MachineName { get; set; }
         public List<int>? SubMachineName { get; set; }
         public int? SectionId { get; set; }

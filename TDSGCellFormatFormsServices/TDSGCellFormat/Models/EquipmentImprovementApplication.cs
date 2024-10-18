@@ -13,7 +13,7 @@ public partial class EquipmentImprovementApplication
     public string? EquipmentImprovementNo { get; set; }
 
     public DateTime? When { get; set; }
-
+    public int? AreaId { get; set; }
     public int? SectionId  { get; set; }
 
     public int? MachineId { get; set; }
@@ -67,5 +67,9 @@ public partial class EquipmentImprovementApplication
 
     [ForeignKey("SectionId")]
     public virtual SectionMaster? SectionMaster { get; set; }
+
+
+    [ForeignKey("AreaId")]
+    public virtual Area? Area { get; set; }
 
 }
