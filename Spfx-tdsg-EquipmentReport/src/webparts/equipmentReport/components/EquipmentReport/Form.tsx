@@ -28,6 +28,7 @@ import useFunctionMaster from "../../apis/masters/useFunctionMaster";
 import FileUpload from "../fileUpload/FileUpload";
 import { renameFolder } from "../../utility/utility";
 import { WebPartContext } from "../../context/webpartContext";
+import OptionalReviewModal from "../common/OptionalReviewModal";
 
 const { TextArea } = Input;
 
@@ -49,7 +50,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const [formValues, setFormValues] = useState<
     IEquipmentImprovementReport | []
   >([]);
-  const isModeView = mode==="view"?true:false
+  const isModeView = mode === "view" ? true : false;
   const [ChangeRiskManagementDetails, setChangeRiskManagementDetails] =
     useState<IChangeRiskData[]>([]);
   const eqReportSave = useCreateEditEQReport();
@@ -107,12 +108,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     );
   };
 
-  const handleChange = (changedValues: { [key: string]: any }) => {
-    setFormValues((prevValues) => ({
-      ...prevValues,
-      ...changedValues,
-    }));
-  };
+
 
   const validationRules = {
     When: [{ required: true, message: "Please enter When Date" }],
@@ -120,42 +116,29 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     Section: [{ required: true, message: "Please select Section Name" }],
     Machine: [{ required: true, message: "Please select Machine Name" }],
     SubMachine: [{ required: true, message: "Please select Sub Machine Name" }],
-    ImpName: [
-      { required: true, message: "Please enter Improvement Name" },
+    ImpName: [{ required: true, message: "Please enter Improvement Name" }],
+    ImpDesc: [
+      { required: true, message: "Please enter Improvement Description" },
     ],
-    ImpDesc: [{ required: true, message: "Please enter Improvement Description" }],
     Purpose: [{ required: true, message: "Please enter Purpose" }],
-    CurrSituation: [{ required: true, message: "Please enter Current Situation" }],
+    CurrSituation: [
+      { required: true, message: "Please enter Current Situation" },
+    ],
     Changes: [{ required: true, message: "Please enter Changes" }],
     Function: [{ required: true, message: "Please select Function" }],
     Risks: [{ required: true, message: "Please enter Risk " }],
     Factor: [{ required: true, message: "Please enter Factor/causes" }],
-    CounterMeasure: [{ required: true, message: "Please enter Counter Measure" }],
+    CounterMeasure: [
+      { required: true, message: "Please enter Counter Measure" },
+    ],
     DueDate: [{ required: true, message: "Please select Due Date" }],
     Person: [{ required: true, message: "Please select Person In Charge" }],
     Results: [{ required: true, message: "Please enter Results " }],
-    
+
     attachment: [{ required: true, message: "Please upload attachment" }],
   };
 
-  const onBackClick = (): void => {
-    confirm({
-      title: (
-        <p className="text-black-50_e8274897">
-          Only the completed sections will be saved as draft. Do you want to
-          proceed?
-        </p>
-      ),
-      icon: <i className="fa-solid fa-circle-exclamation" />,
-      onOk() {
-        console.log("back button clicked");
-        navigate("/");
-      },
-      onCancel() {
-        console.log("Cancel");
-      },
-    });
-  };
+ 
 
   useEffect(() => {
     // form.setFieldsValue({
@@ -181,7 +164,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         existingEquipmentReport?.EquipmentCurrSituationAttachmentDetails ?? []
       );
       debugger;
-        setselectedMachine(parseInt(existingEquipmentReport?.MachineName??"0"))
+      setselectedMachine(parseInt(existingEquipmentReport?.MachineName ?? "0"));
       setChangeRiskManagementDetails(changeRiskData);
       console.log(
         "CHangeRisk data ",
@@ -195,6 +178,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       existingEquipmentReport?.ChangeRiskManagementDetails
     );
   }, [existingEquipmentReport]);
+
+
 
   const handleAdd = (): void => {
     const newData: IChangeRiskData[] = [
@@ -273,8 +258,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             rules={validationRules.Changes}
           >
             <Input
-            maxLength={100}
-            disabled={isModeView}
+              maxLength={100}
+              disabled={isModeView}
               style={{ width: "100%" }}
               placeholder="Please enter Changes"
               onChange={(e) => {
@@ -357,7 +342,6 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             }
             style={{ margin: 0 }}
             rules={validationRules.Risks}
-
           >
             <TextArea
               disabled={isModeView}
@@ -391,10 +375,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             }
             style={{ margin: 0 }}
             rules={validationRules.Factor}
-
           >
             <TextArea
-            disabled={isModeView}
+              disabled={isModeView}
               maxLength={1000}
               placeholder="Add Factor"
               rows={2}
@@ -429,10 +412,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             }
             style={{ margin: 0 }}
             rules={validationRules.CounterMeasure}
-
           >
             <TextArea
-            disabled={isModeView}
+              disabled={isModeView}
               maxLength={1000}
               placeholder="Add Counter Measures"
               rows={2}
@@ -466,22 +448,19 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               ]) ?? record.DueDate
             }
             rules={validationRules.DueDate}
-
           >
             <DatePicker
-             value={
-              existingEquipmentReport?.When 
-              ? dayjs(record.ChangeRiskManagementDetails.DueDate,DATE_TIME_FORMAT)
-              .format(DATE_FORMAT)
-              : "-"
-            }
-             disabled={isModeView}
-              onChange={(date, dateString)=> {
-                onChangeTableData(
-                  record.key,
-                  "DueDate",
-                  dateString
-                );
+              value={
+                existingEquipmentReport?.When
+                  ? dayjs(
+                      record.ChangeRiskManagementDetails.DueDate,
+                      DATE_TIME_FORMAT
+                    ).format(DATE_FORMAT)
+                  : "-"
+              }
+              disabled={isModeView}
+              onChange={(date, dateString) => {
+                onChangeTableData(record.key, "DueDate", dateString);
               }}
             />
           </Form.Item>
@@ -508,7 +487,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             rules={validationRules.Person}
           >
             <Select
-            disabled={isModeView}
+              disabled={isModeView}
               showSearch
               optionFilterProp="children"
               style={{ width: "100%" }}
@@ -560,10 +539,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             }
             style={{ margin: 0 }}
             rules={validationRules.Results}
-
           >
             <TextArea
-            disabled={isModeView}
+              disabled={isModeView}
               maxLength={1000}
               placeholder="Enter results"
               rows={2}
@@ -616,6 +594,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             <i className="fa-solid fa-share-from-square" />
             Submit
           </button>
+         
         </div>
       </div>
       <div className="bg-white p-4">
@@ -669,10 +648,12 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     className="w-100"
                     disabled
                     value={
-                      existingEquipmentReport?.When 
-                      ? dayjs(existingEquipmentReport.When,DATE_TIME_FORMAT)
-                      .format(DATE_FORMAT)
-                      : "-"
+                      existingEquipmentReport?.When
+                        ? dayjs(
+                            existingEquipmentReport.When,
+                            DATE_TIME_FORMAT
+                          ).format(DATE_FORMAT)
+                        : "-"
                     }
                   />
                 </Form.Item>
@@ -684,7 +665,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Area}
                 >
                   <Select
-                  disabled={isModeView}
+                    disabled={isModeView}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -700,8 +681,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   />
                 </Form.Item>
               </div>
-              </div>
-              <div className="row ">
+            </div>
+            <div className="row ">
               <div className="col">
                 <Form.Item
                   label={<span className="text-muted w-95">Section Name</span>}
@@ -709,7 +690,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Section}
                 >
                   <Select
-                  disabled={isModeView}
+                    disabled={isModeView}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -741,7 +722,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Machine}
                 >
                   <Select
-                  disabled={isModeView}
+                    disabled={isModeView}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -761,7 +742,6 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     loading={deviceIsLoading}
                     className="custom-disabled-select"
                   />
-            
                 </Form.Item>
               </div>
               {console.log("selectedmachine", selectedMachine)}{" "}
@@ -774,7 +754,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.SubMachine}
                 >
                   <Select
-                  disabled={isModeView}
+                    disabled={isModeView}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -796,14 +776,12 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     loading={subDeviceIsLoading}
                     className="custom-disabled-select"
                   />
-                   
                 </Form.Item>
               </div>
-            
             </div>
 
             <div className="row mb-3">
-            <div className="col">
+              <div className="col">
                 <Form.Item
                   label={<span className="text-muted">Improvement Name</span>}
                   name="ImprovementName"
@@ -818,11 +796,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="Purpose"
                   rules={validationRules.Purpose}
                 >
-                  <TextArea  disabled={isModeView} maxLength={1000} rows={3} />
+                  <TextArea disabled={isModeView} maxLength={1000} rows={3} />
                 </Form.Item>
               </div>
-           
-            
 
               <div className="col">
                 <Form.Item
@@ -887,32 +863,31 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   />
                 </Form.Item>
               </div>
-             
-
             </div>
-          
-            <div className="row mb-3">
 
-            <div className="col">
+            <div className="row mb-3">
+              <div className="col">
                 <Form.Item
                   label={<span className="text-muted">Current Situation</span>}
                   name="CurrentSituation"
                   rules={validationRules.CurrSituation}
                 >
-                  <TextArea  disabled={isModeView}  maxLength={1000} rows={3} />
+                  <TextArea disabled={isModeView} maxLength={1000} rows={3} />
                 </Form.Item>
               </div>
 
               <div className="col">
                 <Form.Item
-                  label={<span className="text-muted">Improvement Description</span>}
+                  label={
+                    <span className="text-muted">Improvement Description</span>
+                  }
                   name="Improvement"
                   rules={validationRules.ImpDesc}
                 >
                   <TextArea disabled={isModeView} maxLength={1000} rows={3} />
                 </Form.Item>
               </div>
-            
+
               {console.log(
                 "FILES",
                 form.getFieldValue("EquipmentImprovementAttachmentDetails"),
@@ -926,7 +901,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="EquipmentImprovementAttachmentDetails"
                   rules={validationRules.attachment}
                 >
-                {/* all types except exe  ,  max size -30MB  , no-10*/}
+                  {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
                     key={`file-upload-improvement`}
                     folderName={
@@ -982,13 +957,17 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               </div>
             </div>
 
-            <hr style={{ border: "1px solid black" }} />
             <div>
               <div className="d-flex justify-content-between my-3">
-                <p className=" mb-0" style={{fontSize:"20px",color:"#C50017"}}>Change Risk Management</p>
+                <p
+                  className="mb-0"
+                  style={{ fontSize: "20px", color: "#C50017" }}
+                >
+                  Change Risk Management
+                </p>
                 {true && (
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-primary mt-3"
                     type="button"
                     onClick={handleAdd}
                   >
@@ -997,7 +976,6 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 )}
               </div>
               <Table
-               
                 className="change-risk-table"
                 dataSource={ChangeRiskManagementDetails}
                 columns={nestedTableColumns}
@@ -1011,87 +989,109 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 // }}
               />
             </div>
-            {false&&
-            ( 
+            {true && (
               <>
-            <div className="row">
-              <div className="col mt-3">
-                <Form.Item
-                  label={<span className="text-muted">PCRN Attachments</span>}
-                  name="pcrnAttachment"
-                  rules={validationRules.attachment}
-                >
-                  <FileUpload
-                    key={`file-upload-pcrn`}
-                    folderName={"foldername"}
-                    libraryName={"lbname"}
-                    files={form.getFieldValue("pcrnAttachment")?.map((a) => ({
-                      ...a,
-                      uid: a.PCRNId?.toString() ?? "",
-                      url: `${a.url}`,
-                    }))}
-                    setIsLoading={(loading: boolean) => {
-                      // setIsLoading(loading);
-                    }}
-                    isLoading={false}
-                    onAddFile={(name: string, url: string) => {
-                      console.log("File Added");
-                    }}
-                    onRemoveFile={(documentName: string) => {
-                      console.log("File Removed");
-                    }}
-                  />
-                </Form.Item>
-              </div>
-              </div>
-              <hr style={{ border: "1px solid black" }} />
-              <div>
-              <p className=" mb-0" style={{fontSize:"20px",color:"#C50017"}}>Result Section</p>
-              <div className="row mt-3">
-              <div className="col">
-                <Form.Item
-                  label={<label className="text-muted mb-0">Target Date</label>}
-                  name="TargetDate "
-                  rules={validationRules["TargetDate"]}
-                >
-                  <DatePicker disabled={isModeView} className="w-100"  />
-                </Form.Item>
-              </div>
+                <div className="row">
+                  <div className="col mt-3">
+                    <Form.Item
+                      label={
+                        <span className="text-muted">PCRN Attachments</span>
+                      }
+                      name="pcrnAttachment"
+                      rules={validationRules.attachment}
+                    >
+                      <FileUpload
+                        key={`file-upload-pcrn`}
+                        folderName={"foldername"}
+                        libraryName={"lbname"}
+                        files={form
+                          .getFieldValue("pcrnAttachment")
+                          ?.map((a) => ({
+                            ...a,
+                            uid: a.PCRNId?.toString() ?? "",
+                            url: `${a.url}`,
+                          }))}
+                        setIsLoading={(loading: boolean) => {
+                          // setIsLoading(loading);
+                        }}
+                        isLoading={false}
+                        onAddFile={(name: string, url: string) => {
+                          console.log("File Added");
+                        }}
+                        onRemoveFile={(documentName: string) => {
+                          console.log("File Removed");
+                        }}
+                      />
+                    </Form.Item>
+                  </div>
+                </div>
+                <div>
+                  <p
+                    className="mt-3"
+                    style={{ fontSize: "20px", color: "#C50017" }}
+                  >
+                    Result Section
+                  </p>
+                  <div className="row mt-3">
+                    <div className="col">
+                      <Form.Item
+                        label={
+                          <label className="text-muted mb-0">Target Date</label>
+                        }
+                        name="TargetDate "
+                        rules={validationRules["TargetDate"]}
+                      >
+                        <DatePicker disabled={isModeView} className="w-100" />
+                      </Form.Item>
+                    </div>
 
-              <div className="col">
-                <Form.Item
-                  label={<label className="text-muted mb-0">Actual Date</label>}
-                  name="ActualDate"
-                  rules={validationRules["ActualDate"]}
-                >
-                  <DatePicker disabled={isModeView} className="w-100"  />
-                </Form.Item>
-              </div>
-               
-              <div className="col">
-                <Form.Item
-                  label={<label className="text-muted mb-0">Result Monitoring Till Date</label>}
-                  // name="ResultDate "
-                  rules={validationRules["TargetDate"]}
-                >
-                  <DatePicker disabled={isModeView} className="w-100"  />
-                </Form.Item>
-              </div>
+                    <div className="col">
+                      <Form.Item
+                        label={
+                          <label className="text-muted mb-0">Actual Date</label>
+                        }
+                        name="ActualDate"
+                        rules={validationRules["ActualDate"]}
+                      >
+                        <DatePicker disabled={isModeView} className="w-100" />
+                      </Form.Item>
+                    </div>
 
-              <div className="col">
-                <Form.Item
-                  label={
-                    <label className="text-muted mb-0">Result Status</label>
-                  }
-                  name="resultStatus"
-                  rules={validationRules["resultStatus"]}
-                >
-                  <TextArea disabled={isModeView} className="w-100" rows={1}/>
-                </Form.Item>
-              </div>
-              </div>
-            </div>
-            </>)}
+                    <div className="col">
+                      <Form.Item
+                        label={
+                          <label className="text-muted mb-0">
+                            Result Monitoring Till Date
+                          </label>
+                        }
+                        // name="ResultDate "
+                        rules={validationRules["TargetDate"]}
+                      >
+                        <DatePicker disabled={isModeView} className="w-100" />
+                      </Form.Item>
+                    </div>
+
+                    <div className="col">
+                      <Form.Item
+                        label={
+                          <label className="text-muted mb-0">
+                            Result Status
+                          </label>
+                        }
+                        name="resultStatus"
+                        rules={validationRules["resultStatus"]}
+                      >
+                        <TextArea
+                          disabled={isModeView}
+                          className="w-100"
+                          rows={1}
+                        />
+                      </Form.Item>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </Form>
         </ConfigProvider>
       </div>

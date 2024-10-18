@@ -9,6 +9,7 @@ import Page from "../page/page";
 import { UserContext } from "../../context/userContext";
 import EquipmentReportForm from "../equipmentReport/Form";
 import useEquipmentReportByID from "../../apis/equipmentReport/useEquipmentReport/useEquipmentReportById";
+import WorkFlowButtons from "../common/WorkFlowButtons";
 
 type TabName = "form" | "history" | "workflow";
 
@@ -68,13 +69,9 @@ console.log("EQ Report data",equipmentReport?.data)
             <i className="fa-solid fa-circle-chevron-left" />
             Back
           </button>
-          {/* <div className=" justify-content-right mr-50">
-            {console.log("seqNumber", currentApprovertask)}
-            <WorkflowButtons
-              currentApproverTaskId={currentApprovertask?.approverTaskId}
-              seqNumber={currentApprovertask?.seqNumber ?? 0}
-            />
-          </div> */}
+          <div className=" justify-content-right mr-50">
+            <WorkFlowButtons currentApproverTask={null}  />
+          </div>
         </div>
 
         <ul
