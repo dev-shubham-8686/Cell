@@ -28,7 +28,7 @@ public class Program
             var context = scope.ServiceProvider.GetRequiredService<AepplNewCloneStageContext>();
             var icaReport = dbContext.TroubleReports
                                    .Where(tr => tr.ImmediateCorrectiveAction == null &&
-                                                EF.Functions.DateDiffHour(tr.When, DateTime.Now) >= 48)
+                                                EF.Functions.DateDiffHour(tr.When, DateTime.Now) >= 48 && tr.IsDeleted == false)
                                    .ToList();
             var reminderEmails = new ReminderEmails(dbContext, context);
 
@@ -110,7 +110,7 @@ public class Program
             //change the fields for the RCA count
             var rcaReport = dbContext.TroubleReports
                                    .Where(tr => tr.ImmediateCorrectiveAction == null &&
-                                                EF.Functions.DateDiffDay(tr.When, DateTime.Now) >= 7)
+                                                EF.Functions.DateDiffDay(tr.When, DateTime.Now) >= 7 && tr.IsDeleted == false)
                                    .ToList();
 
             foreach (var rca in rcaReport)
@@ -119,7 +119,7 @@ public class Program
                 DateTime rcaLastEmailSent = (DateTime)(rca?.LastRCAEmailSent ?? rca?.When); // Use the report creation time if no email was sent
                 TimeSpan hoursSinceLastEmail = now - rcaLastEmailSent;
                 //var emailFlag = report.RaiserEmailSent;
-                var raiser = dbContext.TroubleReports.Where(x => x.TroubleReportId == rca.TroubleReportId).Select(x => x.CreatedBy).FirstOrDefault();
+                var raiser = dbContext.TroubleReports.Where(x => x.TroubleReportId == rca.TroubleReportId && x.IsDeleted == false).Select(x => x.CreatedBy).FirstOrDefault();
                 var sectionHead = context.EmployeeMasters.Where(x => x.EmployeeID == raiser && x.IsActive == true).Select(x => x.ReportingManagerId).ToList();
 
                 var departMentHead = (from em in context.EmployeeMasters

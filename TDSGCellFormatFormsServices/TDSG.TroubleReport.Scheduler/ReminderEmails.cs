@@ -190,8 +190,8 @@ namespace TDSG.TroubleReport.Scheduler
 
                 if (troubleId > 0)
                 {
-                    troubleReportNo = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId).Select(x => x.TroubleReportNo).FirstOrDefault();
-                    reportTitle = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId).Select(x => x.ReportTitle).FirstOrDefault();
+                    troubleReportNo = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId && x.IsDeleted == false).Select(x => x.TroubleReportNo).FirstOrDefault();
+                    reportTitle = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId && x.IsDeleted == false).Select(x => x.ReportTitle).FirstOrDefault();
 
                 }
                 if (!string.IsNullOrEmpty(templateFile))

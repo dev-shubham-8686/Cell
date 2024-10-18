@@ -65,6 +65,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 EquipmentImprovementId = res.EquipmentImprovementId,
                 EquipmentImprovementNo = res.EquipmentImprovementNo,
                 When = res.When.HasValue ? res.When.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                AreaId = res.AreaId,
                 MachineName = res.MachineId,
                 SubMachineName = !string.IsNullOrEmpty(res.SubMachineId) ? res.SubMachineId.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
                 Purpose = res.Purpose,
@@ -75,8 +76,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 TargetDate = res.TargetDate.HasValue ? res.TargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
                 ActualDate = res.ActualDate.HasValue ? res.ActualDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
                 ResultStatus = res.ResultStatus,
-                PcrnDocName = res.PCRNDocName,
-                PcrnFilePath = res.PCRNDocFilePath,
+               // PcrnDocName = res.PCRNDocName,
+               // PcrnFilePath = res.PCRNDocFilePath,
                 Status = res.Status,
                 CreatedDate = res.CreatedDate,
                 CreatedBy = res.CreatedBy
@@ -142,12 +143,13 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.MachineId = report.MachineName;
                     newReport.SubMachineId = report.SubMachineName != null ? string.Join(",", report.SubMachineName) : string.Empty;
                     newReport.SectionId = report.SectionId;
+                    newReport.AreaId = report.AreaId;
                     newReport.ImprovementName = report.ImprovementName;
                     newReport.Purpose = report.Purpose;
                     newReport.CurrentSituation = report.CurrentSituation;
                     newReport.Imrovement = report.Improvement;
-                    newReport.PCRNDocName = report.PcrnDocName;
-                    newReport.PCRNDocFilePath = report.PcrnFilePath;
+                   // newReport.PCRNDocName = report.PcrnDocName;
+                   // newReport.PCRNDocFilePath = report.PcrnFilePath;
                     newReport.ResultStatus = report.ResultStatus;
                     newReport.ActualDate = !string.IsNullOrEmpty(report.ActualDate) ? DateTime.Parse(report.ActualDate) : (DateTime?)null;
                     newReport.TargetDate = !string.IsNullOrEmpty(report.TargetDate) ? DateTime.Parse(report.TargetDate) : (DateTime?)null;
@@ -247,12 +249,13 @@ namespace TDSGCellFormat.Implementation.Repository
                     existingReport.MachineId = report.MachineName;
                     existingReport.SubMachineId = report.SubMachineName != null ? string.Join(",", report.SubMachineName) : string.Empty;
                     existingReport.SectionId = report.SectionId;
+                    existingReport.AreaId = report.AreaId;
                     existingReport.ImprovementName = report.ImprovementName;
                     existingReport.Purpose = report.Purpose;
                     existingReport.CurrentSituation = report.CurrentSituation;
                     existingReport.Imrovement = report.Improvement;
-                    existingReport.PCRNDocName = report.PcrnDocName;
-                    existingReport.PCRNDocFilePath = report.PcrnFilePath;
+                    ///existingReport.PCRNDocName = report.PcrnDocName;
+                   // existingReport.PCRNDocFilePath = report.PcrnFilePath;
                     existingReport.ResultStatus = report.ResultStatus;
                     existingReport.ActualDate = !string.IsNullOrEmpty(report.ActualDate) ? DateTime.Parse(report.ActualDate) : (DateTime?)null;
                     existingReport.TargetDate = !string.IsNullOrEmpty(report.TargetDate) ? DateTime.Parse(report.TargetDate) : (DateTime?)null;
