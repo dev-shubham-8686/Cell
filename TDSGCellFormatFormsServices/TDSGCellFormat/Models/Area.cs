@@ -20,6 +20,6 @@ namespace TDSGCellFormat.Models
         public int? ModifiedBy { get; set; }
 
         public DateTime? ModifiedDate { get; set; }
-
+        public virtual ICollection<EquipmentImprovementApplication> EquipmentImprovementApplication { get; set; } = new List<EquipmentImprovementApplication>();
     }
 }
