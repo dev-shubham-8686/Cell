@@ -13,4 +13,6 @@
         public string? Status { get; set; }
         public int? totalCount { get; set; }
     }
+
+ 
 }

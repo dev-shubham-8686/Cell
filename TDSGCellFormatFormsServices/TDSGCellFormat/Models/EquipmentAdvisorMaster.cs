@@ -8,7 +8,7 @@ namespace TDSGCellFormat.Models;
 [Table("EquipmentAdvisorMaster")]
 public class EquipmentAdvisorMaster
 {
-
+    [Key]
     public int AdvisorId { get; set; }
 
     public int? EmployeeId { get; set; }

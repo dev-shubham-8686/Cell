@@ -249,6 +249,7 @@ namespace TDSGCellFormat.Common
         public const string EquipmentAsktoAmend = "Amendment Asked successfully";
         public const string EquipmentApprove = "Equipment Improvement form has been approved";
         public const string EquipmentReject = "Equipment Improvement rejected";
+        public const string EquipmentDateUpdate = "Equipment Improvement record updated";
 
         public const string AdjustMentSave = "Adjustment Report saved successfully";
 

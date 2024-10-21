@@ -50,6 +50,12 @@ namespace TDSGCellFormat.Models.Add
         public string? Comment { get; set; }
         public int EquipmentId { get; set; }
 
+        public EquipmentApprovalData? EquipmentApprovalData   { get; set; }
+    }
+
+    public class EquipmentApprovalData
+    {
+        public int EquipmentId { get; set; }
         public bool? IsToshibaDiscussion { get; set; }
 
         public DateTime? TargetDate { get; set; }

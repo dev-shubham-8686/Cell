@@ -627,7 +627,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.Status = ApprovalTaskStatus.Reject.ToString();
                     equipment.WorkFlowStatus = ApprovalTaskStatus.Reject.ToString();
                     await _context.SaveChangesAsync();
-                    
+
                     // InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, requestTaskData.Comments, requestTaskData.Status, Convert.ToInt32(requestTaskData.ModifiedBy), ApprovalTaskStatus.UnderAmendment.ToString(), 0);
                     //
                     // var notificationHelper = new NotificationHelper(_context, _cloneContext);
@@ -668,42 +668,35 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipmentData.ModifiedDate = DateTime.Now;
                     equipmentData.Comments = data.Comment;
 
-                    if(data.AdvisorId != 0)
-                    {
-                        var advisorData = _context.EquipmentAdvisorMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsActive == true).FirstOrDefault();
-                    }
 
                     await _context.SaveChangesAsync();
                     res.Message = Enums.EquipmentApprove;
 
                     var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false).FirstOrDefault();
-                    if (data.AdvisorId != 0)
+
+                    if (data.EquipmentApprovalData != null)
                     {
-                        var advisorData = new EquipmentAdvisorMaster();
-                        advisorData.EmployeeId = data.AdvisorId;
-                        advisorData.WorkFlowlevel = equipment.WorkFlowLevel;
-                        advisorData.IsActive = true;
-                        advisorData.EquipmentImprovementId = data.EquipmentId;
-                        _context.EquipmentAdvisorMasters.Add(advisorData);
-                        await _context.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        if(data.IsToshibaDiscussion == true)
+                        var approvalData = data.EquipmentApprovalData;
+                        if (approvalData.AdvisorId != 0)
                         {
-                            equipment.ToshibaTeamDiscussion = true;
-                            equipment.ToshibaDiscussionTargetDate = data.TargetDate;
-                            //equipment.WorkFlowStatus = 
+                            var advisorData = new EquipmentAdvisorMaster();
+                            advisorData.EmployeeId = approvalData.AdvisorId;
+                            advisorData.WorkFlowlevel = equipment.WorkFlowLevel;
+                            advisorData.IsActive = true;
+                            advisorData.EquipmentImprovementId = data.EquipmentId;
+                            _context.EquipmentAdvisorMasters.Add(advisorData);
                             await _context.SaveChangesAsync();
                         }
                         else
                         {
                             equipment.ToshibaApprovalRequired = true;
-                            equipment.ToshibaApprovalTargetDate = data.TargetDate;
+                            equipment.ToshibaApprovalTargetDate = approvalData.TargetDate;
                             //equipment.WorkFlowStatus =
                             await _context.SaveChangesAsync();
                         }
+
                     }
+
                     // equipment.Status = ApprovalTaskStatus.UnderAmendment.ToString();
                     // equipment.WorkFlowStatus = ApprovalTaskStatus.UnderAmendment.ToString();
                     // _context.SaveChangesAsync();
@@ -758,8 +751,63 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
 
         }
-        #endregion
+
+        public async Task<AjaxResult> UpdateTargetDates(EquipmentApprovalData data)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false).FirstOrDefault();
+                if(data.IsToshibaDiscussion == true)
+                {
+                    equipment.ToshibaTeamDiscussion = true;
+                    equipment.ToshibaDiscussionTargetDate = data.TargetDate;
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    equipment.ToshibaApprovalRequired = true;
+                    equipment.ToshibaApprovalTargetDate = data.TargetDate;
+                    await _context.SaveChangesAsync();
+                }
+                res.Message = Enums.EquipmentDateUpdate;
+                res.StatusCode = Status.Success;
+
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "Equipment UpdateTargetDate");
+
+            }
+            return res;
+        }
 
         
+        public EquipmentApprovalData GetEquipmentTargetDate(int equipmentId, bool toshibaDiscussion)
+        {
+            var res = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == equipmentId && x.IsDeleted == false).FirstOrDefault();
+            if (res == null) 
+            {
+                return null;
+            }
+
+            var equipmentTargetData = new EquipmentApprovalData();
+            if(toshibaDiscussion == true)
+            {
+                equipmentTargetData.TargetDate = res.ToshibaDiscussionTargetDate;
+            }
+            else
+            {
+                equipmentTargetData.TargetDate = res.ToshibaApprovalTargetDate;
+            }
+            return equipmentTargetData;
+        }
+
+        #endregion
+
+
     }
 }
