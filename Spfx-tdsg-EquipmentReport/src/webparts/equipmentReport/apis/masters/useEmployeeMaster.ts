@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import http from "../../http";
-import { GET_DEVICE_MASTER, GET_EMPLOYEE_MASTER } from "../../URLs";
+import {  GET_EMPLOYEE_MASTER } from "../../URLs";
 
 export interface IEmployeeMaster {
   employeeId: number;

@@ -87,7 +87,7 @@ const FileUpload: FC<IFileUpload> = ({
   const onDelete = async (file: UploadFile<any>) => {
     const confirm = await DeleteFileModal(file.name);
     if (confirm) {
-      debugger;
+      
       const url = `${webPartContext.pageContext.web.absoluteUrl}/_api/web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}/${file.name}')/ListItemAllFields`;
       const response = await webPartContext.spHttpClient.post(
         url,
@@ -100,10 +100,10 @@ const FileUpload: FC<IFileUpload> = ({
           },
         }
       );
-      debugger;
+      
       const fileData = await response.json();
       const itemId = fileData.d.Id;
-      debugger;
+      
       if (itemId) {
         const deleteResponse = await webPartContext.spHttpClient.post(
           `${webPartContext.pageContext.web.absoluteUrl}/_api/web/lists/getbytitle('${libraryName}')/items(${itemId})`,
@@ -118,13 +118,13 @@ const FileUpload: FC<IFileUpload> = ({
             },
           }
         );
-        debugger;
+        
         if (!deleteResponse.ok) {
           console.error(`Error deleting file: ${deleteResponse.statusText}`);
         } else {
-          debugger;
+          
           onRemoveFile(file.name);
-          debugger
+          
           // void displayjsx.showSuccess("File deleted successfully ");
         }
       }
@@ -162,7 +162,7 @@ const FileUpload: FC<IFileUpload> = ({
 
   const uploadFile = async (file: File, fileName: string): Promise<boolean> => {
     try {
-      debugger;
+      
       setItemLoading(true);
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
@@ -188,10 +188,10 @@ const FileUpload: FC<IFileUpload> = ({
         return false;
       } else {
         void showSuccess(`The file ${fileName} is uploaded successfully.`);
-        debugger;
+        
         const jsonResponse = await response.json();
         const fullPath = jsonResponse.ServerRelativeUrl;
-        debugger;
+        
         onAddFile(
           jsonResponse.Name,
           fullPath.substring(fullPath.indexOf(`/${libraryName}`))
@@ -209,13 +209,13 @@ const FileUpload: FC<IFileUpload> = ({
 
   const uploadAttachment = async (file: File, fileName: string) => {
     try {
-      debugger;
+      
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
       }
 
       const checkOrCreateFolder = async (folderUrl: string) => {
-        debugger
+        
         const checkFolderResponse = await webPartContext.spHttpClient.get(
           folderUrl,
           SPHttpClient.configurations.v1,
@@ -241,11 +241,11 @@ const FileUpload: FC<IFileUpload> = ({
           );
         }
       };
-      debugger
+      
       // check if folder exists
       const checkFolderUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Lists/getByTitle('${libraryName}')/RootFolder/Folders('${folderName}')`;
       await checkOrCreateFolder(checkFolderUrl);
-debugger
+
       const subfolderUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}'))`;
       const checkSubFolderResponse = await webPartContext.spHttpClient.get(
         subfolderUrl,
@@ -257,9 +257,9 @@ debugger
           },
         }
       );
-      debugger
+      
       if (checkSubFolderResponse.status >= 400) {
-        debugger
+        
         // Folder does not exist, create it
         const subFolderCreateUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Folders/add('${libraryName}/${folderName}/${subFolderName}')`;
         await webPartContext.spHttpClient
@@ -271,7 +271,7 @@ debugger
           })
           .catch((err) => console.error(err));
       }
-      debugger
+      
       // Adding the file inside the created folder
       const uploadResult = uploadFile(file, fileName);
       return uploadResult;
@@ -282,7 +282,7 @@ debugger
 
   const onUpload = async (event: any) => {
     try {
-      debugger;
+      
       setIsLoading(true);
 
       if (
@@ -290,9 +290,9 @@ debugger
         event.file.status !== "removed"
       ) {
         const file = event.file as File;
-        debugger
+        
         const res = await uploadAttachment(file, file.name);
-        debugger
+        
         return res;
       }
     } catch (error) {

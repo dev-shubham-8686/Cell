@@ -1,21 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 
 import http from "../../http";
-import {  GET_SUB_DEVICE_MASTER } from "../../URLs";
+import {  GET_SUB_MACHINE_MASTER } from "../../URLs";
 
 
 
-export interface ISubDeviceMaster {
-    subDeviceId: number;
-    deviceId:number;
-    subDeviceName: string;
+export interface ISubMachineMaster {
+  SubMachineId: number;
+    MachineId:number;
+    SubMachineName: string;
   }
 
   
 const getSubDeviceMaster = async () => {
  try{ 
 
-  const response = await http.get<{ ReturnValue: ISubDeviceMaster[]}>(GET_SUB_DEVICE_MASTER);
+  const response = await http.get<{ ReturnValue: ISubMachineMaster[]}>(GET_SUB_MACHINE_MASTER);
   
   if(response){
     const tabledata=response.data.ReturnValue?? []
@@ -29,7 +29,7 @@ const getSubDeviceMaster = async () => {
 };
 
 const useSubDeviceMaster = () =>
-    useQuery<ISubDeviceMaster[]>({
+    useQuery<ISubMachineMaster[]>({
         queryKey: ["sub-device-master"],
         queryFn: () => getSubDeviceMaster(),
 });

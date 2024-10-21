@@ -164,7 +164,7 @@ export  const create_UUID = (): string => {
     oldFolderName: string,
     newFolderName: string
   ): Promise<void> => {
-    debugger
+    
     // Fetching the item ID of the folder
     const getFolderResponse = await client.get(
       `${absUrl}/_api/web/GetFolderByServerRelativeUrl('${libraryname}/${oldFolderName}')/ListItemAllFields`,
@@ -177,10 +177,10 @@ export  const create_UUID = (): string => {
         },
       }
     );
-  debugger
+  
     const folderData = await getFolderResponse.json();
     console.log("folderData", folderData);
-    debugger
+    
     const itemId = folderData.d.Id;
     
     // Rename the folder
@@ -202,12 +202,12 @@ export  const create_UUID = (): string => {
         }),
       }
     );
-    debugger
+    
     if (!renameResponse.ok) {
-      debugger
+      
       console.error(`Error renaming folder: ${renameResponse.statusText}`);
     }
-    debugger
+    
     console.log("Folder renamed successfully");
   };
   

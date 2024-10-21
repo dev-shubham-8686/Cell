@@ -1,16 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 
 import http from "../../http";
-import { GET_DEVICE_MASTER } from "../../URLs";
+import { GET_MACHINE_MASTER } from "../../URLs";
 
-export interface IDeviceMaster {
-  deviceId: number;
-  deviceName: string;
+export interface IMachineMaster {
+  MachineId: number;
+  MachineName: string;
 }
 
 const getDeviceMaster = async () => {
   try {
-    const response = await http.get<{ReturnValue: IDeviceMaster[]}>(GET_DEVICE_MASTER);
+    const response = await http.get<{ReturnValue: IMachineMaster[]}>(GET_MACHINE_MASTER);
      
     if (response) {
       
@@ -24,7 +24,7 @@ const getDeviceMaster = async () => {
 };
 
 const useDeviceMaster = () =>
-  useQuery<IDeviceMaster[]>({
+  useQuery<IMachineMaster[]>({
     queryKey: ["device-master"],
     queryFn: () => getDeviceMaster(),
   });

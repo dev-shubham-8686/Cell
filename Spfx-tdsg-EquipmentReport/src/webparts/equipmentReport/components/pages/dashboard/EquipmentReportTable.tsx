@@ -52,7 +52,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Application No",
       dataIndex: "EquipmentImprovementNo",
       key: "EquipmentImprovementNo",
-      width: "20%",
+      width: "10%",
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -107,7 +107,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Issue Date",
       dataIndex: "IssueDate",
       key: "IssueDate",
-      width: "15%",
+      width: "10%",
       sorter: true,
       // render: (text) => (
       //   <p className="text-cell">{format(text, DATE_FORMAT)}</p>
@@ -121,7 +121,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Created By",
       dataIndex: "Requestor",
       key: "Requestor",
-      width: "15%",
+      width: "10%",
       sorter: true,
       // render: (text) => (
       //   <p className="text-cell">{format(text, DATE_FORMAT)}</p>
@@ -135,7 +135,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      width: "15%",
+      width: "10%",
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (

@@ -21,14 +21,16 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import useCreateEditEQReport from "../../apis/equipmentReport/useCreateEditEQReport/useCreateEditEQReport";
-import useDeviceMaster from "../../apis/masters/useDeviceMaster";
-import useSubDeviceMaster from "../../apis/masters/useSubDeviceMaster";
+import useDeviceMaster from "../../apis/masters/useMachineMaster";
+import useSubDeviceMaster from "../../apis/masters/useSubMachineMaster";
 import useSectionMaster from "../../apis/masters/useSectionMaster";
 import useFunctionMaster from "../../apis/masters/useFunctionMaster";
 import FileUpload from "../fileUpload/FileUpload";
 import { renameFolder } from "../../utility/utility";
 import { WebPartContext } from "../../context/webpartContext";
 import OptionalReviewModal from "../common/OptionalReviewModal";
+import useAreaMaster from "../../apis/masters/useAreaMaster";
+import SubmitModal from "../common/SubmitModal";
 
 const { TextArea } = Input;
 
@@ -54,7 +56,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const [ChangeRiskManagementDetails, setChangeRiskManagementDetails] =
     useState<IChangeRiskData[]>([]);
   const eqReportSave = useCreateEditEQReport();
-  const { data: devices, isLoading: deviceIsLoading } = useDeviceMaster();
+  const { data: machines, isLoading: deviceIsLoading } = useDeviceMaster();
+  const { data: areas, isLoading: areaIsLoading } = useAreaMaster();
   const { data: subDevices, isLoading: subDeviceIsLoading } =
     useSubDeviceMaster();
   const { data: sections, isLoading: sectionIsLoading } = useSectionMaster();
@@ -66,13 +69,24 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     ICurrentSituationAttachments[] | []
   >([]);
   const [selectedMachine, setselectedMachine] = useState<number | 0>(0);
+  const [showSubmitModal, setshowSubmitModal] = useState<boolean>(false);
+
   // const { data: employees, isLoading: employeeisLoading } = useEmployeeMaster();
 
   const onSubmitFormHandler = async (): Promise<void> => {
-    console.log("form submission", formValues);
-    const values = form.getFieldsValue();
+    // eqReportSave.mutate(values);
+      setshowSubmitModal(true)
+  };
+
+  const handleModalSubmit = (dropdownValue: string) => {
+    const values:IEquipmentImprovementReport = form.getFieldsValue();
     values.When = dayjs().format("YYYY-MM-DD");
-    eqReportSave.mutate(values);
+    values.sectionHeadId = parseInt(dropdownValue); // Set the dropdown value in the form values
+    console.log("DropDownValues",dropdownValue)
+    console.log("Final form values with dropdown:", values);
+  
+    // Call the save API here
+    // eqReportSave.mutate(values);
   };
 
   const onSaveAsDraftHandler = async (): Promise<void> => {
@@ -144,9 +158,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     // form.setFieldsValue({
     //   ChangeRiskManagementDetails: existingEquipmentReport?.ChangeRiskManagementDetails??ChangeRiskManagementDetails,
     // });
-    debugger;
+    
     if (existingEquipmentReport) {
-      debugger;
+      
       const changeRiskData =
         existingEquipmentReport.ChangeRiskManagementDetails?.map(
           (obj, index) => {
@@ -163,7 +177,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       setcurrSituationAttchments(
         existingEquipmentReport?.EquipmentCurrSituationAttachmentDetails ?? []
       );
-      debugger;
+      
       setselectedMachine(parseInt(existingEquipmentReport?.MachineName ?? "0"));
       setChangeRiskManagementDetails(changeRiskData);
       console.log(
@@ -172,7 +186,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         changeRiskData
       );
     }
-    debugger;
+    
     console.log(
       "CHangeRisk data ",
       existingEquipmentReport?.ChangeRiskManagementDetails
@@ -205,7 +219,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   };
 
   const handleDelete = (key: React.Key): void => {
-    debugger;
+    
     const newData = ChangeRiskManagementDetails.filter(
       (item) => item.key !== key
     ).map((item, index) => {
@@ -501,10 +515,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   .toLowerCase()
                   .includes(input.toLowerCase())
               }
-              options={devices?.map((device) => ({
-                label: device.deviceName,
-                value: device.deviceId,
-              }))}
+              // options={mac?.map((device) => ({
+              //   label: device.deviceName,
+              //   value: device.deviceId,
+              // }))}
               className="custom-disabled-select"
             >
               {/* {employee?.map((employee) => (
@@ -565,9 +579,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               type="button"
               style={{ background: "none", border: "none" }}
               onClick={() => {
-                debugger;
+                
                 handleDelete(record.key);
-                debugger;
+                
               }}
             >
               <span>
@@ -594,7 +608,6 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             <i className="fa-solid fa-share-from-square" />
             Submit
           </button>
-         
         </div>
       </div>
       <div className="bg-white p-4">
@@ -618,7 +631,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             form={form}
             initialValues={existingEquipmentReport}
             onValuesChange={(changedValues, allValues) => {
-              debugger;
+              
               console.log("Form Changed Values: ", allValues, changedValues);
             }}
           >
@@ -661,7 +674,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               <div className="col">
                 <Form.Item
                   label={<span className="text-muted">Area</span>}
-                  // name="Area"
+                  name="AreaId"
                   rules={validationRules.Area}
                 >
                   <Select
@@ -672,11 +685,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         .toLowerCase()
                         .includes(input.toLowerCase())
                     }
-                    options={sections?.map((section) => ({
-                      label: section.sectionName,
-                      value: section.sectionId,
+                    options={areas?.map((area) => ({
+                      label: area.AreaName,
+                      value: area.AreaId,
                     }))}
-                    loading={sectionIsLoading}
+                    loading={areaIsLoading}
                     className="custom-disabled-select"
                   />
                 </Form.Item>
@@ -729,9 +742,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         .toLowerCase()
                         .includes(input.toLowerCase())
                     }
-                    options={devices?.map((device) => ({
-                      label: device.deviceName,
-                      value: device.deviceId,
+                    options={machines?.map((machine) => ({
+                      label: machine.MachineName,
+                      value: machine.MachineId,
                     }))}
                     onChange={(value) => {
                       setselectedMachine(value);
@@ -755,6 +768,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 >
                   <Select
                     disabled={isModeView}
+
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -766,11 +780,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       subDevices
                         ?.filter(
                           (submachine) =>
-                            submachine.deviceId === selectedMachine
+                            submachine.MachineId === selectedMachine
                         )
                         ?.map((subdevice) => ({
-                          label: subdevice.subDeviceName,
-                          value: subdevice.subDeviceId,
+                          label: subdevice.SubMachineName,
+                          value: subdevice.SubMachineId,
                         })) || []
                     }
                     loading={subDeviceIsLoading}
@@ -808,7 +822,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     </span>
                   }
                   name="EquipmentCurrSituationAttachmentDetails"
-                  rules={validationRules.attachment}
+                  // rules={currSituationAttchments.length==0?validationRules.attachment:null}
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
@@ -831,7 +845,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     }}
                     isLoading={false}
                     onAddFile={(name: string, url: string) => {
-                      debugger;
+                      
                       const existingAttachments = currSituationAttchments ?? [];
                       console.log("FILES", existingAttachments);
                       const newAttachment: ICurrentSituationAttachments = {
@@ -842,18 +856,18 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         CreatedBy: 76,
                         ModifiedBy: 76,
                       };
-                      debugger;
+                      
                       const updatedAttachments: ICurrentSituationAttachments[] =
                         [...existingAttachments, newAttachment];
-                      debugger;
+                      
                       setcurrSituationAttchments(updatedAttachments);
-                      debugger;
+                      
                       console.log("File Added");
                     }}
                     onRemoveFile={(documentName: string) => {
-                      debugger;
+                      
                       const existingAttachments = currSituationAttchments ?? [];
-                      debugger;
+                      
                       const updatedAttachments = existingAttachments?.filter(
                         (doc) => doc.CurrSituationDocName !== documentName
                       );
@@ -899,7 +913,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     <span className="text-muted">Improvement Attachments</span>
                   }
                   name="EquipmentImprovementAttachmentDetails"
-                  rules={validationRules.attachment}
+                  // rules={improvementAttchments.length==0?validationRules.attachment:null}
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
@@ -921,7 +935,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     }}
                     isLoading={false}
                     onAddFile={(name: string, url: string) => {
-                      debugger;
+                      
                       const existingAttachments = improvementAttchments ?? [];
                       console.log("FILES", existingAttachments);
                       const newAttachment: IImprovementAttachments = {
@@ -932,20 +946,20 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         CreatedBy: 76,
                         ModifiedBy: 76,
                       };
-                      debugger;
+                      
                       const updatedAttachments: IImprovementAttachments[] = [
                         ...existingAttachments,
                         newAttachment,
                       ];
-                      debugger;
+                      
                       setImprovementAttchments(updatedAttachments);
-                      debugger;
+                      
                       console.log("File Added");
                     }}
                     onRemoveFile={(documentName: string) => {
-                      debugger;
+                      
                       const existingAttachments = improvementAttchments ?? [];
-                      debugger;
+                      
                       const updatedAttachments = existingAttachments?.filter(
                         (doc) => doc.ImprovementDocName !== documentName
                       );
@@ -989,7 +1003,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 // }}
               />
             </div>
-            {true && (
+            {false && (
               <>
                 <div className="row">
                   <div className="col mt-3">
@@ -998,7 +1012,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         <span className="text-muted">PCRN Attachments</span>
                       }
                       name="pcrnAttachment"
-                      rules={validationRules.attachment}
+                      // rules={validationRules.attachment}
                     >
                       <FileUpload
                         key={`file-upload-pcrn`}
@@ -1095,6 +1109,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           </Form>
         </ConfigProvider>
       </div>
+      <SubmitModal
+  visible={showSubmitModal}
+  setmodalVisible={setshowSubmitModal}
+  onSubmit={handleModalSubmit} // Pass the callback function to modal
+/>
     </div>
   );
 };

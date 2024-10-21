@@ -1,5 +1,4 @@
 import {
- 
   Button,
   Modal,
   message,
@@ -15,31 +14,30 @@ import { UserContext } from "../../context/userContext";
 import dayjs from "dayjs";
 import useAreaMaster from "../../apis/masters/useAreaMaster";
 
-interface ApprovalModalProps {
+interface SubmitModalProps {
   setmodalVisible: React.Dispatch<React.SetStateAction<boolean>>;
   visible: boolean;
+  onSubmit: (dropdownValue: string) => void;
 }
 
-const ToshibaApprovalModal: React.FC<ApprovalModalProps> = ({
+const SubmitModal: React.FC<SubmitModalProps> = ({
   setmodalVisible,
   visible,
+  onSubmit,
 }) => {
-  const { id } = useParams();
   const user = useContext(UserContext);
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const [status, setStatus] = useState<any>("");
-  const [reviewers, setReviewers] = useState("");
-  const [remarks, setRemarks] = useState("");
+  const [sectionHead, setsectionHead] = useState(0);
   const { data: areas, isLoading: areaIsLoading } = useAreaMaster();
 
   const onClose = () => {
     form.resetFields();
     setmodalVisible(false);
-    setStatus("scrap");
   };
-  const handleConfirm = () => {
-    console.log("Submitted O R with reviewers", reviewers);
+  const handleConfirm = (values: any) => {
+    console.log("Submitted with sec head ", values);
+    onSubmit(values.sectionHeadId);
     onClose();
   };
   return (
@@ -62,12 +60,12 @@ const ToshibaApprovalModal: React.FC<ApprovalModalProps> = ({
               className="btn btn-primary"
               type="primary"
               htmlType="submit"
+              style={{ marginBottom: "6px" }}
               onClick={() => {
                 form.submit();
               }}
-              style={{ marginBottom: "6px" }}
             >
-              Confirm
+              Submit
             </Button>
           </>
         )}
@@ -75,25 +73,29 @@ const ToshibaApprovalModal: React.FC<ApprovalModalProps> = ({
         {console.log("Status", status)}
 
         <Form form={form} onFinish={handleConfirm}>
-         
-          {(
-            <Form.Item
-            //   label="Please select Target Date "
-              name="reviewers"
-            >
-              <DatePicker 
-                disabledDate={(current) => {
-                    // future dates only
-                    return current && current <= dayjs().endOf('day');
-                  }}
-              />
-
-            </Form.Item>
-          )}
+          <Form.Item
+            label={<span className="text-muted">Area</span>}
+            name="sectionHeadId"
+          >
+            <Select
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={areas?.map((area) => ({
+                label: area.AreaName,
+                value: area.AreaId,
+              }))}
+              loading={areaIsLoading}
+              className="custom-disabled-select"
+            />
+          </Form.Item>
         </Form>
       </Modal>
     </>
   );
 };
 
-export default ToshibaApprovalModal;
+export default SubmitModal;

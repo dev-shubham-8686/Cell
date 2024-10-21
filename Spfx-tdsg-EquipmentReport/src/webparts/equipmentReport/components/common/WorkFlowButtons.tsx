@@ -5,6 +5,7 @@ import { UserContext } from "../../context/userContext";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { IEquipmentImprovementReport } from "../../interface";
 import ToshibaApprovalModal from "./ToshibaApproval";
+import TextBoxModal from "./TextBoxModal";
 
 export interface IApproveAskToAmendPayload {
   ApproverTaskId: number;
@@ -14,11 +15,11 @@ export interface IApproveAskToAmendPayload {
   materialConsumptionId: number;
 }
 export interface IApproverTask {
-    approverTaskId: number;
-    status: string; //this will mostly be InReview
-    userId: number;
-    seqNumber?:number;
-  }
+  approverTaskId: number;
+  status: string; //this will mostly be InReview
+  userId: number;
+  seqNumber?: number;
+}
 export interface IPullBack {
   materialConsumptionId: number;
   userId: number;
@@ -33,8 +34,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   existingMaterialConsumptionSlip,
 }) => {
   const user = useContext(UserContext);
-  const { id ,mode } = useParams();
-  const {  info } = Modal;
+  const { id, mode } = useParams();
+  const { confirm } = Modal;
   const navigate = useNavigate();
   const location = useLocation();
   const { isApproverRequest } = location.state || {};
@@ -44,6 +45,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const [submitbuttontext, setsubmitbuttontext] = useState<string>("Save");
   const [approverRequest, setApproverRequest] = useState(isApproverRequest);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [toshibaApproval, settoshibaApproval] = useState(false);
+  const [advisorRequired, setadvisorRequired] = useState(false);
 
   const handleToshibaReview = () => {
     setIsModalVisible(true);
@@ -51,18 +54,13 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
 
   const onApproveAmendHandler = async (
     actionType: 1 | 3,
-    comment?: string
+    comment: string,
+    targetDate?:Date,
+    advisorId?:number
   ): Promise<void> => {
     try {
-      const payload: IApproveAskToAmendPayload = {
-        ApproverTaskId: currentApproverTask.approverTaskId,
-        CurrentUserId: user.employeeId,
-        type: actionType,
-        comment: comment,
-        materialConsumptionId: parseInt(id),
-      };
-
-    
+      
+      console.log("Approved ",comment,targetDate?.toString(),advisorId)
     } catch (error) {
       console.error(error);
     }
@@ -75,10 +73,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         userId: user.employeeId,
         comment: comment,
       };
-    
     } catch (error) {
       console.error(error);
-    } 
+    }
   };
 
   useEffect(() => {
@@ -117,36 +114,64 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     );
   }, [currentApproverTask]);
 
-  const openCommentsPopup = (actionType?: WorkflowActionType): void => {
+  const openCommentsPopup = (
+    actionType: WorkflowActionType,
+    toshibaRequired?: boolean,
+    advisorRequired?:boolean
+  ): void => {
     setShowModal(true);
+    settoshibaApproval(toshibaRequired);
+    setadvisorRequired(advisorRequired)
     setClickedAction(actionType);
   };
   type WorkflowActionType = keyof typeof WORKFLOW_ACTIONS;
 
   const WORKFLOW_ACTIONS = {
-    Approve: (comment: string) => onApproveAmendHandler(1, comment),
-    Amendment: (comment: string) => onApproveAmendHandler(3, comment),
+    Approve: (comment: string , targetDate:Date,advisorId:number) => onApproveAmendHandler(1, comment,targetDate,advisorId),
+    Amendment: (comment: string,targetDate:Date) => onApproveAmendHandler(3, comment,targetDate),
     PullBack: (comment: string) => onPullbackHandler(comment),
+    UpdateTarget: (comment: string) => onPullbackHandler(comment),
   };
   return (
     <>
-
       <div className="d-flex gap-3 justify-content-end">
         <span
           style={{
             height: "35px",
           }}
         />
-        {showWorkflowBtns && approverRequest ? (
+        {true ? (
           <>
             <button
               className="btn btn-primary"
               onClick={() => {
-          
-              
-                openCommentsPopup("Approve");
+                if (false) {
+                  confirm({
+                    title: "Is Toshiba approval required ?",
+                    icon: (
+                      <ExclamationCircleOutlined
+                        style={{ fontSize: "24px", color: "#faad14" }}
+                      />
+                    ),
+                    okText: "Yes",
+                    okButtonProps: { className: "btn btn-primary" },
+                    cancelText: "No",
+                    cancelButtonProps: { className: "btn-outline-primary" },
+                    onOk() {
+                      openCommentsPopup("Approve", true);
+                    },
+                    onCancel() {
+                      openCommentsPopup("Approve", false);
+                    },
+                  });
+                } 
+                else if (advisorRequired) {
+                  openCommentsPopup("Approve",null,true)
+                } 
+                else {
+                  openCommentsPopup("Approve", false);
+                }
                 setsubmitbuttontext("Approve");
-                
               }}
             >
               Approve
@@ -155,11 +180,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             <button
               className="btn btn-primary"
               onClick={() => {
-             
-              
-                openCommentsPopup("Amendment");
+                openCommentsPopup("Amendment", false);
                 setsubmitbuttontext("Ask to Amend");
-              
               }}
             >
               Ask to Amend
@@ -167,21 +189,23 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           </>
         ) : (
           <>
-          {true &&  <button
-            className="btn btn-primary"
-            type="button"
-            onClick={() => handleToshibaReview()}
-          >
-            Toshiba Team Discussion
-          </button>}
+            {true && (
+              <button
+                className="btn btn-primary"
+                type="button"
+                onClick={() => handleToshibaReview()}
+              >
+                Toshiba Team Discussion
+              </button>
+            )}
           </>
         )}
-        {true?
-          (<button
+        {true ? (
+          <button
             className="btn btn-primary"
             onClick={() => {
               openCommentsPopup("PullBack");
-               setsubmitbuttontext("Pull Back");
+              setsubmitbuttontext("Pull Back");
             }}
           >
             Pull Back
@@ -189,9 +213,37 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         ) : (
           <></>
         )}
-        <ToshibaApprovalModal visible={isModalVisible} setmodalVisible={setIsModalVisible}/>
+        <TextBoxModal
+          label={"Comments"}
+          titleKey={"comment"}
+          initialValue={""}
+          advisorRequired={advisorRequired}
+          toshibaApproval={toshibaApproval}
+          isVisible={showModal}
+          submitBtnText={submitbuttontext}
+          onCancel={() => {
+            setShowModal(false);
+          }}
+          onSubmit={(values: { comment: string , TargetDate?:Date , advisorId?:number}) => {
+            setShowModal(false);
+            if (values.comment && clickedAction) {
+              if (WORKFLOW_ACTIONS[clickedAction]) {
+                WORKFLOW_ACTIONS[clickedAction](values.comment,values.TargetDate,values.advisorId).catch((error) =>
+                  console.error(
+                    "Error in executing the workflow action:",
+                    error
+                  )
+                ); // Execute the corresponding action
+              } else {
+                console.error(`Unknown action: ${clickedAction}`);
+              }
+            } else {
+              console.error("Comments or clickedAction is not defined.");
+            }
+          }}
+          isRequiredField={true}
+        />
       </div>
-      
     </>
   );
 };

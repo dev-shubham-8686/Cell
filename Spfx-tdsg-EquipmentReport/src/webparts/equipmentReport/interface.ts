@@ -36,6 +36,7 @@ export  interface IEquipmentImprovementReport {
   CreatedDate:string;
   CreatedBy:number;
   ModifiedBy:number;
+  sectionHeadId:number;
   IsDeleted:boolean;
   EquipmentCurrSituationAttachmentDetails:ICurrentSituationAttachments[];
   EquipmentImprovementAttachmentDetails:IImprovementAttachments[];
