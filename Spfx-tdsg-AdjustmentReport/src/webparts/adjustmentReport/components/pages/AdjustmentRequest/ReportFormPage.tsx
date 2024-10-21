@@ -1,20 +1,16 @@
 import { Button, Modal, Tabs, TabsProps } from "antd";
 import * as React from "react";
-import AdjustmentRequestForm from "./AdjustmentRequestForm";
 import Workflow from "./Workflow";
 import History from "./History";
 import { LeftCircleFilled } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import RequestForm from "./RequestForm";
 import { MESSAGES } from "../../../GLOBAL_CONSTANT";
-// import { useAddUpdateReport } from "../../../hooks/useAddUpdateReport";
-// import { AnyObject } from "antd/es/_util/type";
+import * as dayjs from "dayjs";
 import { IAddUpdateReportPayload } from "../../../api/AddUpdateReport.api";
 import { AnyObject } from "antd/es/_util/type";
-import * as dayjs from "dayjs";
 
 const { confirm } = Modal;
-
-// type TabName = "form" | "history" | "workflow";
 
 const ReportFormPage = () => {
   const navigate = useNavigate();
@@ -48,7 +44,7 @@ const ReportFormPage = () => {
       AdjustmentDescription: values.adjustmentDescription, //done
       ConditionAfterAdjustment: values.conditionAfterAdjustment, // done
       Photos: values.Photos,
-      ChangeRiskManagementRequired: values.changeRiskManagementRequired, // done
+      ChangeRiskManagementRequired: values.ChangeRiskManagementRequired, // done
       ChangeRiskManagementList: values.ChangeRiskManagementList, // Ensure this is an array of ChangeRiskManagement objects
       IsSubmit: !isSave, //done
       CreatedBy: 1, //need to change
@@ -101,6 +97,8 @@ const ReportFormPage = () => {
   // }
 
   const handleFormSubmit = (values: any) => {
+    console.log({ values });
+
     onSaveFormHandler(true, values);
   };
 
@@ -108,9 +106,7 @@ const ReportFormPage = () => {
     {
       key: "1",
       label: "Form",
-      children: (
-        <AdjustmentRequestForm ref={formRef} onFormSubmit={handleFormSubmit} />
-      ),
+      children: <RequestForm ref={formRef} onFormSubmit={handleFormSubmit} />,
     },
     {
       key: "2",
@@ -142,7 +138,7 @@ const ReportFormPage = () => {
             <div>
               <Button
                 type="primary"
-                onClick={handleSave(true)}
+                onClick={() => handleSave(true)}
                 className="request-button"
                 style={{ marginRight: "10px" }}
               >
@@ -150,7 +146,7 @@ const ReportFormPage = () => {
               </Button>
               <Button
                 type="primary"
-                onClick={handleSave(false)}
+                onClick={() => handleSave(false)}
                 className="request-button"
               >
                 Submit

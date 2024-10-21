@@ -14,7 +14,7 @@ interface Photos {
   AfterImages: Image[];
 }
 
-interface ChangeRiskManagement {
+export interface ChangeRiskManagement {
   Changes?: string;
   RiskWithChanges?: string;
   Factors?: string;

@@ -1,5 +1,5 @@
 export const DATE_FORMAT = "DD-MM-YYYY";
-export const basePath = `https://localhost:7232/api`;
+export const basePath = `https://localhost:7190`;
 
 //Process Status
 export const ProcessStatus = [

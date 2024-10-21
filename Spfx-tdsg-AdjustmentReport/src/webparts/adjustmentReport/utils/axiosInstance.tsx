@@ -1,6 +1,6 @@
-import axios from "axios";
 import { message } from "antd";
 import { basePath } from "../GLOBAL_CONSTANT";
+import axios from "axios";
 
 const apiClient = axios.create({
   baseURL: basePath,
@@ -11,7 +11,7 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.response.use(
-  (response) => response, // If the response is successful, just return it
+  (response: any) => response, // If the response is successful, just return it
   (error: any) => {
     let errorMessage = "An error occurred";
 

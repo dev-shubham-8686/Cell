@@ -15,6 +15,7 @@ import * as dayjs from "dayjs";
 import { disabledDate } from "../../../utils/helper";
 // import { useLocation } from "react-router-dom";
 import ChangeRiskManagementForm from "./ChangeRiskManagementForm";
+import { useGetAllMachines } from "../../../hooks/useGetAllMachines";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -34,6 +35,9 @@ const AdjustmentRequestForm = React.forwardRef(
     const [selectedValue, setSelectedValue] = React.useState<boolean | null>(
       null
     );
+
+    const { data } = useGetAllMachines();
+    console.log({ data });
 
     const onFinish = (values: any) => {
       values.ChangeRiskManagementRequired = selectedValue;
@@ -330,6 +334,7 @@ const AdjustmentRequestForm = React.forwardRef(
           {selectedValue &&
             formSections.map((sectionIndex) => (
               <ChangeRiskManagementForm
+                form={form}
                 key={sectionIndex}
                 index={sectionIndex}
               />

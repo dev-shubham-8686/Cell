@@ -8,10 +8,12 @@ import { Option } from "antd/es/mentions";
 const { Panel } = Collapse;
 
 interface ChangeRiskManagementFormProps {
+  form: any;
   index: number;
 }
 
 const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
+  form,
   index,
 }) => {
   return (
