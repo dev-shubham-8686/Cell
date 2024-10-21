@@ -31,7 +31,7 @@ public partial class AepplNewCloneStageContext : DbContext
     public virtual DbSet<AuthSession> AuthSessions { get; set; }
     public virtual DbSet<DepartmentMaster> DepartmentMasters { get; set; }
     public virtual DbSet<DivisionMaster> DivisionMasters { get; set; }
-    
+    public virtual DbSet<SectionHeadMaster> SectionHeadMasters { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)

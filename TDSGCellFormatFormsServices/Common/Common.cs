@@ -129,7 +129,8 @@ namespace TDSGCellFormat.Common
             Submitted = 23,
             ReviewDeclined = 24,
             UnderApproval = 25,
-            ReOpen =26
+            ReOpen =26,
+            W1Completed = 27
 
         }
         public enum FormType
@@ -243,7 +244,11 @@ namespace TDSGCellFormat.Common
         public const string TroubleReOpen = "Trouble Report reopened";
 
         public const string EquipmentSave = "Equipment Improvement form saved successfully";
+        public const string EquipmentSubmit = "Equipment Improvement form submitted successfully";
         public const string EquipmentPullback = "Equipment Improvement form has been pulled back successfully";
+        public const string EquipmentAsktoAmend = "Amendment Asked successfully";
+        public const string EquipmentApprove = "Equipment Improvement form has been approved";
+        public const string EquipmentReject = "Equipment Improvement rejected";
 
         public const string AdjustMentSave = "Adjustment Report saved successfully";
 

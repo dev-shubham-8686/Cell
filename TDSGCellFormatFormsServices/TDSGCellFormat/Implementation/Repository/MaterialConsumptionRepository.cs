@@ -539,7 +539,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                      && x.Status == ApprovalTaskStatus.InReview.ToString()).FirstOrDefault();
                 if (requestTaskData == null)
                 {
-                    res.Message = "Trouble Report request does not have any review task";
+                    res.Message = "Material Consumption request does not have any review task";
                     return res;
                 }
 
@@ -607,7 +607,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Amended, comment, ApproverTaskId);
-
 
                 }
             }

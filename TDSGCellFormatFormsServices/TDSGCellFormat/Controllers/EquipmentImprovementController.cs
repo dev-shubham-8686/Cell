@@ -102,5 +102,30 @@ namespace TDSGCellFormat.Controllers
 
             return Ok(Ajaxresponse);
         }
+
+        [HttpPost("Pullback")]
+        public async Task<IActionResult> PullBackRequest(EquipmentPullBack data)
+        {
+            var res = await _applicationService.PullBackRequest(data);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpPost("UpdateApproveAskToAmend")]
+        public async Task<IActionResult> UpdateApproveAskToAmend(EquipmentApproveAsktoAmend data)
+        {
+            var res = await _applicationService.UpdateApproveAskToAmend(data);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
     }
 }

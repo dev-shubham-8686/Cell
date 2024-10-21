@@ -15,7 +15,7 @@ public partial class EquipmentImprovementApplication
     public DateTime? When { get; set; }
     public int? AreaId { get; set; }
     public int? SectionId  { get; set; }
-
+    public int? SectionHeadId { get; set; }
     public int? MachineId { get; set; }
 
     public string? SubMachineId  { get; set; }
@@ -61,6 +61,8 @@ public partial class EquipmentImprovementApplication
     public virtual ICollection<ChangeRiskManagement> ChangeRiskManagement { get; set; } = new List<ChangeRiskManagement>();
     public virtual ICollection<EquipmentCurrSituationAttachment> EquipmentCurrSituationAttachment { get; set; } = new List<EquipmentCurrSituationAttachment>();
     public virtual ICollection<EquipmentImprovementAttachment> EquipmentImprovementAttachment { get; set; } = new List<EquipmentImprovementAttachment>();
+
+    public virtual ICollection<EquipmentAdvisorMaster> EquipmentAdvisorMaster { get; set; } = new List<EquipmentAdvisorMaster>();
 
     [ForeignKey("MachineId")]
     public virtual Machine? Machine { get; set; }
