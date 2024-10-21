@@ -50,5 +50,13 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return await _applicationRepo.GetEqupimentImprovementApproverList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
         }
+        public async Task<AjaxResult> PullBackRequest(EquipmentPullBack data)
+        {
+           return await _applicationRepo.PullBackRequest(data);
+        }
+        public async Task<AjaxResult> UpdateApproveAskToAmend(EquipmentApproveAsktoAmend data)
+        {
+            return await _applicationRepo.UpdateApproveAskToAmend(data);
+        }
     }
 }

@@ -101,4 +101,12 @@
 
         public string? functionName { get; set; }
     }
+
+    public class SectionHeadView
+    {
+        
+        public int sectionHeadId { get; set; }
+        public int? head {  get; set; }
+        public string? sectionName { get; set; }
+    }
 }
