@@ -473,7 +473,7 @@ namespace TDSGCellFormat.Controllers
             // Call the IsValidAuthentication method
             AjaxResult authResult;
             bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
-
+            
             if (!isValidAuth)
             {
                 // Return unauthorized response if authentication fails

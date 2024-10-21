@@ -42,7 +42,7 @@ namespace TDSGCellFormat.Common
             TroubleReport = 1,
             AdjustMentReport = 2,
             ApplicationImprovement = 3,
-            MaterialConsumption = 4,
+            MaterialConsumption = 4, //MATERIALCONSUMPTION
             TechnicalInstruction = 5
         }
         public enum HistoryAction
@@ -80,7 +80,7 @@ namespace TDSGCellFormat.Common
             ReSubmitted = 2,
             Approved = 3,
             Rejected = 4,
-            Cancelled = 5,
+            Closed = 5,
             Amended = 6,
             Completed = 7,
             PullBack = 8,
@@ -113,7 +113,7 @@ namespace TDSGCellFormat.Common
             Completed = 7,
             PullBack = 8,
             Pending = 9,
-            Close = 10,
+            Closed = 10,
             Revised = 11,
             Skipped = 12,
             Reminder = 13,
@@ -129,7 +129,8 @@ namespace TDSGCellFormat.Common
             Submitted = 23,
             ReviewDeclined = 24,
             UnderApproval = 25,
-            ReOpen =26
+            ReOpen =26,
+            W1Completed = 27
 
         }
         public enum FormType
@@ -237,11 +238,31 @@ namespace TDSGCellFormat.Common
         public const string TroubleDecline = "The report has been successfully declined.";
         public const string TroublePullBack = "Trouble Report has been pulled back successfully";
         public const string TroubleAskToAmend = "Amendment Asked successfully";
-        public const string TroubleResubmit = "Trouble Report re-submitted successfully";
+        public const string TroubleResubmit = "Trouble Report form Resubmitted successfully";
         public const string TroubleApprove = "Trouble Report approved";
         public const string TroubleReject = "Trouble Report rejected";
         public const string TroubleReOpen = "Trouble Report reopened";
 
+        public const string EquipmentSave = "Equipment Improvement form saved successfully";
+        public const string EquipmentSubmit = "Equipment Improvement form submitted successfully";
+        public const string EquipmentPullback = "Equipment Improvement form has been pulled back successfully";
+        public const string EquipmentAsktoAmend = "Amendment Asked successfully";
+        public const string EquipmentApprove = "Equipment Improvement form has been approved";
+        public const string EquipmentReject = "Equipment Improvement rejected";
+        public const string EquipmentDateUpdate = "Equipment Improvement record updated";
+
+        public const string AdjustMentSave = "Adjustment Report saved successfully";
+
+        public const string MaterialSave = "Material Consumption form saved successfully";
+        public const string MaterialSubmit = "Material Consumption form submitted successfully";
+        public const string MaterialApprove = "Material Consumption form has been approved";
+        public const string MaterialAsktoAmend = "Amendment Asked successfully";
+        public const string MaterialResubmit = "Material Consumption form Resubmitted successfully";
+        public const string MaterialPullback = "Material Consumption form has been pulled back successfully";
+        public const string MaterialClose = "Material Consumption form closed successfully";
+        public const string MaterialExcel = "Excel file downloaded successfully";
+        public const string MaterialPdf = "PDF file downloaded successfully";
+        public const string MaterialExcelNotFound = "Please complete the approval process to download the excel";
         #endregion
     }
 }

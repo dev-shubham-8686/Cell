@@ -1,6 +1,6 @@
-﻿using TDSGCellFormat.Entities;
-using TDSGCellFormat.Interface.Repository;
+﻿using TDSGCellFormat.Interface.Repository;
 using TDSGCellFormat.Interface.Service;
+using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
 using static TDSGCellFormat.Common.Enums;
 

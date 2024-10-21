@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DocumentFormat.OpenXml.Drawing;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,30 +10,19 @@ public partial class MaterialConsumptionSlip
     [Key]
     public int MaterialConsumptionSlipId { get; set; }
 
+    public string? MaterialConsumptionSlipNo { get; set; }
+
     public DateTime? When { get; set; }
 
-    public int? Category { get; set; }
-
-    public int? MaterialNumber { get; set; }
-
-    public string? GLCode { get; set; }
-
-    public string? CostCenter { get; set; }
-
-    public string? Description { get; set; }
-
-    public string? Quantity { get; set; }
-
-    public int? UOMId { get; set; }
-
-    public string? Purpose { get; set; }
-
-    public string? Attachment { get; set; }
-
+    public string? Remarks { get; set; }
     public string? Status { get; set; }
-
     public bool? IsSubmit { get; set; }
-
+    public bool? IsClosed {  get; set; }
+    public DateTime? ClosedDate {  get; set; }
+    public string? ScrapTicketNo { get; set; }
+    public string? ScrapRemarks { get; set; }
+    public bool? IsDeleted { get; set; }
+    public bool? IsScraped { get; set; }
     public DateTime? CreatedDate { get; set; }
 
     public int? CreatedBy { get; set; }
@@ -42,6 +30,4 @@ public partial class MaterialConsumptionSlip
     public int? ModifiedBy { get; set; }
 
     public DateTime? ModifiedDate { get; set; }
-
-    public bool? IsDeleted { get; set; }
 }

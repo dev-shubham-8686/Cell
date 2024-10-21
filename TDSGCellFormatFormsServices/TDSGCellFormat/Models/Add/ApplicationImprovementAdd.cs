@@ -1,20 +1,23 @@
-﻿namespace TDSGCellFormat.Models.Add
+﻿using static TDSGCellFormat.Common.Enums;
+
+namespace TDSGCellFormat.Models.Add
+
 {
     public class ApplicationImprovementAdd
     {
         public int ApplicationImprovementId { get; set; }
 
-        public string when { get; set; }
+        public string When { get; set; }
 
-        public string? deviceName { get; set; }
+        public string? DeviceName { get; set; }
 
-        public string? purpose { get; set; }
+        public string? Purpose { get; set; }
 
-        public string? currentSituation { get; set; }
+        public string? CurrentSituation { get; set; }
 
-        public string? improvement { get; set; }
+        public string? Improvement { get; set; }
 
-        public string? attachment { get; set; }
+        public string? Attachment { get; set; }
 
         public string? Status { get; set; }
 
@@ -31,4 +34,32 @@
         public bool? IsDeleted { get; set; }
     }
 
+
+    public class EquipmentPullBack
+    {
+        public int? equipmentId { get; set; }
+        public int? userId { get; set; }
+        public string? comment { get; set; }
+    }
+
+    public class EquipmentApproveAsktoAmend
+    {
+        public int? ApproverTaskId { get; set; }
+        public int CurrentUserId { get; set; }
+        public ApprovalStatus Type { get; set; }
+        public string? Comment { get; set; }
+        public int EquipmentId { get; set; }
+
+        public EquipmentApprovalData? EquipmentApprovalData   { get; set; }
+    }
+
+    public class EquipmentApprovalData
+    {
+        public int EquipmentId { get; set; }
+        public bool? IsToshibaDiscussion { get; set; }
+
+        public DateTime? TargetDate { get; set; }
+
+        public int? AdvisorId { get; set; }
+    }
 }
