@@ -16,5 +16,8 @@ namespace TDSGCellFormat.Interface.Service
         Task<List<EquipmentImprovementView>> GetEqupimentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue);
         Task<AjaxResult> PullBackRequest(EquipmentPullBack data);
         Task<AjaxResult> UpdateApproveAskToAmend(EquipmentApproveAsktoAmend data);
+        Task<AjaxResult> UpdateTargetDates(EquipmentApprovalData data);
+
+        EquipmentApprovalData GetEquipmentTargetDate(int equipmentId, bool toshibaDiscussion);
     }
 }

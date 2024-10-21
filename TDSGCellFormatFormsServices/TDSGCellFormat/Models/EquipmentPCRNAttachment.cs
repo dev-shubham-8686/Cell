@@ -8,6 +8,7 @@ namespace TDSGCellFormat.Models;
 [Table("EquipmentPCRNAttachment")]
 public class EquipmentPCRNAttachment
 {
+    [Key]
     public int PCRNId { get; set; }
     public int? EquipmentImprovementId { get; set; }
 

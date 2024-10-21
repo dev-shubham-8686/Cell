@@ -127,5 +127,29 @@ namespace TDSGCellFormat.Controllers
             return Ok(Ajaxresponse);
         }
 
+        [HttpPost("UpdateTargetData")]
+        public async Task<IActionResult> UpdateTargetDates(EquipmentApprovalData data)
+        {
+            var res = await _applicationService.UpdateTargetDates(data);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GettargetDate")]
+        public IActionResult GetEquipmentTargetDate(int equipmentId, bool toshibaDiscussion)
+        {
+            var res = _applicationService.GetEquipmentTargetDate(equipmentId, toshibaDiscussion);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
     }
 }

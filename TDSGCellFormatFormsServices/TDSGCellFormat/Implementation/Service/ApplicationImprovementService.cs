@@ -58,5 +58,14 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return await _applicationRepo.UpdateApproveAskToAmend(data);
         }
+
+        public async Task<AjaxResult> UpdateTargetDates(EquipmentApprovalData data)
+        {
+            return await _applicationRepo.UpdateTargetDates(data);
+        }
+        public EquipmentApprovalData GetEquipmentTargetDate(int equipmentId, bool toshibaDiscussion)
+        {
+            return _applicationRepo.GetEquipmentTargetDate(equipmentId, toshibaDiscussion);
+        }
     }
 }
