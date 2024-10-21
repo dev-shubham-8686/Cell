@@ -43,12 +43,15 @@ public partial class EquipmentImprovementApplication
     public bool? ToshibaTeamDiscussion { get; set; }
 
     public DateTime? ToshibaDiscussionTargetDate { get; set; }
+
+    public string? ToshibaDicussionComment { get; set; }
+
     public bool? ToshibaApprovalRequired { get; set; }
 
     public DateTime? ToshibaApprovalTargetDate { get; set; }
 
+    public string? ToshibaApprovalComment { get; set; }
 
-  
     public DateTime? CreatedDate { get; set; }
 
     public int? CreatedBy { get; set; }
@@ -58,6 +61,7 @@ public partial class EquipmentImprovementApplication
     public DateTime? ModifiedDate { get; set; }
 
     public bool? IsDeleted { get; set; }
+
     public virtual ICollection<ChangeRiskManagement> ChangeRiskManagement { get; set; } = new List<ChangeRiskManagement>();
     public virtual ICollection<EquipmentCurrSituationAttachment> EquipmentCurrSituationAttachment { get; set; } = new List<EquipmentCurrSituationAttachment>();
     public virtual ICollection<EquipmentImprovementAttachment> EquipmentImprovementAttachment { get; set; } = new List<EquipmentImprovementAttachment>();

@@ -107,6 +107,7 @@
         
         public int sectionHeadId { get; set; }
         public int? head {  get; set; }
+        public string? headName { get; set; }
         public string? sectionName { get; set; }
     }
 }

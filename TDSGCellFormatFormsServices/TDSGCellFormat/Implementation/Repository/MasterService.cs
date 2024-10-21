@@ -297,6 +297,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public IQueryable<SectionHeadView> GetAllSections(int departmentId)
         {
+            //int HeadId = _cloneContext.SectionHeadMasters.Where(x => ).
             IQueryable<SectionHeadView> res = _cloneContext.SectionHeadMasters.Where(x => x.IsActive == true && x.DepartmentId == departmentId)
 
                                            .Select(x => new SectionHeadView
@@ -306,7 +307,10 @@ namespace TDSGCellFormat.Implementation.Repository
                                                sectionHeadId = x.Sectionid,
 
                                                head = x.Head,
-
+                                              headName =  _cloneContext.EmployeeMasters
+                                                         .Where(emp => emp.EmployeeID == x.Head)
+                                                         .Select(emp => emp.EmployeeName)
+                                                         .FirstOrDefault(),
                                                sectionName = x.SectionName
 
                                            });
