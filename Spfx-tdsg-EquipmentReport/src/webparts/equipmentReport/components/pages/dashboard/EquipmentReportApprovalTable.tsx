@@ -28,7 +28,7 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       title: "Section Name",
       dataIndex: "SectionName",
       key: "SectionName",
-      width: "15%",
+      width: "10%",
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -50,7 +50,7 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       title: "Machine Name",
       dataIndex: "MachineName",
       key: "MachineName",
-      width: "15%",
+      width: "10%",
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -61,7 +61,7 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       title: "Sub Machine Name",
       dataIndex: "SubMachineName",
       key: "SubMachineName",
-      width: "15%",
+      width: "10%",
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -72,7 +72,7 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       title: "Issue Date",
       dataIndex: "IssueDate",
       key: "IssueDate",
-      width: "15%",
+      width: "10%",
       sorter: true,
       // render: (text) => (
       //   <p className="text-cell">{format(text, DATE_FORMAT)}</p>
@@ -86,7 +86,7 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       title: "Created By",
       dataIndex: "Requestor",
       key: "Requestor",
-      width: "15%",
+      width: "10%",
       sorter: true,
       // render: (text) => (
       //   <p className="text-cell">{format(text, DATE_FORMAT)}</p>
@@ -100,7 +100,7 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      width: "15%",
+      width: "5%",
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -121,7 +121,7 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       key: "action",
       render: (row) => (
         <div className="action-cell">
-          {console.log("DATAOFMATERIAL", row)}
+          {console.log("Approval EQ Data", row)}
           <button
             type="button"
             style={{ background: "none", border: "none" }}

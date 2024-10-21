@@ -74,25 +74,24 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   // const { data: employees, isLoading: employeeisLoading } = useEmployeeMaster();
 
   const onSubmitFormHandler = async (): Promise<void> => {
-    // eqReportSave.mutate(values);
       setshowSubmitModal(true)
   };
 
-  const handleModalSubmit = (dropdownValue: string) => {
+  const handleModalSubmit = (sectionHead: string) => {
     const values:IEquipmentImprovementReport = form.getFieldsValue();
-    values.When = dayjs().format("YYYY-MM-DD");
-    values.sectionHeadId = parseInt(dropdownValue); // Set the dropdown value in the form values
-    console.log("DropDownValues",dropdownValue)
-    console.log("Final form values with dropdown:", values);
+    values.SectionHeadId = parseInt(sectionHead); // Set the sectionHead value in the form values
+    console.log("DropDownValues",sectionHead)
+    console.log("Final form values with secHead:", values);
   
-    // Call the save API here
-    // eqReportSave.mutate(values);
+    // Call the save/submit API here
+    eqReportSave.mutate(values);
   };
 
   const onSaveAsDraftHandler = async (): Promise<void> => {
     const values: IEquipmentImprovementReport = form.getFieldsValue();
     values.EquipmentImprovementAttachmentDetails = improvementAttchments;
     values.EquipmentCurrSituationAttachmentDetails = currSituationAttchments;
+    values.IsSubmit=false;
     console.log("form saved as draft data", values);
     if (id) {
       values.EquipmentImprovementId = parseInt(id);
@@ -467,7 +466,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               value={
                 existingEquipmentReport?.When
                   ? dayjs(
-                      record.ChangeRiskManagementDetails.DueDate,
+                      record.ChangeRiskManagementDetails?.DueDate,
                       DATE_TIME_FORMAT
                     ).format(DATE_FORMAT)
                   : "-"

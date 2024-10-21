@@ -13,6 +13,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
 import dayjs from "dayjs";
 import useAreaMaster from "../../apis/masters/useAreaMaster";
+import useSectionHeadDetails from "../../apis/masters/useSectionHead";
 
 interface SubmitModalProps {
   setmodalVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -29,7 +30,7 @@ const SubmitModal: React.FC<SubmitModalProps> = ({
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [sectionHead, setsectionHead] = useState(0);
-  const { data: areas, isLoading: areaIsLoading } = useAreaMaster();
+  const { data: sectionHeads, isLoading: sectionHeadIsLoading } = useSectionHeadDetails();
 
   const onClose = () => {
     form.resetFields();
@@ -43,7 +44,7 @@ const SubmitModal: React.FC<SubmitModalProps> = ({
   return (
     <>
       <Modal
-        title="Select Target Date"
+        title="Select Section Head"
         visible={visible}
         onCancel={onClose}
         footer={(_, { OkBtn, CancelBtn }) => (
@@ -74,7 +75,7 @@ const SubmitModal: React.FC<SubmitModalProps> = ({
 
         <Form form={form} onFinish={handleConfirm}>
           <Form.Item
-            label={<span className="text-muted">Area</span>}
+            label={<span className="text-muted">Section Head</span>}
             name="sectionHeadId"
           >
             <Select
@@ -84,11 +85,11 @@ const SubmitModal: React.FC<SubmitModalProps> = ({
                   .toLowerCase()
                   .includes(input.toLowerCase())
               }
-              options={areas?.map((area) => ({
-                label: area.AreaName,
-                value: area.AreaId,
+              options={sectionHeads?.map((area) => ({
+                label: area.SectionHeadName,
+                value: area.SectionHeadId,
               }))}
-              loading={areaIsLoading}
+              loading={sectionHeadIsLoading}
               className="custom-disabled-select"
             />
           </Form.Item>

@@ -6,14 +6,13 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { IEquipmentImprovementReport } from "../../interface";
 import ToshibaApprovalModal from "./ToshibaApproval";
 import TextBoxModal from "./TextBoxModal";
+import {
+  IApproveAskToAmendPayload,
+  IEquipmentApprovalData,
+} from "../../apis/workflow/useApproveAskToAmmend";
+import { DATE_FORMAT } from "../../GLOBAL_CONSTANT";
+import dayjs from "dayjs";
 
-export interface IApproveAskToAmendPayload {
-  ApproverTaskId: number;
-  CurrentUserId: number;
-  type: 1 | 3; // 1 for Approve and 3 for Ask to Amend
-  comment: string;
-  materialConsumptionId: number;
-}
 export interface IApproverTask {
   approverTaskId: number;
   status: string; //this will mostly be InReview
@@ -55,12 +54,45 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const onApproveAmendHandler = async (
     actionType: 1 | 3,
     comment: string,
-    targetDate?:Date,
-    advisorId?:number
+    targetDate?: Date,
+    advisorId?: number
   ): Promise<void> => {
     try {
-      
-      console.log("Approved ",comment,targetDate?.toString(),advisorId)
+      const payload: IApproveAskToAmendPayload = {
+        ApproverTaskId: currentApproverTask?.approverTaskId ?? 0,
+        CurrentUserId: user.employeeId,
+        Type: actionType ?? null,
+        Comment: comment,
+        EquipmentId: parseInt(id),
+        EquipmentApprovalData: {},
+      };
+      debugger;
+      if (targetDate || advisorId) {
+        (payload.EquipmentApprovalData.TargetDate =
+          dayjs(targetDate).format(DATE_FORMAT) ?? null),
+          (payload.EquipmentApprovalData.AdvisorId = advisorId ?? 0);
+      }
+      console.log("Approved ", payload);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const onAddUpdateTargetDate = async (
+    IsToshibaDiscussion: boolean,
+    targetDate: Date,
+    comment?: string
+  ): Promise<void> => {
+    try {
+      const payload: IEquipmentApprovalData = {
+        IsToshibaDiscussion: true,
+        TargetDate: dayjs(targetDate).format(DATE_FORMAT) ?? null,
+        Comment: comment,
+        AdvisorId: 0,
+      };
+      debugger;
+
+      console.log("Approved ", payload);
     } catch (error) {
       console.error(error);
     }
@@ -117,20 +149,23 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const openCommentsPopup = (
     actionType: WorkflowActionType,
     toshibaRequired?: boolean,
-    advisorRequired?:boolean
+    advisorRequired?: boolean
   ): void => {
     setShowModal(true);
     settoshibaApproval(toshibaRequired);
-    setadvisorRequired(advisorRequired)
+    setadvisorRequired(advisorRequired);
     setClickedAction(actionType);
   };
   type WorkflowActionType = keyof typeof WORKFLOW_ACTIONS;
 
   const WORKFLOW_ACTIONS = {
-    Approve: (comment: string , targetDate:Date,advisorId:number) => onApproveAmendHandler(1, comment,targetDate,advisorId),
-    Amendment: (comment: string,targetDate:Date) => onApproveAmendHandler(3, comment,targetDate),
+    Approve: (comment: string, targetDate: Date, advisorId: number) =>
+      onApproveAmendHandler(1, comment, targetDate, advisorId),
+    Amendment: (comment: string, targetDate: Date) =>
+      onApproveAmendHandler(3, comment, targetDate),
     PullBack: (comment: string) => onPullbackHandler(comment),
-    UpdateTarget: (comment: string) => onPullbackHandler(comment),
+    AddUpdateTargetDate: (comment: string, targetDate: Date , isToshibaDiscussion) =>
+      onAddUpdateTargetDate(isToshibaDiscussion, targetDate, comment),
   };
   return (
     <>
@@ -145,7 +180,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             <button
               className="btn btn-primary"
               onClick={() => {
-                if (false) {
+                if (true) {
                   confirm({
                     title: "Is Toshiba approval required ?",
                     icon: (
@@ -164,11 +199,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                       openCommentsPopup("Approve", false);
                     },
                   });
-                } 
-                else if (advisorRequired) {
-                  openCommentsPopup("Approve",null,true)
-                } 
-                else {
+                } else if (advisorRequired) {
+                  openCommentsPopup("Approve", null, true);
+                } else {
                   openCommentsPopup("Approve", false);
                 }
                 setsubmitbuttontext("Approve");
@@ -188,17 +221,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             </button>
           </>
         ) : (
-          <>
-            {true && (
-              <button
-                className="btn btn-primary"
-                type="button"
-                onClick={() => handleToshibaReview()}
-              >
-                Toshiba Team Discussion
-              </button>
-            )}
-          </>
+          <></>
         )}
         {true ? (
           <button
@@ -213,6 +236,30 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         ) : (
           <></>
         )}
+        {true && (
+          <button
+            className="btn btn-primary"
+            type="button"
+            onClick={() => {
+              openCommentsPopup("AddUpdateTargetDate", true);
+              handleToshibaReview();
+            }}
+          >
+            Toshiba Team Discussion
+          </button>
+        )}
+        {true && (
+          <button
+            className="btn btn-primary"
+            type="button"
+            onClick={() => {
+              openCommentsPopup("AddUpdateTargetDate", true);
+              handleToshibaReview();
+            }}
+          >
+            Update target Date
+          </button>
+        )}
         <TextBoxModal
           label={"Comments"}
           titleKey={"comment"}
@@ -224,11 +271,19 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           onCancel={() => {
             setShowModal(false);
           }}
-          onSubmit={(values: { comment: string , TargetDate?:Date , advisorId?:number}) => {
+          onSubmit={(values: {
+            comment: string;
+            TargetDate?: Date;
+            advisorId?: number;
+          }) => {
             setShowModal(false);
             if (values.comment && clickedAction) {
               if (WORKFLOW_ACTIONS[clickedAction]) {
-                WORKFLOW_ACTIONS[clickedAction](values.comment,values.TargetDate,values.advisorId).catch((error) =>
+                WORKFLOW_ACTIONS[clickedAction](
+                  values.comment,
+                  values.TargetDate,
+                  values.advisorId
+                ).catch((error) =>
                   console.error(
                     "Error in executing the workflow action:",
                     error

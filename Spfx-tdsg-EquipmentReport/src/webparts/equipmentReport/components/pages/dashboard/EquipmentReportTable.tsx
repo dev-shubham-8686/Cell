@@ -60,26 +60,18 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       ),
     },
     {
-      title: "Section Name",
-      dataIndex: "SectionName",
-      key: "SectionName",
-      width: "15%",
+      title: "Issue Date",
+      dataIndex: "IssueDate",
+      key: "IssueDate",
+      width: "10%",
       sorter: true,
+      // render: (text) => (
+      //   <p className="text-cell">{format(text, DATE_FORMAT)}</p>
+      // ),
       // filterDropdown: ColumnFilter,
-      filterIcon: (filtered: boolean) => (
-        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      ),
-    },
-    {
-      title: "Improvement Name",
-      dataIndex: "ImprovementName",
-      key: "ImprovementName",
-      width: "15%",
-      sorter: true,
-      // filterDropdown: ColumnFilter,
-      filterIcon: (filtered: boolean) => (
-        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      ),
+      // filterIcon: (filtered: boolean) => (
+      //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      // ),
     },
     {
       title: "Machine Name",
@@ -104,28 +96,52 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       ),
     },
     {
-      title: "Issue Date",
-      dataIndex: "IssueDate",
-      key: "IssueDate",
+      title: "Section Name",
+      dataIndex: "SectionName",
+      key: "SectionName",
+      width: "15%",
+      sorter: true,
+      // filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
+    },
+    {
+      title: "Improvement Name",
+      dataIndex: "ImprovementName",
+      key: "ImprovementName",
+      width: "15%",
+      sorter: true,
+      // filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
+    },
+   
+  
+    {
+      title: "Requestor",
+      dataIndex: "Requestor",
+      key: "Requestor",
       width: "10%",
       sorter: true,
-      // render: (text) => (
-      //   <p className="text-cell">{format(text, DATE_FORMAT)}</p>
-      // ),
+      render: (text) => (
+        <p className="text-cell">{text??"-"}</p>
+      ),
       // filterDropdown: ColumnFilter,
       // filterIcon: (filtered: boolean) => (
       //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       // ),
     },
     {
-      title: "Created By",
-      dataIndex: "Requestor",
-      key: "Requestor",
+      title: "CurrentApprover",
+      dataIndex: "CurrentApprover",
+      key: "CurrentApprover",
       width: "10%",
       sorter: true,
-      // render: (text) => (
-      //   <p className="text-cell">{format(text, DATE_FORMAT)}</p>
-      // ),
+      render: (text) => (
+        <p className="text-cell">{text ?? "-"}</p>
+      ),
       // filterDropdown: ColumnFilter,
       // filterIcon: (filtered: boolean) => (
       //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
@@ -156,7 +172,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       key: "action",
       render: (row) => (
         <div className="action-cell">
-          {console.log("DATAOFMATERIAL", row)}
+          {console.log("EQ DATA", row)}
           <button
             type="button"
             style={{ background: "none", border: "none" }}

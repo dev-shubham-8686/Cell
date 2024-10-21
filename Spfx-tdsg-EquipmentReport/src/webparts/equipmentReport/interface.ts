@@ -22,6 +22,8 @@ export interface IUser {
 
 export  interface IEquipmentImprovementReport {
   EquipmentImprovementId?:number;
+  EquipmentImprovementNo?: string,
+  AreaId:number,
   When: string;
   MachineName: string;
   SubMachineName:number[]
@@ -29,14 +31,14 @@ export  interface IEquipmentImprovementReport {
   CurrentSituation: string;
   ImprovementName:string;
   Improvement: string;
-  sectionId:string;
+  SectionId:string;
   IsSubmit:boolean;
   TargetDate:string;
   ActualDate:string;
   CreatedDate:string;
   CreatedBy:number;
   ModifiedBy:number;
-  sectionHeadId:number;
+  SectionHeadId:number;
   IsDeleted:boolean;
   EquipmentCurrSituationAttachmentDetails:ICurrentSituationAttachments[];
   EquipmentImprovementAttachmentDetails:IImprovementAttachments[];
