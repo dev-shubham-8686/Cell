@@ -294,5 +294,26 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
 
         }
+
+        public IQueryable<SectionHeadView> GetAllSections(int departmentId)
+        {
+            IQueryable<SectionHeadView> res = _cloneContext.SectionHeadMasters.Where(x => x.IsActive == true && x.DepartmentId == departmentId)
+
+                                           .Select(x => new SectionHeadView
+
+                                           {
+
+                                               sectionHeadId = x.Sectionid,
+
+                                               head = x.Head,
+
+                                               sectionName = x.SectionName
+
+                                           });
+
+
+
+            return res;
+        }
     }
 }

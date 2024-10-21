@@ -9,7 +9,9 @@
         public int? MachineName { get; set; }
         public List<int>? SubMachineName { get; set; }
         public int? SectionId { get; set; }
-        public string? Purpose { get; set; }
+
+        public int? SectionHeadId  { get; set; }
+    public string? Purpose { get; set; }
         public string? ImprovementName { get; set; }
         public string? CurrentSituation { get; set; }
 
@@ -24,7 +26,7 @@
         public string? Status { get; set; }
 
         public bool? IsSubmit { get; set; }
-
+        public bool? IsResultSubmit    { get; set; }
         public DateTime? CreatedDate { get; set; }
 
         public int? CreatedBy { get; set; }

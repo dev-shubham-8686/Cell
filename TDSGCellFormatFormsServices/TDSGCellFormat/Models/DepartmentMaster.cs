@@ -17,5 +17,6 @@ public class DepartmentMaster
     public int PurchasingGroupID { get; set; }
     public bool? IsActive { get; set; }
     //public virtual EmployeeMaster? EmployeeMasters { get; set; }
+    public virtual ICollection<SectionHeadMaster> SectionHeadMaster { get; set; } = new List<SectionHeadMaster>();
 }
 
