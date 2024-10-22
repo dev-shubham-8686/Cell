@@ -1,5 +1,4 @@
-﻿using TDSGCellFormat.Entities;
-
+﻿
 namespace TDSGCellFormat.Models.Add
 {
     public class AdjustMentReportRequest
@@ -26,7 +25,7 @@ namespace TDSGCellFormat.Models.Add
 
         public string? AdjustmentDescription { get; set; }
 
-        public List<Photos>? Photos { get; set; }
+        public Photos? Photos { get; set; }
 
         public bool? ChangeRiskManagementRequired { get; set; }
 

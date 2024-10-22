@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.EntityFrameworkCore;
+using PnP.Framework.Extensions;
 using TDSGCellFormat.Common;
 using TDSGCellFormat.Interface.Repository;
 using TDSGCellFormat.Models;
@@ -50,7 +51,7 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public List<Photos>? GetAdjustmentReportPhotos(int adjustmentReportId)
+        public Photos? GetAdjustmentReportPhotos(int adjustmentReportId)
         {
             var a = _context.Photos.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsDeleted == false).ToList();
             var beforeImages = a.Where(x => x.IsOldPhoto == true)
@@ -62,11 +63,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     DocumentFilePath = x.DocumentFilePath,
                     IsOldPhoto = x.IsOldPhoto,
                     IsDeleted = x.IsDeleted,
+                    SequenceId = x.SequenceId,
                     CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate,
                     ModifiedBy = x.ModifiedBy,
                     ModifiedDate = x.ModifiedDate,
-                })
+                }).OrderBy(o => o.SequenceId)
                 .ToList();
 
             var afterImages = a.Where(x => x.IsOldPhoto == false)
@@ -78,21 +80,22 @@ namespace TDSGCellFormat.Implementation.Repository
                     DocumentFilePath = x.DocumentFilePath,
                     IsOldPhoto = x.IsOldPhoto,
                     IsDeleted = x.IsDeleted,
+                    SequenceId = x.SequenceId,
                     CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate,
                     ModifiedBy = x.ModifiedBy,
                     ModifiedDate = x.ModifiedDate,
-                })
+                }).OrderBy(o => o.SequenceId)
                 .ToList();
 
-            return null;//new Photos(){ BeforeImages = beforeImages,AfterImages = afterImages};
+            return new Photos() { BeforeImages = beforeImages, AfterImages = afterImages };
         }
 
         public AdjustMentReportRequest GetById(int Id)
         {
-            var res = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == Id && x.IsDeleted == false).FirstOrDefault();
+            var res = _context.AdjustmentReports.FirstOrDefault(x => x.AdjustMentReportId == Id && (!x.IsDeleted.HasValue || !x.IsDeleted.Value));
 
-            if(res == null)
+            if (res == null)
             {
                 return null;
             }
@@ -110,6 +113,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 Observation = res.Observation,
                 RootCause = res.RootCause,
                 AdjustmentDescription = res.AdjustmentDescription,
+                Photos = GetAdjustmentReportPhotos(Id),
                 ConditionAfterAdjustment = res.ConditionAfterAdjustment,
                 Status = res.Status,
                 IsSubmit = res.IsSubmit,
@@ -128,12 +132,11 @@ namespace TDSGCellFormat.Implementation.Repository
                     RiskAssociated = section.RisksWithChanges,
                     Factor = section.Factors,
                     CounterMeasures = section.CounterMeasures,
-                    DueDate = section.DueDate.HasValue ? section.DueDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                    DueDate = section.DueDate.HasValue ? section.DueDate.Value.ToString("dd-MM-yyyy") : string.Empty,
                     PersonInCharge = section.PersonInCharge,
                     Results = section.Results
 
                 }).ToList();
-
             }
 
             return adjustmentData;
@@ -142,7 +145,7 @@ namespace TDSGCellFormat.Implementation.Repository
         public async Task<AjaxResult> AddOrUpdateReport(AdjustMentReportRequest request)
         {
             var res = new AjaxResult();
-            int AdjustMentReportId = 0;
+            int adjustMentReportId = 0;
             var existingReport = await _context.AdjustmentReports.FindAsync(request.AdjustMentReportId);
             if (existingReport == null)
             {
@@ -151,7 +154,6 @@ namespace TDSGCellFormat.Implementation.Repository
                     Area = request.Area,
                     MachineName = request.MachineName,
                     SubMachineName = request.SubMachineName != null && request.SubMachineName.Count > 0 ? string.Join(",", request.SubMachineName) : "",
-                    //ReportNo = request.ReportNo,
                     RequestBy = request.RequestBy,
                     CheckedBy = request.CheckedBy,
                     DescribeProblem = request.DescribeProblem,
@@ -170,22 +172,24 @@ namespace TDSGCellFormat.Implementation.Repository
                 await _context.SaveChangesAsync();
 
                 // Get ID of newly added record
-                AdjustMentReportId = newReport.AdjustMentReportId;
+                adjustMentReportId = newReport.AdjustMentReportId;
 
-                var applicationEqipMentParams = new Microsoft.Data.SqlClient.SqlParameter("@AdjustmentReportId", AdjustMentReportId);
+                request.ChangeRiskManagement_AdjustmentReport.ForEach(x => x.AdjustMentReportId = adjustMentReportId);
+
+                var paramAdjustMentReportId = new Microsoft.Data.SqlClient.SqlParameter("@AdjustmentReportId", adjustMentReportId);
                 await _context.Set<TroubleReportNumberResult>()
-                               .FromSqlRaw("EXEC [dbo].[SPP_GenerateAdjustmentReportNumber] @AdjustmentReportId", applicationEqipMentParams)
+                               .FromSqlRaw("EXEC [dbo].[SPP_GenerateAdjustmentReportNumber] @AdjustmentReportId", paramAdjustMentReportId)
                                .ToListAsync();
 
-                var adjustmentReportNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == AdjustMentReportId && x.IsDeleted == false).Select(x => x.ReportNo).FirstOrDefault();
+                var adjustmentReportNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == adjustMentReportId && x.IsDeleted == false).Select(x => x.ReportNo).FirstOrDefault();
 
                 if (request.ChangeRiskManagement_AdjustmentReport != null)
                 {
-                    foreach(var changeReport in request.ChangeRiskManagement_AdjustmentReport)
+                    foreach (var changeReport in request.ChangeRiskManagement_AdjustmentReport)
                     {
                         var changeRiskData = new ChangeRiskManagement_AdjustmentReport()
                         {
-                            AdjustMentReportId = AdjustMentReportId,
+                            AdjustMentReportId = adjustMentReportId,
                             Changes = changeReport.Changes,
                             FunctionId = changeReport.FunctionId,
                             RisksWithChanges = changeReport.RiskAssociated,
@@ -203,24 +207,21 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
                 }
 
-                //if (request.Photos != null)
-                //{
-                //    foreach (var record in request.Photos)
-                //    {
-                //        if (record.BeforeImages != null && record.AfterImages != null)
-                //        {
-                //            var totalRecordsToInsert = record.BeforeImages.Concat(record.AfterImages).ToList();
-                //            totalRecordsToInsert.ForEach(x => x.AdjustmentReportId = request.AdjustMentReportId);
+                if (request.Photos != null)
+                {
+                    if (request.Photos.BeforeImages != null && request.Photos.AfterImages != null)
+                    {
+                        var totalRecordsToInsert = request.Photos.BeforeImages.Concat(request.Photos.AfterImages).ToList();
+                        totalRecordsToInsert.ForEach(x => x.AdjustmentReportId = adjustMentReportId);
 
-                //            _context.Photos.AddRange(totalRecordsToInsert);
-                //        }
-                //    }
-                //}
+                        _context.Photos.AddRange(totalRecordsToInsert);
+                    }
+                }
 
                 await _context.SaveChangesAsync();
                 res.ReturnValue = new
                 {
-                    AdjustmentReportId = AdjustMentReportId,
+                    AdjustmentReportId = adjustMentReportId,
                     AdjustmentReportNo = adjustmentReportNo
                 };
                 res.StatusCode = Status.Success;
@@ -231,7 +232,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.Area = request.Area;
                 existingReport.MachineName = request.MachineName;
                 existingReport.SubMachineName = request.SubMachineName != null && request.SubMachineName.Count > 0 ? string.Join(",", request.SubMachineName) : "";
-               // existingReport.ReportNo = request.ReportNo;
                 existingReport.RequestBy = request.RequestBy;
                 existingReport.CheckedBy = request.CheckedBy;
                 existingReport.DescribeProblem = request.DescribeProblem;
@@ -240,22 +240,21 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.AdjustmentDescription = request.AdjustmentDescription;
                 existingReport.ConditionAfterAdjustment = request.ConditionAfterAdjustment;
                 existingReport.Status = request.Status;
-                //existingReport.WorkFlowStatus = request.WorkFlowStatus;
                 existingReport.IsSubmit = request.IsSubmit;
                 existingReport.ModifiedDate = DateTime.Now;
                 existingReport.ModifiedBy = request.ModifiedBy;
                 await _context.SaveChangesAsync();
 
-                var existingChangeRisk = _context.ChangeRiskManagement_AdjustmentReport.Where(x => x.AdjustMentReportId == existingReport.AdjustMentReportId).ToList();
-                MarkAsDeleted(existingChangeRisk, existingReport.CreatedBy, DateTime.Now);
+                var existingChangeRiskManagement = _context.ChangeRiskManagement_AdjustmentReport.Where(x => x.AdjustMentReportId == existingReport.AdjustMentReportId && x.IsDeleted == false).ToList();
+                existingChangeRiskManagement.ForEach(x => x.IsDeleted = true);
                 _context.SaveChanges();
 
                 if (request.ChangeRiskManagement_AdjustmentReport != null)
                 {
-                    foreach(var changeReport in request.ChangeRiskManagement_AdjustmentReport)
+                    foreach (var changeReport in request.ChangeRiskManagement_AdjustmentReport)
                     {
                         var existingChange = _context.ChangeRiskManagement_AdjustmentReport.Where(x => x.AdjustMentReportId == changeReport.AdjustMentReportId && x.ChangeRiskManagementId == changeReport.ChangeRiskManagementId).FirstOrDefault();
-                        if(existingChange != null)
+                        if (existingChange != null)
                         {
                             existingChange.Changes = changeReport.Changes;
                             existingChange.FunctionId = changeReport.FunctionId;
@@ -291,72 +290,17 @@ namespace TDSGCellFormat.Implementation.Repository
                         await _context.SaveChangesAsync();
                     }
                 }
-                //else
-                //{
-                //    if (request.ChangeRiskManagement_AdjustmentReport != null)
-                //    {
-                //        var changeRiskManagementToUpdate = changeRiskManagements
-                //          .Where(u => request.ChangeRiskManagement_AdjustmentReport.Select(l2 => l2.ChangeRiskManagementId)
-                //                            .Contains(u.ChangeRiskManagementId)).ToList();
 
-                //        int newRecords = request.ChangeRiskManagement_AdjustmentReport.Count(x => x.ChangeRiskManagementId == 0);
-                //        int totalRecords = changeRiskManagements.Count();
-                //        int deleted = totalRecords - changeRiskManagementToUpdate.Count();
+                if (request.Photos != null)
+                {
+                    if (request.Photos.BeforeImages != null && request.Photos.AfterImages != null)
+                    {
+                        var totalRecordsToInsert = request.Photos.BeforeImages.Concat(request.Photos.AfterImages).ToList();
+                        totalRecordsToInsert.ForEach(x => x.AdjustmentReportId = request.AdjustMentReportId);
 
-                //        if (deleted > 0)
-                //        {
-                //            var deletedRecords = changeRiskManagements.Except(changeRiskManagementToUpdate)
-                //                .Where(u => request.ChangeRiskManagement_AdjustmentReport
-                //                .Select(l2 => l2.ChangeRiskManagementId).Contains(u.ChangeRiskManagementId));
-
-                //            foreach (var record in deletedRecords)
-                //            {
-                //                var entity = await _context.ChangeRiskManagement_AdjustmentReport.FindAsync(record.ChangeRiskManagementId);
-                //                if (entity != null)
-                //                {
-                //                    entity.IsDeleted = true;
-                //                    _context.ChangeRiskManagement_AdjustmentReport.Update(entity);
-                //                }
-                //            }
-                //        }
-
-                //        if (changeRiskManagementToUpdate.Count() != 0)
-                //        {
-                //            foreach (var entity in changeRiskManagementToUpdate)
-                //            {
-                //                var record =changeRiskManagements.First(r => r.ChangeRiskManagementId == entity.ChangeRiskManagementId);
-                //                if (record != null)
-                //                {
-                //                    entity.Changes = record.Changes;
-                //                    entity.FunctionId = record.FunctionId;
-                //                    entity.RisksWithChanges = record.RisksWithChanges;
-                //                    entity.Factors = record.Factors;
-                //                    entity.CounterMeasures = record.CounterMeasures;
-                //                    entity.DueDate = record.DueDate;
-                //                    entity.PersonInCharge = record.PersonInCharge;
-                //                    entity.Results = record.Results;
-                //                    entity.Status = record.Status;
-                //                    entity.CreatedBy = record.CreatedBy;
-                //                    entity.CreatedDate = record.CreatedDate;
-                //                    entity.ModifiedBy = record.ModifiedBy;
-                //                    entity.ModifiedDate = record.ModifiedDate;
-                //                    entity.IsDeleted = record.IsDeleted;
-                //                }
-                //            }
-                //        }
-
-                //        if (newRecords > 0)
-                //        {
-                //            //await _context.ChangeRiskManagement_AdjustmentReport.AddRangeAsync(request.ChangeRiskManagement_AdjustmentReport.Where(x => x.ChangeRiskManagementId == 0));
-                //        }
-                //    }
-
-                //    if (request.Photos != null)
-                //    {
-                //        var oldBeforeImages = _context.Photos.Where(x => x.AdjustmentReportId == request.AdjustMentReportId && x.IsOldPhoto == true && (x.IsDeleted == false || x.IsDeleted == null));
-                //        var oldAfterImages = _context.Photos.Where(x => x.AdjustmentReportId == request.AdjustMentReportId && x.IsOldPhoto == false && (x.IsDeleted == false || x.IsDeleted == null));
-                //    }
-                //}
+                        _context.Photos.AddRange(totalRecordsToInsert);
+                    }
+                }
 
                 await _context.SaveChangesAsync();
                 res.ReturnValue = new
@@ -367,67 +311,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Status.Success;
                 res.Message = Enums.AdjustMentSave;
             }
-            res.ReturnValue = request;
+
             return res;
         }
-
-        private void MarkAsDeleted<T>(IEnumerable<T> items, int? createdBy, DateTime now) where T : class
-        {
-            foreach (var item in items)
-            {
-                var itemType = item.GetType();
-
-                var isDeletedProp = itemType.GetProperty("IsDeleted");
-                if (isDeletedProp != null)
-                {
-                    isDeletedProp.SetValue(item, true);
-                }
-
-                var modifiedByProp = itemType.GetProperty("ModifiedBy");
-                if (modifiedByProp != null)
-                {
-                    modifiedByProp.SetValue(item, createdBy);
-                }
-
-                var modifiedDateProp = itemType.GetProperty("ModifiedDate");
-                if (modifiedDateProp != null)
-                {
-                    modifiedDateProp.SetValue(item, now);
-                }
-            }
-        }
-
-        //public async Task UpdateChangeRiskManagementAsync(List<ChangeRiskManagement>? recordsToUpdate)
-        //{
-        //    var idsToUpdate = recordsToUpdate.Select(r => r.ChangeRiskManagementId).ToList();
-
-        //    // Get the entities to update in a single query
-        //    var entitiesToUpdate = _context.ChangeRiskManagements
-        //        .Where(e => idsToUpdate.Contains(e.ChangeRiskManagementId))
-        //        .ToList();
-
-        //    foreach (var entity in entitiesToUpdate)
-        //    {
-        //        var record = recordsToUpdate.First(r => r.ChangeRiskManagementId == entity.ChangeRiskManagementId);
-        //        entity.Changes = record.Changes;
-        //        entity.FunctionId = record.FunctionId;
-        //        entity.RisksWithChanges = record.RisksWithChanges;
-        //        entity.Factors = record.Factors;
-        //        entity.CounterMeasures = record.CounterMeasures;
-        //        entity.DueDate = record.DueDate;
-        //        entity.PersonInCharge = record.PersonInCharge;
-        //        entity.Results = record.Results;
-        //        entity.Status = record.Status;
-        //        entity.CreatedBy = record.CreatedBy;
-        //        entity.CreatedDate = record.CreatedDate;
-        //        entity.ModifiedBy = record.ModifiedBy;
-        //        entity.ModifiedDate = record.ModifiedDate;
-        //        entity.IsDeleted = record.IsDeleted;
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //}
-
 
         public async Task<AjaxResult> DeleteReport(int Id)
         {
@@ -442,6 +328,41 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 report.IsDeleted = true;
                 report.ModifiedDate = DateTime.Now;
+                var changeRiskManagement = await _context.ChangeRiskManagement_AdjustmentReport.Where(x => x.AdjustMentReportId == Id).ToListAsync();
+                if (changeRiskManagement.Count > 0)
+                {
+                    changeRiskManagement.ForEach(x => x.IsDeleted = true);
+                }
+
+                int rowsAffected = await _context.SaveChangesAsync();
+
+                if (rowsAffected > 0)
+                {
+                    res.StatusCode = Status.Success;
+                    res.Message = "Record deleted successfully.";
+                }
+                else
+                {
+                    res.StatusCode = Status.Error;
+                    res.Message = "Record deletion failed.";
+                }
+            }
+            return res;
+        }
+
+        public async Task<AjaxResult> DeleteAttachment(int Id)
+        {
+            var res = new AjaxResult();
+            var photos = await _context.Photos.FindAsync(Id);
+            if (photos == null)
+            {
+                res.StatusCode = Status.Error;
+                res.Message = "Record Not Found";
+            }
+            else
+            {
+                photos.IsDeleted = true;
+                photos.ModifiedDate = DateTime.Now;
                 int rowsAffected = await _context.SaveChangesAsync();
 
                 if (rowsAffected > 0)

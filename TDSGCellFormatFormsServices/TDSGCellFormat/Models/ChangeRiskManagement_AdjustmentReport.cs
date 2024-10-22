@@ -7,7 +7,6 @@ namespace TDSGCellFormat.Models
     [Table("ChangeRiskManagement_AdjustmentReport")]
     public class ChangeRiskManagement_AdjustmentReport
     {
-       
         [Key]
         public int ChangeRiskManagementId { get; set; }
 
@@ -38,6 +37,8 @@ namespace TDSGCellFormat.Models
         public DateTime? ModifiedDate { get; set; }
 
         public int? ModifiedBy { get; set; }
+
+        public bool? IsSubmit { get; set; }
 
         public bool? IsDeleted { get; set; }
 

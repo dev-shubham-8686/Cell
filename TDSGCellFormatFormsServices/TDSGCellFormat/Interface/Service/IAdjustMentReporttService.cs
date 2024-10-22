@@ -14,5 +14,7 @@ namespace TDSGCellFormat.Interface.Service
         Task<AjaxResult> DeleteReport(int Id);
 
         Task<AjaxResult> AddOrUpdateReport(AdjustMentReportRequest report);
+
+        Task<AjaxResult> DeleteAttachment(int Id);
     }
 }

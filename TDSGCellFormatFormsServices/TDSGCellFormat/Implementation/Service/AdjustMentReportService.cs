@@ -37,5 +37,11 @@ namespace TDSGCellFormat.Implementation.Service
 
             return await _adjustMentRepository.DeleteReport(Id);
         }
+
+        public async Task<AjaxResult> DeleteAttachment(int Id)
+        {
+
+            return await _adjustMentRepository.DeleteAttachment(Id);
+        }
     }
 }

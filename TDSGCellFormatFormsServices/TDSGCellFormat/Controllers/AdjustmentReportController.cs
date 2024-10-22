@@ -74,5 +74,20 @@ namespace TDSGCellFormat.Controllers
             }
             return Ok(Ajaxresponse);
         }
+
+        [HttpDelete("DeleteAttachment/{Id}")]
+        public async Task<IActionResult> DeleteAttachment(int Id)
+        {
+            var result = await _tdsgService.DeleteAttachment(Id);
+            if (result.StatusCode == Status.Success)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            return Ok(Ajaxresponse);
+        }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace TDSGCellFormat.Entities;
+namespace TDSGCellFormat.Models;
 
 [Table("AdjustmentReport")]
 public partial class AdjustmentReport
@@ -44,5 +44,6 @@ public partial class AdjustmentReport
     public int? ModifiedBy { get; set; }
 
     public bool? IsDeleted { get; set; }
+
     public virtual ICollection<ChangeRiskManagement_AdjustmentReport> ChangeRiskManagement_AdjustmentReport { get; set; } = new List<ChangeRiskManagement_AdjustmentReport>();
 }
