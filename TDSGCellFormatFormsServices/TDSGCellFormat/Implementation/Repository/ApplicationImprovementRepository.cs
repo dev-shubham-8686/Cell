@@ -82,7 +82,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 // PcrnFilePath = res.PCRNDocFilePath,
                 Status = res.Status,
                 CreatedDate = res.CreatedDate,
-                CreatedBy = res.CreatedBy
+                CreatedBy = res.CreatedBy,
+                IsSubmit = res.IsSubmit
                 // Add other properties as needed
             };
 
@@ -686,6 +687,10 @@ namespace TDSGCellFormat.Implementation.Repository
                             advisorData.EquipmentImprovementId = data.EquipmentId;
                             _context.EquipmentAdvisorMasters.Add(advisorData);
                             await _context.SaveChangesAsync();
+
+                            var equipmentAdv = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.AssignedToUserId == 0 && x.Role == "Advisor" && x.IsActive == true && x.SequenceNo == 2 && x.WorkFlowlevel == 1).FirstOrDefault();
+                            equipmentAdv.AssignedToUserId = approvalData.AdvisorId;
+                            await _context.SaveChangesAsync();
                         }
                         else
                         {
@@ -806,6 +811,16 @@ namespace TDSGCellFormat.Implementation.Repository
             return equipmentTargetData;
         }
 
+        public async Task<List<EquipmentApproverTaskMasterAdd>> GetEquipmentWorkFlowData(int equipmentId)
+        {
+            var approverData = await _context.GetEquipmentWorkFlowData(equipmentId);
+            var processedData = new List<EquipmentApproverTaskMasterAdd>();
+            foreach (var entry in approverData)
+            {
+                processedData.Add(entry);
+            }
+            return processedData;
+        }
         #endregion
 
 

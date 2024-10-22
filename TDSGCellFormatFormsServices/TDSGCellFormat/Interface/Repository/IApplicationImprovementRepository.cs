@@ -18,6 +18,7 @@ namespace TDSGCellFormat.Interface.Repository
         Task<AjaxResult> UpdateTargetDates(EquipmentApprovalData data);
 
         EquipmentApprovalData GetEquipmentTargetDate(int equipmentId, bool toshibaDiscussion);
+        Task<List<EquipmentApproverTaskMasterAdd>> GetEquipmentWorkFlowData(int equipmentId);
     }
 
 }

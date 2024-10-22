@@ -250,7 +250,7 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpGet("GetApprorverFlowData")]
-        public async Task<IActionResult> GetTroubelReportApproverData(int materialConsumptionId)
+        public async Task<IActionResult> GetMaterialConsumptionWorkFlow(int materialConsumptionId)
         {
             var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
             // Call the IsValidAuthentication method

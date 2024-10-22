@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TDSGCellFormat.Common;
+using TDSGCellFormat.Helper;
 using TDSGCellFormat.Interface.Service;
 using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
@@ -149,6 +150,34 @@ namespace TDSGCellFormat.Controllers
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
 
             return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetApprorverFlowData")]
+        public async Task<IActionResult> GetEquipmentWorkFlowData(int equipmentId)
+        {
+            //var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            //// Call the IsValidAuthentication method
+            //AjaxResult authResult;
+            //bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+            //
+            //if (!isValidAuth)
+            //{
+            //    // Return unauthorized response if authentication fails
+            //    Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+            //    return Unauthorized(Ajaxresponse);
+            //}
+            var result = await _applicationService.GetEquipmentWorkFlowData(equipmentId);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), result);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), result);
+            }
+            return Ok(Ajaxresponse);
+            // var data = await _materialService.GetMaterialConsumptionWorkFlow(materialConsumptionId);
+            //return Ok(data);
         }
 
     }
