@@ -19,5 +19,7 @@
         public Nullable<bool> isDivHeadUser { get; set; }
         public Nullable<bool> isAdmin { get; set; }
         public int isAdminId { get; set; }
+        public bool isQcTeamUser  { get; set; }
+        public bool isQcTeamHead { get; set; }
     }
 }
