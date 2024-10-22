@@ -6,16 +6,20 @@ import { GET_SECTION_HEAD_DETAILS } from "../../URLs";
 
 
 export interface ISectionHead {
-    SectionHeadId: number;
-    SectionHeadName: string;
+  sectionHeadId: number;
+  head:number;
+  headName:string;
+  sectionName:string;
   }
   
 
-const getSectionHeadDetails = async () => {
+const getSectionHeadDetails = async (departmentId:number) => {
  try{ 
 
-  const response = await http.get<{ ReturnValue: ISectionHead[]}>(GET_SECTION_HEAD_DETAILS);
-  
+  const response = await http.get<{ ReturnValue: ISectionHead[]}>(GET_SECTION_HEAD_DETAILS,{params:{
+    departmentId
+  }});
+  debugger
   if(response){
     const tabledata=response.data.ReturnValue?? []
     return tabledata;
@@ -27,10 +31,10 @@ const getSectionHeadDetails = async () => {
   }
 };
 
-const useSectionHeadDetails = () =>
+const useSectionHeadDetails = (departmentId:number) =>
     useQuery<ISectionHead[]>({
         queryKey: ["section-head-details"],
-        queryFn: () => getSectionHeadDetails(),
+        queryFn: () => getSectionHeadDetails(departmentId),
 });
 
 export default useSectionHeadDetails;

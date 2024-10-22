@@ -30,8 +30,8 @@ const SubmitModal: React.FC<SubmitModalProps> = ({
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [sectionHead, setsectionHead] = useState(0);
-  const { data: sectionHeads, isLoading: sectionHeadIsLoading } = useSectionHeadDetails();
-
+  const { data: sectionHeads, isLoading: sectionHeadIsLoading } = useSectionHeadDetails(user.departmentId);
+   console.log("SectionHeads",sectionHeads)
   const onClose = () => {
     form.resetFields();
     setmodalVisible(false);
@@ -86,8 +86,8 @@ const SubmitModal: React.FC<SubmitModalProps> = ({
                   .includes(input.toLowerCase())
               }
               options={sectionHeads?.map((area) => ({
-                label: area.SectionHeadName,
-                value: area.SectionHeadId,
+                label: area.headName,
+                value: area.head,
               }))}
               loading={sectionHeadIsLoading}
               className="custom-disabled-select"

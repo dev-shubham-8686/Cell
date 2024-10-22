@@ -11,6 +11,7 @@ import {
   faFileExcel,
   faFilePdf,
 } from "@fortawesome/free-solid-svg-icons";
+import { REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
 
 const EquipmentReportTable: React.FC<{}> = ({}) => {
   const navigate = useNavigate();
@@ -185,7 +186,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
 
-          {true && (
+          {(row.Status === REQUEST_STATUS.Draft ) && (
             <button
               type="button"
               style={{ background: "none", border: "none" }}

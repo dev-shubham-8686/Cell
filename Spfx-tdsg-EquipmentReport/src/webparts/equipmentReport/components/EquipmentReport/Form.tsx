@@ -79,12 +79,21 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
   const handleModalSubmit = (sectionHead: string) => {
     const values:IEquipmentImprovementReport = form.getFieldsValue();
-    values.SectionHeadId = parseInt(sectionHead); // Set the sectionHead value in the form values
+    values.SectionHeadId = parseInt(sectionHead);
+    values.IsSubmit=true; // Set the sectionHead value in the form values
     console.log("DropDownValues",sectionHead)
     console.log("Final form values with secHead:", values);
   
-    // Call the save/submit API here
-    eqReportSave.mutate(values);
+    // Call the submit API here
+    eqReportSave.mutate({...values},{
+      onSuccess: (Response: any) => {
+        console.log("ONSUBMIT RES", Response);
+        navigate(`/equipment-improvement-report`);
+      },
+      onError: (error) => {
+        console.error("On submit error:", error);
+      },
+    });
   };
 
   const onSaveAsDraftHandler = async (): Promise<void> => {
@@ -825,6 +834,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
+                  disabled={isModeView}
                     key={`file-upload-current-situation`}
                     folderName={
                       form.getFieldValue("EquipmentImprovementNo") ??
@@ -916,6 +926,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
+                    disabled={isModeView}
                     key={`file-upload-improvement`}
                     folderName={
                       form.getFieldValue("EquipmentImprovementNo") ??
