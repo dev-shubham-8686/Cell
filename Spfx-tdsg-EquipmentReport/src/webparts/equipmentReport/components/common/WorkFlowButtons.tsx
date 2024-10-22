@@ -66,7 +66,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         EquipmentId: parseInt(id),
         EquipmentApprovalData: {},
       };
-      debugger;
+      
       if (targetDate || advisorId) {
         (payload.EquipmentApprovalData.TargetDate =
           dayjs(targetDate).format(DATE_FORMAT) ?? null),
@@ -90,7 +90,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         Comment: comment,
         AdvisorId: 0,
       };
-      debugger;
+      
 
       console.log("Approved ", payload);
     } catch (error) {

@@ -19,7 +19,7 @@ const getSectionHeadDetails = async (departmentId:number) => {
   const response = await http.get<{ ReturnValue: ISectionHead[]}>(GET_SECTION_HEAD_DETAILS,{params:{
     departmentId
   }});
-  debugger
+  
   if(response){
     const tabledata=response.data.ReturnValue?? []
     return tabledata;

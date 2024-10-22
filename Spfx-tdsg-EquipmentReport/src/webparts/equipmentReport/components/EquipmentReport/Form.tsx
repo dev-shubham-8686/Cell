@@ -1,5 +1,5 @@
 import { ConfigProvider, Empty, Modal, Select, Table, message } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { DatePicker, Input, Button, Upload, Form } from "antd";
 import { ArrowLeftOutlined, UploadOutlined } from "@ant-design/icons";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -31,6 +31,7 @@ import { WebPartContext } from "../../context/webpartContext";
 import OptionalReviewModal from "../common/OptionalReviewModal";
 import useAreaMaster from "../../apis/masters/useAreaMaster";
 import SubmitModal from "../common/SubmitModal";
+import { UserContext } from "../../context/userContext";
 
 const { TextArea } = Input;
 
@@ -52,6 +53,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const [formValues, setFormValues] = useState<
     IEquipmentImprovementReport | []
   >([]);
+  const user = useContext(UserContext);
   const isModeView = mode === "view" ? true : false;
   const [ChangeRiskManagementDetails, setChangeRiskManagementDetails] =
     useState<IChangeRiskData[]>([]);
@@ -83,7 +85,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     values.IsSubmit=true; // Set the sectionHead value in the form values
     console.log("DropDownValues",sectionHead)
     console.log("Final form values with secHead:", values);
-  
+      values.EquipmentImprovementId = parseInt(id);
+      values.CreatedBy=user.employeeId;
+
     // Call the submit API here
     eqReportSave.mutate({...values},{
       onSuccess: (Response: any) => {
@@ -101,6 +105,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     values.EquipmentImprovementAttachmentDetails = improvementAttchments;
     values.EquipmentCurrSituationAttachmentDetails = currSituationAttchments;
     values.IsSubmit=false;
+    values.CreatedBy=user.employeeId;
     console.log("form saved as draft data", values);
     if (id) {
       values.EquipmentImprovementId = parseInt(id);

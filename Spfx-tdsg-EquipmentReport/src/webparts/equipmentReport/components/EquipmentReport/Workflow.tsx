@@ -17,7 +17,7 @@ export interface IRequestDetails extends IRequestStatus {
   export interface IWorkflowDetail {
     ApproverTaskId: number;
     FormType: string;
-    TroubleReportId: number; // Changed from vehicleRequestId to troubleReportId
+    EquipmentImprovementId: number; // Changed from vehicleRequestId to troubleReportId
     AssignedToUserId: number;
     DelegateUserId: number;
     DelegateBy: number;
@@ -113,11 +113,11 @@ interface IProps {
   
   const userId = 1;
 const Workflow : React.FC<IProps>= ({
-  //  approverTasks
+   approverTasks
   //   requestStatus,
   //   userId,
   }) => {
-
+console.log("ApproverTasks",approverTasks)
     const workflowTableBody: {
         head: string;
         cellValues: string[];
@@ -210,7 +210,7 @@ const Workflow : React.FC<IProps>= ({
             )}
           </div>
 
-          <div className="table-responsive pt-5 ">
+          {/* <div className="table-responsive pt-5 ">
           <p className=" mb-0" style={{fontSize:"20px",color:"#C50017"}}>Workflow -2</p>
             {approverTasks?.length === 0 ? (
               <div>Workflow has not been assigned for this request.</div>
@@ -249,7 +249,7 @@ const Workflow : React.FC<IProps>= ({
                 </tbody>
               </table>
             )}
-          </div>
+          </div> */}
         </div>
       );
 }

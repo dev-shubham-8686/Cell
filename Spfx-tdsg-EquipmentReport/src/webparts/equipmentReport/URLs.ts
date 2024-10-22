@@ -11,4 +11,5 @@ export const GET_SECTION_MASTER = "GetAllSection";
 export const GET_SECTION_HEAD_DETAILS = "GetAllSections";
 export const GET_EMPLOYEE_MASTER= "GetAllSection";
 export const GET_APPROVE_ASK_TO_AMMEND =
-  "/api/Material/UpdateApproveAskToAmend";
+  "/api/EquipmentImprovement/UpdateApproveAskToAmend";
+  export const GET_APPROVER_FLOW_DATA = "/api/EquipmentImprovement/GetApprorverFlowData";

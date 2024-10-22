@@ -10,6 +10,7 @@ import { UserContext } from "../../context/userContext";
 import EquipmentReportForm from "../equipmentReport/Form";
 import useEquipmentReportByID from "../../apis/equipmentReport/useEquipmentReport/useEquipmentReportById";
 import WorkFlowButtons from "../common/WorkFlowButtons";
+import useGetApproverFlowData from "../../apis/workflow/useGetApprovalFlowData";
 
 type TabName = "form" | "history" | "workflow";
 
@@ -24,7 +25,11 @@ const EquipmentReportLayout: React.FC<EquipmentReportLayoutProps> = ({}) => {
     location.state || {};
   const [currentTab, setCurrentTab] = useState<TabName>("form");
   const equipmentReport = useEquipmentReportByID(id ? parseInt(id) : undefined);
+
 console.log("EQ Report data",equipmentReport?.data)
+const {data:approverFlowData} = useGetApproverFlowData(
+  id ? parseInt(id) : undefined
+);
   const onBackClick = (): void => {
     console.log("CURRENTSTATE", currentTabState, fromReviewTab);
     navigate("/equipment-improvement-report", {
@@ -120,7 +125,7 @@ console.log("EQ Report data",equipmentReport?.data)
           ) : currentTab === "workflow" ? (
             <div>
               <Workflow 
-              // approverTasks={[]}
+               approverTasks={approverFlowData??[]}
               />
             </div>
           ) : (
