@@ -10,6 +10,7 @@
         public string? SectionName { get; set; }
         public string? ImprovementName { get; set; }
         public string? Requestor {  get; set; }
+        public string? CurrentApprover { get; set; }
         public string? Status { get; set; }
         public int? totalCount { get; set; }
     }

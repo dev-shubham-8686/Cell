@@ -190,6 +190,25 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+
+        public IQueryable<AdvisorMasterView> GetAllAdvisorEmp()
+        {
+            IQueryable<AdvisorMasterView> res = _cloneContext.EmployeeMasters
+                                      .Where(x => x.IsActive == true
+                                             && x.EmpDesignation.StartsWith("Advisor") // Filter for designation
+                                             && _cloneContext.DepartmentMasters
+                                                .Where(d => d.DivisionID == 1)
+                                                .Select(d => d.DepartmentID)
+                                                .Contains(x.DepartmentID))
+                                      .Select(x => new AdvisorMasterView
+                                      {
+                                          employeeId = x.EmployeeID,
+                                          employeeName = x.EmployeeName,
+                                          Email = x.Email // Assuming you want to return department as well
+                                      });
+
+            return res;
+        }
         public IQueryable<EmployeeMasterView> GetEmployeeDetailsById(int id, string email)
         {
             IQueryable<EmployeeMasterView> res = _cloneContext.EmployeeMasters

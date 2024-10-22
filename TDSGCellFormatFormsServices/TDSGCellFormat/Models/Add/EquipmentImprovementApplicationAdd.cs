@@ -11,7 +11,9 @@
         public int? SectionId { get; set; }
 
         public int? SectionHeadId  { get; set; }
-    public string? Purpose { get; set; }
+
+        public int? AdvisorId { get; set; }
+        public string? Purpose { get; set; }
         public string? ImprovementName { get; set; }
         public string? CurrentSituation { get; set; }
 
