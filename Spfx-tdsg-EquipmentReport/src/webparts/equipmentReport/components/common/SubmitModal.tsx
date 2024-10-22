@@ -31,6 +31,7 @@ const SubmitModal: React.FC<SubmitModalProps> = ({
   const navigate = useNavigate();
   const [sectionHead, setsectionHead] = useState(0);
   const { data: sectionHeads, isLoading: sectionHeadIsLoading } = useSectionHeadDetails(user.departmentId);
+
    console.log("SectionHeads",sectionHeads)
   const onClose = () => {
     form.resetFields();

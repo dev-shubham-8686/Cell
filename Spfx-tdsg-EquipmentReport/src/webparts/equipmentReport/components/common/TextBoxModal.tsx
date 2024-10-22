@@ -2,6 +2,7 @@ import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
 import dayjs from "dayjs";
 import React from "react";
 import useAreaMaster from "../../apis/masters/useAreaMaster";
+import useAdvisorDetails from "../../apis/masters/useAdvisor";
 
 export interface ITextBoxModal {
   label: string | JSX.Element;
@@ -35,7 +36,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
 }) => {
   const [form] = Form.useForm();
   const { TextArea } = Input;
-  const { data: areas, isLoading: areaIsLoading } = useAreaMaster();
+  const { data: advisors, isLoading: advisorIsLoading } = useAdvisorDetails();
 
   const handleChange = (): void => {
     const fieldErrors = form.getFieldError(titleKey);
@@ -96,11 +97,11 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
             >
               <Select
                 showSearch
-                options={areas?.map((area) => ({
-                  label: area.AreaName,
-                  value: area.AreaId,
+                options={advisors?.map((advisor) => ({
+                  label: advisor.employeeName,
+                  value: advisor.employeeId,
                 }))}
-                loading={areaIsLoading}
+                loading={advisorIsLoading}
                 className="custom-disabled-select"
               />
             </Form.Item>

@@ -6,7 +6,7 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { IEquipmentImprovementReport } from "../../interface";
 import ToshibaApprovalModal from "./ToshibaApproval";
 import TextBoxModal from "./TextBoxModal";
-import {
+import useApproveAskToAmmend, {
   IApproveAskToAmendPayload,
   IEquipmentApprovalData,
 } from "../../apis/workflow/useApproveAskToAmmend";
@@ -27,9 +27,13 @@ export interface IPullBack {
 export interface IWorkFlowProps {
   currentApproverTask: IApproverTask;
   existingMaterialConsumptionSlip?: IEquipmentImprovementReport;
+  sectionHeadId?:number;
+  advisorId?:number;
 }
 const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   currentApproverTask,
+  sectionHeadId,
+  advisorId,
   existingMaterialConsumptionSlip,
 }) => {
   const user = useContext(UserContext);
@@ -46,7 +50,10 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [toshibaApproval, settoshibaApproval] = useState(false);
   const [advisorRequired, setadvisorRequired] = useState(false);
-
+  const { mutate: approveAskToAmmend ,isLoading:approvingRequest } = useApproveAskToAmmend(
+    id ? parseInt(id) : undefined,
+    user.employeeId
+  );
   const handleToshibaReview = () => {
     setIsModalVisible(true);
   };
@@ -58,20 +65,38 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     advisorId?: number
   ): Promise<void> => {
     try {
+      debugger
       const payload: IApproveAskToAmendPayload = {
-        ApproverTaskId: currentApproverTask?.approverTaskId ?? 0,
+        ApproverTaskId: currentApproverTask?.approverTaskId??0,
         CurrentUserId: user.employeeId,
         Type: actionType ?? null,
         Comment: comment,
         EquipmentId: parseInt(id),
-        EquipmentApprovalData: {},
+        EquipmentApprovalData: null,
       };
       
       if (targetDate || advisorId) {
-        (payload.EquipmentApprovalData.TargetDate =
-          dayjs(targetDate).format(DATE_FORMAT) ?? null),
+        payload.EquipmentApprovalData.TargetDate = targetDate?
+          dayjs(targetDate).format(DATE_FORMAT) : null,
+          payload.EquipmentApprovalData.EquipmentId=parseInt(id),
           (payload.EquipmentApprovalData.AdvisorId = advisorId ?? 0);
       }
+      debugger
+      approveAskToAmmend(payload,{
+        onSuccess: (Response) => {
+          
+          console.log("ask to ammend / approve  Response: ", Response);
+          navigate("/",{
+            state: {
+              currentTabState: "myapproval-tab",
+            }});
+        },
+        
+        onError: (error) => {
+          console.error("Export error:", error);
+        },
+  
+      })
       console.log("Approved ", payload);
     } catch (error) {
       console.error(error);
@@ -140,10 +165,11 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   }, []);
 
   useEffect(() => {
-    setShowWorkflowBtns(
-      currentApproverTask?.approverTaskId &&
-        currentApproverTask?.approverTaskId !== 0
-    );
+    // setShowWorkflowBtns(
+    //   currentApproverTask?.approverTaskId &&
+    //     currentApproverTask?.approverTaskId !== 0
+    // );
+    setShowWorkflowBtns(true);
   }, [currentApproverTask]);
 
   const openCommentsPopup = (
@@ -167,6 +193,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     AddUpdateTargetDate: (comment: string, targetDate: Date , isToshibaDiscussion) =>
       onAddUpdateTargetDate(isToshibaDiscussion, targetDate, comment),
   };
+  console.log("Buttons",currentApproverTask??[],isApproverRequest??null)
   return (
     <>
       <div className="d-flex gap-3 justify-content-end">
@@ -175,12 +202,12 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             height: "35px",
           }}
         />
-        {true ? (
+        {showWorkflowBtns && approverRequest ? (
           <>
             <button
               className="btn btn-primary"
               onClick={() => {
-                if (true) {
+                if (user.employeeId==advisorId) {
                   confirm({
                     title: "Is Toshiba approval required ?",
                     icon: (
@@ -199,7 +226,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                       openCommentsPopup("Approve", false);
                     },
                   });
-                } else if (advisorRequired) {
+                } else if (user.employeeId==sectionHeadId) {
                   openCommentsPopup("Approve", null, true);
                 } else {
                   openCommentsPopup("Approve", false);

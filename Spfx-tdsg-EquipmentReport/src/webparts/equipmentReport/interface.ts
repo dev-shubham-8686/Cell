@@ -38,7 +38,8 @@ export  interface IEquipmentImprovementReport {
   CreatedDate:string;
   CreatedBy:number;
   ModifiedBy:number;
-  SectionHeadId:number;
+  SectionHeadId?:number;
+  AdvisorId?:number;
   IsDeleted:boolean;
   EquipmentCurrSituationAttachmentDetails:ICurrentSituationAttachments[];
   EquipmentImprovementAttachmentDetails:IImprovementAttachments[];

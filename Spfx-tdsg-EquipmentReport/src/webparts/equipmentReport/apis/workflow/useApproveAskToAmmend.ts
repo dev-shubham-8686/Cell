@@ -18,6 +18,7 @@ export interface IEquipmentApprovalData {
   TargetDate?: string;
   Comment?: string;
   AdvisorId?: number;
+  EquipmentId?:number;
 }
 
 const ApproveAskToAmmend = async (payload: IApproveAskToAmendPayload) => {
@@ -25,14 +26,13 @@ const ApproveAskToAmmend = async (payload: IApproveAskToAmendPayload) => {
   const config: ICustomAxiosConfig = {
     SHOW_NOTIFICATION: true,
   };
-
+debugger
   const response = await http.post<string>(
     GET_APPROVE_ASK_TO_AMMEND,
     payload,
     config
   );
-  console.log("Approve A to A  RESPONSE ", response);
-
+  debugger
   return response.data;
 };
 

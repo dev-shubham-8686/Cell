@@ -11,6 +11,7 @@ import EquipmentReportForm from "../equipmentReport/Form";
 import useEquipmentReportByID from "../../apis/equipmentReport/useEquipmentReport/useEquipmentReportById";
 import WorkFlowButtons from "../common/WorkFlowButtons";
 import useGetApproverFlowData from "../../apis/workflow/useGetApprovalFlowData";
+import useGetCurrentApproverData from "../../apis/workflow/useGetCurrentApprover";
 
 type TabName = "form" | "history" | "workflow";
 
@@ -30,6 +31,11 @@ console.log("EQ Report data",equipmentReport?.data)
 const {data:approverFlowData} = useGetApproverFlowData(
   id ? parseInt(id) : undefined
 );
+const currentApprover = useGetCurrentApproverData(
+  id ? parseInt(id) : undefined,
+  user.employeeId
+);
+
   const onBackClick = (): void => {
     console.log("CURRENTSTATE", currentTabState, fromReviewTab);
     navigate("/equipment-improvement-report", {
@@ -75,7 +81,9 @@ const {data:approverFlowData} = useGetApproverFlowData(
             Back
           </button>
           <div className=" justify-content-right mr-50">
-            <WorkFlowButtons currentApproverTask={null}  />
+            <WorkFlowButtons currentApproverTask={null}
+            sectionHeadId={equipmentReport?.data?.SectionHeadId}
+            advisorId={equipmentReport?.data?.AdvisorId}  />
           </div>
         </div>
 

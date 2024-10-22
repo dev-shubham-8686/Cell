@@ -17,50 +17,6 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       title: "Application No",
       dataIndex: "EquipmentImprovementNo",
       key: "EquipmentImprovementNo",
-      width: "20%",
-      sorter: true,
-      // filterDropdown: ColumnFilter,
-      filterIcon: (filtered: boolean) => (
-        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      ),
-    },
-    {
-      title: "Section Name",
-      dataIndex: "SectionName",
-      key: "SectionName",
-      width: "10%",
-      sorter: true,
-      // filterDropdown: ColumnFilter,
-      filterIcon: (filtered: boolean) => (
-        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      ),
-    },
-    {
-      title: "Improvement Name",
-      dataIndex: "ImprovementName",
-      key: "ImprovementName",
-      width: "15%",
-      sorter: true,
-      // filterDropdown: ColumnFilter,
-      filterIcon: (filtered: boolean) => (
-        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      ),
-    },
-    {
-      title: "Machine Name",
-      dataIndex: "MachineName",
-      key: "MachineName",
-      width: "10%",
-      sorter: true,
-      // filterDropdown: ColumnFilter,
-      filterIcon: (filtered: boolean) => (
-        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      ),
-    },
-    {
-      title: "Sub Machine Name",
-      dataIndex: "SubMachineName",
-      key: "SubMachineName",
       width: "10%",
       sorter: true,
       // filterDropdown: ColumnFilter,
@@ -83,14 +39,74 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       // ),
     },
     {
-      title: "Created By",
+      title: "Machine Name",
+      dataIndex: "MachineName",
+      key: "MachineName",
+      width: "15%",
+      sorter: true,
+      // filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
+    },
+    {
+      title: "Sub Machine Name",
+      dataIndex: "SubMachineName",
+      key: "SubMachineName",
+      width: "15%",
+      sorter: true,
+      // filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
+    },
+    {
+      title: "Section Name",
+      dataIndex: "SectionName",
+      key: "SectionName",
+      width: "15%",
+      sorter: true,
+      // filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
+    },
+    {
+      title: "Improvement Name",
+      dataIndex: "ImprovementName",
+      key: "ImprovementName",
+      width: "15%",
+      sorter: true,
+      // filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
+    },
+   
+  
+    {
+      title: "Requestor",
       dataIndex: "Requestor",
       key: "Requestor",
       width: "10%",
       sorter: true,
-      // render: (text) => (
-      //   <p className="text-cell">{format(text, DATE_FORMAT)}</p>
+      render: (text) => (
+        <p className="text-cell">{text??"-"}</p>
+      ),
+      // filterDropdown: ColumnFilter,
+      // filterIcon: (filtered: boolean) => (
+      //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       // ),
+    },
+    {
+      title: "CurrentApprover",
+      dataIndex: "CurrentApprover",
+      key: "CurrentApprover",
+      width: "10%",
+      sorter: true,
+      render: (text) => (
+        <p className="text-cell">{text ?? "-"}</p>
+      ),
       // filterDropdown: ColumnFilter,
       // filterIcon: (filtered: boolean) => (
       //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
@@ -100,7 +116,7 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      width: "5%",
+      width: "10%",
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -127,7 +143,10 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
             style={{ background: "none", border: "none" }}
             onClick={() =>
               navigate(
-                `/equipment-improvement-report/form/view/${row.EquipmentImprovementId}`
+                `/equipment-improvement-report/form/view/${row.EquipmentImprovementId}`,
+                {
+                  state: { isApproverRequest: true },
+                }
               )
             }
           >
@@ -140,7 +159,10 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
               style={{ background: "none", border: "none" }}
               onClick={() =>
                 navigate(
-                  `/equipment-improvement-report/form/edit/${row.EquipmentImprovementId}`
+                  `/equipment-improvement-report/form/edit/${row.EquipmentImprovementId}`,
+                  {
+                    state: { isApproverRequest: true },
+                  }
                 )
               }
             >
