@@ -338,11 +338,12 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             foreach (var attachment in item.attachments)
                             {
+                                var updatedUrl = attachment.url.Replace("/materialConsumptionSlip/", $"/{materialConsumptionSlips.MaterialConsumptionSlipNo}/");
                                 var newAttachment = new MaterialConsumptionSlipItemAttachment()
                                 {
                                     MaterialConsumptionSlipItemId = newMaterialConsumptionSlipItem.MaterialConsumptionSlipItemId,
                                     DocumentName = attachment.name,
-                                    DocumentFilePath = attachment.url,
+                                    DocumentFilePath = updatedUrl,
                                     IsDeleted = false,
                                     CreatedBy = report.userId,
                                     CreatedDate = DateTime.Now,
@@ -379,14 +380,16 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             foreach (var attachItem in item.attachments)
                             {
+                                var updatedUrl = attachItem.url.Replace("/materialConsumptionSlip/", $"/{materialConsumptionSlips.MaterialConsumptionSlipNo}/");
                                 var attachData = _context.MaterialConsumptionSlipItemAttachment.Where(x => x.MaterialConsumptionSlipItemAttachmentId == attachItem.materialConsumptionSlipItemAttachmentId).FirstOrDefault();
                                 if (attachData == null)
                                 {
+                                    
                                     var newAttachment = new MaterialConsumptionSlipItemAttachment()
                                     {
                                         MaterialConsumptionSlipItemId = materialConsumptionSlipItem.MaterialConsumptionSlipItemId,
                                         DocumentName = attachItem.name,
-                                        DocumentFilePath = attachItem.url,
+                                        DocumentFilePath = updatedUrl,
                                         IsDeleted = false,
                                         CreatedBy = report.userId,
                                         CreatedDate = DateTime.Now,
@@ -400,7 +403,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 else
                                 {
                                     attachData.DocumentName = attachItem.name;
-                                    attachData.DocumentFilePath = attachItem.url;
+                                    attachData.DocumentFilePath = updatedUrl;
                                     attachData.IsDeleted = false;
                                     attachData.ModifiedBy = report.userId;
                                     attachData.ModifiedDate = DateTime.Now;
