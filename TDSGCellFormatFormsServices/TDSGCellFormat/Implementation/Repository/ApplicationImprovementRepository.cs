@@ -80,6 +80,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 ResultStatus = res.ResultStatus,
                 // PcrnDocName = res.PCRNDocName,
                 // PcrnFilePath = res.PCRNDocFilePath,
+                AdvisorId = _context.EquipmentAdvisorMasters.Where(x => x.EquipmentImprovementId == Id && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(),
                 Status = res.Status,
                 CreatedDate = res.CreatedDate,
                 CreatedBy = res.CreatedBy,
@@ -167,6 +168,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     //newReport.IsSubmit = false;
                     newReport.Status = ApprovalTaskStatus.Draft.ToString();
                     newReport.WorkFlowLevel = 0;
+                    newReport.ToshibaApprovalRequired = false;
                     newReport.WorkFlowStatus = ApprovalTaskStatus.Draft.ToString();
                     _context.EquipmentImprovementApplication.Add(newReport);
                     await _context.SaveChangesAsync();
@@ -208,11 +210,14 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         foreach (var attach in report.EquipmentCurrSituationAttachmentDetails)
                         {
+                            var updatedUrl = attach.CurrSituationDocFilePath.Replace("/EQReportDocs/", $"/{equipmentNo}/");
+                            ///EqReportDocuments/EQReportDocs/Current Situation Attachments/MaterialConsumption_2024-10-09.xlsx
                             var attachment = new EquipmentCurrSituationAttachment()
                             {
+                                
                                 EquipmentImprovementId = newReport.EquipmentImprovementId,
                                 CurrSituationDocName = attach.CurrSituationDocName,
-                                CurrSituationDocFilePath = attach.CurrSituationDocFilePath,
+                                CurrSituationDocFilePath = updatedUrl,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
                                 CreatedDate = DateTime.Now,
@@ -226,10 +231,11 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         foreach (var attach in report.EquipmentImprovementAttachmentDetails)
                         {
+                            var updatedUrl = attach.ImprovementDocFilePath.Replace("/EQReportDocs/", $"/{equipmentNo}/");
                             var attachment = new EquipmentImprovementAttachment()
                             {
                                 EquipmentImprovementId = newReport.EquipmentImprovementId,
-                                ImprovementDocFilePath = attach.ImprovementDocFilePath,
+                                ImprovementDocFilePath = updatedUrl,
                                 ImprovementDocName = attach.ImprovementDocName,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
@@ -333,22 +339,24 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         foreach (var attach in report.EquipmentCurrSituationAttachmentDetails)
                         {
+                            var updatedUrl = attach.CurrSituationDocFilePath.Replace("/EQReportDocs/", $"/{existingReport.EquipmentImprovementNo}/");
                             var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == attach.EquipmentCurrSituationAttachmentId).FirstOrDefault();
                             if (existingAttachData != null)
                             {
                                 existingAttachData.CurrSituationDocName = attach.CurrSituationDocName;
-                                existingAttachData.CurrSituationDocFilePath = attach.CurrSituationDocFilePath;
+                                existingAttachData.CurrSituationDocFilePath = updatedUrl;
                                 existingAttachData.IsDeleted = false;
                                 existingAttachData.ModifiedBy = attach.ModifiedBy;
                                 existingAttachData.ModifiedDate = DateTime.Now;
                             }
                             else
                             {
+
                                 var attachment = new EquipmentCurrSituationAttachment()
                                 {
                                     EquipmentImprovementId = existingReport.EquipmentImprovementId,
                                     CurrSituationDocName = attach.CurrSituationDocName,
-                                    CurrSituationDocFilePath = attach.CurrSituationDocFilePath,
+                                    CurrSituationDocFilePath = updatedUrl,
                                     IsDeleted = false,
                                     CreatedBy = attach.CreatedBy,
                                     CreatedDate = DateTime.Now,
@@ -367,11 +375,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         foreach (var attach in report.EquipmentImprovementAttachmentDetails)
                         {
+                            var updatedUrl = attach.ImprovementDocFilePath.Replace("/EQReportDocs/", $"/{existingReport.EquipmentImprovementNo}/");
                             var existingAttachData = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentImprovementAttachmentId == attach.EquipmentImprovementAttachmentId).FirstOrDefault();
                             if (existingAttachData != null)
                             {
                                 existingAttachData.ImprovementDocName = attach.ImprovementDocName;
-                                existingAttachData.ImprovementDocFilePath = attach.ImprovementDocFilePath;
+                                existingAttachData.ImprovementDocFilePath = updatedUrl;
                                 existingAttachData.IsDeleted = false;
                                 existingAttachData.ModifiedBy = attach.ModifiedBy;
                                 existingAttachData.ModifiedDate = DateTime.Now;
@@ -382,7 +391,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 {
                                     EquipmentImprovementId = existingReport.EquipmentImprovementId,
                                     ImprovementDocName = attach.ImprovementDocName,
-                                    ImprovementDocFilePath = attach.ImprovementDocFilePath,
+                                    ImprovementDocFilePath = updatedUrl,
                                     IsDeleted = false,
                                     CreatedBy = attach.CreatedBy,
                                     CreatedDate = DateTime.Now,
@@ -400,6 +409,16 @@ namespace TDSGCellFormat.Implementation.Repository
                     };
                     res.StatusCode = Status.Success;
                     res.Message = Enums.EquipmentSave;
+
+                    if (report.IsSubmit == true)
+                    {
+                        var data = await SubmitRequest(applicationImprovementId, report.CreatedBy);
+                        if (data.StatusCode == Status.Success)
+                        {
+                            res.Message = Enums.EquipmentSubmit;
+                        }
+
+                    }
                 }
                 //res.ReturnValue = report;
                 return res;
@@ -688,9 +707,13 @@ namespace TDSGCellFormat.Implementation.Repository
                             _context.EquipmentAdvisorMasters.Add(advisorData);
                             await _context.SaveChangesAsync();
 
-                            var equipmentAdv = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.AssignedToUserId == 0 && x.Role == "Advisor" && x.IsActive == true && x.SequenceNo == 2 && x.WorkFlowlevel == 1).FirstOrDefault();
-                            equipmentAdv.AssignedToUserId = approvalData.AdvisorId;
-                            await _context.SaveChangesAsync();
+                            if(equipment.WorkFlowLevel ==1)
+                            {
+                                var equipmentAdv = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.AssignedToUserId == 0 && x.Role == "Advisor" && x.IsActive == true && x.SequenceNo == 2 && x.WorkFlowlevel == 1).FirstOrDefault();
+                                equipmentAdv.AssignedToUserId = approvalData.AdvisorId;
+                                await _context.SaveChangesAsync();
+                            }
+                           
                         }
                         else
                         {
