@@ -174,8 +174,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 // Get ID of newly added record
                 adjustMentReportId = newReport.AdjustMentReportId;
 
-                request.ChangeRiskManagement_AdjustmentReport.ForEach(x => x.AdjustMentReportId = adjustMentReportId);
-
                 var paramAdjustMentReportId = new Microsoft.Data.SqlClient.SqlParameter("@AdjustmentReportId", adjustMentReportId);
                 await _context.Set<TroubleReportNumberResult>()
                                .FromSqlRaw("EXEC [dbo].[SPP_GenerateAdjustmentReportNumber] @AdjustmentReportId", paramAdjustMentReportId)
