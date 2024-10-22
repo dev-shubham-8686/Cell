@@ -67,5 +67,10 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return _applicationRepo.GetEquipmentTargetDate(equipmentId, toshibaDiscussion);
         }
+
+        public async Task<List<EquipmentApproverTaskMasterAdd>> GetEquipmentWorkFlowData(int equipmentId)
+        {
+            return await _applicationRepo.GetEquipmentWorkFlowData(equipmentId);
+        }
     }
 }

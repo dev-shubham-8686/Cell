@@ -130,6 +130,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         modelBuilder.Entity<TroubleRevisionResult>().HasNoKey();
         modelBuilder.Entity<TroubleReportApproverTaskMasterAdd>().HasNoKey();
         modelBuilder.Entity<MaterialConsumptionApproverTaskMasterAdd>().HasNoKey();
+        modelBuilder.Entity<EquipmentApproverTaskMasterAdd>().HasNoKey();
         modelBuilder.Entity<EquipmentImprovementView>().HasNoKey();
         modelBuilder.Entity<MaterialConsumptionListView>().HasNoKey();
         //JsonDataSet
@@ -377,6 +378,14 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@MaterialConsumptionId", materialConsumptionId);
         return await this.Set<MaterialConsumptionApproverTaskMasterAdd>()
             .FromSqlRaw("EXEC SPP_GetMaterialConsumptionWorkFlowDetails @MaterialConsumptionId", userIdParam)
+            .ToListAsync();
+    }
+
+    public async Task<List<EquipmentApproverTaskMasterAdd>> GetEquipmentWorkFlowData(int equipmentId)
+    {
+        var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@EquipmentId", equipmentId);
+        return await this.Set<EquipmentApproverTaskMasterAdd>()
+            .FromSqlRaw("EXEC SPP_GetEquipmentWorkFlowDetails @EquipmentId", userIdParam)
             .ToListAsync();
     }
     public async Task<GetUserDetailsView> GetUserRole(string email)
