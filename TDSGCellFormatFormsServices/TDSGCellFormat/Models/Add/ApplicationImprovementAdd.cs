@@ -58,7 +58,7 @@ namespace TDSGCellFormat.Models.Add
         public int EquipmentId { get; set; }
         public bool? IsToshibaDiscussion { get; set; }
 
-        public DateTime? TargetDate { get; set; }
+        public string? TargetDate { get; set; }
 
         public int? AdvisorId { get; set; }
     }

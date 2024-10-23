@@ -7,8 +7,9 @@ using TDSGCellFormat.Helper;
 using Microsoft.EntityFrameworkCore;
 using TDSGCellFormat.Models.View;
 using System.Data;
-using System.Data.SqlClient;
-using Dapper;
+
+using Microsoft.Graph.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -251,13 +252,13 @@ namespace TDSGCellFormat.Implementation.Repository
                         EquipmentImprovementId = applicationImprovementId,
                         EquipmentImprovementNo = equipmentNo
                     };
-                    res.StatusCode = Status.Success;
+                    res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.EquipmentSave;
 
                     if (report.IsSubmit == true)
                     {
                         var data = await SubmitRequest(applicationImprovementId, report.CreatedBy);
-                        if (data.StatusCode == Status.Success)
+                        if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.EquipmentSubmit;
                         }
@@ -407,13 +408,13 @@ namespace TDSGCellFormat.Implementation.Repository
                         EquipmentImprovementId = existingReport.EquipmentImprovementId,
                         EquipmentImprovementNo = existingReport.EquipmentImprovementNo
                     };
-                    res.StatusCode = Status.Success;
+                    res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.EquipmentSave;
 
                     if (report.IsSubmit == true)
                     {
                         var data = await SubmitRequest(applicationImprovementId, report.CreatedBy);
-                        if (data.StatusCode == Status.Success)
+                        if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.EquipmentSubmit;
                         }
@@ -426,7 +427,7 @@ namespace TDSGCellFormat.Implementation.Repository
             catch (Exception ex)
             {
                 res.Message = "Fail " + ex;
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context);
                 commonHelper.LogException(ex, "Application Equipment AddOrUpdate");
                 return res;
@@ -455,13 +456,13 @@ namespace TDSGCellFormat.Implementation.Repository
                 //var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 //await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Submitted, string.Empty, 0);
                 res.Message = Enums.EquipmentSubmit;
-                res.StatusCode = Status.Success;
+                res.StatusCode = Enums.Status.Success;
 
             }
             catch (Exception ex)
             {
                 res.Message = "Fail " + ex;
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context);
                 commonHelper.LogException(ex, "Material SubmitRequest");
                 //return res;
@@ -500,7 +501,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var report = await _context.EquipmentImprovementApplication.FindAsync(Id);
             if (report == null)
             {
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
                 res.Message = "Record Not Found";
             }
             else
@@ -511,12 +512,12 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (rowsAffected > 0)
                 {
-                    res.StatusCode = Status.Success;
+                    res.StatusCode = Enums.Status.Success;
                     res.Message = "Record deleted successfully.";
                 }
                 else
                 {
-                    res.StatusCode = Status.Error;
+                    res.StatusCode = Enums.Status.Error;
                     res.Message = "Record deletion failed.";
                 }
             }
@@ -599,12 +600,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                 }
                 res.Message = Enums.MaterialPullback;
-                res.StatusCode = Status.Success;
+                res.StatusCode = Enums.Status.Success;
             }
             catch (Exception ex)
             {
                 res.Message = "Fail " + ex;
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context);
                 commonHelper.LogException(ex, "Equipment PullbackRequest");
 
@@ -681,7 +682,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (data.Type == ApprovalStatus.Approved)
                 {
-                    equipmentData.Status = ApprovalTaskStatus.UnderAmendment.ToString();
+                    equipmentData.Status = ApprovalTaskStatus.Approved.ToString();
                     equipmentData.ModifiedBy = data.CurrentUserId;
                     equipmentData.ActionTakenBy = data.CurrentUserId;
                     equipmentData.ActionTakenDate = DateTime.Now;
@@ -718,9 +719,12 @@ namespace TDSGCellFormat.Implementation.Repository
                         else
                         {
                             equipment.ToshibaApprovalRequired = true;
-                            equipment.ToshibaApprovalTargetDate = approvalData.TargetDate;
-                            //equipment.WorkFlowStatus =
+                            equipment.ToshibaApprovalTargetDate = !string.IsNullOrEmpty(approvalData.TargetDate) ? DateTime.Parse(approvalData.TargetDate) : (DateTime?)null;
+                            equipment.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
                             await _context.SaveChangesAsync();
+
+                            //call the store procedure for next task 
+                            _context.CallEquipmentApproverMaterix(data.CurrentUserId, equipment.EquipmentImprovementId);
                         }
 
                     }
@@ -748,7 +752,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             {
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
-                                //await _context.SaveChangesAsync();
+                                await _context.SaveChangesAsync();
                                 //await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Approved, null, nextTask.ApproverTaskId);
 
                             }
@@ -771,7 +775,7 @@ namespace TDSGCellFormat.Implementation.Repository
             catch (Exception ex)
             {
                 res.Message = "Fail " + ex;
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context);
                 commonHelper.LogException(ex, "Equipment UpdateApproveAskToAmend");
 
@@ -789,23 +793,25 @@ namespace TDSGCellFormat.Implementation.Repository
                 if(data.IsToshibaDiscussion == true)
                 {
                     equipment.ToshibaTeamDiscussion = true;
-                    equipment.ToshibaDiscussionTargetDate = data.TargetDate;
+                    equipment.ToshibaDiscussionTargetDate = !string.IsNullOrEmpty(data.TargetDate) ? DateTime.Parse(data.TargetDate) : (DateTime?)null;
+                    equipment.Status = ApprovalTaskStatus.ToshibaTechnicalReview.ToString();
                     await _context.SaveChangesAsync();
                 }
                 else
                 {
                     equipment.ToshibaApprovalRequired = true;
-                    equipment.ToshibaApprovalTargetDate = data.TargetDate;
+                    equipment.ToshibaApprovalTargetDate = !string.IsNullOrEmpty(data.TargetDate) ? DateTime.Parse(data.TargetDate) : (DateTime?)null; ;
+                    //equipment.Status = ApprovalTaskStatus.ToshibaTechnicalReview.ToString();
                     await _context.SaveChangesAsync();
                 }
                 res.Message = Enums.EquipmentDateUpdate;
-                res.StatusCode = Status.Success;
+                res.StatusCode = Enums.Status.Success;
 
             }
             catch (Exception ex)
             {
                 res.Message = "Fail " + ex;
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context);
                 commonHelper.LogException(ex, "Equipment UpdateTargetDate");
 
@@ -825,11 +831,11 @@ namespace TDSGCellFormat.Implementation.Repository
             var equipmentTargetData = new EquipmentApprovalData();
             if(toshibaDiscussion == true)
             {
-                equipmentTargetData.TargetDate = res.ToshibaDiscussionTargetDate;
+                equipmentTargetData.TargetDate = res.ToshibaDiscussionTargetDate.HasValue ? res.ToshibaDiscussionTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty;
             }
             else
             {
-                equipmentTargetData.TargetDate = res.ToshibaApprovalTargetDate;
+                equipmentTargetData.TargetDate = res.ToshibaApprovalTargetDate.HasValue ? res.ToshibaApprovalTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty;
             }
             return equipmentTargetData;
         }
