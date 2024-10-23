@@ -334,34 +334,47 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public async Task<string> GenerateAdjustmentReportNumberAsync()
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
-                // Get the maximum number where ReportNo starts with 'ADJUST'
-                var maxReportNo = await _context.AdjustmentReports
-                    .Where(ar => ar.ReportNo.StartsWith("ADJUST"))
-                    .Select(ar => ar.ReportNo.Substring(ar.ReportNo.Length - 3))
-                    .Select(num => !string.IsNullOrEmpty(num) ? int.Parse(num) : 0)
-                    .DefaultIfEmpty(0)
-                    .MaxAsync();
+                try
+                {
+                    // Declare variables
+                    string adjustmentNo;
+                    int nextNumber;
 
-                // Increment the number
-                var nextNumber = maxReportNo + 1;
+                    // Get all relevant report numbers first (client-side evaluation)
+                    var reportNumbers = await _context.AdjustmentReports
+                        .Where(ar => ar.ReportNo.StartsWith("ADJUST"))
+                        .Select(ar => ar.ReportNo)
+                        .ToListAsync(); // Bring the data into memory
 
-                // Generate the new Adjustment Number
-                var newAdjustmentNo = $"ADJUST-{nextNumber:D3}";
+                    // Extract the numerical part, parse it, and find the maximum number
+                    nextNumber = reportNumbers
+                        .Select(rn => int.TryParse(rn.AsSpan(rn.Length - 3), out var num) ? num : 0)
+                        .DefaultIfEmpty(0)
+                        .Max();
 
-                // Commit the transaction without updating the ReportNo
-                await transaction.CommitAsync();
+                    // Increment the number
+                    nextNumber += 1;
 
-                // Return the generated adjustment number without saving it to the database
-                return newAdjustmentNo;
-            }
-            catch
-            {
-                // Rollback in case of an error
-                await transaction.RollbackAsync();
-                throw;
+                    // Generate the new adjustment number
+                    adjustmentNo = $"ADJUST-{nextNumber.ToString().PadLeft(3, '0')}";
+
+                    // Save changes
+                    await _context.SaveChangesAsync();
+
+                    // Commit the transaction
+                    await transaction.CommitAsync();
+
+                    // Return the generated adjustment number
+                    return adjustmentNo;
+                }
+                catch (Exception)
+                {
+                    // Rollback the transaction in case of an error
+                    await transaction.RollbackAsync();
+                    throw;
+                }
             }
         }
 
