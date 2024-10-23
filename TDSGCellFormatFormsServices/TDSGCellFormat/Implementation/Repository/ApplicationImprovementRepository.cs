@@ -85,7 +85,11 @@ namespace TDSGCellFormat.Implementation.Repository
                 Status = res.Status,
                 CreatedDate = res.CreatedDate,
                 CreatedBy = res.CreatedBy,
-                IsSubmit = res.IsSubmit
+                IsSubmit = res.IsSubmit, 
+                ToshibaApprovalRequired = res.ToshibaApprovalRequired,
+                ToshibaApprovalTargetDate = res.ToshibaApprovalTargetDate.HasValue ? res.ToshibaApprovalTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                ToshibaTeamDiscussion = res.ToshibaTeamDiscussion, 
+                ToshibaDiscussionTargetDate = res.ToshibaDiscussionTargetDate.HasValue ? res.ToshibaDiscussionTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
                 // Add other properties as needed
             };
 
@@ -849,6 +853,21 @@ namespace TDSGCellFormat.Implementation.Repository
                 processedData.Add(entry);
             }
             return processedData;
+        }
+
+        public ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId)
+        {
+            var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+            var data = new ApproverTaskId_dto();
+            if (materialApprovers != null)
+            {
+                data.approverTaskId = materialApprovers.ApproverTaskId;
+                data.userId = materialApprovers.AssignedToUserId ?? 0;
+                data.status = materialApprovers.Status;
+                data.seqNumber = materialApprovers.SequenceNo;
+
+            }
+            return data;
         }
         #endregion
 
