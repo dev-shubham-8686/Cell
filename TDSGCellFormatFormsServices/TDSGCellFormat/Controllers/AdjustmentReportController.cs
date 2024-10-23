@@ -10,14 +10,30 @@ namespace TDSGCellFormat.Controllers
     [ApiController]
     public class AdjustmentReportController : Controller
     {
-        private readonly IAdjustMentReporttService _tdsgService;
+        private readonly IAdjustMentReportService _tdsgService;
 
         ResponseHelper responseHelper = new ResponseHelper();
         AjaxResult Ajaxresponse = new AjaxResult();
 
-        public AdjustmentReportController(IAdjustMentReporttService tdsgService)
+        public AdjustmentReportController(IAdjustMentReportService tdsgService)
         {
             _tdsgService = tdsgService;
+        }
+
+        [HttpGet("GetAllAdjustmentData")]
+        public async Task<IActionResult> GetAllAdjustmentData(
+         int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "DESC", string searchValue = "")
+        {
+            var result = await _tdsgService.GetAllAdjustmentData(pageIndex, pageSize, createdBy, sortColumn, orderBy, searchValue);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+            }
+            return Ok(Ajaxresponse);
         }
 
         [HttpGet("GetAdjustmentReport")]

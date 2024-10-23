@@ -6,7 +6,7 @@ using static TDSGCellFormat.Common.Enums;
 
 namespace TDSGCellFormat.Implementation.Service
 {
-    public class AdjustMentReporttService : BaseService<AdjustmentReport>, IAdjustMentReporttService
+    public class AdjustMentReporttService : BaseService<AdjustmentReport>, IAdjustMentReportService
     {
         private readonly IAdjustMentReportRepository _adjustMentRepository;
 
@@ -14,6 +14,12 @@ namespace TDSGCellFormat.Implementation.Service
           : base(tdsgRepository)
         {
             this._adjustMentRepository = tdsgRepository;
+        }
+
+        public Task<AjaxResult> GetAllAdjustmentData(
+         int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "", string searchValue = "")
+        {
+            return _adjustMentRepository.GetAllAdjustmentData(pageIndex, pageSize, createdBy, sortColumn, orderBy, searchValue);
         }
 
         public IQueryable<AdjustMentReportRequest> GetAll()

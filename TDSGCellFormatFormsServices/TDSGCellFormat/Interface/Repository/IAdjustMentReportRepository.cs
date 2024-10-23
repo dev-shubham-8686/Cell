@@ -7,6 +7,8 @@ namespace TDSGCellFormat.Interface.Repository
 {
     public interface IAdjustMentReportRepository : IBaseRepository<AdjustmentReport>
     {
+        Task<AjaxResult> GetAllAdjustmentData(int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "", string searchValue = "");
+
         IQueryable<AdjustMentReportRequest> GetAll();
 
         AdjustMentReportRequest GetById(int Id);

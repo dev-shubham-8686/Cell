@@ -45,5 +45,7 @@ public partial class AdjustmentReport
 
     public bool? IsDeleted { get; set; }
 
+    public int? EmployeeId { get; set; }
+
     public virtual ICollection<ChangeRiskManagement_AdjustmentReport> ChangeRiskManagement_AdjustmentReport { get; set; } = new List<ChangeRiskManagement_AdjustmentReport>();
 }

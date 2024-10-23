@@ -15,6 +15,8 @@ namespace TDSGCellFormat.Models.Add
 
         public string? RequestBy { get; set; }
 
+        public int? EmployeeId { get; set; }
+
         public int? CheckedBy { get; set; }
 
         public string? DescribeProblem { get; set; }

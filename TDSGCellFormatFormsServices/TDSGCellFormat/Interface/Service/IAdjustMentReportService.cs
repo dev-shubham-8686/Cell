@@ -5,8 +5,10 @@ using TDSGCellFormat.Models;
 
 namespace TDSGCellFormat.Interface.Service
 {
-    public interface IAdjustMentReporttService : IBaseService<AdjustmentReport>
+    public interface IAdjustMentReportService : IBaseService<AdjustmentReport>
     {
+        Task<AjaxResult> GetAllAdjustmentData(int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "", string searchValue = "");
+
         IQueryable<AdjustMentReportRequest> GetAll();
 
         AdjustMentReportRequest GetById(int Id);

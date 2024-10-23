@@ -2,9 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using PnP.Framework.Extensions;
 using TDSGCellFormat.Common;
+using TDSGCellFormat.Extensions;
 using TDSGCellFormat.Interface.Repository;
 using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
+using TDSGCellFormat.Models.View;
 using static TDSGCellFormat.Common.Enums;
 
 namespace TDSGCellFormat.Implementation.Repository
@@ -12,11 +14,31 @@ namespace TDSGCellFormat.Implementation.Repository
     public class AdjustMentReportRepository : BaseRepository<AdjustmentReport>, IAdjustMentReportRepository
     {
         private readonly TdsgCellFormatDivisionContext _context;
+        private readonly ISprocRepository _sprocRepository;
 
         public AdjustMentReportRepository(TdsgCellFormatDivisionContext context)
             : base(context)
         {
+            _sprocRepository = new SprocRepository(context);
             this._context = context;
+        }
+
+        public async Task<AjaxResult> GetAllAdjustmentData(
+         int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "", string searchValue = "")
+        {
+            var result = new AjaxResult();
+
+            result.ReturnValue = await _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAllAdjustMentReportData]")
+                 .WithSqlParams(
+                        ("@CreatedBy", createdBy),
+                        ("@PageIndex", pageIndex),
+                        ("@PageSize", pageSize),
+                        ("@SortColumn", sortColumn),
+                        ("@Order", orderBy),
+                        ("@Where", searchValue)
+                ).ExecuteStoredProcedureAsync<AdjustmentReportView>();
+
+            return result;
         }
 
         public IQueryable<AdjustMentReportRequest> GetAll()
@@ -149,13 +171,16 @@ namespace TDSGCellFormat.Implementation.Repository
             var existingReport = await _context.AdjustmentReports.FindAsync(request.AdjustMentReportId);
             if (existingReport == null)
             {
+                var adjustmentReportNo = await GenerateAdjustmentReportNumberAsync();
                 var newReport = new AdjustmentReport()
                 {
                     Area = request.Area,
                     MachineName = request.MachineName,
                     SubMachineName = request.SubMachineName != null && request.SubMachineName.Count > 0 ? string.Join(",", request.SubMachineName) : "",
+                    ReportNo = adjustmentReportNo.ToString(),
                     RequestBy = request.RequestBy,
                     CheckedBy = request.CheckedBy,
+                    EmployeeId = request.EmployeeId,
                     DescribeProblem = request.DescribeProblem,
                     Observation = request.Observation,
                     RootCause = request.RootCause,
@@ -173,13 +198,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 // Get ID of newly added record
                 adjustMentReportId = newReport.AdjustMentReportId;
-
-                var paramAdjustMentReportId = new Microsoft.Data.SqlClient.SqlParameter("@AdjustmentReportId", adjustMentReportId);
-                await _context.Set<TroubleReportNumberResult>()
-                               .FromSqlRaw("EXEC [dbo].[SPP_GenerateAdjustmentReportNumber] @AdjustmentReportId", paramAdjustMentReportId)
-                               .ToListAsync();
-
-                var adjustmentReportNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == adjustMentReportId && x.IsDeleted == false).Select(x => x.ReportNo).FirstOrDefault();
 
                 if (request.ChangeRiskManagement_AdjustmentReport != null)
                 {
@@ -230,6 +248,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.Area = request.Area;
                 existingReport.MachineName = request.MachineName;
                 existingReport.SubMachineName = request.SubMachineName != null && request.SubMachineName.Count > 0 ? string.Join(",", request.SubMachineName) : "";
+                existingReport.EmployeeId = request.EmployeeId;
                 existingReport.RequestBy = request.RequestBy;
                 existingReport.CheckedBy = request.CheckedBy;
                 existingReport.DescribeProblem = request.DescribeProblem;
@@ -311,6 +330,39 @@ namespace TDSGCellFormat.Implementation.Repository
             }
 
             return res;
+        }
+
+        public async Task<string> GenerateAdjustmentReportNumberAsync()
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Get the maximum number where ReportNo starts with 'ADJUST'
+                var maxReportNo = await _context.AdjustmentReports
+                    .Where(ar => ar.ReportNo.StartsWith("ADJUST"))
+                    .Select(ar => ar.ReportNo.Substring(ar.ReportNo.Length - 3))
+                    .Select(num => !string.IsNullOrEmpty(num) ? int.Parse(num) : 0)
+                    .DefaultIfEmpty(0)
+                    .MaxAsync();
+
+                // Increment the number
+                var nextNumber = maxReportNo + 1;
+
+                // Generate the new Adjustment Number
+                var newAdjustmentNo = $"ADJUST-{nextNumber:D3}";
+
+                // Commit the transaction without updating the ReportNo
+                await transaction.CommitAsync();
+
+                // Return the generated adjustment number without saving it to the database
+                return newAdjustmentNo;
+            }
+            catch
+            {
+                // Rollback in case of an error
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<AjaxResult> DeleteReport(int Id)
