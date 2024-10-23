@@ -130,7 +130,9 @@ namespace TDSGCellFormat.Common
             ReviewDeclined = 24,
             UnderApproval = 25,
             ReOpen =26,
-            W1Completed = 27
+            W1Completed = 27,
+            ToshibaTechnicalReview = 28,
+            UnderToshibaApproval = 29,
 
         }
         public enum FormType
