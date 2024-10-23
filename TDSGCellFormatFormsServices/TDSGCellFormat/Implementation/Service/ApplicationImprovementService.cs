@@ -72,5 +72,10 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return await _applicationRepo.GetEquipmentWorkFlowData(equipmentId);
         }
+
+        public ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId)
+        {
+            return _applicationRepo.GetCurrentApproverTask(equipmentId, userId);
+        }
     }
 }

@@ -19,6 +19,8 @@ namespace TDSGCellFormat.Interface.Repository
 
         EquipmentApprovalData GetEquipmentTargetDate(int equipmentId, bool toshibaDiscussion);
         Task<List<EquipmentApproverTaskMasterAdd>> GetEquipmentWorkFlowData(int equipmentId);
+
+        ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId);
     }
 
 }
