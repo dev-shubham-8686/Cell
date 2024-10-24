@@ -10,15 +10,15 @@ export interface IApproveAskToAmendPayload {
   Type: 1 | 3; // 1 for Approve and 3 for Ask to Amend
   Comment: string;
   EquipmentId: number;
-  EquipmentApprovalData?: IEquipmentApprovalData;
+  EquipmentApprovalData?: ITargetData;
 }
 
-export interface IEquipmentApprovalData {
+export interface ITargetData {
+  EquipmentId?:number;
   IsToshibaDiscussion?: boolean;
   TargetDate?: string;
   Comment?: string;
   AdvisorId?: number;
-  EquipmentId?:number;
 }
 
 const ApproveAskToAmmend = async (payload: IApproveAskToAmendPayload) => {
@@ -26,13 +26,13 @@ const ApproveAskToAmmend = async (payload: IApproveAskToAmendPayload) => {
   const config: ICustomAxiosConfig = {
     SHOW_NOTIFICATION: true,
   };
-debugger
+
   const response = await http.post<string>(
     GET_APPROVE_ASK_TO_AMMEND,
     payload,
     config
   );
-  debugger
+  
   return response.data;
 };
 

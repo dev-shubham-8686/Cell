@@ -22,6 +22,8 @@ export interface IUser {
   costCenter: string;
   cMRoleId: number;
   isDivHeadUser: boolean;
+  isQcTeamHead:boolean;
+  isQcTeamUser:boolean;
   isAdmin: boolean;
   isAdminId: number;
 }
@@ -43,12 +45,12 @@ export const UserProvider: React.FC<IUserProvider> = ({
   // const isLoading=false
   // const data=[]
    const {data,isLoading } = useUser(
-    //userEmail
-    
+    // userEmail
 // "BSankhat@synoptek_11111.com"    
 // "Ebrahim@synopsandbox.onmicrosoft.com"
+"j@synoptek.com"
     // "jinal.panchal@synopsandbox.onmicrosoft.com"
-    "tdivan@synoptek.com"
+    // "tdivan@synoptek.com"
     // "esakir@synoptek.com"
     // "diparmar@synoptek.com"
   );

@@ -10,20 +10,21 @@ export interface IApproverTask {
     seqNumber?:number;
   }
 
-const getCurrentApproverData = async (materialConsumptionId?: number,userId?: number) => {
-  if (!userId || !materialConsumptionId) return undefined;
-
+const getCurrentApproverData = async (equipmentId?: number,userId?: number) => {
+  if (!userId || !equipmentId) return undefined;
+  
   const response = await http.get<{
     ReturnValue: IApproverTask;
-  }>(GET_CURRENT_APPROVER_DATA, { params: {materialConsumptionId,userId } });
+  }>(GET_CURRENT_APPROVER_DATA, { params: {equipmentId,userId } });
   console.log("CURRENT APPROVER DATA RESPONSE",response)
+  
   return response.data.ReturnValue;
 };
 
-const useGetCurrentApproverData = (materialConsumptionId?: number,userId?: number) =>
+const useGetCurrentApproverData = (equipmentId?: number,userId?: number) =>
   useQuery<IApproverTask | undefined>({
-    queryKey: ["get-current-approver-data", {materialConsumptionId,userId}],
-    queryFn: () => getCurrentApproverData(materialConsumptionId,userId),
+    queryKey: ["get-current-approver-data", {equipmentId,userId}],
+    queryFn: () => getCurrentApproverData(equipmentId,userId),
     cacheTime: 0,
   });
 

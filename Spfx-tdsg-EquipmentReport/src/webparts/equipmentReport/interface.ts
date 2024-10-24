@@ -1,24 +1,6 @@
 import { AxiosRequestConfig } from "axios";
 
-export interface IUser {
-  employeeId: number;
-  departmentId: number;
-  departmentName: string;
-  divisionId: number;
-  divisionName: string;
-  employeeCode: number;
-  employeeName: string;
-  email: string;
-  empDesignation: string;
-  mobileNo: string;
-  departmentHeadEmpId: number;
-  divisionHeadEmpId: number;
-  costCenter: string;
-  cMRoleId: number;
-  isDivHeadUser: boolean;
-  isAdmin: boolean;
-  isAdminId: number;
-}
+
 
 export  interface IEquipmentImprovementReport {
   EquipmentImprovementId?:number;
@@ -44,6 +26,10 @@ export  interface IEquipmentImprovementReport {
   EquipmentCurrSituationAttachmentDetails:ICurrentSituationAttachments[];
   EquipmentImprovementAttachmentDetails:IImprovementAttachments[];
   ChangeRiskManagementDetails:IChangeRiskData[];
+  ToshibaApprovalRequired?:boolean;
+  ToshibaApprovalTargetDate?:Date;
+  ToshibaDiscussionTargetDate?:Date;
+  ToshibaTeamDiscussion?:boolean;
   // attachment: File;
 }
 
@@ -66,7 +52,7 @@ export interface IImprovementAttachments{
 export interface IChangeRiskData {
   key:number;
   Changes: string;
-  FunctionId : number;
+  FunctionId : string;
   RiskAssociated : string;
   Factor : string;
   CounterMeasures : string;

@@ -81,9 +81,9 @@ const currentApprover = useGetCurrentApproverData(
             Back
           </button>
           <div className=" justify-content-right mr-50">
-            <WorkFlowButtons currentApproverTask={null}
-            sectionHeadId={equipmentReport?.data?.SectionHeadId}
-            advisorId={equipmentReport?.data?.AdvisorId}  />
+            <WorkFlowButtons currentApproverTask={currentApprover?.data}
+            eqReport={equipmentReport?.data}
+            isTargetDateSet={equipmentReport?.data?.ToshibaApprovalRequired ||equipmentReport?.data?.ToshibaTeamDiscussion } />
           </div>
         </div>
 

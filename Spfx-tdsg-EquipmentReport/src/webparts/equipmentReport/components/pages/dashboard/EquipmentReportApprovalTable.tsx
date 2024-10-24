@@ -177,7 +177,7 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
   ];
   
   return (
-    <Table columns={columns} paginationRequired={true} url="/api/EquipmentImprovement/EqupimentList" />
+    <Table columns={columns} paginationRequired={true} url="/api/EquipmentImprovement/EqupimentApproverList" />
   )
 }
 

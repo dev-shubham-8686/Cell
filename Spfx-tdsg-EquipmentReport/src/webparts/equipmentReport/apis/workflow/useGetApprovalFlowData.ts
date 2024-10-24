@@ -6,12 +6,12 @@ import http from "../../http";
 
 const getApproverFlowData = async (id?: number) => {
   if (!id) return undefined;
-debugger
+
   const response = await http.get<{
     ReturnValue: IWorkflowDetail[];
   }>(GET_APPROVER_FLOW_DATA, { params: {equipmentId: id } });
   console.log("Approval Flow Data RESPONSE",response)
-  debugger
+  
   return response.data.ReturnValue;
 };
 
