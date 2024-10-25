@@ -10,6 +10,8 @@ using System.Data;
 
 using Microsoft.Graph.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
+using PnP.Framework.Extensions;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -76,20 +78,21 @@ namespace TDSGCellFormat.Implementation.Repository
                 ImprovementName = res.ImprovementName,
                 CurrentSituation = res.CurrentSituation,
                 Improvement = res.Imrovement,
-               // TargetDate = res.TargetDate.HasValue ? res.TargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
-               // ActualDate = res.ActualDate.HasValue ? res.ActualDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
-               // ResultStatus = res.ResultStatus,
+                // TargetDate = res.TargetDate.HasValue ? res.TargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                // ActualDate = res.ActualDate.HasValue ? res.ActualDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                // ResultStatus = res.ResultStatus,
                 // PcrnDocName = res.PCRNDocName,
                 // PcrnFilePath = res.PCRNDocFilePath,
                 AdvisorId = _context.EquipmentAdvisorMasters.Where(x => x.EquipmentImprovementId == Id && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(),
                 Status = res.Status,
                 CreatedDate = res.CreatedDate,
                 CreatedBy = res.CreatedBy,
-                IsSubmit = res.IsSubmit, 
+                IsSubmit = res.IsSubmit,
                 ToshibaApprovalRequired = res.ToshibaApprovalRequired,
                 ToshibaApprovalTargetDate = res.ToshibaApprovalTargetDate.HasValue ? res.ToshibaApprovalTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
-                ToshibaTeamDiscussion = res.ToshibaTeamDiscussion, 
+                ToshibaTeamDiscussion = res.ToshibaTeamDiscussion,
                 ToshibaDiscussionTargetDate = res.ToshibaDiscussionTargetDate.HasValue ? res.ToshibaDiscussionTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                IsPcrnRequired = res.IsPcrnRequired
                 // Add other properties as needed
             };
 
@@ -124,7 +127,7 @@ namespace TDSGCellFormat.Implementation.Repository
             }
 
             var equipmentImprovementAttach = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == Id && x.IsDeleted == false).ToList();
-            if (equipmentCurrAttach != null)
+            if (equipmentImprovementAttach != null)
             {
                 applicationData.EquipmentImprovementAttachmentDetails = equipmentImprovementAttach.Select(attach => new EquipmentImprovementAttachData
                 {
@@ -133,6 +136,28 @@ namespace TDSGCellFormat.Implementation.Repository
                     ImprovementDocFilePath = attach.ImprovementDocFilePath
                 }).ToList();
             }
+
+            var pcrnAttachment = _context.EquipmentPCRNAttachments.Where(x => x.EquipmentImprovementId == Id && x.IsDeleted == false).FirstOrDefault();
+            if(pcrnAttachment != null)
+            {
+                applicationData.PcrnAttachments = new PcrnAttachment
+                {
+                    PcrnAttachmentId = pcrnAttachment.PCRNId,
+                    EquipmentImprovementId = pcrnAttachment.EquipmentImprovementId,
+                    PcrnDocName = pcrnAttachment.PCRNDocFileName,
+                    PcrnFilePath = pcrnAttachment.PCRNDocFileName,
+                    IsDeleted = pcrnAttachment.IsDeleted 
+                };
+            }
+
+            applicationData.ResultAfterImplementation = new ResultAfterImplementation
+            {
+                TargetDate = res.TargetDate.HasValue ? res.TargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                ActualDate = res.ActualDate.HasValue ? res.ActualDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                ResultStatus = res.ResultStatus,
+                IsResultSubmit = res.IsResultSubmit
+            };
+
 
             return applicationData;
         }
@@ -494,6 +519,46 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                         await _context.SaveChangesAsync();
                     }
+                }
+
+                if (report.PcrnAttachments != null)
+                {
+                    var pcrndata = report.PcrnAttachments;
+                    var existingPcrn = _context.EquipmentPCRNAttachments.Where(x => x.PCRNId == pcrndata.PcrnAttachmentId && x.IsDeleted == false && x.EquipmentImprovementId == existingReport.EquipmentImprovementId).FirstOrDefault();
+                    if (existingPcrn != null) 
+                    {
+                        existingPcrn.PCRNDocFileName = pcrndata.PcrnDocName;
+                        existingPcrn.PCRNDocFilePath = pcrndata.PcrnFilePath;
+                        existingPcrn.ModifiedDate = DateTime.Now;
+                        existingPcrn.ModifiedBy = report.ModifiedBy;
+                        existingPcrn.IsDeleted = pcrndata.IsDeleted;
+                        existingReport.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                        await _context.SaveChangesAsync();
+
+                        var qcTeamData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == existingReport.EquipmentImprovementId && x.IsActive == true && x.SequenceNo == 5 && x.WorkFlowlevel == 1).FirstOrDefault();
+                        qcTeamData.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        var pcrn = new EquipmentPCRNAttachment();
+                        pcrn.EquipmentImprovementId = existingReport.EquipmentImprovementId;
+                        pcrn.PCRNDocFileName = pcrndata.PcrnDocName;
+                        pcrn.PCRNDocFilePath = pcrndata.PcrnFilePath;
+                        pcrn.ModifiedDate = DateTime.Now;
+                        pcrn.ModifiedBy = report.ModifiedBy;
+                        pcrn.CreatedDate = DateTime.Now;
+                        pcrn.CreatedBy = report.ModifiedBy;
+                        pcrn.IsDeleted = false;
+                        existingReport.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                        _context.EquipmentPCRNAttachments.Add(pcrn);
+                        await _context.SaveChangesAsync();
+
+                        var qcTeamData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == existingReport.EquipmentImprovementId && x.IsActive == true && x.SequenceNo == 5 && x.WorkFlowlevel == 1).FirstOrDefault();
+                        qcTeamData.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                        await _context.SaveChangesAsync();
+                    }
+
                 }
 
                 res.ReturnValue = new
@@ -866,26 +931,25 @@ namespace TDSGCellFormat.Implementation.Repository
                         else
                         {
                             equipment.ToshibaApprovalRequired = true;
-                            equipment.ToshibaApprovalComment = approvalData.comment;
+                            equipment.ToshibaApprovalComment = approvalData.Comment;
                             equipment.ToshibaApprovalTargetDate = !string.IsNullOrEmpty(approvalData.TargetDate) ? DateTime.Parse(approvalData.TargetDate) : (DateTime?)null;
                             equipment.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                            equipmentData.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                            equipment.IsPcrnRequired = approvalData.IsPcrnRequired;
+
+                            //if pcrnpending then changes the status accordingly 
+                            if(approvalData.IsPcrnRequired == true)
+                            {
+                                equipment.IsSubmit = false;
+                                equipment.Status = ApprovalTaskStatus.PCRNPending.ToString();
+                                equipmentData.Status = ApprovalTaskStatus.PCRNPending.ToString();
+                                await _context.SaveChangesAsync();
+                            }
                             await _context.SaveChangesAsync();
 
-                            //call the store procedure for next task 
-                            _context.CallEquipmentApproverMaterix(data.CurrentUserId, equipment.EquipmentImprovementId);
                         }
 
                     }
-
-                    // equipment.Status = ApprovalTaskStatus.UnderAmendment.ToString();
-                    // equipment.WorkFlowStatus = ApprovalTaskStatus.UnderAmendment.ToString();
-                    // _context.SaveChangesAsync();
-
-                    // InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, requestTaskData.Comments, requestTaskData.Status, Convert.ToInt32(requestTaskData.ModifiedBy), ApprovalTaskStatus.UnderAmendment.ToString(), 0);
-                    //
-                    // var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    // await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Amended, comment, ApproverTaskId);
-                    //equipmentData.WorkFlowSta = ApprovalTaskStatus.Reject.ToString();
 
                     var currentApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsActive == true
                                                && x.ApproverTaskId == data.ApproverTaskId && x.Status == ApprovalTaskStatus.Approved.ToString()).FirstOrDefault();
@@ -911,9 +975,19 @@ namespace TDSGCellFormat.Implementation.Repository
                             var equipmentForm = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false && x.IsDeleted == false).FirstOrDefault();
                             if (equipmentForm != null)
                             {
-                                equipmentForm.Status = ApprovalTaskStatus.Completed.ToString();
-                                equipmentForm.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
-                                await _context.SaveChangesAsync();
+                                if(equipmentForm.WorkFlowLevel == 1)
+                                {
+                                    equipmentForm.Status = ApprovalTaskStatus.Approved.ToString();
+                                    equipmentForm.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
+                                    await _context.SaveChangesAsync();
+                                }
+                                else
+                                {
+                                    equipmentForm.Status = ApprovalTaskStatus.Completed.ToString();
+                                    equipmentForm.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
+                                    await _context.SaveChangesAsync();
+                                }
+                                
                                 //await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Completed, null, 0);
                             }
                         }
@@ -943,7 +1017,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.ToshibaTeamDiscussion = true;
                     equipment.ToshibaDiscussionTargetDate = !string.IsNullOrEmpty(data.TargetDate) ? DateTime.Parse(data.TargetDate) : (DateTime?)null;
                     equipment.Status = ApprovalTaskStatus.ToshibaTechnicalReview.ToString();
-                    equipment.ToshibaDicussionComment = data.comment;
+                    equipment.ToshibaDicussionComment = data.Comment;
                     await _context.SaveChangesAsync();
                 }
                 else
@@ -951,7 +1025,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.ToshibaApprovalRequired = true;
                     equipment.ToshibaApprovalTargetDate = !string.IsNullOrEmpty(data.TargetDate) ? DateTime.Parse(data.TargetDate) : (DateTime?)null; ;
                     //equipment.Status = ApprovalTaskStatus.ToshibaTechnicalReview.ToString();
-                    equipment.ToshibaApprovalComment = data.comment;
+                    equipment.ToshibaApprovalComment = data.Comment;
                     await _context.SaveChangesAsync();
                 }
                 res.Message = Enums.EquipmentDateUpdate;
