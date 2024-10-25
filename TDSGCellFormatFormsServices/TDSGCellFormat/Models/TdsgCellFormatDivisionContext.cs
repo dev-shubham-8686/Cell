@@ -132,6 +132,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         modelBuilder.Entity<MaterialConsumptionApproverTaskMasterAdd>().HasNoKey();
         modelBuilder.Entity<EquipmentApproverTaskMasterAdd>().HasNoKey();
         modelBuilder.Entity<EquipmentImprovementView>().HasNoKey();
+        modelBuilder.Entity<EquipmentImprovementApproverView>().HasNoKey();
         modelBuilder.Entity<MaterialConsumptionListView>().HasNoKey();
         //JsonDataSet
         modelBuilder.Entity<JsonDataSet>().HasNoKey();
@@ -440,7 +441,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
             .ToListAsync();
     }
 
-    public async Task<List<EquipmentImprovementView>> GetEquipmentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+    public async Task<List<EquipmentImprovementApproverView>> GetEquipmentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
     {
         var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@createdOne", createdBy);
         var skipParam = new Microsoft.Data.SqlClient.SqlParameter("@skip", skip);
@@ -450,7 +451,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         var columnParam = new Microsoft.Data.SqlClient.SqlParameter("@searchColumn", searchColumn ?? string.Empty);
         var valueParam = new Microsoft.Data.SqlClient.SqlParameter("@searchValue", searchValue ?? string.Empty);
 
-        return await this.Set<EquipmentImprovementView>()
+        return await this.Set<EquipmentImprovementApproverView>()
             .FromSqlRaw("EXEC GetEquipmentImprovementApplicationApproverList @createdOne,@skip,@take,@order,@orderBy,@searchColumn,@searchValue", createdParam, skipParam, takeParam, orderParam, orderByParam, columnParam, valueParam)
             .ToListAsync();
     }
