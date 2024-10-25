@@ -7,7 +7,7 @@ import http from "../../http";
 export interface IApproveAskToAmendPayload {
   ApproverTaskId: number;
   CurrentUserId: number;
-  Type: 1 | 3; // 1 for Approve and 3 for Ask to Amend
+  Type: 1 |2| 3; // 1 for Approve, 2 for Reject and 3 for Ask to Amend
   Comment: string;
   EquipmentId: number;
   EquipmentApprovalData?: ITargetData;
@@ -17,6 +17,7 @@ export interface ITargetData {
   EquipmentId?:number;
   IsToshibaDiscussion?: boolean;
   TargetDate?: string;
+  IsPcrnRequired?:boolean;
   Comment?: string;
   AdvisorId?: number;
 }

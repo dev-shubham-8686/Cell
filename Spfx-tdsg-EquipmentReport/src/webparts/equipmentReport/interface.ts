@@ -15,7 +15,9 @@ export  interface IEquipmentImprovementReport {
   Improvement: string;
   SectionId:string;
   IsSubmit:boolean;
+  isAmendReSubmitTask?:boolean,
   TargetDate:string;
+  Status?:String;
   ActualDate:string;
   CreatedDate:string;
   CreatedBy:number;
@@ -30,6 +32,7 @@ export  interface IEquipmentImprovementReport {
   ToshibaApprovalTargetDate?:Date;
   ToshibaDiscussionTargetDate?:Date;
   ToshibaTeamDiscussion?:boolean;
+  IsPcrnRequired?:boolean
   // attachment: File;
 }
 

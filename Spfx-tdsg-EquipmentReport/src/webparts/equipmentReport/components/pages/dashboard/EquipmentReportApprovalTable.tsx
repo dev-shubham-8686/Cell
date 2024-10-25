@@ -152,7 +152,6 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
           >
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
-
           {false && (
             <button
               type="button"

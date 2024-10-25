@@ -10,10 +10,11 @@ import useApproveAskToAmmend, {
   IApproveAskToAmendPayload,
   ITargetData,
 } from "../../apis/workflow/useApproveAskToAmmend";
-import { DATE_FORMAT } from "../../GLOBAL_CONSTANT";
+import { DATE_FORMAT, REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
 import dayjs from "dayjs";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import useAddOrUpdateTargetDate from "../../apis/workflow/useAddorUpdateTargetDate";
-
+dayjs.extend(isSameOrBefore);
 export interface IApproverTask {
   approverTaskId: number;
   status: string; //this will mostly be InReview
@@ -28,14 +29,14 @@ export interface IPullBack {
 export interface IWorkFlowProps {
   currentApproverTask: IApproverTask;
   eqReport?: IEquipmentImprovementReport;
-  isTargetDateSet?:boolean
+  isTargetDateSet?: boolean;
 }
 const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   currentApproverTask,
   eqReport,
-  isTargetDateSet
+  isTargetDateSet,
 }) => {
-  const user:IUser = useContext(UserContext);
+  const user: IUser = useContext(UserContext);
   const { id, mode } = useParams();
   const { confirm } = Modal;
   const navigate = useNavigate();
@@ -50,63 +51,108 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const [toshibaApproval, settoshibaApproval] = useState(false);
   const [toshibaDiscussion, settoshibaDiscussion] = useState(false);
   const [advisorRequired, setadvisorRequired] = useState(false);
-  const { mutate: approveAskToAmmend ,isLoading:approvingRequest } = useApproveAskToAmmend(
-    id ? parseInt(id) : undefined,
-    user.employeeId
+  const { mutate: approveAskToAmmend, isLoading: approvingRequest } =
+    useApproveAskToAmmend(id ? parseInt(id) : undefined, user.employeeId);
+  const { mutate: addOrUpdateTargetDate } = useAddOrUpdateTargetDate();
+  const isToshibaDiscussionTargetDatePast =
+    eqReport?.ToshibaDiscussionTargetDate
+      ? dayjs(eqReport?.ToshibaDiscussionTargetDate).isSameOrBefore(
+          dayjs(),
+          "day"
+        )
+      : false;
+  console.log(
+    "isToshibaDiscussionTargetDatePast",
+    isToshibaDiscussionTargetDatePast,
+    eqReport?.ToshibaDiscussionTargetDate,
+    (dayjs(), "day")
   );
-  const { mutate: addOrUpdateTargetDate  } = useAddOrUpdateTargetDate();
-  const isToshibaDiscussionTargetDatePast = eqReport?.ToshibaDiscussionTargetDate
-  ? dayjs(eqReport?.ToshibaDiscussionTargetDate).isAfter(dayjs(), 'day') // Compare with current date
-  : false;
-console.log("isToshibaDiscussionTargetDatePast",isToshibaDiscussionTargetDatePast)
-const isToshibaApprovalTargetDatePast = eqReport?.ToshibaApprovalTargetDate
-  ? dayjs(eqReport?.ToshibaApprovalTargetDate).isAfter(dayjs(), 'day') // Compare with current date
-  : false;
-  console.log("isToshibaDiscussionTargetDatePast",isToshibaDiscussionTargetDatePast)
+  const isToshibaApprovalTargetDatePast = eqReport?.ToshibaApprovalTargetDate
+    ? dayjs(eqReport?.ToshibaApprovalTargetDate).isSameOrBefore(dayjs(), "day") // Compare with current date
+    : false;
+  console.log(
+    "isToshibaDiscussionTargetDatePast",
+    isToshibaDiscussionTargetDatePast
+  );
   const handleToshibaReview = () => {
     setIsModalVisible(true);
+  };
+
+  const onRejectHandler = async (
+    actionType: 2,
+    comment: string
+  ): Promise<void> => {
+    try {
+      const payload: IApproveAskToAmendPayload = {
+        ApproverTaskId: currentApproverTask?.approverTaskId ?? 0,
+        CurrentUserId: user.employeeId,
+        Type: actionType ?? null,
+        Comment: comment,
+        EquipmentId: parseInt(id),
+        EquipmentApprovalData: null,
+      };
+      approveAskToAmmend(payload, {
+        onSuccess: (Response) => {
+          console.log("RejectResponse: ", Response);
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+        },
+
+        onError: (error) => {
+          console.error("Export error:", error);
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const onApproveAmendHandler = async (
     actionType: 1 | 3,
     comment: string,
     targetDate?: Date,
-    advisorId?: number
+    advisorId?: number,
+    pcrnAttachmentsRequired?:boolean
   ): Promise<void> => {
     try {
-      
       const payload: IApproveAskToAmendPayload = {
-        ApproverTaskId: currentApproverTask?.approverTaskId??0,
+        ApproverTaskId: currentApproverTask?.approverTaskId ?? 0,
         CurrentUserId: user.employeeId,
         Type: actionType ?? null,
         Comment: comment,
         EquipmentId: parseInt(id),
-        EquipmentApprovalData: (targetDate || advisorId)?{}:null,
+        EquipmentApprovalData: toshibaApproval || advisorId ? {} : null,
       };
-      
-      if (targetDate || advisorId) {
-        payload.EquipmentApprovalData.TargetDate = targetDate?
-          dayjs(targetDate).format(DATE_FORMAT) : null,
-          payload.EquipmentApprovalData.EquipmentId=parseInt(id),
+
+      if (toshibaApproval || advisorId) {
+        (payload.EquipmentApprovalData.TargetDate = targetDate
+          ? dayjs(targetDate).format(DATE_FORMAT)
+          : null),
+          (payload.EquipmentApprovalData.IsPcrnRequired=pcrnAttachmentsRequired),
+          (payload.EquipmentApprovalData.IsToshibaDiscussion=false),
+          (payload.EquipmentApprovalData.EquipmentId = parseInt(id)),
           (payload.EquipmentApprovalData.AdvisorId = advisorId ?? 0);
       }
-      
-      approveAskToAmmend(payload,{
+
+      approveAskToAmmend(payload, {
         onSuccess: (Response) => {
-          
           console.log("ask to ammend / approve  Response: ", Response);
-          navigate("/",{
+          navigate("/", {
             state: {
               currentTabState: "myapproval-tab",
-            }});
+            },
+          });
         },
-        
+
         onError: (error) => {
           console.error("Export error:", error);
         },
-  
-      })
-      console.log("Approved ", payload);
+      });
+      
+      console.log("Approved Payload ", payload);
     } catch (error) {
       console.error(error);
     }
@@ -119,14 +165,14 @@ const isToshibaApprovalTargetDatePast = eqReport?.ToshibaApprovalTargetDate
   ): Promise<void> => {
     try {
       const payload: ITargetData = {
-        EquipmentId:parseInt(id),
+        EquipmentId: parseInt(id),
         IsToshibaDiscussion: true,
         TargetDate: dayjs(targetDate).format(DATE_FORMAT) ?? null,
         Comment: comment,
         AdvisorId: 0,
       };
-      
-       addOrUpdateTargetDate(payload)
+
+      addOrUpdateTargetDate(payload);
       console.log("Approved ", payload);
     } catch (error) {
       console.error(error);
@@ -175,22 +221,22 @@ const isToshibaApprovalTargetDatePast = eqReport?.ToshibaApprovalTargetDate
   }, []);
 
   useEffect(() => {
-    
     setShowWorkflowBtns(
-     ( currentApproverTask?.approverTaskId &&
-        currentApproverTask?.approverTaskId !== 0)?true:false
+      currentApproverTask?.approverTaskId &&
+        currentApproverTask?.approverTaskId !== 0
+        ? true
+        : false
     );
-    
-  }, [currentApproverTask,eqReport,isModalVisible]);
+  }, [currentApproverTask, eqReport, isModalVisible]);
 
   const openCommentsPopup = (
     actionType: WorkflowActionType,
-    toshibaDiscussion?:boolean,
+    toshibaDiscussion?: boolean,
     toshibaRequired?: boolean,
     advisorRequired?: boolean
   ): void => {
     setShowModal(true);
-    settoshibaDiscussion(toshibaDiscussion)
+    settoshibaDiscussion(toshibaDiscussion);
     settoshibaApproval(toshibaRequired);
     setadvisorRequired(advisorRequired);
     setClickedAction(actionType);
@@ -198,15 +244,19 @@ const isToshibaApprovalTargetDatePast = eqReport?.ToshibaApprovalTargetDate
   type WorkflowActionType = keyof typeof WORKFLOW_ACTIONS;
 
   const WORKFLOW_ACTIONS = {
-    Approve: (comment: string, targetDate: Date, advisorId: number) =>
-      onApproveAmendHandler(1, comment, targetDate, advisorId),
-    Amendment: (comment: string, targetDate: Date) =>
-      onApproveAmendHandler(3, comment, targetDate),
+    Approve: (comment: string, targetDate: Date, advisorId: number,pcrnAttachmentsRequired:boolean) =>
+      onApproveAmendHandler(1, comment, targetDate, advisorId,pcrnAttachmentsRequired),
+    Reject: (comment: string) => onRejectHandler(2, comment),
+    Amendment: (comment: string) =>
+      onApproveAmendHandler(3, comment),
     PullBack: (comment: string) => onPullbackHandler(comment),
-    AddUpdateTargetDate: (comment: string, targetDate: Date , isToshibaDiscussion) =>
-      onAddUpdateTargetDate(isToshibaDiscussion, targetDate, comment),
+    AddUpdateTargetDate: (
+      comment: string,
+      targetDate: Date,
+      isToshibaDiscussion
+    ) => onAddUpdateTargetDate(isToshibaDiscussion, targetDate, comment),
   };
-  console.log("Buttons",currentApproverTask??[],isApproverRequest??null)
+  console.log("Buttons", currentApproverTask ?? [], isApproverRequest ?? null);
   return (
     <>
       <div className="d-flex gap-3 justify-content-end">
@@ -215,10 +265,20 @@ const isToshibaApprovalTargetDatePast = eqReport?.ToshibaApprovalTargetDate
             height: "35px",
           }}
         />
-        {console.log("COndition",showWorkflowBtns,approverRequest)}
-        {(showWorkflowBtns && approverRequest && isToshibaDiscussionTargetDatePast && isToshibaApprovalTargetDatePast )? (
+        {console.log(
+          "COndition",
+          showWorkflowBtns,
+          approverRequest,
+          !isToshibaDiscussionTargetDatePast,
+          !isToshibaApprovalTargetDatePast
+        )}
+        {showWorkflowBtns && approverRequest ? (
           <>
             <button
+              disabled={
+                isToshibaDiscussionTargetDatePast ||
+                isToshibaApprovalTargetDatePast
+              }
               className="btn btn-primary"
               onClick={() => {
                 if (user?.isQcTeamHead) {
@@ -234,16 +294,16 @@ const isToshibaApprovalTargetDatePast = eqReport?.ToshibaApprovalTargetDate
                     cancelText: "No",
                     cancelButtonProps: { className: "btn-outline-primary" },
                     onOk() {
-                      openCommentsPopup("Approve",null, true);
+                      openCommentsPopup("Approve", false, true, false);
                     },
                     onCancel() {
-                      openCommentsPopup("Approve", null,false);
+                      openCommentsPopup("Approve", false, false, false);
                     },
                   });
-                } else if (user?.employeeId==eqReport?.SectionHeadId) {
-                  openCommentsPopup("Approve",null, null, true);
+                } else if (user?.employeeId == eqReport?.SectionHeadId) {
+                  openCommentsPopup("Approve", false, false, true);
                 } else {
-                  openCommentsPopup("Approve",null,false);
+                  openCommentsPopup("Approve", false, false, false);
                 }
                 setsubmitbuttontext("Approve");
               }}
@@ -252,19 +312,36 @@ const isToshibaApprovalTargetDatePast = eqReport?.ToshibaApprovalTargetDate
             </button>
 
             <button
+              disabled={
+                isToshibaDiscussionTargetDatePast ||
+                isToshibaApprovalTargetDatePast
+              }
               className="btn btn-primary"
               onClick={() => {
-                openCommentsPopup("Amendment", false);
+                openCommentsPopup("Amendment", false, false, false);
                 setsubmitbuttontext("Ask to Amend");
               }}
             >
               Ask to Amend
             </button>
+            <button
+              disabled={
+                isToshibaDiscussionTargetDatePast ||
+                isToshibaApprovalTargetDatePast
+              }
+              className="btn btn-primary"
+              onClick={() => {
+                openCommentsPopup("Reject", false, false, false);
+                setsubmitbuttontext("Reject");
+              }}
+            >
+              Reject
+            </button>
           </>
         ) : (
           <></>
         )}
-        { eqReport?.IsSubmit && eqReport?.CreatedBy==user.employeeId ? (
+        {(eqReport?.IsSubmit && eqReport?.CreatedBy == user.employeeId&&eqReport.Status!=REQUEST_STATUS.UnderAmendment) ? (
           <button
             className="btn btn-primary"
             onClick={() => {
@@ -277,34 +354,36 @@ const isToshibaApprovalTargetDatePast = eqReport?.ToshibaApprovalTargetDate
         ) : (
           <></>
         )}
-        {user.employeeId==eqReport?.AdvisorId && !isTargetDateSet && (
+        {user.employeeId == eqReport?.AdvisorId && !isTargetDateSet && showWorkflowBtns && (
           <button
             className="btn btn-primary"
             type="button"
             onClick={() => {
-              openCommentsPopup("AddUpdateTargetDate",null,true, true);
+              openCommentsPopup("AddUpdateTargetDate", true, true, false);
               handleToshibaReview();
             }}
           >
             Toshiba Team Discussion
           </button>
         )}
-        {(user.employeeId==eqReport?.AdvisorId||user.isQcTeamHead) &&isTargetDateSet && (
-          <button
-            className="btn btn-primary"
-            type="button"
-            onClick={() => {
-              openCommentsPopup("AddUpdateTargetDate",null, true);
-              handleToshibaReview();
-            }}
-          >
-            Update target Date
-          </button>
-        )}
+        {(user.employeeId == eqReport?.AdvisorId || user.isQcTeamHead) &&
+          isTargetDateSet && (
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={() => {
+                openCommentsPopup("AddUpdateTargetDate", null, true);
+                handleToshibaReview();
+              }}
+            >
+              Update target Date
+            </button>
+          )}
         <TextBoxModal
           label={"Comments"}
           titleKey={"comment"}
           initialValue={""}
+          isQCHead={user?.isQcTeamHead}
           isTargetDateSet={isTargetDateSet}
           advisorRequired={advisorRequired}
           toshibaApproval={toshibaApproval}
@@ -318,6 +397,7 @@ const isToshibaApprovalTargetDatePast = eqReport?.ToshibaApprovalTargetDate
             comment: string;
             TargetDate?: Date;
             advisorId?: number;
+            pcrnAttachmentsRequired?:boolean
           }) => {
             setShowModal(false);
             if (values.comment && clickedAction) {
@@ -325,7 +405,8 @@ const isToshibaApprovalTargetDatePast = eqReport?.ToshibaApprovalTargetDate
                 WORKFLOW_ACTIONS[clickedAction](
                   values.comment,
                   values.TargetDate,
-                  values.advisorId
+                  values.advisorId,
+                  values.pcrnAttachmentsRequired
                 ).catch((error) =>
                   console.error(
                     "Error in executing the workflow action:",

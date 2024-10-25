@@ -10,11 +10,13 @@ export interface IEmployeeMaster {
 
 const getEmployeeMaster = async () => {
   try {
+    
     const response = await http.get<{ReturnValue: IEmployeeMaster[]}>(GET_EMPLOYEE_MASTER);
      
     if (response) {
       
       const tabledata = response.data.ReturnValue ?? [];
+      console.log("Em Master response",tabledata)
       return tabledata;
     }
   } catch (error) {
@@ -24,7 +26,7 @@ const getEmployeeMaster = async () => {
 };
 
 const useEmployeeMaster = () =>
-  useQuery<any>({
+  useQuery<IEmployeeMaster[]>({
     queryKey: ["employee-master"],
     queryFn: () => getEmployeeMaster(),
   });

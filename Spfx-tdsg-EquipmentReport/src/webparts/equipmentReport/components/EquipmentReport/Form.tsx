@@ -9,6 +9,7 @@ import {
   DATE_FORMAT,
   DATE_TIME_FORMAT,
   DocumentLibraries,
+  REQUEST_STATUS,
   WEB_URL,
 } from "../../GLOBAL_CONSTANT";
 import { ColumnsType } from "antd/es/table";
@@ -32,6 +33,7 @@ import OptionalReviewModal from "../common/OptionalReviewModal";
 import useAreaMaster from "../../apis/masters/useAreaMaster";
 import SubmitModal from "../common/SubmitModal";
 import { UserContext } from "../../context/userContext";
+import useEmployeeMaster from "../../apis/masters/useEmployeeMaster";
 
 const { TextArea } = Input;
 
@@ -63,6 +65,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const { data: subDevices, isLoading: subDeviceIsLoading } =
     useSubDeviceMaster();
   const { data: sections, isLoading: sectionIsLoading } = useSectionMaster();
+  const { data: employees, isLoading: employeeIsLoading } = useEmployeeMaster();
   const [improvementAttchments, setImprovementAttchments] = useState<
     IImprovementAttachments[] | []
   >([]);
@@ -79,6 +82,40 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const onSubmitFormHandler = async (): Promise<void> => {
     setshowSubmitModal(true);
   };
+
+  const handleModalReSubmit = (sectionHead?: string) => {
+    const values: IEquipmentImprovementReport = form.getFieldsValue();
+    values.EquipmentImprovementId = parseInt(id);
+    values.IsSubmit = true; 
+    values.isAmendReSubmitTask=true;
+    eqReportSave.mutate(
+      { ...values },
+      {
+        onSuccess: (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          navigate(`/equipment-improvement-report`);
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
+      }
+    );
+  };
+
+  const onReSubmitFormHandler = async (): Promise<void> => {
+    Modal.confirm({
+      title: "Are you sure you want to resubmit the form?",
+      okText: "Yes",
+      cancelText: "Cancel",
+      onOk: async () => {
+        // Call the resubmit function if user confirms
+         handleModalReSubmit();
+      },
+      onCancel: () => {
+        // Close the modal if user cancels
+        console.log("Resubmit canceled");
+      },
+    }); };
 
   const handleModalSubmit = (sectionHead: string) => {
     const values: IEquipmentImprovementReport = form.getFieldsValue();
@@ -103,6 +140,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       }
     );
   };
+
+
 
   const onSaveAsDraftHandler = async (): Promise<void> => {
     const values: IEquipmentImprovementReport = form.getFieldsValue();
@@ -206,6 +245,12 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         existingEquipmentReport?.ChangeRiskManagementDetails,
         changeRiskData
       );
+      if (
+        existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment &&
+        existingEquipmentReport.CreatedBy == user.employeeId
+      ) {
+        setunderAmmendment(true);
+      }
       if (existingEquipmentReport?.IsSubmit) {
         setsubmitted(true);
       }
@@ -374,7 +419,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       sorter: false,
     },
     {
-      title: "factor/causes",
+      title: "Factor/Causes",
       dataIndex: "Factor",
       key: "Factor",
       render: (_, record) => {
@@ -515,9 +560,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   .toLowerCase()
                   .includes(input.toLowerCase())
               }
-              options={areas?.map((device) => ({
-                label: device.AreaName,
-                value: device.AreaId,
+              options={employees?.map((emp) => ({
+                label: emp.employeeName,
+                value: emp.employeeId,
               }))}
               className="custom-disabled-select"
             />
@@ -573,8 +618,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 handleDelete(record.key);
               }}
               disabled={
-                isModeView &&
-                submitted &&
+                isModeView ||
+                submitted ||
                 existingEquipmentReport?.CreatedBy !== user?.employeeId
               }
             >
@@ -593,27 +638,37 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   return (
     <div className="d-flex flex-column gap-3 w-100 h-100">
       <div style={{ position: "absolute", right: "40px", top: "105px" }}>
-        {!isModeView &&
-          !submitted &&
-          existingEquipmentReport?.CreatedBy === user?.employeeId && (
-            <>
-              <div className="d-flex gap-3">
-                <button
-                  className="btn btn-primary"
-                  onClick={onSaveAsDraftHandler}
-                >
-                  <i className="fa-solid fa-floppy-disk" />
-                  Save as Draft
-                </button>
-                <button
-                  className="btn btn-darkgrey"
-                  onClick={onSubmitFormHandler}
-                >
-                  <i className="fa-solid fa-share-from-square" />
-                  Submit
-                </button>
-              </div>
-            </>
+        {(mode == "add" ||
+          (!isModeView &&
+            (!submitted) &&
+            existingEquipmentReport?.CreatedBy === user?.employeeId)) && (
+          <>
+            <div className="d-flex gap-3">
+              <button
+                className="btn btn-primary"
+                onClick={onSaveAsDraftHandler}
+              >
+                <i className="fa-solid fa-floppy-disk" />
+                Save as Draft
+              </button>
+              <button
+                className="btn btn-darkgrey"
+                onClick={onSubmitFormHandler}
+              >
+                <i className="fa-solid fa-share-from-square" />
+                Submit
+              </button>
+            </div>
+          </>
+        )}
+        {underAmmendment && mode != "view" && (
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={onReSubmitFormHandler}
+            >
+              Resubmit
+            </button>
           )}
       </div>
       <div className="bg-white p-4">
@@ -648,6 +703,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       Application No.
                     </label>
                   }
+                  initialValue={"-"}
                   name="EquipmentImprovementNo"
                   rules={validationRules["ApplicationNo"]}
                 >
@@ -683,7 +739,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Area}
                 >
                   <Select
-                    disabled={isModeView}
+                    disabled={isModeView || (submitted && !underAmmendment)}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -708,7 +764,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Section}
                 >
                   <Select
-                    disabled={isModeView}
+                    disabled={isModeView || (submitted && !underAmmendment)}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -740,7 +796,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Machine}
                 >
                   <Select
-                    disabled={isModeView}
+                    disabled={isModeView || (submitted && !underAmmendment)}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -772,7 +828,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.SubMachine}
                 >
                   <Select
-                    disabled={isModeView}
+                    disabled={isModeView || (submitted && !underAmmendment)}
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -805,7 +861,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="ImprovementName"
                   rules={validationRules.ImpName}
                 >
-                  <TextArea disabled={isModeView} maxLength={100} rows={3} />
+                  <TextArea
+                    disabled={isModeView || (submitted && !underAmmendment)}
+                    maxLength={100}
+                    rows={3}
+                  />
                 </Form.Item>
               </div>
               <div className="col">
@@ -814,7 +874,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="Purpose"
                   rules={validationRules.Purpose}
                 >
-                  <TextArea disabled={isModeView} maxLength={1000} rows={3} />
+                  <TextArea
+                    disabled={isModeView || (submitted && !underAmmendment)}
+                    maxLength={1000}
+                    rows={3}
+                  />
                 </Form.Item>
               </div>
 
@@ -830,7 +894,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
-                    disabled={isModeView}
+                    disabled={isModeView || (submitted && !underAmmendment)}
                     key={`file-upload-current-situation`}
                     folderName={
                       form.getFieldValue("EquipmentImprovementNo") ??
@@ -889,7 +953,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="CurrentSituation"
                   rules={validationRules.CurrSituation}
                 >
-                  <TextArea disabled={isModeView} maxLength={1000} rows={3} />
+                  <TextArea
+                    disabled={isModeView || (submitted && !underAmmendment)}
+                    maxLength={1000}
+                    rows={3}
+                  />
                 </Form.Item>
               </div>
 
@@ -920,7 +988,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
-                    disabled={isModeView}
+                    disabled={isModeView || (submitted && !underAmmendment)}
                     key={`file-upload-improvement`}
                     folderName={
                       form.getFieldValue("EquipmentImprovementNo") ??
@@ -981,17 +1049,20 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 >
                   Change Risk Management
                 </p>
-                {!isModeView &&
-                  !submitted &&
-                  existingEquipmentReport?.CreatedBy === user?.employeeId && (
-                    <button
-                      className="btn btn-primary mt-3"
-                      type="button"
-                      onClick={handleAdd}
-                    >
-                      <i className="fa-solid fa-circle-plus" /> Add
-                    </button>
-                  )}
+                {console.log("Mode", mode)}
+                {(mode == "add" ||
+                  (!isModeView &&
+                    !submitted &&
+                    existingEquipmentReport?.CreatedBy ===
+                      user?.employeeId)) && (
+                  <button
+                    className="btn btn-primary mt-3"
+                    type="button"
+                    onClick={handleAdd}
+                  >
+                    <i className="fa-solid fa-circle-plus" /> Add
+                  </button>
+                )}
               </div>
               <Table
                 className="change-risk-table"
@@ -1007,7 +1078,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 // }}
               />
             </div>
-            {false && (
+            {existingEquipmentReport?.IsPcrnRequired && (
               <>
                 <div className="row">
                   <div className="col mt-3">
@@ -1043,7 +1114,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     </Form.Item>
                   </div>
                 </div>
-                <div>
+               
+              </>
+            )}
+            {false && (<div>
                   <p
                     className="mt-3"
                     style={{ fontSize: "20px", color: "#C50017" }}
@@ -1059,7 +1133,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         name="TargetDate "
                         rules={validationRules["TargetDate"]}
                       >
-                        {/* <DatePicker disabled={isModeView} className="w-100" /> */}
+                        <DatePicker disabled={isModeView} className="w-100" />
                       </Form.Item>
                     </div>
 
@@ -1071,7 +1145,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         name="ActualDate"
                         rules={validationRules["ActualDate"]}
                       >
-                        {/* <DatePicker disabled={isModeView} className="w-100" /> */}
+                        <DatePicker disabled={isModeView} className="w-100" />
                       </Form.Item>
                     </div>
 
@@ -1085,7 +1159,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         // name="ResultDate "
                         rules={validationRules["TargetDate"]}
                       >
-                        {/* <DatePicker disabled={isModeView} className="w-100" /> */}
+                        <DatePicker disabled={isModeView} className="w-100" />
                       </Form.Item>
                     </div>
 
@@ -1107,9 +1181,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       </Form.Item>
                     </div>
                   </div>
-                </div>
-              </>
-            )}
+                </div>)}
           </Form>
         </ConfigProvider>
       </div>

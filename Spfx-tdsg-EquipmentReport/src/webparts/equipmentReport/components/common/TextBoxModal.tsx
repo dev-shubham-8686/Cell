@@ -1,4 +1,4 @@
-import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
+import { Button, DatePicker, Form, Input, Modal, Radio, Select } from "antd";
 import dayjs from "dayjs";
 import React, { useEffect } from "react";
 import useAreaMaster from "../../apis/masters/useAreaMaster";
@@ -20,9 +20,10 @@ export interface ITextBoxModal {
   onSubmit: (value: any) => void;
   inputRules?: { [key: string]: string | boolean }[];
   isRequiredField?: boolean;
-  isTargetDateSet?:boolean;
-  targetDate?:Date
+  isTargetDateSet?: boolean;
+  targetDate?: Date;
   modelTitle?: string;
+  isQCHead?:boolean;
 }
 
 const TextBoxModal: React.FC<ITextBoxModal> = ({
@@ -36,28 +37,28 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   toshibaApproval,
   advisorRequired,
   isTargetDateSet,
+  isQCHead,
   targetDate,
   isRequiredField = false,
   onCancel,
   onSubmit,
 }) => {
-  const {id}=useParams();
+  const { id } = useParams();
   const [form] = Form.useForm();
   const { TextArea } = Input;
   const { data: advisors, isLoading: advisorIsLoading } = useAdvisorDetails();
   // const targetDate = useGetTargetDate();
-useEffect(()=>{
-  
-  if (isTargetDateSet) {
-    //  const targetData:any=targetDate.mutate({equipmentId:parseInt(id),toshibaDiscussion})
-    // const parsedDate = dayjs(targetData?.TargetDate, DATE_FORMAT);
-    // if (parsedDate.isValid()) {
-      form.setFieldsValue({ TargetDate: dayjs(targetDate,DATE_FORMAT) });
-    // } else {
-    //   console.error("Invalid Target Date format:", targetData?.TargetDate);
-    // }
-  }
-},[isVisible,isTargetDateSet])
+  useEffect(() => {
+    if (isTargetDateSet) {
+      //  const targetData:any=targetDate.mutate({equipmentId:parseInt(id),toshibaDiscussion})
+      // const parsedDate = dayjs(targetData?.TargetDate, DATE_FORMAT);
+      // if (parsedDate.isValid()) {
+      form.setFieldsValue({ TargetDate: dayjs(targetDate, DATE_FORMAT) });
+      // } else {
+      //   console.error("Invalid Target Date format:", targetData?.TargetDate);
+      // }
+    }
+  }, [isVisible, isTargetDateSet]);
   const handleChange = (): void => {
     const fieldErrors = form.getFieldError(titleKey);
     if (fieldErrors.length > 0) {
@@ -98,19 +99,32 @@ useEffect(()=>{
           layout="vertical"
         >
           {toshibaApproval ? (
+            <>
             <Form.Item label="Please select Target Date " name="TargetDate">
               <DatePicker
                 disabledDate={(current) => {
                   // future dates only
-                  return current && current < dayjs().endOf("day");
+                  return current && current < dayjs().startOf("day");
                 }}
               />
             </Form.Item>
+          
+           
+            <Form.Item
+              label="PCRN Attachments Required"
+              name="pcrnAttachmentsRequired"
+            >
+              <Radio.Group>
+                <Radio value={true}>Yes</Radio>
+                <Radio value={false}>No</Radio>
+              </Radio.Group>
+            </Form.Item>
+            </>
           ) : (
             <></>
           )}
 
-          { advisorRequired?(
+          {advisorRequired ? (
             <Form.Item
               label={<span className="text-muted">Please select Advisor</span>}
               name="advisorId"

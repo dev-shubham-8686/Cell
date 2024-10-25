@@ -1,21 +1,29 @@
 import { SearchOutlined } from "@ant-design/icons";
 import { AnyObject } from "antd/es/_util/type";
-import React from "react";
+import React, { useContext } from "react";
 import { ColumnsType } from "antd/es/table/interface";
 import Table from "../../table/table";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+
 import {
   faEdit,
   faEye,
   faFileExcel,
   faFilePdf,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
+import useDeleteEQReport from "../../../apis/equipmentReport/useDelete/useDeleteEQReport";
+import { Modal } from "antd";
+import { IUser, UserContext } from "../../../context/userContext";
 
 const EquipmentReportTable: React.FC<{}> = ({}) => {
   const navigate = useNavigate();
-  
+  const user:IUser = useContext(UserContext);
+  const { mutate: deleteEquipment } = useDeleteEQReport();
+
   // const handleExportToExcel = (id: any) => {
   //   try {
   //     console.log("MATERIALID",id)
@@ -47,6 +55,40 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
   //     console.error("Export error:", error);
   //   }
   // };
+
+  const handleDelete = (id: any) => {
+    Modal.confirm({
+      title: (
+        <p className="text-black-50_e8274897">
+          Do you want to delete this request?
+        </p>
+      ),
+      icon: (
+        <ExclamationCircleOutlined
+          style={{ fontSize: "24px", color: "#faad14" }}
+        />
+      ),
+      okText: "Yes",
+      cancelText:"No",
+      cancelButtonProps: { className: "btn btn-outline-primary" },
+      okButtonProps: { className: "btn btn-primary" },
+      onOk() {
+        deleteEquipment(id ,{
+          onSuccess: (Response) => {
+            
+            console.log("ATA Response: ", Response);
+            window.location.reload();
+          },
+          
+          onError: (error) => {
+            console.error("Export error:", error);
+          },
+    
+        })
+      },
+      // centered: true,
+    });
+  }
 
   const columns: ColumnsType<AnyObject> = [
     {
@@ -185,10 +227,11 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
           >
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
-
-          {(row.Status === REQUEST_STATUS.Draft ) && (
+          {console.log("Edit",row.Status , REQUEST_STATUS.Draft,row.Requestor , user.employeeName)}
+          {((row.Status == REQUEST_STATUS.Draft || row.Status == REQUEST_STATUS.UnderAmendment) &&
+              row.Requestor == user?.employeeName ) && (
             <button
-              type="button"
+              type="button" 
               style={{ background: "none", border: "none" }}
               onClick={() =>
                 navigate(
@@ -197,6 +240,22 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
               }
             >
               <FontAwesomeIcon title="Edit" icon={faEdit} />
+            </button>
+          )}
+          {console.log("DElete",row.Status , REQUEST_STATUS.Draft,row.Requestor , user.employeeName)}
+               {
+            (row.Status == REQUEST_STATUS.Draft &&
+              row.Requestor == user.employeeName) && (
+            <button
+              type="button"
+              style={{ background: "none", border: "none" }}
+              onClick={() => {
+                handleDelete(
+                  row.EquipmentImprovementId
+                );
+              }}
+            >
+              <FontAwesomeIcon title="Delete" icon={faTrash} />
             </button>
           )}
         </div>

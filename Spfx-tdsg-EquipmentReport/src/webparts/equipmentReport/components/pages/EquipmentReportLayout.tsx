@@ -64,7 +64,7 @@ const currentApprover = useGetCurrentApproverData(
   ];
 
   return (
-    <Page title="Equipment Report">
+    <Page title="Equipment Report Form">
       <div
         className="content w-100 d-flex flex-column"
         style={{
