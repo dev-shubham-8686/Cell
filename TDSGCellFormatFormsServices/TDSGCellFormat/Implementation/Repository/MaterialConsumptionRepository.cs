@@ -15,6 +15,7 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.tool.xml;
 using ClosedXML.Excel;
+using Microsoft.Graph.Models;
 
 
 namespace TDSGCellFormat.Implementation.Repository
@@ -175,6 +176,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             var existingReport = await _context.MaterialConsumptionSlips.FindAsync(report.materialConsumptionSlipId);
             int materialConsumptionId = 0;
+            int? createdBy = 0;
             if (existingReport == null)
             {
                 var newMaterialConsumptionSlip = new MaterialConsumptionSlip()
@@ -197,12 +199,12 @@ namespace TDSGCellFormat.Implementation.Repository
 
 
                 var materialConsumptionSlipIdParams = new Microsoft.Data.SqlClient.SqlParameter("@materialConsumptionSlipId", newMaterialConsumptionSlip.MaterialConsumptionSlipId);
-                 _context.Set<TroubleReportNumberResult>()
-                            .FromSqlRaw("EXEC [dbo].[SPP_GenerateMaterialConsumptionSlipNumber] @materialConsumptionSlipId", materialConsumptionSlipIdParams)
-                            .ToList();
-               
+                _context.Set<TroubleReportNumberResult>()
+                           .FromSqlRaw("EXEC [dbo].[SPP_GenerateMaterialConsumptionSlipNumber] @materialConsumptionSlipId", materialConsumptionSlipIdParams)
+                           .ToList();
+
                 var troubleReportnum = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == newMaterialConsumptionSlip.MaterialConsumptionSlipId && x.IsDeleted == false).Select(x => x.MaterialConsumptionSlipNo).FirstOrDefault();
-                
+
                 foreach (var item in report.items)
                 {
                     var newMaterialConsumptionSlipItem = new MaterialConsumptionSlipItem()
@@ -223,7 +225,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     _context.MaterialConsumptionSlipItem.Add(newMaterialConsumptionSlipItem);
                     await _context.SaveChangesAsync();
                     //// Replace the subpath with the troubleReportnum
-                   
+
                     if (item.attachments != null && item.attachments.Count > 0)
                     {
                         foreach (var attachment in item.attachments)
@@ -248,19 +250,19 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                 }
 
-                res.StatusCode = Status.Success;
+                res.StatusCode = Enums.Status.Success;
                 res.Message = Enums.MaterialSave;
                 res.ReturnValue = new
                 {
                     MaterialConsumptionId = newMaterialConsumptionSlip.MaterialConsumptionSlipId,
                     MaterialConsumptionSlipNo = troubleReportnum
-                }; 
+                };
                 materialConsumptionId = newMaterialConsumptionSlip.MaterialConsumptionSlipId;
-
+                createdBy = newMaterialConsumptionSlip.CreatedBy;
                 if (report.isSubmit == true && report.isAmendReSubmitTask == false)
                 {
-                    var data = await SubmitRequest(materialConsumptionId, report.userId);
-                    if (data.StatusCode == Status.Success)
+                    var data = await SubmitRequest(materialConsumptionId, createdBy);
+                    if (data.StatusCode == Enums.Status.Success)
                     {
                         res.Message = Enums.MaterialSubmit;
                     }
@@ -268,14 +270,24 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else if (report.isSubmit == true && report.isAmendReSubmitTask == true)
                 {
-                    await ReSubmitRequest(materialConsumptionId, report.userId, report.Comment);
+                    await ReSubmitRequest(materialConsumptionId, createdBy, report.Comment);
                     res.Message = Enums.MaterialResubmit;
                 }
                 else
                 {
-                    InsertHistoryData(newMaterialConsumptionSlip.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "Requestor", "Update Status as Draft", "Draft", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+                    var adminId = _context.AdminApprovers.Where(x => x.IsActive == true && x.FormName == "MaterialCosnumption").Select(x => x.AdminId).FirstOrDefault();
+                    if (adminId == report.userId)
+                    {
+                        InsertHistoryData(newMaterialConsumptionSlip.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "Admin", "Updated data by Admin", "Draft", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+
+                    }
+                    else
+                    {
+                        InsertHistoryData(newMaterialConsumptionSlip.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "Requestor", "Update Status as Draft", "Draft", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+
+                    }
                 }
-                
+
             }
             else
             {
@@ -384,7 +396,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 var attachData = _context.MaterialConsumptionSlipItemAttachment.Where(x => x.MaterialConsumptionSlipItemAttachmentId == attachItem.materialConsumptionSlipItemAttachmentId).FirstOrDefault();
                                 if (attachData == null)
                                 {
-                                    
+
                                     var newAttachment = new MaterialConsumptionSlipItemAttachment()
                                     {
                                         MaterialConsumptionSlipItemId = materialConsumptionSlipItem.MaterialConsumptionSlipItemId,
@@ -416,9 +428,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
 
                 }
-               // InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "Requestor", "Update Status as Draft", "Draft", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+                // InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "Requestor", "Update Status as Draft", "Draft", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
 
-                res.StatusCode = Status.Success;
+                res.StatusCode = Enums.Status.Success;
                 res.Message = Enums.MaterialSave;
                 res.ReturnValue = new
                 {
@@ -427,12 +439,12 @@ namespace TDSGCellFormat.Implementation.Repository
                 };
                 materialConsumptionId = materialConsumptionSlips.MaterialConsumptionSlipId;
 
-                if(report.seqNumber == 0)
+                if (report.seqNumber == 0)
                 {
                     if (report.isSubmit == true && report.isAmendReSubmitTask == false)
                     {
-                        var data = await SubmitRequest(materialConsumptionId, report.userId);
-                        if (data.StatusCode == Status.Success)
+                        var data = await SubmitRequest(materialConsumptionId, materialConsumptionSlips.CreatedBy);
+                        if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.MaterialSubmit;
                         }
@@ -440,24 +452,54 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     else if (report.isSubmit == true && report.isAmendReSubmitTask == true)
                     {
-                        await ReSubmitRequest(materialConsumptionId, report.userId, report.Comment);
+                        await ReSubmitRequest(materialConsumptionId, materialConsumptionSlips.CreatedBy, report.Comment);
                         res.Message = Enums.MaterialResubmit;
                     }
                     else
                     {
-                        InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "Requestor", "Update Status as Draft", "Draft", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+                        var adminId = _context.AdminApprovers.Where(x => x.IsActive == true && x.FormName == "MaterialCosnumption").Select(x => x.AdminId).FirstOrDefault();
+                        if (adminId == report.userId)
+                        {
+                            InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "Admin", "Updated data by Admin", "Draft", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+
+                        }
+                        else
+                        {
+                            InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "Requestor", "Update Status as Draft", "Draft", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+
+                        }
                     }
                 }
                 else
                 {
-                    if(report.seqNumber == 1)
+                    if (report.seqNumber == 1)
                     {
-                        InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "DepartMent Head", "Updated By DepartmentHead", "InReview", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+                        var adminId = _context.AdminApprovers.Where(x => x.IsActive == true && x.FormName == "MaterialCosnumption").Select(x => x.AdminId).FirstOrDefault();
+                        if (adminId == report.userId)
+                        {
+                            InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "Admin", "Updated data by Admin", "InReview", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+
+                        }
+                        else
+                        {
+                            InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "DepartMent Head", "Updated By DepartmentHead", "InReview", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+
+                        }
 
                     }
                     else
                     {
-                        InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "CPC DepartMent Head", "Updated By CPC DepartmentHead", "InReview", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+                        var adminId = _context.AdminApprovers.Where(x => x.IsActive == true && x.FormName == "MaterialCosnumption").Select(x => x.AdminId).FirstOrDefault();
+                        if (adminId == report.userId)
+                        {
+                            InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "Admin", "Updated data by Admin", "InReview", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+
+                        }
+                        else
+                        {
+                            InsertHistoryData(materialConsumptionSlips.MaterialConsumptionSlipId, FormType.MaterialConsumption.ToString(), "CPC DepartMent Head", "Updated By CPC DepartmentHead", "InReview", Convert.ToInt32(report.userId), HistoryAction.Save.ToString(), 0);
+
+                        }
 
                     }
 
@@ -465,17 +507,17 @@ namespace TDSGCellFormat.Implementation.Repository
 
             }
 
-            
+
             return res;
         }
 
         public async Task<AjaxResult> DeleteReport(int Id)
         {
             var res = new AjaxResult();
-            var report =  _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == Id && x.IsDeleted == false).FirstOrDefault();
+            var report = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == Id && x.IsDeleted == false).FirstOrDefault();
             if (report == null)
             {
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
                 res.Message = "Record Not Found";
             }
             else
@@ -486,19 +528,19 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (rowsAffected > 0)
                 {
-                    res.StatusCode = Status.Success;
+                    res.StatusCode = Enums.Status.Success;
                     res.Message = "Record deleted successfully.";
                 }
                 else
                 {
-                    res.StatusCode = Status.Error;
+                    res.StatusCode = Enums.Status.Error;
                     res.Message = "Record deletion failed.";
                 }
             }
             return res;
         }
-        
-        public async Task<AjaxResult> SubmitRequest(int materialConsumptionId, int userId)
+
+        public async Task<AjaxResult> SubmitRequest(int materialConsumptionId, int? userId)
         {
             var res = new AjaxResult();
             try
@@ -510,20 +552,32 @@ namespace TDSGCellFormat.Implementation.Repository
                     matrialConsumption.IsSubmit = true;
                     await _context.SaveChangesAsync();
                 }
-                InsertHistoryData(materialConsumptionId, FormType.MaterialConsumption.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.Submit.ToString(), 0);
+
+
+                var adminId = _context.AdminApprovers.Where(x => x.IsActive == true && x.FormName == "MaterialCosnumption").Select(x => x.AdminId).FirstOrDefault();
+                if (adminId == userId)
+                {
+                    InsertHistoryData(materialConsumptionId, FormType.MaterialConsumption.ToString(), "Admin", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.Submit.ToString(), 0);
+
+                }
+                else
+                {
+                    InsertHistoryData(materialConsumptionId, FormType.MaterialConsumption.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.Submit.ToString(), 0);
+
+                }
 
                 _context.CallMaterialConsumptionApproverMatrix(userId, materialConsumptionId);
 
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Submitted, string.Empty, 0);
                 res.Message = Enums.MaterialSubmit;
-                res.StatusCode = Status.Success;
+                res.StatusCode = Enums.Status.Success;
 
             }
             catch (Exception ex)
             {
                 res.Message = "Fail " + ex;
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context);
                 commonHelper.LogException(ex, "Material SubmitRequest");
                 //return res;
@@ -557,7 +611,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
                     res.Message = Enums.MaterialApprove;
 
+
                     InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, requestTaskData.Comments, requestTaskData.Status, Convert.ToInt32(requestTaskData.ModifiedBy), ApprovalTaskStatus.Approved.ToString(), 0);
+
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.ApproveInformed, comment, ApproverTaskId);
 
@@ -606,6 +662,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     var materialData = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == materialConsumptionId && x.IsDeleted == false).FirstOrDefault();
                     materialData.Status = ApprovalTaskStatus.UnderAmendment.ToString();
+
                     InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, requestTaskData.Comments, requestTaskData.Status, Convert.ToInt32(requestTaskData.ModifiedBy), ApprovalTaskStatus.UnderAmendment.ToString(), 0);
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
@@ -616,7 +673,7 @@ namespace TDSGCellFormat.Implementation.Repository
             catch (Exception ex)
             {
                 res.Message = "Fail " + ex;
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context);
                 commonHelper.LogException(ex, "Material UpdateApproveAskToAmend");
 
@@ -624,7 +681,7 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public async Task<AjaxResult> ReSubmitRequest(int materialConsumptionId, int userId, string comment)
+        public async Task<AjaxResult> ReSubmitRequest(int materialConsumptionId, int? userId, string comment)
         {
             var res = new AjaxResult();
             try
@@ -636,7 +693,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
                 }
                 res.Message = Enums.MaterialResubmit;
-                res.StatusCode = Status.Success;
+                res.StatusCode = Enums.Status.Success;
                 var approverTaskDetails = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.MaterialConsumptionId == materialConsumptionId).ToList();
                 approverTaskDetails.ForEach(a =>
                 {
@@ -646,14 +703,25 @@ namespace TDSGCellFormat.Implementation.Repository
                 });
                 await _context.SaveChangesAsync();
                 _context.CallMaterialConsumptionApproverMatrix(userId, materialConsumptionId);
-                InsertHistoryData(materialConsumptionId, FormType.MaterialConsumption.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.ReSubmitted.ToString(), 0);
+
+                var adminId = _context.AdminApprovers.Where(x => x.IsActive == true && x.FormName == "MaterialCosnumption").Select(x => x.AdminId).FirstOrDefault();
+                if (adminId == userId)
+                {
+                    InsertHistoryData(materialConsumptionId, FormType.MaterialConsumption.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.ReSubmitted.ToString(), 0);
+
+                }
+                else
+                {
+                    InsertHistoryData(materialConsumptionId, FormType.MaterialConsumption.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.ReSubmitted.ToString(), 0);
+
+                }
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.ReSubmitted, comment, 0);
             }
             catch (Exception ex)
             {
                 res.Message = "Fail " + ex;
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context);
                 commonHelper.LogException(ex, "Material ReSubmitRequest");
                 //return res;
@@ -675,7 +743,17 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     await _context.SaveChangesAsync();
 
-                    InsertHistoryData(materialConsumptionId, FormType.TroubleReport.ToString(), Enums.WorkDoneLead, comment, ApprovalTaskStatus.PullBack.ToString(), userId, ApprovalTaskStatus.PullBack.ToString(), 0);
+                    var adminId = _context.AdminApprovers.Where(x => x.IsActive == true && x.FormName == "MaterialCosnumption").Select(x => x.AdminId).FirstOrDefault();
+                    if (adminId == userId)
+                    {
+                        InsertHistoryData(materialConsumptionId, FormType.MaterialConsumption.ToString(), "Admin", comment, ApprovalTaskStatus.PullBack.ToString(), userId, ApprovalTaskStatus.PullBack.ToString(), 0);
+
+                    }
+                    else
+                    {
+                        InsertHistoryData(materialConsumptionId, FormType.MaterialConsumption.ToString(), "Requestor", comment, ApprovalTaskStatus.PullBack.ToString(), userId, ApprovalTaskStatus.PullBack.ToString(), 0);
+
+                    }
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.PullBack, comment, 0);
 
@@ -689,13 +767,13 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
 
                     res.Message = Enums.MaterialPullback;
-                    res.StatusCode = Status.Success;
+                    res.StatusCode = Enums.Status.Success;
                 }
             }
             catch (Exception ex)
             {
                 res.Message = "Fail " + ex;
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context);
                 commonHelper.LogException(ex, "Material PullbackRequest");
                 return res;
@@ -784,13 +862,20 @@ namespace TDSGCellFormat.Implementation.Repository
                     materialData.ScrapTicketNo = report.scrapTicketNo;
                     materialData.Status = ApprovalTaskStatus.Closed.ToString();
                     await _context.SaveChangesAsync();
-                    if(report.userId == materialData.CreatedBy)
+
+                    var adminId = _context.AdminApprovers.Where(x => x.IsActive == true && x.FormName == "MaterialCosnumption").Select(x => x.AdminId).FirstOrDefault();
+                    if (adminId == report.userId)
                     {
-                        InsertHistoryData(report.MaterialConsumptionId, FormType.TroubleReport.ToString(), Enums.WorkDoneLead, "Request is Closed by Requestor", ApprovalTaskStatus.Closed.ToString(), report.userId, ApprovalTaskStatus.Closed.ToString(), 0);
+                        InsertHistoryData(report.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), "Admin", "Request is Closed by Admin", ApprovalTaskStatus.Closed.ToString(), report.userId, ApprovalTaskStatus.Closed.ToString(), 0);
+
+                    }
+                    else if (report.userId == materialData.CreatedBy)
+                    {
+                        InsertHistoryData(report.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), "Requestor", "Request is Closed by Requestor", ApprovalTaskStatus.Closed.ToString(), report.userId, ApprovalTaskStatus.Closed.ToString(), 0);
                     }
                     else
                     {
-                        InsertHistoryData(report.MaterialConsumptionId, FormType.TroubleReport.ToString(), Enums.WorkDoneLead, "Request is Closed by CPC DepartmentHead", ApprovalTaskStatus.Closed.ToString(), report.userId, ApprovalTaskStatus.Closed.ToString(), 0);
+                        InsertHistoryData(report.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), "CPC Department", "Request is Closed by CPC DepartmentHead", ApprovalTaskStatus.Closed.ToString(), report.userId, ApprovalTaskStatus.Closed.ToString(), 0);
 
                     }
 
@@ -800,12 +885,12 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 }
                 res.Message = Enums.MaterialClose;
-                res.StatusCode = Status.Success;
+                res.StatusCode = Enums.Status.Success;
             }
             catch (Exception ex)
             {
                 res.Message = "Fail " + ex;
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context);
                 commonHelper.LogException(ex, "CloseMaterial");
                 return res;
@@ -838,7 +923,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (data == null || !data.Any())
                 {
-                    res.StatusCode = Status.Error;
+                    res.StatusCode = Enums.Status.Error;
                     res.Message = "No data found for the given Material Consumption ID.";
                     return res;
                 }
@@ -939,7 +1024,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     string base64String = Convert.ToBase64String(excelBytes);
 
                     // Set the response
-                    res.StatusCode = Status.Success;
+                    res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.MaterialExcel;
                     res.ReturnValue = base64String;
                     return res;
@@ -948,7 +1033,7 @@ namespace TDSGCellFormat.Implementation.Repository
             catch (Exception ex)
             {
                 res.Message = "Fail " + ex.Message;
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
 
                 // Log the exception using your logging mechanism
                 var commonHelper = new CommonHelper(_context);
@@ -969,7 +1054,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 //approvers data
                 var approverData = await _context.GetMaterialWorkFlowData(materialConsumptionId);
-               
+
                 StringBuilder sb = new StringBuilder();
                 string? htmlTemplatePath = _configuration["TemplateSettings:PdfTemplate"];
                 string baseDirectory = AppContext.BaseDirectory;
@@ -1050,7 +1135,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     string base64String = Convert.ToBase64String(pdfBytes);
 
                     // Set response values
-                    res.StatusCode = Status.Success;
+                    res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.MaterialPdf;
                     res.ReturnValue = base64String; // Send the Base64 string to the frontend
 
@@ -1061,7 +1146,7 @@ namespace TDSGCellFormat.Implementation.Repository
             catch (Exception ex)
             {
                 res.Message = "Fail " + ex.Message;
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
 
                 // Log the exception using your logging mechanism
                 var commonHelper = new CommonHelper(_context);
@@ -1142,7 +1227,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         string base64String = Convert.ToBase64String(byteArray);
 
                         // Return the byte array as part of your AjaxResult
-                        res.StatusCode = Status.Success;
+                        res.StatusCode = Enums.Status.Success;
                         res.Message = "File downloaded successfully";
                         res.ReturnValue = base64String;
                         return res;
@@ -1153,7 +1238,7 @@ namespace TDSGCellFormat.Implementation.Repository
             catch (Exception ex)
             {
                 res.Message = "Fail " + ex;
-                res.StatusCode = Status.Error;
+                res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context);
                 commonHelper.LogException(ex, "GetMaterialConsumptionExcel");
                 return res;

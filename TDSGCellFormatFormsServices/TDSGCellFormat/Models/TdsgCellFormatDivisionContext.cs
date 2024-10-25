@@ -29,7 +29,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
     public virtual DbSet<TroubleReportReviewerTaskMaster> TroubleReportReviewerTaskMasters { get; set; }
 
     public virtual DbSet<AdjustmentReport> AdjustmentReports { get; set; }
-
+    public virtual DbSet<AdminApprover> AdminApprovers  { get; set; }
     public virtual DbSet<EquipmentImprovementApplication> EquipmentImprovementApplication { get; set; }
     public virtual DbSet<EquipmentCurrSituationAttachment> EquipmentCurrSituationAttachment { get; set; }
     public virtual DbSet<EquipmentImprovementAttachment> EquipmentImprovementAttachment { get; set; }
@@ -40,7 +40,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
     public virtual DbSet<ChangeRiskManagement> ChangeRiskManagement { get; set; }
     public virtual DbSet<TroubleAttachment> TroubleAttachments { get; set; }
 
-
+    public virtual DbSet<CellDivisionRoleMaster> CellDivisionRoleMasters { get; set; }
     public DbSet<TroubleReportNumberResult> TroubleReportNumberResults { get; set; }
 
     [NotMapped]
