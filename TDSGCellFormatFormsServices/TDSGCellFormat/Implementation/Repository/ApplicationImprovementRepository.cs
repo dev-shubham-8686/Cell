@@ -284,12 +284,21 @@ namespace TDSGCellFormat.Implementation.Repository
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.EquipmentSave;
 
-                    if (report.IsSubmit == true)
+                    if (report.IsSubmit == true && report.IsAmendReSubmitTask == false)
                     {
-                        var data = await SubmitRequest(applicationImprovementId, report.CreatedBy);
+                        var data = await SubmitRequest(existingReport.EquipmentImprovementId, report.CreatedBy);
                         if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.EquipmentSubmit;
+                        }
+
+                    }
+                    if (report.IsSubmit == true && report.IsAmendReSubmitTask == true)
+                    {
+                        var data = await Resubmit(existingReport.EquipmentImprovementId, report.CreatedBy);
+                        if (data.StatusCode == Enums.Status.Success)
+                        {
+                            res.Message = Enums.EquipmentResubmit;
                         }
 
                     }
@@ -386,6 +395,10 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 var equipmentApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentId && x.IsActive == true && x.Status == ApprovalTaskStatus.UnderAmendment.ToString()).FirstOrDefault();
                 equipmentApproverTask.Status = ApprovalTaskStatus.InReview.ToString();
+                await _context.SaveChangesAsync();
+
+                var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == equipmentId && x.IsDeleted == false).FirstOrDefault();
+                equipment.Status = ApprovalTaskStatus.InReview.ToString();
                 await _context.SaveChangesAsync();
 
                 res.Message = Enums.EquipmentResubmit;
@@ -602,10 +615,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 if (report.IsSubmit == true && report.IsAmendReSubmitTask == true)
                 {
-                    var data = await SubmitRequest(existingReport.EquipmentImprovementId, report.CreatedBy);
+                    var data = await Resubmit(existingReport.EquipmentImprovementId, report.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
                     {
-                        res.Message = Enums.EquipmentSubmit;
+                        res.Message = Enums.EquipmentResubmit;
                     }
 
                 }
