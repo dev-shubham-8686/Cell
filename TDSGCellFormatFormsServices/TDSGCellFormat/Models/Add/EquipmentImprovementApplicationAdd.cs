@@ -44,12 +44,25 @@ namespace TDSGCellFormat.Models.Add
         public bool? ToshibaApprovalRequired { get; set; }
 
         public string? ToshibaDiscussionTargetDate { get; set; }
+        public bool? IsPcrnRequired { get; set; }
         public bool? ToshibaTeamDiscussion { get; set; }
         public List<EquipmentCurrSituationAttachData>? EquipmentCurrSituationAttachmentDetails { get; set; }
         public List<EquipmentImprovementAttachData>? EquipmentImprovementAttachmentDetails { get; set; }
         public List<ChangeRiskManagementData>? ChangeRiskManagementDetails { get; set; }
-
+        public PcrnAttachment? PcrnAttachments { get; set; }
         public ResultAfterImplementation? ResultAfterImplementation { get; set; }
+    }
+
+    public class PcrnAttachment
+    {
+        public int PcrnAttachmentId { get; set; }
+        public int? EquipmentImprovementId { get; set; }
+        public string? PcrnDocName { get; set; }
+        public string? PcrnFilePath { get; set; }
+        public int? CreatedBy { get; set; }
+        public int? ModifiedBy { get; set; }
+        public bool? IsDeleted { get; set; }
+
     }
 
     public class ResultAfterImplementation
@@ -150,9 +163,9 @@ namespace TDSGCellFormat.Models.Add
     {
         public int EquipmentId { get; set; }
         public bool? IsToshibaDiscussion { get; set; }
-
         public string? TargetDate { get; set; }
-        public string? comment { get; set; }
+        public string? Comment { get; set; }
         public int? AdvisorId { get; set; }
+        public bool? IsPcrnRequired { get; set; }
     }
 }

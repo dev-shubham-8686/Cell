@@ -208,12 +208,12 @@ namespace TDSGCellFormat.Helper
                 //string? templateFilePath = null;
 
                 //prod link
-                string? documentLink = _configuration["SPSiteUrl"] +
-                 "/SitePages/Trouble-Report.aspx#/";
+                //string? documentLink = _configuration["SPSiteUrl"] +
+                 //"/SitePages/Trouble-Report.aspx#/";
 
                 //stage link
-               // string? documentLink = _configuration["SPSiteUrl"] +
-                //"/SitePages/CellFormatStage.aspx#/";
+                string? documentLink = _configuration["SPSiteUrl"] +
+                "/SitePages/CellFormatStage.aspx#/";
 
                 StringBuilder emailBody = new StringBuilder();
                 if (requestId > 0)
