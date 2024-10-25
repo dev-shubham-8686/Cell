@@ -46,7 +46,7 @@ namespace TDSGCellFormat.Implementation.Service
             return await _applicationRepo.GetEqupimentImprovementList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
         }
 
-        public async Task<List<EquipmentImprovementView>> GetEqupimentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        public async Task<List<EquipmentImprovementApproverView>> GetEqupimentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
             return await _applicationRepo.GetEqupimentImprovementApproverList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
         }

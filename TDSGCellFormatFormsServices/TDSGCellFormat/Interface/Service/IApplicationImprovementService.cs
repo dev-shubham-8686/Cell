@@ -13,7 +13,7 @@ namespace TDSGCellFormat.Interface.Service
         Task<AjaxResult> DeleteReport(int Id);
         Task<AjaxResult> AddOrUpdateReport(EquipmentImprovementApplicationAdd report);
         Task<List<EquipmentImprovementView>> GetEqupimentImprovementList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue);
-        Task<List<EquipmentImprovementView>> GetEqupimentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue);
+        Task<List<EquipmentImprovementApproverView>> GetEqupimentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue);
         Task<AjaxResult> PullBackRequest(EquipmentPullBack data);
         Task<AjaxResult> UpdateApproveAskToAmend(EquipmentApproveAsktoAmend data);
         Task<AjaxResult> UpdateTargetDates(EquipmentApprovalData data);

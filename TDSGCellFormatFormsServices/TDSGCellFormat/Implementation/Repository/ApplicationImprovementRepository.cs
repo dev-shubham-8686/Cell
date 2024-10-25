@@ -338,7 +338,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context);
-                commonHelper.LogException(ex, "Application Equipment AddOrUpdate");
+                commonHelper.LogException(ex, "Application Equipment Submit");
                 return res;
             }
         }
@@ -379,6 +379,28 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+        public async Task<AjaxResult> Resubmit(int equipmentId, int? createdBy)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var equipmentApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentId && x.IsActive == true && x.Status == ApprovalTaskStatus.UnderAmendment.ToString()).FirstOrDefault();
+                equipmentApproverTask.Status = ApprovalTaskStatus.InReview.ToString();
+                await _context.SaveChangesAsync();
+
+                res.Message = Enums.EquipmentResubmit;
+                res.StatusCode = Enums.Status.Success;
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "Application Equipment Resubmit");
+                //return res;
+            }
+            return res;
+        }
 
         public async Task<AjaxResult> Editformdata(EquipmentImprovementApplicationAdd report)
         {
@@ -569,7 +591,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Enums.Status.Success;
                 res.Message = Enums.EquipmentSave;
 
-                if (report.IsSubmit == true)
+                if (report.IsSubmit == true && report.IsAmendReSubmitTask == false)
                 {
                     var data = await SubmitRequest(existingReport.EquipmentImprovementId, report.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
@@ -578,6 +600,16 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
 
                 }
+                if (report.IsSubmit == true && report.IsAmendReSubmitTask == true)
+                {
+                    var data = await SubmitRequest(existingReport.EquipmentImprovementId, report.CreatedBy);
+                    if (data.StatusCode == Enums.Status.Success)
+                    {
+                        res.Message = Enums.EquipmentSubmit;
+                    }
+
+                }
+
             }
             catch (Exception ex)
             {
@@ -732,10 +764,10 @@ namespace TDSGCellFormat.Implementation.Repository
             return equpmentData;
         }
 
-        public async Task<List<EquipmentImprovementView>> GetEqupimentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        public async Task<List<EquipmentImprovementApproverView>> GetEqupimentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
             var listData = await _context.GetEquipmentImprovementApproverList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
-            var equpmentData = new List<EquipmentImprovementView>();
+            var equpmentData = new List<EquipmentImprovementApproverView>();
             foreach (var item in listData)
             {
                 equpmentData.Add(item);
