@@ -76,9 +76,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 ImprovementName = res.ImprovementName,
                 CurrentSituation = res.CurrentSituation,
                 Improvement = res.Imrovement,
-                TargetDate = res.TargetDate.HasValue ? res.TargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
-                ActualDate = res.ActualDate.HasValue ? res.ActualDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
-                ResultStatus = res.ResultStatus,
+               // TargetDate = res.TargetDate.HasValue ? res.TargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+               // ActualDate = res.ActualDate.HasValue ? res.ActualDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+               // ResultStatus = res.ResultStatus,
                 // PcrnDocName = res.PCRNDocName,
                 // PcrnFilePath = res.PCRNDocFilePath,
                 AdvisorId = _context.EquipmentAdvisorMasters.Where(x => x.EquipmentImprovementId == Id && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(),
@@ -160,17 +160,17 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.Imrovement = report.Improvement;
                     // newReport.PCRNDocName = report.PcrnDocName;
                     // newReport.PCRNDocFilePath = report.PcrnFilePath;
-                    newReport.ResultStatus = report.ResultStatus;
-                    newReport.ActualDate = !string.IsNullOrEmpty(report.ActualDate) ? DateTime.Parse(report.ActualDate) : (DateTime?)null;
-                    newReport.TargetDate = !string.IsNullOrEmpty(report.TargetDate) ? DateTime.Parse(report.TargetDate) : (DateTime?)null;
+                    //newReport.ResultStatus = report.ResultStatus;
+                   // newReport.ActualDate = !string.IsNullOrEmpty(report.ActualDate) ? DateTime.Parse(report.ActualDate) : (DateTime?)null;
+                   // newReport.TargetDate = !string.IsNullOrEmpty(report.TargetDate) ? DateTime.Parse(report.TargetDate) : (DateTime?)null;
                     newReport.IsDeleted = false;
                     newReport.CreatedDate = DateTime.Now;
                     newReport.CreatedBy = report.CreatedBy;
                     newReport.ModifiedDate = DateTime.Now;
                     newReport.ModifiedBy = report.CreatedBy;
                     newReport.IsSubmit = report.IsSubmit;
-                    newReport.IsResultSubmit = report.IsResultSubmit;
-                    //newReport.IsSubmit = false;
+                    newReport.IsResultSubmit = false;
+                    newReport.IsSubmit = report.IsSubmit;
                     newReport.Status = ApprovalTaskStatus.Draft.ToString();
                     newReport.WorkFlowLevel = 0;
                     newReport.ToshibaApprovalRequired = false;
@@ -271,159 +271,39 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else
                 {
-                    // existingReport.When = DateTime.Parse(report.When);
-                    existingReport.MachineId = report.MachineName;
-                    existingReport.SubMachineId = report.SubMachineName != null ? string.Join(",", report.SubMachineName) : string.Empty;
-                    existingReport.SectionId = report.SectionId;
-                    existingReport.SectionHeadId = report.SectionHeadId;
-                    existingReport.AreaId = report.AreaId;
-                    existingReport.ImprovementName = report.ImprovementName;
-                    existingReport.Purpose = report.Purpose;
-                    existingReport.CurrentSituation = report.CurrentSituation;
-                    existingReport.Imrovement = report.Improvement;
-                    ///existingReport.PCRNDocName = report.PcrnDocName;
-                   // existingReport.PCRNDocFilePath = report.PcrnFilePath;
-                    existingReport.ResultStatus = report.ResultStatus;
-                    existingReport.ActualDate = !string.IsNullOrEmpty(report.ActualDate) ? DateTime.Parse(report.ActualDate) : (DateTime?)null;
-                    existingReport.TargetDate = !string.IsNullOrEmpty(report.TargetDate) ? DateTime.Parse(report.TargetDate) : (DateTime?)null;
-                    existingReport.ModifiedDate = DateTime.Now;
-                    existingReport.ModifiedBy = report.ModifiedBy;
-                    await _context.SaveChangesAsync();
-
-                    var existingChangeRisk = _context.ChangeRiskManagement.Where(x => x.EquipmentImprovementId == existingReport.EquipmentImprovementId).ToList();
-                    MarkAsDeleted(existingChangeRisk, existingReport.CreatedBy, DateTime.Now);
-                    _context.SaveChanges();
-
-                    if (report.ChangeRiskManagementDetails != null)
+                    if(report.ResultAfterImplementation == null)
                     {
-                        foreach (var changeReport in report.ChangeRiskManagementDetails)
-                        {
-                            var existingChangeRiskData = _context.ChangeRiskManagement.Where(x => x.EquipmentImprovementId == changeReport.ApplicationImprovementId && x.ChangeRiskManagementId == changeReport.ChangeRiskManagementId).FirstOrDefault();
-                            if (existingChangeRiskData != null)
-                            {
-                                existingChangeRiskData.Changes = changeReport.Changes;
-                                existingChangeRiskData.FunctionId = changeReport.FunctionId;
-                                existingChangeRiskData.RiskAssociatedWithChanges = changeReport.RiskAssociated;
-                                existingChangeRiskData.Factor = changeReport.Factor;
-                                existingChangeRiskData.CounterMeasures = changeReport.CounterMeasures;
-                                existingChangeRiskData.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null;
-                                existingChangeRiskData.PersonInCharge = changeReport.PersonInCharge;
-                                existingChangeRiskData.Results = changeReport.Results;
-                                existingChangeRiskData.ModifiedBy = changeReport.ModifiedBy;
-                                existingChangeRiskData.ModifiedDate = DateTime.Now;
-                                existingChangeRiskData.IsDeleted = false;
-                            }
-                            else
-                            {
-                                var changeRiskData = new ChangeRiskManagement()
-                                {
-                                    EquipmentImprovementId = existingReport.EquipmentImprovementId,
-                                    Changes = changeReport.Changes,
-                                    FunctionId = changeReport.FunctionId,
-                                    RiskAssociatedWithChanges = changeReport.RiskAssociated,
-                                    Factor = changeReport.Factor,
-                                    CounterMeasures = changeReport.CounterMeasures,
-                                    DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null,
-                                    PersonInCharge = changeReport.PersonInCharge,
-                                    Results = changeReport.Results,
-                                    CreatedBy = changeReport.CreatedBy,
-                                    CreatedDate = DateTime.Now,
-                                    IsDeleted = false,
-                                };
-                                _context.ChangeRiskManagement.Add(changeRiskData);
-                            }
-                            await _context.SaveChangesAsync();
-                        }
-                    }
-
-                    var existingCurrSituationAttachment = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == existingReport.EquipmentImprovementId).ToList();
-                    MarkAsDeleted(existingCurrSituationAttachment, existingReport.CreatedBy, DateTime.Now);
-                    _context.SaveChanges();
-
-                    if (report.EquipmentCurrSituationAttachmentDetails != null)
-                    {
-                        foreach (var attach in report.EquipmentCurrSituationAttachmentDetails)
-                        {
-                            var updatedUrl = attach.CurrSituationDocFilePath.Replace("/EQReportDocs/", $"/{existingReport.EquipmentImprovementNo}/");
-                            var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == attach.EquipmentCurrSituationAttachmentId).FirstOrDefault();
-                            if (existingAttachData != null)
-                            {
-                                existingAttachData.CurrSituationDocName = attach.CurrSituationDocName;
-                                existingAttachData.CurrSituationDocFilePath = updatedUrl;
-                                existingAttachData.IsDeleted = false;
-                                existingAttachData.ModifiedBy = attach.ModifiedBy;
-                                existingAttachData.ModifiedDate = DateTime.Now;
-                            }
-                            else
-                            {
-
-                                var attachment = new EquipmentCurrSituationAttachment()
-                                {
-                                    EquipmentImprovementId = existingReport.EquipmentImprovementId,
-                                    CurrSituationDocName = attach.CurrSituationDocName,
-                                    CurrSituationDocFilePath = updatedUrl,
-                                    IsDeleted = false,
-                                    CreatedBy = attach.CreatedBy,
-                                    CreatedDate = DateTime.Now,
-                                };
-                                _context.EquipmentCurrSituationAttachment.Add(attachment);
-                            }
-                            await _context.SaveChangesAsync();
-                        }
-                    }
-
-                    var existingImprovementAttachment = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == existingReport.EquipmentImprovementId).ToList();
-                    MarkAsDeleted(existingImprovementAttachment, existingReport.CreatedBy, DateTime.Now);
-                    _context.SaveChanges();
-
-                    if (report.EquipmentImprovementAttachmentDetails != null)
-                    {
-                        foreach (var attach in report.EquipmentImprovementAttachmentDetails)
-                        {
-                            var updatedUrl = attach.ImprovementDocFilePath.Replace("/EQReportDocs/", $"/{existingReport.EquipmentImprovementNo}/");
-                            var existingAttachData = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentImprovementAttachmentId == attach.EquipmentImprovementAttachmentId).FirstOrDefault();
-                            if (existingAttachData != null)
-                            {
-                                existingAttachData.ImprovementDocName = attach.ImprovementDocName;
-                                existingAttachData.ImprovementDocFilePath = updatedUrl;
-                                existingAttachData.IsDeleted = false;
-                                existingAttachData.ModifiedBy = attach.ModifiedBy;
-                                existingAttachData.ModifiedDate = DateTime.Now;
-                            }
-                            else
-                            {
-                                var attachment = new EquipmentImprovementAttachment()
-                                {
-                                    EquipmentImprovementId = existingReport.EquipmentImprovementId,
-                                    ImprovementDocName = attach.ImprovementDocName,
-                                    ImprovementDocFilePath = updatedUrl,
-                                    IsDeleted = false,
-                                    CreatedBy = attach.CreatedBy,
-                                    CreatedDate = DateTime.Now,
-                                };
-                                _context.EquipmentImprovementAttachment.Add(attachment);
-                            }
-                            await _context.SaveChangesAsync();
-                        }
-                    }
-
-                    res.ReturnValue = new
-                    {
-                        EquipmentImprovementId = existingReport.EquipmentImprovementId,
-                        EquipmentImprovementNo = existingReport.EquipmentImprovementNo
-                    };
-                    res.StatusCode = Enums.Status.Success;
-                    res.Message = Enums.EquipmentSave;
-
-                    if (report.IsSubmit == true)
-                    {
-                        var data = await SubmitRequest(applicationImprovementId, report.CreatedBy);
-                        if (data.StatusCode == Enums.Status.Success)
+                        var formData = await Editformdata(report);
+                        if (formData.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.EquipmentSubmit;
                         }
-
                     }
+                    if(report.ResultAfterImplementation != null)
+                    {
+                        if(report.ModifiedBy == _context.AdminApprovers.Where(x => x.IsActive == true).Select(x => x.AdminId).FirstOrDefault())
+                        {
+                            var formData = await Editformdata(report);
+                            if (formData.StatusCode == Enums.Status.Success)
+                            {
+                                res.Message = Enums.EquipmentSubmit;
+                            }
+                            var nextData = await EditResult(report);
+                            if (nextData.StatusCode == Enums.Status.Success)
+                            {
+                                res.Message = Enums.EquipmentSubmit;
+                            }
+                        }
+                        else
+                        {
+                            var nextData = await EditResult(report);
+                            if (nextData.StatusCode == Enums.Status.Success)
+                            {
+                                res.Message = Enums.EquipmentSubmit;
+                            }
+                        }
+                    }
+                   
                 }
                 //res.ReturnValue = report;
                 return res;
@@ -474,6 +354,249 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+
+        public async Task<AjaxResult> Editformdata(EquipmentImprovementApplicationAdd report)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var existingReport = await _context.EquipmentImprovementApplication.FindAsync(report.EquipmentImprovementId);
+                existingReport.MachineId = report.MachineName;
+                existingReport.SubMachineId = report.SubMachineName != null ? string.Join(",", report.SubMachineName) : string.Empty;
+                existingReport.SectionId = report.SectionId;
+                existingReport.SectionHeadId = report.SectionHeadId;
+                existingReport.AreaId = report.AreaId;
+                existingReport.ImprovementName = report.ImprovementName;
+                existingReport.Purpose = report.Purpose;
+                existingReport.CurrentSituation = report.CurrentSituation;
+                existingReport.Imrovement = report.Improvement;
+                ///existingReport.PCRNDocName = report.PcrnDocName;
+                // existingReport.PCRNDocFilePath = report.PcrnFilePath;
+               // existingReport.ResultStatus = report.ResultStatus;
+                //existingReport.ActualDate = !string.IsNullOrEmpty(report.ActualDate) ? DateTime.Parse(report.ActualDate) : (DateTime?)null;
+                //existingReport.TargetDate = !string.IsNullOrEmpty(report.TargetDate) ? DateTime.Parse(report.TargetDate) : (DateTime?)null;
+                existingReport.ModifiedDate = DateTime.Now;
+                existingReport.ModifiedBy = report.ModifiedBy;
+                await _context.SaveChangesAsync();
+
+                var existingChangeRisk = _context.ChangeRiskManagement.Where(x => x.EquipmentImprovementId == existingReport.EquipmentImprovementId).ToList();
+                MarkAsDeleted(existingChangeRisk, existingReport.CreatedBy, DateTime.Now);
+                _context.SaveChanges();
+
+                if (report.ChangeRiskManagementDetails != null)
+                {
+                    foreach (var changeReport in report.ChangeRiskManagementDetails)
+                    {
+                        var existingChangeRiskData = _context.ChangeRiskManagement.Where(x => x.EquipmentImprovementId == changeReport.ApplicationImprovementId && x.ChangeRiskManagementId == changeReport.ChangeRiskManagementId).FirstOrDefault();
+                        if (existingChangeRiskData != null)
+                        {
+                            existingChangeRiskData.Changes = changeReport.Changes;
+                            existingChangeRiskData.FunctionId = changeReport.FunctionId;
+                            existingChangeRiskData.RiskAssociatedWithChanges = changeReport.RiskAssociated;
+                            existingChangeRiskData.Factor = changeReport.Factor;
+                            existingChangeRiskData.CounterMeasures = changeReport.CounterMeasures;
+                            existingChangeRiskData.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null;
+                            existingChangeRiskData.PersonInCharge = changeReport.PersonInCharge;
+                            existingChangeRiskData.Results = changeReport.Results;
+                            existingChangeRiskData.ModifiedBy = changeReport.ModifiedBy;
+                            existingChangeRiskData.ModifiedDate = DateTime.Now;
+                            existingChangeRiskData.IsDeleted = false;
+                        }
+                        else
+                        {
+                            var changeRiskData = new ChangeRiskManagement()
+                            {
+                                EquipmentImprovementId = existingReport.EquipmentImprovementId,
+                                Changes = changeReport.Changes,
+                                FunctionId = changeReport.FunctionId,
+                                RiskAssociatedWithChanges = changeReport.RiskAssociated,
+                                Factor = changeReport.Factor,
+                                CounterMeasures = changeReport.CounterMeasures,
+                                DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null,
+                                PersonInCharge = changeReport.PersonInCharge,
+                                Results = changeReport.Results,
+                                CreatedBy = changeReport.CreatedBy,
+                                CreatedDate = DateTime.Now,
+                                IsDeleted = false,
+                            };
+                            _context.ChangeRiskManagement.Add(changeRiskData);
+                        }
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                var existingCurrSituationAttachment = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == existingReport.EquipmentImprovementId).ToList();
+                MarkAsDeleted(existingCurrSituationAttachment, existingReport.CreatedBy, DateTime.Now);
+                _context.SaveChanges();
+
+                if (report.EquipmentCurrSituationAttachmentDetails != null)
+                {
+                    foreach (var attach in report.EquipmentCurrSituationAttachmentDetails)
+                    {
+                        var updatedUrl = attach.CurrSituationDocFilePath.Replace("/EQReportDocs/", $"/{existingReport.EquipmentImprovementNo}/");
+                        var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == attach.EquipmentCurrSituationAttachmentId).FirstOrDefault();
+                        if (existingAttachData != null)
+                        {
+                            existingAttachData.CurrSituationDocName = attach.CurrSituationDocName;
+                            existingAttachData.CurrSituationDocFilePath = updatedUrl;
+                            existingAttachData.IsDeleted = false;
+                            existingAttachData.ModifiedBy = attach.ModifiedBy;
+                            existingAttachData.ModifiedDate = DateTime.Now;
+                        }
+                        else
+                        {
+
+                            var attachment = new EquipmentCurrSituationAttachment()
+                            {
+                                EquipmentImprovementId = existingReport.EquipmentImprovementId,
+                                CurrSituationDocName = attach.CurrSituationDocName,
+                                CurrSituationDocFilePath = updatedUrl,
+                                IsDeleted = false,
+                                CreatedBy = attach.CreatedBy,
+                                CreatedDate = DateTime.Now,
+                            };
+                            _context.EquipmentCurrSituationAttachment.Add(attachment);
+                        }
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                var existingImprovementAttachment = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == existingReport.EquipmentImprovementId).ToList();
+                MarkAsDeleted(existingImprovementAttachment, existingReport.CreatedBy, DateTime.Now);
+                _context.SaveChanges();
+
+                if (report.EquipmentImprovementAttachmentDetails != null)
+                {
+                    foreach (var attach in report.EquipmentImprovementAttachmentDetails)
+                    {
+                        var updatedUrl = attach.ImprovementDocFilePath.Replace("/EQReportDocs/", $"/{existingReport.EquipmentImprovementNo}/");
+                        var existingAttachData = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentImprovementAttachmentId == attach.EquipmentImprovementAttachmentId).FirstOrDefault();
+                        if (existingAttachData != null)
+                        {
+                            existingAttachData.ImprovementDocName = attach.ImprovementDocName;
+                            existingAttachData.ImprovementDocFilePath = updatedUrl;
+                            existingAttachData.IsDeleted = false;
+                            existingAttachData.ModifiedBy = attach.ModifiedBy;
+                            existingAttachData.ModifiedDate = DateTime.Now;
+                        }
+                        else
+                        {
+                            var attachment = new EquipmentImprovementAttachment()
+                            {
+                                EquipmentImprovementId = existingReport.EquipmentImprovementId,
+                                ImprovementDocName = attach.ImprovementDocName,
+                                ImprovementDocFilePath = updatedUrl,
+                                IsDeleted = false,
+                                CreatedBy = attach.CreatedBy,
+                                CreatedDate = DateTime.Now,
+                            };
+                            _context.EquipmentImprovementAttachment.Add(attachment);
+                        }
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                res.ReturnValue = new
+                {
+                    EquipmentImprovementId = existingReport.EquipmentImprovementId,
+                    EquipmentImprovementNo = existingReport.EquipmentImprovementNo
+                };
+                res.StatusCode = Enums.Status.Success;
+                res.Message = Enums.EquipmentSave;
+
+                if (report.IsSubmit == true)
+                {
+                    var data = await SubmitRequest(existingReport.EquipmentImprovementId, report.CreatedBy);
+                    if (data.StatusCode == Enums.Status.Success)
+                    {
+                        res.Message = Enums.EquipmentSubmit;
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "Material Editformdata");
+                //return res;
+            }
+            return res;
+        }
+
+        public async Task<AjaxResult> EditResult(EquipmentImprovementApplicationAdd report)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var existingReport = await _context.EquipmentImprovementApplication.FindAsync(report.EquipmentImprovementId);
+                var data = report.ResultAfterImplementation;
+                existingReport.ResultStatus = data.ResultStatus;
+                existingReport.ActualDate = !string.IsNullOrEmpty(data.ActualDate) ? DateTime.Parse(data.ActualDate) : (DateTime?)null;
+                existingReport.TargetDate = !string.IsNullOrEmpty(data.TargetDate) ? DateTime.Parse(data.TargetDate) : (DateTime?)null;
+                existingReport.IsResultSubmit = data.IsResultSubmit;
+                if(data.ResultStatus != null)
+                {
+                    existingReport.ResultMonitorDate = DateTime.Now;
+                }
+                if(data.IsResultSubmit == true)
+                {
+                    var resultSubmit = await ResultSubmit(existingReport.EquipmentImprovementId, report.CreatedBy);
+                    if (resultSubmit.StatusCode == Enums.Status.Success)
+                    {
+                        res.Message = Enums.EquipmentSubmit;
+                    }
+                }
+                await _context.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "Material Editformdata");
+                //return res;
+            }
+            return res;
+        }
+
+        public async Task<AjaxResult> ResultSubmit(int equipmentId, int? createdBy)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == equipmentId && x.IsDeleted == false).FirstOrDefault();
+                if (equipment != null)
+                {
+                    equipment.Status = ApprovalTaskStatus.Draft.ToString();
+                    equipment.WorkFlowStatus = ApprovalTaskStatus.Draft.ToString();
+                    equipment.WorkFlowLevel = 2;
+                    equipment.IsResultSubmit = true;
+                    await _context.SaveChangesAsync();
+                }
+                //InsertHistoryData(materialConsumptionId, FormType.MaterialConsumption.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.Submit.ToString(), 0);
+
+                _context.CallEquipmentApproverMaterix(createdBy, equipmentId);
+
+                //var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                //await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Submitted, string.Empty, 0);
+                res.Message = Enums.EquipmentSubmit;
+                res.StatusCode = Enums.Status.Success;
+
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "Material SubmitRequest");
+                //return res;
+            }
+            return res;
+        }
+
         private void MarkAsDeleted<T>(IEnumerable<T> items, int? createdBy, DateTime now) where T : class
         {
             foreach (var item in items)
@@ -499,6 +622,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
             }
         }
+
         public async Task<AjaxResult> DeleteReport(int Id)
         {
             var res = new AjaxResult();
@@ -684,6 +808,25 @@ namespace TDSGCellFormat.Implementation.Repository
                     //equipmentData.WorkFlowSta = ApprovalTaskStatus.Reject.ToString();
                 }
 
+                if(data.Type == ApprovalStatus.LogicalAmendment)
+                {
+                    equipmentData.Status = ApprovalTaskStatus.LogicalAmendment.ToString();
+                    equipmentData.ModifiedBy = data.CurrentUserId;
+                    equipmentData.ActionTakenBy = data.CurrentUserId;
+                    equipmentData.ActionTakenDate = DateTime.Now;
+                    equipmentData.ModifiedDate = DateTime.Now;
+                    equipmentData.Comments = data.Comment;
+
+                    await _context.SaveChangesAsync();
+                    res.Message = Enums.EquipmentAsktoAmend;
+
+                    var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false).FirstOrDefault();
+                    equipment.Status = ApprovalTaskStatus.LogicalAmendment.ToString();
+                    equipment.WorkFlowStatus = ApprovalTaskStatus.LogicalAmendment.ToString();
+                    await _context.SaveChangesAsync();
+
+                }
+
                 if (data.Type == ApprovalStatus.Approved)
                 {
                     equipmentData.Status = ApprovalTaskStatus.Approved.ToString();
@@ -723,6 +866,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         else
                         {
                             equipment.ToshibaApprovalRequired = true;
+                            equipment.ToshibaApprovalComment = approvalData.comment;
                             equipment.ToshibaApprovalTargetDate = !string.IsNullOrEmpty(approvalData.TargetDate) ? DateTime.Parse(approvalData.TargetDate) : (DateTime?)null;
                             equipment.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
                             await _context.SaveChangesAsync();
@@ -799,6 +943,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.ToshibaTeamDiscussion = true;
                     equipment.ToshibaDiscussionTargetDate = !string.IsNullOrEmpty(data.TargetDate) ? DateTime.Parse(data.TargetDate) : (DateTime?)null;
                     equipment.Status = ApprovalTaskStatus.ToshibaTechnicalReview.ToString();
+                    equipment.ToshibaDicussionComment = data.comment;
                     await _context.SaveChangesAsync();
                 }
                 else
@@ -806,6 +951,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.ToshibaApprovalRequired = true;
                     equipment.ToshibaApprovalTargetDate = !string.IsNullOrEmpty(data.TargetDate) ? DateTime.Parse(data.TargetDate) : (DateTime?)null; ;
                     //equipment.Status = ApprovalTaskStatus.ToshibaTechnicalReview.ToString();
+                    equipment.ToshibaApprovalComment = data.comment;
                     await _context.SaveChangesAsync();
                 }
                 res.Message = Enums.EquipmentDateUpdate;

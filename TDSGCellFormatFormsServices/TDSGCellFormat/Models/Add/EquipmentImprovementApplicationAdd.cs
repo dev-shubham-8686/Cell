@@ -22,15 +22,14 @@ namespace TDSGCellFormat.Models.Add
         public string? Improvement { get; set; }
 
         public string? Attachment { get; set; }
-        public string? TargetDate { get; set; }
-        public string? ActualDate {  get; set; }
-        public string? ResultStatus { get; set; }
+       
+       
         public string? PcrnDocName { get; set; }
         public string? PcrnFilePath { get; set; }
         public string? Status { get; set; }
 
         public bool? IsSubmit { get; set; }
-        public bool? IsResultSubmit    { get; set; }
+      
         public DateTime? CreatedDate { get; set; }
 
         public int? CreatedBy { get; set; }
@@ -50,6 +49,15 @@ namespace TDSGCellFormat.Models.Add
         public List<EquipmentImprovementAttachData>? EquipmentImprovementAttachmentDetails { get; set; }
         public List<ChangeRiskManagementData>? ChangeRiskManagementDetails { get; set; }
 
+        public ResultAfterImplementation? ResultAfterImplementation { get; set; }
+    }
+
+    public class ResultAfterImplementation
+    {
+        public string? TargetDate { get; set; }
+        public string? ActualDate { get; set; }
+        public bool? IsResultSubmit { get; set; }
+        public string? ResultStatus { get; set; }
     }
 
     public class EquipmentCurrSituationAttachData
@@ -144,7 +152,7 @@ namespace TDSGCellFormat.Models.Add
         public bool? IsToshibaDiscussion { get; set; }
 
         public string? TargetDate { get; set; }
-
+        public string? comment { get; set; }
         public int? AdvisorId { get; set; }
     }
 }

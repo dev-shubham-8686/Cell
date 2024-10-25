@@ -175,6 +175,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             var existingReport = await _context.MaterialConsumptionSlips.FindAsync(report.materialConsumptionSlipId);
             int materialConsumptionId = 0;
+            int? createdBy = 0;
             if (existingReport == null)
             {
                 var newMaterialConsumptionSlip = new MaterialConsumptionSlip()
@@ -256,10 +257,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     MaterialConsumptionSlipNo = troubleReportnum
                 }; 
                 materialConsumptionId = newMaterialConsumptionSlip.MaterialConsumptionSlipId;
-
+                createdBy = newMaterialConsumptionSlip.CreatedBy;
                 if (report.isSubmit == true && report.isAmendReSubmitTask == false)
                 {
-                    var data = await SubmitRequest(materialConsumptionId, report.userId);
+                    var data = await SubmitRequest(materialConsumptionId, createdBy);
                     if (data.StatusCode == Status.Success)
                     {
                         res.Message = Enums.MaterialSubmit;
@@ -268,7 +269,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else if (report.isSubmit == true && report.isAmendReSubmitTask == true)
                 {
-                    await ReSubmitRequest(materialConsumptionId, report.userId, report.Comment);
+                    await ReSubmitRequest(materialConsumptionId, createdBy, report.Comment);
                     res.Message = Enums.MaterialResubmit;
                 }
                 else
@@ -431,7 +432,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     if (report.isSubmit == true && report.isAmendReSubmitTask == false)
                     {
-                        var data = await SubmitRequest(materialConsumptionId, report.userId);
+                        var data = await SubmitRequest(materialConsumptionId, materialConsumptionSlips.CreatedBy);
                         if (data.StatusCode == Status.Success)
                         {
                             res.Message = Enums.MaterialSubmit;
@@ -440,7 +441,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     else if (report.isSubmit == true && report.isAmendReSubmitTask == true)
                     {
-                        await ReSubmitRequest(materialConsumptionId, report.userId, report.Comment);
+                        await ReSubmitRequest(materialConsumptionId, materialConsumptionSlips.CreatedBy, report.Comment);
                         res.Message = Enums.MaterialResubmit;
                     }
                     else
@@ -498,7 +499,7 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
         
-        public async Task<AjaxResult> SubmitRequest(int materialConsumptionId, int userId)
+        public async Task<AjaxResult> SubmitRequest(int materialConsumptionId, int? userId)
         {
             var res = new AjaxResult();
             try
@@ -624,7 +625,7 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public async Task<AjaxResult> ReSubmitRequest(int materialConsumptionId, int userId, string comment)
+        public async Task<AjaxResult> ReSubmitRequest(int materialConsumptionId, int? userId, string comment)
         {
             var res = new AjaxResult();
             try
