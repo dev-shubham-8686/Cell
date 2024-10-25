@@ -40,7 +40,7 @@ public class Program
                 //int hoursSinceLastEmail = (int)hours.TotalHours;
                 //double hoursSinceLastEmail = difference.TotalHours;
                 //var emailFlag = report.RaiserEmailSent;
-                var raiser = dbContext.TroubleReports.Where(x => x.TroubleReportId == report.TroubleReportId).Select(x => x.CreatedBy).FirstOrDefault();
+                var raiser = dbContext.TroubleReports.Where(x => x.TroubleReportId == report.TroubleReportId && report.IsDeleted == false).Select(x => x.CreatedBy).FirstOrDefault();
                 var sectionHead = context.EmployeeMasters.Where(x => x.EmployeeID == raiser && x.IsActive == true).Select(x => x.ReportingManagerId).ToList();
 
                 var departMentHead = (from em in context.EmployeeMasters
@@ -48,15 +48,7 @@ public class Program
                                       where em.EmployeeID == raiser && em.IsActive == true
                                       select dm.Head).ToList();
 
-                var divisionHead = (from e in context.EmployeeMasters
-                                    join dm in context.DepartmentMasters on e.DepartmentID equals dm.DepartmentID
-                                    join div in context.DivisionMasters on dm.DivisionID equals div.DivisionID
-                                    where e.EmployeeID == raiser && e.IsActive == true
-                                    select new
-                                    {
-                                        Head = div.Head,
-                                        DeputyDivisionHead = div.DeputyDivisionHead
-                                    }).ToList();
+                var divisionHead = dbContext.CellDivisionRoleMasters.Where(x => x.DivisionId == 1 && x.FormName == "TroubleReport").Select(x => x.DeputyDivisionHead).ToList();
 
                // var twentyFourHours = TimeSpan.FromHours(24);
                 templateFile = "TroubleReport_ICA.html";
@@ -90,11 +82,11 @@ public class Program
                 else if(report.DepartMentHeadEmailSent == 3 && report.DivisionHeadEmailSent < 3 && hoursSinceLastEmail.TotalHours >= 24)
                 {
 
-                    var combinedList = divisionHead.SelectMany(d => new List<int?> { d.Head, d.DeputyDivisionHead })
-                                     .Where(id => id.HasValue) // Optional: filter out nulls if needed
-                                     .ToList();
+                    //var combinedList = divisionHead.SelectMany(d => new List<int?> { d.Head, d.DeputyDivisionHead })
+                    //                 .Where(id => id.HasValue) // Optional: filter out nulls if needed
+                    //                 .ToList();
                     //send an email to division Head
-                    reminderEmails.SendEmailReminder(report.TroubleReportId, templateFile, emailSubject,  combinedList); // If RaiserEmailSent is 3 or more, skip sending any more emails
+                    reminderEmails.SendEmailReminder(report.TroubleReportId, templateFile, emailSubject, divisionHead); // If RaiserEmailSent is 3 or more, skip sending any more emails
                     report.DivisionHeadEmailSent += 1;
                     report.LastEmailSent = now;
                 }
@@ -126,17 +118,9 @@ public class Program
                                       join dm in context.DepartmentMasters on em.DepartmentID equals dm.DepartmentID
                                       where em.EmployeeID == raiser && em.IsActive == true
                                       select dm.Head).ToList();
+                var divisionHead = dbContext.CellDivisionRoleMasters.Where(x => x.DivisionId == 1 && x.FormName == "TroubleReport").Select(x => x.DeputyDivisionHead).ToList();
 
-                var divisionHead = (from e in context.EmployeeMasters
-                                    join dm in context.DepartmentMasters on e.DepartmentID equals dm.DepartmentID
-                                    join div in context.DivisionMasters on dm.DivisionID equals div.DivisionID
-                                    where e.EmployeeID == raiser && e.IsActive == true
-                                    select new
-                                    {
-                                        Head = div.Head,
-                                        DeputyDivisionHead = div.DeputyDivisionHead
-                                    }).ToList();
-            
+
                 //var emailFlag = report.RaiserEmailSent;
                 templateFile = "TroubleReport_RCA.html";
                 emailSubject = $"RCA Reminder for Trouble Report Number: {rca.TroubleReportNo}";
@@ -167,11 +151,12 @@ public class Program
                 else if (rca.DepartMentHeadEmailRCA == 3 && rca.DivisionHeadRCAEmail < 3 && hoursSinceLastEmail.TotalHours >= 24)
                 {
                     //send an email to division Head
-                    var combinedList = divisionHead.SelectMany(d => new List<int?> { d.Head, d.DeputyDivisionHead })
-                                     .Where(id => id.HasValue) // Optional: filter out nulls if needed
-                                     .ToList();
-                    
-                    reminderEmails.SendEmailReminder(rca.TroubleReportId, templateFile, emailSubject,  combinedList); // If RaiserEmailSent is 3 or more, skip sending any more emails
+                    //var combinedList = divisionHead.SelectMany(d => new List<int?> { d.Head, d.DeputyDivisionHead })
+                    //                 .Where(id => id.HasValue) // Optional: filter out nulls if needed
+                    //                 .ToList();
+                    rca.DivisionHeadRCAEmail += 1; 
+                    rca.LastRCAEmailSent = now;
+                    reminderEmails.SendEmailReminder(rca.TroubleReportId, templateFile, emailSubject, divisionHead); // If RaiserEmailSent is 3 or more, skip sending any more emails
                 }
 
                 dbContext.SaveChanges(); // Save the changes to the database

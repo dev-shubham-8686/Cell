@@ -72,7 +72,8 @@ namespace TDSGCellFormat.Common
         {
             Approved = 1,
             Rejected = 2,
-            AskToAmend = 3
+            AskToAmend = 3,
+            LogicalAmendment = 4
         }
         public enum EmailNotificationAction
         {
@@ -133,6 +134,7 @@ namespace TDSGCellFormat.Common
             W1Completed = 27,
             ToshibaTechnicalReview = 28,
             UnderToshibaApproval = 29,
+            LogicalAmendment = 30
 
         }
         public enum FormType
