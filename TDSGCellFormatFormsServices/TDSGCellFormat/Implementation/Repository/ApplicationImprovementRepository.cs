@@ -394,12 +394,24 @@ namespace TDSGCellFormat.Implementation.Repository
             try
             {
                 var equipmentApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentId && x.IsActive == true && x.Status == ApprovalTaskStatus.UnderAmendment.ToString()).FirstOrDefault();
-                equipmentApproverTask.Status = ApprovalTaskStatus.InReview.ToString();
-                await _context.SaveChangesAsync();
+               // equipmentApproverTask.Status = ApprovalTaskStatus.InReview.ToString();
+               // await _context.SaveChangesAsync();
 
                 var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == equipmentId && x.IsDeleted == false).FirstOrDefault();
-                equipment.Status = ApprovalTaskStatus.InReview.ToString();
-                await _context.SaveChangesAsync();
+                if(equipmentApproverTask.SequenceNo == 5 && equipment.ToshibaApprovalRequired == true)
+                {
+                    equipmentApproverTask.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                    equipment.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    equipmentApproverTask.Status = ApprovalTaskStatus.InReview.ToString();
+                    equipment.Status = ApprovalTaskStatus.InReview.ToString();
+                    await _context.SaveChangesAsync();
+                }
+               // equipment.Status = ApprovalTaskStatus.InReview.ToString();
+               // await _context.SaveChangesAsync();
 
                 res.Message = Enums.EquipmentResubmit;
                 res.StatusCode = Enums.Status.Success;
