@@ -584,6 +584,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                 }
 
+                var existingPCRN = _context.EquipmentPCRNAttachments.Where(x => x.EquipmentImprovementId == existingReport.EquipmentImprovementId).ToList();
+                MarkAsDeleted(existingPCRN, existingReport.CreatedBy, DateTime.Now);
+                _context.SaveChanges();
+
                 if (report.PcrnAttachments != null)
                 {
                     var pcrndata = report.PcrnAttachments;
