@@ -18,6 +18,7 @@ import {
   ICurrentSituationAttachments,
   IEquipmentImprovementReport,
   IImprovementAttachments,
+  IPCRNAttchments,
 } from "../../interface";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -34,6 +35,7 @@ import useAreaMaster from "../../apis/masters/useAreaMaster";
 import SubmitModal from "../common/SubmitModal";
 import { UserContext } from "../../context/userContext";
 import useEmployeeMaster from "../../apis/masters/useEmployeeMaster";
+import displayjsx from "../../utility/displayjsx";
 
 const { TextArea } = Input;
 
@@ -69,6 +71,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const [improvementAttchments, setImprovementAttchments] = useState<
     IImprovementAttachments[] | []
   >([]);
+  const [pcrnAttachments, setpcrnAttachments] =
+    useState<IPCRNAttchments[] | []>([]);
   const [currSituationAttchments, setcurrSituationAttchments] = useState<
     ICurrentSituationAttachments[] | []
   >([]);
@@ -86,8 +90,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const handleModalReSubmit = (sectionHead?: string) => {
     const values: IEquipmentImprovementReport = form.getFieldsValue();
     values.EquipmentImprovementId = parseInt(id);
-    values.IsSubmit = true; 
-    values.isAmendReSubmitTask=true;
+    values.IsSubmit = true;
+    values.isAmendReSubmitTask = true;
+    values.IsPcrnRequired = existingEquipmentReport?.IsPcrnRequired
+      ? true
+      : false;
     eqReportSave.mutate(
       { ...values },
       {
@@ -109,13 +116,14 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       cancelText: "Cancel",
       onOk: async () => {
         // Call the resubmit function if user confirms
-         handleModalReSubmit();
+        handleModalReSubmit();
       },
       onCancel: () => {
         // Close the modal if user cancels
         console.log("Resubmit canceled");
       },
-    }); };
+    });
+  };
 
   const handleModalSubmit = (sectionHead: string) => {
     const values: IEquipmentImprovementReport = form.getFieldsValue();
@@ -125,7 +133,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     console.log("Final form values with secHead:", values);
     values.EquipmentImprovementId = parseInt(id);
     values.CreatedBy = user.employeeId;
-
+    values.IsPcrnRequired = existingEquipmentReport?.IsPcrnRequired
+      ? true
+      : false;
     // Call the submit API here
     eqReportSave.mutate(
       { ...values },
@@ -141,12 +151,14 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     );
   };
 
-
-
   const onSaveAsDraftHandler = async (): Promise<void> => {
     const values: IEquipmentImprovementReport = form.getFieldsValue();
     values.EquipmentImprovementAttachmentDetails = improvementAttchments;
     values.EquipmentCurrSituationAttachmentDetails = currSituationAttchments;
+    values.IsPcrnRequired = existingEquipmentReport?.IsPcrnRequired
+      ? true
+      : false;
+    values.PcrnAttachment = pcrnAttachments;
     values.IsSubmit = false;
     values.CreatedBy = user.employeeId;
     console.log("form saved as draft data", values);
@@ -640,7 +652,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       <div style={{ position: "absolute", right: "40px", top: "105px" }}>
         {(mode == "add" ||
           (!isModeView &&
-            (!submitted) &&
+            !submitted &&
             existingEquipmentReport?.CreatedBy === user?.employeeId)) && (
           <>
             <div className="d-flex gap-3">
@@ -662,14 +674,14 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           </>
         )}
         {underAmmendment && mode != "view" && (
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={onReSubmitFormHandler}
-            >
-              Resubmit
-            </button>
-          )}
+          <button
+            className="btn btn-primary"
+            type="button"
+            onClick={onReSubmitFormHandler}
+          >
+            Resubmit
+          </button>
+        )}
       </div>
       <div className="bg-white p-4">
         <ConfigProvider
@@ -1078,6 +1090,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 // }}
               />
             </div>
+            {console.log("PCRN",pcrnAttachments)}
             {existingEquipmentReport?.IsPcrnRequired && (
               <>
                 <div className="row">
@@ -1090,34 +1103,64 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       // rules={validationRules.attachment}
                     >
                       <FileUpload
-                        key={`file-upload-pcrn`}
-                        folderName={"foldername"}
-                        libraryName={"lbname"}
-                        files={form
-                          .getFieldValue("pcrnAttachment")
-                          ?.map((a) => ({
-                            ...a,
-                            uid: a.PCRNId?.toString() ?? "",
-                            url: `${a.url}`,
-                          }))}
+                        ispcrnRequired={existingEquipmentReport?.IsPcrnRequired}
+                        disabled={isModeView || (submitted && !underAmmendment)}
+                        key={`pcrnAttachments`}
+                        folderName={
+                          form.getFieldValue("EquipmentImprovementNo") ??
+                          "EQReportDocs"
+                        }
+                        subFolderName={"PCRN Attachments"}
+                        libraryName={DocumentLibraries.EQ_Report}
+                        files={pcrnAttachments?.map((a) => ({
+                          ...a,
+                          uid: a.PcrnAttachmentId?.toString() ?? "",
+                          name: a.PcrnDocName,
+                          url: `${a.PcrnFilePath}`,
+                        }))}
                         setIsLoading={(loading: boolean) => {
                           // setIsLoading(loading);
                         }}
                         isLoading={false}
                         onAddFile={(name: string, url: string) => {
-                          console.log("File Added");
+                        
+                          const existingAttachments = pcrnAttachments ?? [];
+                            const newAttachment: IPCRNAttchments = {
+                              PcrnAttachmentId: 0,
+                              EquipmentImprovementId: parseInt(id),
+                              PcrnDocName: name,
+                              PcrnFilePath: url,
+                              CreatedBy: 76,
+                              ModifiedBy: 76,
+                              IsDeleted: false,
+                            };
+                            const updatedAttachments: IPCRNAttchments[] = [
+                              ...existingAttachments,
+                              newAttachment,
+                            ];
+                            setpcrnAttachments(updatedAttachments);
+
+                            console.log("PCRN File Added");
+                          
                         }}
                         onRemoveFile={(documentName: string) => {
-                          console.log("File Removed");
+                          const existingAttachments = pcrnAttachments ?? [];
+    
+                          const updatedAttachments = existingAttachments?.filter(
+                            (doc) => doc.PcrnDocName !== documentName
+                          );
+                          setpcrnAttachments(updatedAttachments);
+                          console.log("File pcrn Removed");
                         }}
                       />
                     </Form.Item>
                   </div>
                 </div>
-               
               </>
             )}
-            {false && (<div>
+            {existingEquipmentReport?.Status == REQUEST_STATUS.Approved &&
+              existingEquipmentReport?.IsSubmit && (
+                <div>
                   <p
                     className="mt-3"
                     style={{ fontSize: "20px", color: "#C50017" }}
@@ -1181,7 +1224,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       </Form.Item>
                     </div>
                   </div>
-                </div>)}
+                </div>
+              )}
           </Form>
         </ConfigProvider>
       </div>

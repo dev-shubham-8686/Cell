@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { ICustomAxiosConfig } from "../../interface";
 import { GET_APPROVE_ASK_TO_AMMEND } from "../../URLs";
 import http from "../../http";
+import { IEmailAttachments } from "../../components/common/TextBoxModal";
 
 export interface IApproveAskToAmendPayload {
   ApproverTaskId: number;
@@ -20,6 +21,7 @@ export interface ITargetData {
   IsPcrnRequired?:boolean;
   Comment?: string;
   AdvisorId?: number;
+  EmailAttachments?:IEmailAttachments[];
 }
 
 const ApproveAskToAmmend = async (payload: IApproveAskToAmendPayload) => {

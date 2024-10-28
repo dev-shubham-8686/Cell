@@ -1,11 +1,12 @@
 import { Button, DatePicker, Form, Input, Modal, Radio, Select } from "antd";
 import dayjs from "dayjs";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import useAreaMaster from "../../apis/masters/useAreaMaster";
 import useAdvisorDetails from "../../apis/masters/useAdvisor";
 import useGetTargetDate from "../../apis/workflow/useGetTargetDate";
 import { useParams } from "react-router-dom";
-import { DATE_FORMAT } from "../../GLOBAL_CONSTANT";
+import { DATE_FORMAT, DocumentLibraries } from "../../GLOBAL_CONSTANT";
+import FileUpload from "../fileUpload/FileUpload";
 
 export interface ITextBoxModal {
   label: string | JSX.Element;
@@ -23,9 +24,19 @@ export interface ITextBoxModal {
   isTargetDateSet?: boolean;
   targetDate?: Date;
   modelTitle?: string;
-  isQCHead?:boolean;
+  isQCHead?: boolean;
+  approvedByToshiba?:boolean,
+  EQReportNo?:string
 }
+export interface IEmailAttachments{
+  EquipmentId :number;
+  EmailAttachmentId :number;
+  EmailDocName :string;
+  EmailDocFilePath :string;
+  CreatedBy:number;
+  ModifiedBy:number;
 
+}
 const TextBoxModal: React.FC<ITextBoxModal> = ({
   modelTitle = "",
   label,
@@ -42,11 +53,16 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   isRequiredField = false,
   onCancel,
   onSubmit,
+  approvedByToshiba,
+  EQReportNo
 }) => {
   const { id } = useParams();
   const [form] = Form.useForm();
   const { TextArea } = Input;
   const { data: advisors, isLoading: advisorIsLoading } = useAdvisorDetails();
+  const [emailAttachments, setEmailAttachments] = useState<
+    IEmailAttachments[] | []
+  >([]);
   // const targetDate = useGetTargetDate();
   useEffect(() => {
     if (isTargetDateSet) {
@@ -91,7 +107,8 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
                 },
               ]);
             } else {
-              onSubmit(values);
+              onSubmit({...values,
+                emailAttachments:emailAttachments});
               console.log("Values", values);
               form.resetFields();
             }
@@ -100,25 +117,30 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
         >
           {toshibaApproval ? (
             <>
-            <Form.Item label="Please select Target Date " name="TargetDate">
-              <DatePicker
-                disabledDate={(current) => {
-                  // future dates only
-                  return current && current < dayjs().startOf("day");
-                }}
-              />
-            </Form.Item>
-          
-           
-            <Form.Item
-              label="PCRN Attachments Required"
-              name="pcrnAttachmentsRequired"
-            >
-              <Radio.Group>
-                <Radio value={true}>Yes</Radio>
-                <Radio value={false}>No</Radio>
-              </Radio.Group>
-            </Form.Item>
+              <Form.Item label="Please select Target Date " name="TargetDate">
+                <DatePicker
+                  disabledDate={(current) => {
+                    // future dates only
+                    return current && current < dayjs().startOf("day");
+                  }}
+                />
+              </Form.Item>
+            </>
+          ) : (
+            <></>
+          )}
+
+          {isQCHead && toshibaApproval ? (
+            <>
+              <Form.Item
+                label="PCRN Attachments Required"
+                name="pcrnAttachmentsRequired"
+              >
+                <Radio.Group>
+                  <Radio value={true}>Yes</Radio>
+                  <Radio value={false}>No</Radio>
+                </Radio.Group>
+              </Form.Item>
             </>
           ) : (
             <></>
@@ -138,6 +160,65 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
                 loading={advisorIsLoading}
                 className="custom-disabled-select"
               />
+            </Form.Item>
+          ) : (
+            <></>
+          )}
+
+{approvedByToshiba ? (
+            <Form.Item
+              label={<span className="text-muted">Upload Attachments</span>}
+              name="emailAttachments"
+            >
+            <FileUpload
+                    key={`email-Attachments`}
+                    folderName={
+                      EQReportNo??
+                      "EQReportDocs"
+                    }
+                    subFolderName={"Email Attachments"}
+                    libraryName={DocumentLibraries.EQ_Report}
+                    files={emailAttachments?.map((a) => ({
+                      ...a,
+                      uid: a.EmailAttachmentId ?.toString() ?? "",
+                      name: a.EmailDocName,
+                      url: `${a.EmailDocFilePath}`,
+                    }))}
+                    setIsLoading={(loading: boolean) => {
+                      // setIsLoading(loading);
+                    }}
+                    isLoading={false}
+                    onAddFile={(name: string, url: string) => {
+                      const existingAttachments = emailAttachments ?? [];
+                      console.log("FILES", existingAttachments);
+                      const newAttachment: IEmailAttachments = {
+                        EquipmentId: 0,
+                        EmailAttachmentId : parseInt(id),
+                        EmailDocName : name,
+                        EmailDocFilePath : url,
+                        CreatedBy: 76,
+                        ModifiedBy: 76,
+                      };
+
+                      const updatedAttachments: IEmailAttachments[] = [
+                        ...existingAttachments,
+                        newAttachment,
+                      ];
+
+                      setEmailAttachments(updatedAttachments);
+
+                      console.log("File Added");
+                    }}
+                    onRemoveFile={(documentName: string) => {
+                      const existingAttachments:any = emailAttachments ?? [];
+
+                      const updatedAttachments = existingAttachments?.filter(
+                        (doc) => doc.ImprovementDocName !== documentName
+                      );
+                      setEmailAttachments(updatedAttachments);
+                      console.log("File Removed");
+                    }}
+                  />
             </Form.Item>
           ) : (
             <></>

@@ -228,7 +228,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
           {console.log("Edit",row.Status , REQUEST_STATUS.Draft,row.Requestor , user.employeeName)}
-          {((row.Status == REQUEST_STATUS.Draft || row.Status == REQUEST_STATUS.UnderAmendment) &&
+          {((row.Status == REQUEST_STATUS.Draft ||  REQUEST_STATUS.UnderAmendment ||  REQUEST_STATUS.PCRNPending|| REQUEST_STATUS.Approved) &&
               row.Requestor == user?.employeeName ) && (
             <button
               type="button" 

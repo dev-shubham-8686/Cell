@@ -27,6 +27,7 @@ export  interface IEquipmentImprovementReport {
   IsDeleted:boolean;
   EquipmentCurrSituationAttachmentDetails:ICurrentSituationAttachments[];
   EquipmentImprovementAttachmentDetails:IImprovementAttachments[];
+  PcrnAttachment:IPCRNAttchments[];
   ChangeRiskManagementDetails:IChangeRiskData[];
   ToshibaApprovalRequired?:boolean;
   ToshibaApprovalTargetDate?:Date;
@@ -51,6 +52,16 @@ export interface IImprovementAttachments{
   ImprovementDocFilePath:string;
   CreatedBy:number;
   ModifiedBy:number;
+}
+
+export interface IPCRNAttchments{
+  PcrnAttachmentId:number;
+  EquipmentImprovementId:number;
+  PcrnDocName:string;
+  PcrnFilePath:string;
+  CreatedBy:number;
+  ModifiedBy:number;
+  IsDeleted:boolean;
 }
 export interface IChangeRiskData {
   key:number;

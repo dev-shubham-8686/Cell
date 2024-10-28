@@ -53,6 +53,8 @@ export const DocumentLibraries = {
 
 
 export const REQUEST_STATUS = {
+  PCRNPending:"PCRNPending",
+  UnderToshibaApproval:"UnderToshibaApproval",
   InReview: "InReview",
   UnderAmendment: "UnderAmendment",
   Cancelled: "Cancelled",

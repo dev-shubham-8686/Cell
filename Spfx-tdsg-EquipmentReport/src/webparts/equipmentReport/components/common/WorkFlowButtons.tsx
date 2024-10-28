@@ -5,7 +5,7 @@ import { IUser, UserContext } from "../../context/userContext";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { IEquipmentImprovementReport } from "../../interface";
 import ToshibaApprovalModal from "./ToshibaApproval";
-import TextBoxModal from "./TextBoxModal";
+import TextBoxModal, { IEmailAttachments } from "./TextBoxModal";
 import useApproveAskToAmmend, {
   IApproveAskToAmendPayload,
   ITargetData,
@@ -49,6 +49,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const [approverRequest, setApproverRequest] = useState(isApproverRequest);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [toshibaApproval, settoshibaApproval] = useState(false);
+  const [approvedByToshiba, setapprovedByToshiba] = useState(false);
   const [toshibaDiscussion, settoshibaDiscussion] = useState(false);
   const [advisorRequired, setadvisorRequired] = useState(false);
   const { mutate: approveAskToAmmend, isLoading: approvingRequest } =
@@ -115,7 +116,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     comment: string,
     targetDate?: Date,
     advisorId?: number,
-    pcrnAttachmentsRequired?:boolean
+    pcrnAttachmentsRequired?: boolean,
+    emailAttacments?: IEmailAttachments[]
   ): Promise<void> => {
     try {
       const payload: IApproveAskToAmendPayload = {
@@ -124,34 +126,38 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         Type: actionType ?? null,
         Comment: comment,
         EquipmentId: parseInt(id),
-        EquipmentApprovalData: toshibaApproval || advisorId ? {} : null,
+        EquipmentApprovalData:
+          toshibaApproval || advisorId || eqReport.IsPcrnRequired ? {} : null,
       };
 
       if (toshibaApproval || advisorId) {
         (payload.EquipmentApprovalData.TargetDate = targetDate
           ? dayjs(targetDate).format(DATE_FORMAT)
           : null),
-          (payload.EquipmentApprovalData.IsPcrnRequired=pcrnAttachmentsRequired),
-          (payload.EquipmentApprovalData.IsToshibaDiscussion=false),
+          (payload.EquipmentApprovalData.IsPcrnRequired =
+            pcrnAttachmentsRequired),
+          (payload.EquipmentApprovalData.IsToshibaDiscussion = false),
           (payload.EquipmentApprovalData.EquipmentId = parseInt(id)),
           (payload.EquipmentApprovalData.AdvisorId = advisorId ?? 0);
       }
+      if (eqReport?.IsPcrnRequired) {
+        payload.EquipmentApprovalData.EmailAttachments = emailAttacments;
+      }
+      // approveAskToAmmend(payload, {
+      //   onSuccess: (Response) => {
+      //     console.log("ask to ammend / approve  Response: ", Response);
+      //     navigate("/", {
+      //       state: {
+      //         currentTabState: "myapproval-tab",
+      //       },
+      //     });
+      //   },
 
-      approveAskToAmmend(payload, {
-        onSuccess: (Response) => {
-          console.log("ask to ammend / approve  Response: ", Response);
-          navigate("/", {
-            state: {
-              currentTabState: "myapproval-tab",
-            },
-          });
-        },
+      //   onError: (error) => {
+      //     console.error("Export error:", error);
+      //   },
+      // });
 
-        onError: (error) => {
-          console.error("Export error:", error);
-        },
-      });
-      
       console.log("Approved Payload ", payload);
     } catch (error) {
       console.error(error);
@@ -244,11 +250,23 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   type WorkflowActionType = keyof typeof WORKFLOW_ACTIONS;
 
   const WORKFLOW_ACTIONS = {
-    Approve: (comment: string, targetDate: Date, advisorId: number,pcrnAttachmentsRequired:boolean) =>
-      onApproveAmendHandler(1, comment, targetDate, advisorId,pcrnAttachmentsRequired),
+    Approve: (
+      comment: string,
+      targetDate: Date,
+      advisorId: number,
+      pcrnAttachmentsRequired: boolean,
+      emailAttachments?: IEmailAttachments[]
+    ) =>
+      onApproveAmendHandler(
+        1,
+        comment,
+        targetDate,
+        advisorId,
+        pcrnAttachmentsRequired,
+        emailAttachments
+      ),
     Reject: (comment: string) => onRejectHandler(2, comment),
-    Amendment: (comment: string) =>
-      onApproveAmendHandler(3, comment),
+    Amendment: (comment: string) => onApproveAmendHandler(3, comment),
     PullBack: (comment: string) => onPullbackHandler(comment),
     AddUpdateTargetDate: (
       comment: string,
@@ -310,7 +328,12 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             >
               Approve
             </button>
-
+          </>
+        ) : (
+          <></>
+        )}
+        {showWorkflowBtns && approverRequest ? (
+          <>
             <button
               disabled={
                 isToshibaDiscussionTargetDatePast ||
@@ -324,24 +347,31 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             >
               Ask to Amend
             </button>
-            <button
-              disabled={
-                isToshibaDiscussionTargetDatePast ||
-                isToshibaApprovalTargetDatePast
-              }
-              className="btn btn-primary"
-              onClick={() => {
-                openCommentsPopup("Reject", false, false, false);
-                setsubmitbuttontext("Reject");
-              }}
-            >
-              Reject
-            </button>
           </>
         ) : (
           <></>
         )}
-        {(eqReport?.IsSubmit && eqReport?.CreatedBy == user.employeeId&&eqReport.Status!=REQUEST_STATUS.UnderAmendment) ? (
+        {showWorkflowBtns && approverRequest ? (
+          <button
+            disabled={
+              isToshibaDiscussionTargetDatePast ||
+              isToshibaApprovalTargetDatePast
+            }
+            className="btn btn-primary"
+            onClick={() => {
+              openCommentsPopup("Reject", false, false, false);
+              setsubmitbuttontext("Reject");
+            }}
+          >
+            Reject
+          </button>
+        ) : (
+          <></>
+        )}
+
+        {eqReport?.IsSubmit &&
+        eqReport?.CreatedBy == user?.employeeId &&
+        eqReport?.Status != REQUEST_STATUS.UnderAmendment ? (
           <button
             className="btn btn-primary"
             onClick={() => {
@@ -354,16 +384,45 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         ) : (
           <></>
         )}
-        {user.employeeId == eqReport?.AdvisorId && !isTargetDateSet && showWorkflowBtns && (
+        {user.employeeId == eqReport?.AdvisorId &&
+          !isTargetDateSet &&
+          showWorkflowBtns && (
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={() => {
+                openCommentsPopup("AddUpdateTargetDate", true, true, false);
+
+                handleToshibaReview();
+              }}
+            >
+              Toshiba Team Discussion
+            </button>
+          )}
+        {true && (
           <button
             className="btn btn-primary"
             type="button"
             onClick={() => {
-              openCommentsPopup("AddUpdateTargetDate", true, true, false);
+              openCommentsPopup("Approve", false, false, false);
+              setapprovedByToshiba(true);
+              setsubmitbuttontext("Approve");
               handleToshibaReview();
             }}
           >
-            Toshiba Team Discussion
+            Toshiba Approved
+          </button>
+        )}
+        {eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval && (
+          <button
+            className="btn btn-primary"
+            type="button"
+            onClick={() => {
+              openCommentsPopup("Reject", false, false, false);
+              handleToshibaReview();
+            }}
+          >
+            Toshiba Rejected
           </button>
         )}
         {(user.employeeId == eqReport?.AdvisorId || user.isQcTeamHead) &&
@@ -380,10 +439,12 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             </button>
           )}
         <TextBoxModal
+          EQReportNo={eqReport?.EquipmentImprovementNo}
           label={"Comments"}
           titleKey={"comment"}
           initialValue={""}
           isQCHead={user?.isQcTeamHead}
+          approvedByToshiba={approvedByToshiba}
           isTargetDateSet={isTargetDateSet}
           advisorRequired={advisorRequired}
           toshibaApproval={toshibaApproval}
@@ -397,7 +458,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             comment: string;
             TargetDate?: Date;
             advisorId?: number;
-            pcrnAttachmentsRequired?:boolean
+            pcrnAttachmentsRequired?: boolean;
+            emailAttachments?: IEmailAttachments[];
           }) => {
             setShowModal(false);
             if (values.comment && clickedAction) {
@@ -406,7 +468,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                   values.comment,
                   values.TargetDate,
                   values.advisorId,
-                  values.pcrnAttachmentsRequired
+                  values.pcrnAttachmentsRequired,
+                  values.emailAttachments
                 ).catch((error) =>
                   console.error(
                     "Error in executing the workflow action:",
