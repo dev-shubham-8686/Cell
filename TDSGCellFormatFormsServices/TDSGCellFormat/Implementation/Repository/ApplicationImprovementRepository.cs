@@ -286,7 +286,6 @@ namespace TDSGCellFormat.Implementation.Repository
                         EquipmentImprovementNo = equipmentNo
                     };
 
-                    InsertHistoryData(applicationImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Status as Draft",ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
 
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.EquipmentSave;
@@ -300,7 +299,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
 
                     }
-                    if (report.IsSubmit == true && report.IsAmendReSubmitTask == true)
+                    else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true)
                     {
                         var data = await Resubmit(existingReport.EquipmentImprovementId, report.CreatedBy);
                         if (data.StatusCode == Enums.Status.Success)
@@ -308,6 +307,10 @@ namespace TDSGCellFormat.Implementation.Repository
                             res.Message = Enums.EquipmentResubmit;
                         }
 
+                    }
+                    else
+                    {
+                        InsertHistoryData(applicationImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Status as Draft", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
                     }
                 }
                 else
@@ -374,7 +377,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.IsSubmit = true;
                     await _context.SaveChangesAsync();
                 }
-                InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.InReview.ToString(), 0);
+                InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.Submit.ToString(), 0);
 
 
                 _context.CallEquipmentApproverMaterix(createdBy, equipmentId);
@@ -411,15 +414,20 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipmentApproverTask.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
                     equipment.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
                     await _context.SaveChangesAsync();
+                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.UnderToshibaApproval.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
                 }
                 else
                 {
                     equipmentApproverTask.Status = ApprovalTaskStatus.InReview.ToString();
                     equipment.Status = ApprovalTaskStatus.InReview.ToString();
                     await _context.SaveChangesAsync();
+                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
                 }
-               // equipment.Status = ApprovalTaskStatus.InReview.ToString();
-               // await _context.SaveChangesAsync();
+
+     
+
+                // equipment.Status = ApprovalTaskStatus.InReview.ToString();
+                // await _context.SaveChangesAsync();
 
                 res.Message = Enums.EquipmentResubmit;
                 res.StatusCode = Enums.Status.Success;
@@ -587,6 +595,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         existingPcrn.ModifiedDate = DateTime.Now;
                         existingPcrn.ModifiedBy = report.ModifiedBy;
                         existingPcrn.IsDeleted = pcrndata.IsDeleted;
+                       
                         if(report.IsSubmit == false)
                         {
                             existingReport.Status = ApprovalTaskStatus.PCRNPending.ToString();
@@ -611,8 +620,16 @@ namespace TDSGCellFormat.Implementation.Repository
                         pcrn.ModifiedBy = report.ModifiedBy;
                         pcrn.CreatedDate = DateTime.Now;
                         pcrn.CreatedBy = report.ModifiedBy;
-                        pcrn.IsDeleted = false;
-                        existingReport.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                        pcrn.IsDeleted = false; 
+
+                        if (report.IsSubmit == false)
+                        {
+                            existingReport.Status = ApprovalTaskStatus.PCRNPending.ToString();
+                        }
+                        else
+                        {
+                            existingReport.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                        }
                         _context.EquipmentPCRNAttachments.Add(pcrn);
                         await _context.SaveChangesAsync();
 
@@ -631,6 +648,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Enums.Status.Success;
                 res.Message = Enums.EquipmentSave;
 
+
                 if (report.IsSubmit == true && report.IsAmendReSubmitTask == false)
                 {
                     var data = await SubmitRequest(existingReport.EquipmentImprovementId, report.CreatedBy);
@@ -640,7 +658,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
 
                 }
-                if (report.IsSubmit == true && report.IsAmendReSubmitTask == true)
+                else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true)
                 {
                     var data = await Resubmit(existingReport.EquipmentImprovementId, report.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
@@ -649,7 +667,11 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
 
                 }
+                else
+                {
+                    InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Status as Draft", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
 
+                }
             }
             catch (Exception ex)
             {
@@ -685,6 +707,10 @@ namespace TDSGCellFormat.Implementation.Repository
                         res.Message = Enums.EquipmentSubmit;
                     }
                 }
+                else
+                {
+                    InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Status as Draft", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
+                }
                 await _context.SaveChangesAsync();
 
             }
@@ -713,7 +739,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.IsResultSubmit = true;
                     await _context.SaveChangesAsync();
                 }
-                //InsertHistoryData(materialConsumptionId, FormType.MaterialConsumption.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.Submit.ToString(), 0);
+                InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "Submit the form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.Submit.ToString(), 0);
 
                 _context.CallEquipmentApproverMaterix(createdBy, equipmentId);
 
@@ -844,6 +870,9 @@ namespace TDSGCellFormat.Implementation.Repository
                             a.ModifiedDate = DateTime.Now;
                         });
                         await _context.SaveChangesAsync();
+
+                        InsertHistoryData(equipmentTask.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "PullBack by", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
+
                     }
                     else
                     {
@@ -862,6 +891,9 @@ namespace TDSGCellFormat.Implementation.Repository
                             a.ModifiedDate = DateTime.Now;
                         });
                         await _context.SaveChangesAsync();
+
+                        InsertHistoryData(equipmentTask.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "PullBack by", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
+
                     }
                 }
                 res.Message = Enums.MaterialPullback;
@@ -914,6 +946,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.WorkFlowStatus = ApprovalTaskStatus.Reject.ToString();
                     await _context.SaveChangesAsync();
 
+                    InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, ApprovalTaskStatus.Reject.ToString(), Convert.ToInt32(data.CurrentUserId), HistoryAction.Rejected.ToString(), 0);
+
                     // InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, requestTaskData.Comments, requestTaskData.Status, Convert.ToInt32(requestTaskData.ModifiedBy), ApprovalTaskStatus.UnderAmendment.ToString(), 0);
                     //
                     // var notificationHelper = new NotificationHelper(_context, _cloneContext);
@@ -938,6 +972,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.WorkFlowStatus = ApprovalTaskStatus.UnderAmendment.ToString();
                     await _context.SaveChangesAsync();
 
+                    InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, ApprovalTaskStatus.UnderAmendment.ToString(), Convert.ToInt32(data.CurrentUserId), HistoryAction.UnderAmendment.ToString(), 0);
+
                     // InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, requestTaskData.Comments, requestTaskData.Status, Convert.ToInt32(requestTaskData.ModifiedBy), ApprovalTaskStatus.UnderAmendment.ToString(), 0);
                     //
                     // var notificationHelper = new NotificationHelper(_context, _cloneContext);
@@ -945,7 +981,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     //equipmentData.WorkFlowSta = ApprovalTaskStatus.Reject.ToString();
                 }
 
-                if(data.Type == ApprovalStatus.LogicalAmendment)
+                if (data.Type == ApprovalStatus.LogicalAmendment)
                 {
                     equipmentData.Status = ApprovalTaskStatus.LogicalAmendment.ToString();
                     equipmentData.ModifiedBy = data.CurrentUserId;
@@ -961,6 +997,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.Status = ApprovalTaskStatus.LogicalAmendment.ToString();
                     equipment.WorkFlowStatus = ApprovalTaskStatus.LogicalAmendment.ToString();
                     await _context.SaveChangesAsync();
+
+                    InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, ApprovalTaskStatus.LogicalAmendment.ToString(), Convert.ToInt32(data.CurrentUserId), HistoryAction.UnderAmendment.ToString(), 0);
 
                 }
 
