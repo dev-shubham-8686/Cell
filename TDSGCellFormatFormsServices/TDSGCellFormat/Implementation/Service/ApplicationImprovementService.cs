@@ -77,5 +77,10 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return _applicationRepo.GetCurrentApproverTask(equipmentId, userId);
         }
+
+        public List<TroubleReportHistoryView> GetHistoryData(int equipmentId)
+        {
+            return _applicationRepo.GetHistoryData(equipmentId);
+        }
     }
 }
