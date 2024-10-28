@@ -12,6 +12,7 @@ using Microsoft.Graph.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using PnP.Framework.Extensions;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.ApplicationInsights.Extensibility.Implementation;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -20,11 +21,14 @@ namespace TDSGCellFormat.Implementation.Repository
         private readonly IConfiguration _configuration;
         private readonly string _connectionString;
         private readonly TdsgCellFormatDivisionContext _context;
+        private readonly AepplNewCloneStageContext _cloneContext;
 
-        public ApplicationImprovementRepository(TdsgCellFormatDivisionContext context, IConfiguration configuration)
+        public ApplicationImprovementRepository(TdsgCellFormatDivisionContext context, AepplNewCloneStageContext cloneContext, IConfiguration configuration)
             : base(context)
         {
             this._context = context;
+            this._cloneContext = cloneContext;
+
             _connectionString = configuration.GetConnectionString("DefaultConnection");
             var basePath = Path.Combine(Directory.GetCurrentDirectory());
             var configurationBuilder = new ConfigurationBuilder()
@@ -281,6 +285,9 @@ namespace TDSGCellFormat.Implementation.Repository
                         EquipmentImprovementId = applicationImprovementId,
                         EquipmentImprovementNo = equipmentNo
                     };
+
+                    InsertHistoryData(applicationImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Status as Draft",ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
+
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.EquipmentSave;
 
@@ -367,7 +374,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.IsSubmit = true;
                     await _context.SaveChangesAsync();
                 }
-                //InsertHistoryData(materialConsumptionId, FormType.MaterialConsumption.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.Submit.ToString(), 0);
+                InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.InReview.ToString(), 0);
+
 
                 _context.CallEquipmentApproverMaterix(createdBy, equipmentId);
 
@@ -579,7 +587,14 @@ namespace TDSGCellFormat.Implementation.Repository
                         existingPcrn.ModifiedDate = DateTime.Now;
                         existingPcrn.ModifiedBy = report.ModifiedBy;
                         existingPcrn.IsDeleted = pcrndata.IsDeleted;
-                        existingReport.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                        if(report.IsSubmit == false)
+                        {
+                            existingReport.Status = ApprovalTaskStatus.PCRNPending.ToString();
+                        }
+                        else
+                        {
+                            existingReport.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                        }
                         await _context.SaveChangesAsync();
 
                         var qcTeamData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == existingReport.EquipmentImprovementId && x.IsActive == true && x.SequenceNo == 5 && x.WorkFlowlevel == 1).FirstOrDefault();
@@ -964,6 +979,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false).FirstOrDefault();
 
+
                     if (data.EquipmentApprovalData != null)
                     {
                         var approvalData = data.EquipmentApprovalData;
@@ -1022,9 +1038,19 @@ namespace TDSGCellFormat.Implementation.Repository
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
-                                //await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Approved, null, nextTask.ApproverTaskId);
 
-                            }
+                                var equipmentForm = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false && x.IsDeleted == false).FirstOrDefault();
+
+                                //if there is another task are pending then status will be in InReview
+                                if (equipmentForm != null)
+                                {
+                                    equipmentForm.Status = ApprovalTaskStatus.InReview.ToString();
+                                    equipmentForm.WorkFlowStatus = ApprovalTaskStatus.InReview.ToString();
+                                    await _context.SaveChangesAsync();
+                                }
+                                    //await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Approved, null, nextTask.ApproverTaskId);
+
+                                }
                             // Notification code (if applicable)
                         }
                         else
@@ -1148,6 +1174,50 @@ namespace TDSGCellFormat.Implementation.Repository
         }
         #endregion
 
+
+        #region History Section
+        public void InsertHistoryData(int formId, string formtype, string role, string comment, string status, int actionByUserID, string actionType, int delegateUserId)
+        {
+            var res = new AjaxResult();
+            var equipmentHistory = new EquipmentImprovementHistoryMaster()
+            {
+                FormID = formId,
+                FormType = formtype,
+                ActionTakenDateTime = DateTime.Now,
+                ActionTakenByUserID = actionByUserID,
+                Role = role,
+                Status = status,
+                Comment = comment,
+                ActionType = actionType,
+                DelegateUserId = delegateUserId,
+                IsActive = true
+            };
+            _context.EquipmentImprovementHistoryMasters.Add(equipmentHistory);
+            _context.SaveChanges();
+        }
+
+
+        public List<TroubleReportHistoryView> GetHistoryData(int equipmentId)
+        {
+            var troubleHistorydata = _context.EquipmentImprovementHistoryMasters.Where(x => x.FormID == equipmentId && x.IsActive == true).ToList();
+
+            return troubleHistorydata.Select(x => new TroubleReportHistoryView()
+            {
+                historyID = x.HistoryID,
+                formID = x.FormID,
+                status = x.Status,
+                actionTakenDateTime = x.ActionTakenDateTime?.ToString("dd-MM-yyyy HH:mm:ss"),
+                actionType = x.ActionType,
+                role = x.Role,
+                comment = x.Comment,
+                actionTakenBy = _cloneContext.EmployeeMasters
+                                  .Where(emp => emp.EmployeeID == x.ActionTakenByUserID)
+                                  .Select(emp => emp.EmployeeName)
+                                  .FirstOrDefault() ?? "Unknown"
+            }).ToList();
+        }
+
+        #endregion
 
     }
 }

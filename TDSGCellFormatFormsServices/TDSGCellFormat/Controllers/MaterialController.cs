@@ -301,6 +301,7 @@ namespace TDSGCellFormat.Controllers
             }
             return Ok(Ajaxresponse);
         }
+
         [HttpGet("GetHistoryData")]
         public IActionResult GetHistoryData(int materialConsumptionId)
         {
