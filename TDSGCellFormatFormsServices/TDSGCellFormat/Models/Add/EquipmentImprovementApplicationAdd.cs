@@ -170,5 +170,18 @@ namespace TDSGCellFormat.Models.Add
         public string? Comment { get; set; }
         public int? AdvisorId { get; set; }
         public bool? IsPcrnRequired { get; set; }
+
+        public List<EquipmentAttachment>? EquipmentAttachment { get; set; }
+    }
+
+    public class EquipmentAttachment
+    {
+        public int EquipmentId { get; set; }
+        public int EmailAttachmentId { get; set; }
+
+        public string? EmailDocName { get; set; }
+        public string? EmailDocFilePath { get; set; }
+        public int? CreatedBy { get; set; }
+        public int? ModifiedBy { get; set; }
     }
 }
