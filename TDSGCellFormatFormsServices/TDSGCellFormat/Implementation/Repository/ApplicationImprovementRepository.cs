@@ -603,10 +603,12 @@ namespace TDSGCellFormat.Implementation.Repository
                         if(report.IsSubmit == false)
                         {
                             existingReport.Status = ApprovalTaskStatus.PCRNPending.ToString();
+                           
                         }
                         else
                         {
                             existingReport.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                            existingReport.IsSubmit = true;
                         }
                         await _context.SaveChangesAsync();
 
@@ -633,6 +635,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         else
                         {
                             existingReport.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                            existingReport.IsSubmit = true;
                         }
                         _context.EquipmentPCRNAttachments.Add(pcrn);
                         await _context.SaveChangesAsync();
@@ -653,7 +656,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = Enums.EquipmentSave;
 
 
-                if (report.IsSubmit == true && report.IsAmendReSubmitTask == false)
+                if (report.IsSubmit == true && report.IsAmendReSubmitTask == false && report.PcrnAttachments == null)
                 {
                     var data = await SubmitRequest(existingReport.EquipmentImprovementId, report.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
@@ -662,7 +665,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
 
                 }
-                else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true)
+                else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true && report.PcrnAttachments == null)
                 {
                     var data = await Resubmit(existingReport.EquipmentImprovementId, report.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
