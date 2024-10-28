@@ -21,6 +21,8 @@ namespace TDSGCellFormat.Interface.Repository
         Task<List<EquipmentApproverTaskMasterAdd>> GetEquipmentWorkFlowData(int equipmentId);
 
         ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId);
+
+        List<TroubleReportHistoryView> GetHistoryData(int equipmentId);
     }
 
 }

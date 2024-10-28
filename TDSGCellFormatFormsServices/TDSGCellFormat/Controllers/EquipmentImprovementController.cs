@@ -206,5 +206,34 @@ namespace TDSGCellFormat.Controllers
             return Ok(Ajaxresponse);
         }
 
+        [HttpGet("GetHistoryData")]
+        public IActionResult GetHistoryData(int equipmentId)
+        {
+            //var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            //// Call the IsValidAuthentication method
+            //AjaxResult authResult;
+            //bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+            //
+            //if (!isValidAuth)
+            //{
+            //    // Return unauthorized response if authentication fails
+            //    Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+            //    return Unauthorized(Ajaxresponse);
+            //}
+            var result = _applicationService.GetHistoryData(equipmentId);
+
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), result);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), result);
+            }
+            return Ok(Ajaxresponse);
+            //var data = _materialService.GetHistoryData(materialConsumptionId);
+            //return Ok(data);
+        }
+
     }
 }

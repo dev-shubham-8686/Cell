@@ -144,7 +144,7 @@ namespace TDSGCellFormat.Common
             MaterialConsumption = 2,
             AjustmentReport = 3,
             TechnicalInstruction = 4,
-            ApplicationImprovement = 5,
+            EquipmentImprovement = 5,
         }
         public enum Message
         {
