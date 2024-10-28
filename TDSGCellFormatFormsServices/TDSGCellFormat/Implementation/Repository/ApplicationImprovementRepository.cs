@@ -928,7 +928,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 var equipmentData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.ApproverTaskId == data.ApproverTaskId && x.IsActive == true
                                      && x.EquipmentImprovementId == data.EquipmentId
-                                     && x.Status == ApprovalTaskStatus.InReview.ToString()).FirstOrDefault();
+                                     &&( x.Status !=  ApprovalTaskStatus.Approved.ToString() || x.Status != ApprovalTaskStatus.Pending.ToString())).FirstOrDefault();
                 //here change the task as Pending and not approved
                 if (equipmentData == null)
                 {
@@ -1205,7 +1205,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId)
         {
-            var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+            var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId && (x.Status != ApprovalTaskStatus.Approved.ToString() || x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true);
             var data = new ApproverTaskId_dto();
             if (materialApprovers != null)
             {
