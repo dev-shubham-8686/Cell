@@ -181,7 +181,7 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpGet("GetCurrentApprover")]
-        public IActionResult GetCurrentApproverTask(int materialConsumptionId, int userId)
+        public IActionResult GetCurrentApproverTask(int equipmentId, int userId)
         {
            // var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
            // // Call the IsValidAuthentication method
@@ -194,7 +194,7 @@ namespace TDSGCellFormat.Controllers
            //     Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
            //     return Unauthorized(Ajaxresponse);
            // }
-            var result = _applicationService.GetCurrentApproverTask(materialConsumptionId, userId);
+            var result = _applicationService.GetCurrentApproverTask(equipmentId, userId);
             if (result != null)
             {
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), result);
