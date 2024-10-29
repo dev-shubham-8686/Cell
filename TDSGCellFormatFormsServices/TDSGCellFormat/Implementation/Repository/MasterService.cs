@@ -335,5 +335,17 @@ namespace TDSGCellFormat.Implementation.Repository
 
             return res;
         }
+
+        public IQueryable<EmployeeMasterView> GetAllEmployee()
+        {
+            IQueryable<EmployeeMasterView> res = _cloneContext.EmployeeMasters.Where(x => x.IsActive == true)
+                                            .Select(x => new EmployeeMasterView
+                                            {
+                                                employeeId = x.EmployeeID,
+                                                employeeName = x.EmployeeName
+                                            });
+
+            return res;
+        }
     }
 }

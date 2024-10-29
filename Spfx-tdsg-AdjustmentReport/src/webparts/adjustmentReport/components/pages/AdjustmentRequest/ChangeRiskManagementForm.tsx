@@ -1,11 +1,12 @@
-import { Col, Collapse, DatePicker, Form, Row, Select } from "antd";
+import { Col, Collapse, DatePicker, Form, Input, Row, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import * as React from "react";
 import { DATE_FORMAT } from "../../../GLOBAL_CONSTANT";
 import { disabledDate } from "../../../utils/helper";
-import { Option } from "antd/es/mentions";
+import { useGetAllEmployees } from "../../../hooks/useGetAllEmployees";
 
 const { Panel } = Collapse;
+const { Option } = Select;
 
 interface ChangeRiskManagementFormProps {
   form: any;
@@ -16,6 +17,8 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
   form,
   index,
 }) => {
+  const { data: employeesResult } = useGetAllEmployees();
+
   return (
     <div className="my-3">
       <Collapse defaultActiveKey={["1"]}>
@@ -62,11 +65,7 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
           <Row gutter={48}>
             <Col span={6}>
               <Form.Item label="Function" name={`function-${index}`}>
-                <Select placeholder="Select Function">
-                  <Option value="john">Function 1</Option>
-                  <Option value="mike">Function 2</Option>
-                  <Option value="matt">Function 3</Option>
-                </Select>
+                <Input placeholder="Enter Function" />
               </Form.Item>
             </Col>
 
@@ -92,9 +91,12 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
                 name={`personInCharge-${index}`}
               >
                 <Select placeholder="Select Person in Charge">
-                  <Option value="john">John</Option>
-                  <Option value="mike">Mike</Option>
-                  <Option value="matt">Matt</Option>
+                  {employeesResult?.ReturnValue &&
+                    employeesResult.ReturnValue.map((employee) => (
+                      <Option key={employee.employeeId} value={employee.employeeId}>
+                        {employee.employeeName}
+                      </Option>
+                    ))}
                 </Select>
               </Form.Item>
             </Col>

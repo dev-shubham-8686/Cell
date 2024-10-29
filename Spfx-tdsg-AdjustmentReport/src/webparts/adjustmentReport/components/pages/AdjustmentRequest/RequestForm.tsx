@@ -15,11 +15,12 @@ import * as dayjs from "dayjs";
 import { UploadOutlined } from "@ant-design/icons";
 import ChangeRiskManagementForm from "./ChangeRiskManagementForm";
 import { useGetAllMachines } from "../../../hooks/useGetAllMachines";
-import { IMachine } from "../../../api/GetAllMachines.api";
 import { useGetAllSubMachines } from "../../../hooks/useGetAllSubMachines";
 import { ISubMachine } from "../../../api/GetAllSubMachines.api";
 import { useGetAllAreas } from "../../../hooks/useGetAllAreas";
 import { IArea } from "../../../api/GetAllAreas.api";
+import { useEffect, useState } from "react";
+import { useGetCheckedBy } from "../../../hooks/useGetCheckedBy";
 // import { ChangeRiskManagement } from "../../../api/AddUpdateReport.api";
 // import { useParams } from "react-router-dom";
 
@@ -37,12 +38,27 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const currentDateTime = dayjs();
   const [cRMRequired, setCRMRequired] = React.useState<boolean | null>(null);
   const [formSections, setFormSections] = React.useState<number[]>([0]); // Initially, one form section
+  const [selectedMachineId, setSelectedMachineId] = useState<number | null>(null);
+  const [filteredSubMachines, setFilteredSubMachines] = useState<ISubMachine[]>([]);
 
   const { data: machinesResult } = useGetAllMachines();
-  const { data: subMachinesResult } = useGetAllSubMachines(1);
+  
+  const { data: subMachinesResult } = useGetAllSubMachines();
   const { data: areasResult } = useGetAllAreas();
+  const { data: checkedByResult } = useGetCheckedBy();
 
-  console.log({ machinesResult, subMachinesResult });
+  useEffect(() => {
+    if (selectedMachineId && subMachinesResult?.ReturnValue) {
+      const filtered = subMachinesResult.ReturnValue.filter(
+        (subMachine) => subMachine.MachineId === selectedMachineId
+      );
+      setFilteredSubMachines(filtered);
+    } else {
+      setFilteredSubMachines([]);
+    }
+
+    form.setFieldsValue({ subMachineName: [] });
+  }, [selectedMachineId, subMachinesResult, form]);
 
   const addFormSection = () => {
     setFormSections((prevSections) => [...prevSections, prevSections.length]);
@@ -108,7 +124,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
         <Row gutter={48}>
           <Col span={6}>
             <Form.Item label="Report No" name="reportNo">
-              <Input placeholder="Enter Report No" disabled />
+              <Input disabled />
             </Form.Item>
           </Col>
 
@@ -125,9 +141,12 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               rules={[{ required: true }]}
             >
               <Select placeholder="Select Checked By">
-                <Option value={1}>Checked By 1</Option>
-                <Option value={2}>Checked By 2</Option>
-                <Option value={3}>Checked By 3</Option>
+                {checkedByResult?.ReturnValue &&
+                  checkedByResult.ReturnValue.map((checkedBy) => (
+                    <Option key={checkedBy.employeeId} value={checkedBy.employeeId}>
+                      {checkedBy.employeeName}
+                    </Option>
+                  ))}
               </Select>
             </Form.Item>
           </Col>
@@ -158,7 +177,10 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                   name="area"
                   rules={[{ required: true }]}
                 >
-                  <Select placeholder="Select Area">
+                  <Select
+                    mode="multiple"
+                    placeholder="Select Area"
+                    showSearch={false}>
                     {areasResult?.ReturnValue &&
                       areasResult.ReturnValue.map((area: IArea) => (
                         <Option key={area.AreaId} value={area.AreaId}>
@@ -221,13 +243,13 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                   name="machineName"
                   rules={[{ required: true }]}
                 >
-                  <Select placeholder="Select Machine Name">
+                  <Select
+                    placeholder="Select Machine Name"
+                    onChange={(value) => setSelectedMachineId(value)} // Update selected machine ID
+                  >
                     {machinesResult?.ReturnValue &&
-                      machinesResult?.ReturnValue.map((machine: IMachine) => (
-                        <Option
-                          key={machine.MachineId}
-                          value={machine.MachineId}
-                        >
+                      machinesResult.ReturnValue.map((machine) => (
+                        <Option key={machine.MachineId} value={machine.MachineId}>
                           {machine.MachineName}
                         </Option>
                       ))}
@@ -285,18 +307,15 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                   name="subMachineName"
                   rules={[{ required: true }]}
                 >
-                  <Select placeholder="Select Sub-Machine Name">
-                    {subMachinesResult?.ReturnValue &&
-                      subMachinesResult?.ReturnValue.map(
-                        (subMachine: ISubMachine) => (
-                          <Option
-                            key={subMachine.MachineId}
-                            value={subMachine.MachineId}
-                          >
-                            {subMachine.MachineName}
-                          </Option>
-                        )
-                      )}
+                  <Select mode="multiple" placeholder="Select Sub-Machine Name">
+                    {filteredSubMachines.map((subMachine) => (
+                      <Option
+                        key={subMachine.SubMachineId}
+                        value={subMachine.SubMachineId}
+                      >
+                        {subMachine.SubMachineName}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>

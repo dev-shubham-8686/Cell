@@ -3,7 +3,8 @@ import apiClient from "../utils/axiosInstance";
 
 export interface ISubMachine {
   MachineId: number;
-  MachineName: string;
+  SubMachineName: string;
+  SubMachineId: string;
 }
 
 export interface ISubMachines {

@@ -8,6 +8,7 @@ import PageLayout from "./pageLayout/PageLayout";
 import ReportFormPage from "./pages/AdjustmentRequest/ReportFormPage";
 import AdjustmentReportMain from "./pages/adjustmentReport/AdjustmentReportMain";
 import Test from "./pages/adjustmentReport/Test";
+import { UserProvider } from "../context/UserContext";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
@@ -25,12 +26,13 @@ export default class AdjustmentReport extends React.Component<
       // hasTeamsContext,
       // userDisplayName,
       context,
-      // userEmail,
+      userEmail,
     } = this.props;
 
     return (
       <WebPartContext.Provider value={context}>
         <QueryClientProvider client={queryClient}>
+        <UserProvider userEmail={userEmail}>
           <ConfigProvider
             theme={{
               token: {
@@ -49,6 +51,7 @@ export default class AdjustmentReport extends React.Component<
               </PageLayout>
             </Router>
           </ConfigProvider>
+          </UserProvider>
         </QueryClientProvider>
       </WebPartContext.Provider>
     );

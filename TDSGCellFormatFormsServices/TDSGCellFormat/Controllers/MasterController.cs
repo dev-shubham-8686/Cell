@@ -460,8 +460,8 @@ namespace TDSGCellFormat.Controllers
             return Ok(Ajaxresponse);
         }
 
-        [HttpGet("GetAllAreas")]
-        public async Task<IActionResult> GetAllAreas()
+        [HttpGet("GetAllEmployee")]
+        public async Task<IActionResult> GetAllEmployee()
         {
             var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
             // Call the IsValidAuthentication method
@@ -475,7 +475,7 @@ namespace TDSGCellFormat.Controllers
                 return Unauthorized(Ajaxresponse);
             }
 
-            var res = _masterService.GetAllAreas().ToList();
+            var res = _masterService.GetAllEmployee().ToList();
             if (res.Count > 0)
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
             else

@@ -49,7 +49,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 .Select(n => new AdjustMentReportRequest
                 {
                     AdjustMentReportId = n.ar.AdjustMentReportId,
-                    Area = n.ar.Area,
+                    Area = !string.IsNullOrEmpty(n.ar.Area) ? n.ar.Area.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(t => Int32.Parse(t)).ToList<int>() : new List<int>(),
                     MachineName = n.ar.MachineName,
                     SubMachineName = !string.IsNullOrEmpty(n.ar.SubMachineName) ? n.ar.SubMachineName.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(t => Int32.Parse(t)).ToList<int>() : new List<int>(),
                     ReportNo = n.ar.ReportNo,
@@ -126,7 +126,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 AdjustMentReportId = res.AdjustMentReportId,
                 ReportNo = res.ReportNo,
-                Area = res.Area,
+                Area = !string.IsNullOrEmpty(res.Area) ? res.Area.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
                 MachineName = res.MachineName,
                 SubMachineName = !string.IsNullOrEmpty(res.SubMachineName) ? res.SubMachineName.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
                 RequestBy = res.RequestBy,
@@ -245,7 +245,7 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             else
             {
-                existingReport.Area = request.Area;
+                existingReport.Area = request.Area != null && request.Area.Count > 0 ? string.Join(",", request.Area) : ""; ;
                 existingReport.MachineName = request.MachineName;
                 existingReport.SubMachineName = request.SubMachineName != null && request.SubMachineName.Count > 0 ? string.Join(",", request.SubMachineName) : "";
                 existingReport.EmployeeId = request.EmployeeId;
