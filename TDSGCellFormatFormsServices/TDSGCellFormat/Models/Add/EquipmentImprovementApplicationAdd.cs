@@ -74,6 +74,7 @@ namespace TDSGCellFormat.Models.Add
         public string? ActualDate { get; set; }
         public bool? IsResultSubmit { get; set; }
         public string? ResultStatus { get; set; }
+        public string? ResultMonitoringDate { get; set; }
     }
 
     public class EquipmentCurrSituationAttachData

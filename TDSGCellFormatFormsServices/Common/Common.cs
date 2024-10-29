@@ -135,7 +135,9 @@ namespace TDSGCellFormat.Common
             ToshibaTechnicalReview = 28,
             UnderToshibaApproval = 29,
             LogicalAmendment = 30,
-            PCRNPending = 31
+            PCRNPending = 31,
+            UnderImplementation = 32,
+            ResultMonitoring = 33
 
         }
         public enum FormType
