@@ -170,7 +170,7 @@ console.log("ApproverTasks",approverTasks)
     return (
         <div className="tab-section p-4">
           <div className="table-responsive ">
-          <p className=" mb-0" style={{fontSize:"20px",color:"#C50017"}}>Workflow -1</p>
+          <p className=" mb-0" style={{fontSize:"20px",color:"#C50017"}}>Approval Workflow</p>
             {approverTasks?.length === 0 ? (
               <div>Workflow has not been assigned for this request.</div>
             ) : (
@@ -211,7 +211,7 @@ console.log("ApproverTasks",approverTasks)
           </div>
 
           {/* <div className="table-responsive pt-5 ">
-          <p className=" mb-0" style={{fontSize:"20px",color:"#C50017"}}>Workflow -2</p>
+          <p className=" mb-0" style={{fontSize:"20px",color:"#C50017"}}>Result Implementation Workflow </p>
             {approverTasks?.length === 0 ? (
               <div>Workflow has not been assigned for this request.</div>
             ) : (

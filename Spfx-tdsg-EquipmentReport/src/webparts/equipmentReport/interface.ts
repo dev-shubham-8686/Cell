@@ -1,4 +1,5 @@
 import { AxiosRequestConfig } from "axios";
+import dayjs from "dayjs";
 
 
 
@@ -27,7 +28,7 @@ export  interface IEquipmentImprovementReport {
   IsDeleted:boolean;
   EquipmentCurrSituationAttachmentDetails:ICurrentSituationAttachments[];
   EquipmentImprovementAttachmentDetails:IImprovementAttachments[];
-  PcrnAttachment:IPCRNAttchments[];
+  PcrnAttachments:IPCRNAttchments;
   ChangeRiskManagementDetails:IChangeRiskData[];
   ToshibaApprovalRequired?:boolean;
   ToshibaApprovalTargetDate?:Date;
@@ -70,7 +71,7 @@ export interface IChangeRiskData {
   RiskAssociated : string;
   Factor : string;
   CounterMeasures : string;
-  DueDate : string;
+  DueDate :  dayjs.Dayjs;
   PersonInCharge :string;
   Results :string
 }

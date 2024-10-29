@@ -18,3 +18,4 @@ export const GET_APPROVE_ASK_TO_AMMEND =
   export const GET_APPROVER_FLOW_DATA = "/api/EquipmentImprovement/GetApprorverFlowData";
   export const GET_CURRENT_APPROVER_DATA = "/api/EquipmentImprovement/GetCurrentApprover";
   export const GET_TARGET_DATE = "api/EquipmentImprovement/GettargetDate";
+  export const GET_PULLBACK = "/api/EquipmentImprovement/PullBack";

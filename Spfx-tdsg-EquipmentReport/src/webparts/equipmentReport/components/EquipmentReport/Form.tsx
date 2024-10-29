@@ -71,64 +71,24 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const [improvementAttchments, setImprovementAttchments] = useState<
     IImprovementAttachments[] | []
   >([]);
-  const [pcrnAttachments, setpcrnAttachments] =
-    useState<IPCRNAttchments[] | []>([]);
+  const [pcrnAttachments, setpcrnAttachments] = useState<IPCRNAttchments>();
   const [currSituationAttchments, setcurrSituationAttchments] = useState<
     ICurrentSituationAttachments[] | []
   >([]);
   const [selectedMachine, setselectedMachine] = useState<number | 0>(0);
   const [showSubmitModal, setshowSubmitModal] = useState<boolean>(false);
   const [submitted, setsubmitted] = useState(false);
+  const [pcrnSubmission, setpcrnSubmission] = useState(false);
   const [underAmmendment, setunderAmmendment] = useState(false);
 
   // const { data: employees, isLoading: employeeisLoading } = useEmployeeMaster();
 
-  const onSubmitFormHandler = async (): Promise<void> => {
-    setshowSubmitModal(true);
-  };
-
-  const handleModalReSubmit = (sectionHead?: string) => {
-    const values: IEquipmentImprovementReport = form.getFieldsValue();
-    values.EquipmentImprovementId = parseInt(id);
-    values.IsSubmit = true;
-    values.isAmendReSubmitTask = true;
-    values.IsPcrnRequired = existingEquipmentReport?.IsPcrnRequired
-      ? true
-      : false;
-    eqReportSave.mutate(
-      { ...values },
-      {
-        onSuccess: (Response: any) => {
-          console.log("ONSUBMIT RES", Response);
-          navigate(`/equipment-improvement-report`);
-        },
-        onError: (error) => {
-          console.error("On submit error:", error);
-        },
-      }
-    );
-  };
-
-  const onReSubmitFormHandler = async (): Promise<void> => {
-    Modal.confirm({
-      title: "Are you sure you want to resubmit the form?",
-      okText: "Yes",
-      cancelText: "Cancel",
-      onOk: async () => {
-        // Call the resubmit function if user confirms
-        handleModalReSubmit();
-      },
-      onCancel: () => {
-        // Close the modal if user cancels
-        console.log("Resubmit canceled");
-      },
-    });
-  };
-
-  const handleModalSubmit = (sectionHead: string) => {
+  const handleModalSubmit = (sectionHead?: string) => {
+    void form.validateFields();
     const values: IEquipmentImprovementReport = form.getFieldsValue();
     values.SectionHeadId = parseInt(sectionHead);
-    values.IsSubmit = true; // Set the sectionHead value in the form values
+    values.IsSubmit = true;
+    values.isAmendReSubmitTask = false; // Set the sectionHead value in the form values
     console.log("DropDownValues", sectionHead);
     console.log("Final form values with secHead:", values);
     values.EquipmentImprovementId = parseInt(id);
@@ -150,6 +110,62 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       }
     );
   };
+  const onSubmitFormHandler = async (): Promise<void> => {
+    if (existingEquipmentReport?.IsPcrnRequired) {
+      Modal.confirm({
+        title: "Are you sure you want to submit the form?",
+        okText: "Submit",
+        okButtonProps: { className: "btn btn-primary" },
+        cancelButtonProps: { className: "btn-outline-primary" },
+        cancelText: "Cancel",
+        onOk: async () => {
+          handleModalSubmit();
+        },
+        onCancel: () => {
+          console.log("submit canceled");
+        },
+      });
+    } else {
+      setshowSubmitModal(true);
+    }
+  };
+  const handleModalReSubmit = (sectionHead?: string) => {
+    const values: IEquipmentImprovementReport = form.getFieldsValue();
+    values.EquipmentImprovementId = parseInt(id);
+    values.IsSubmit = true;
+    values.isAmendReSubmitTask = true;
+    values.isAmendReSubmitTask = true;
+    values.IsPcrnRequired = existingEquipmentReport?.IsPcrnRequired
+      ? true
+      : false;
+    eqReportSave.mutate(
+      { ...values },
+      {
+        onSuccess: (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          navigate(`/equipment-improvement-report`);
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
+      }
+    );
+  };
+  const onReSubmitFormHandler = async (): Promise<void> => {
+    Modal.confirm({
+      title: "Are you sure you want to resubmit the form?",
+      okText: "Yes",
+      cancelText: "Cancel",
+      onOk: async () => {
+        // Call the resubmit function if user confirms
+        handleModalReSubmit();
+      },
+      onCancel: () => {
+        // Close the modal if user cancels
+        console.log("Resubmit canceled");
+      },
+    });
+  };
 
   const onSaveAsDraftHandler = async (): Promise<void> => {
     const values: IEquipmentImprovementReport = form.getFieldsValue();
@@ -158,8 +174,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     values.IsPcrnRequired = existingEquipmentReport?.IsPcrnRequired
       ? true
       : false;
-    values.PcrnAttachment = pcrnAttachments;
+    
+    values.PcrnAttachments = pcrnAttachments ? pcrnAttachments : null;
     values.IsSubmit = false;
+    values.isAmendReSubmitTask = false;
     values.CreatedBy = user.employeeId;
     console.log("form saved as draft data", values);
     if (id) {
@@ -246,6 +264,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       setImprovementAttchments(
         existingEquipmentReport?.EquipmentImprovementAttachmentDetails ?? []
       );
+      setpcrnAttachments(existingEquipmentReport?.PcrnAttachments ?? null);
       setcurrSituationAttchments(
         existingEquipmentReport?.EquipmentCurrSituationAttachmentDetails ?? []
       );
@@ -262,6 +281,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         existingEquipmentReport.CreatedBy == user.employeeId
       ) {
         setunderAmmendment(true);
+      }
+      if (existingEquipmentReport?.IsPcrnRequired) {
+        setpcrnSubmission(true);
       }
       if (existingEquipmentReport?.IsSubmit) {
         setsubmitted(true);
@@ -298,17 +320,21 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   };
 
   const handleDelete = (key: React.Key): void => {
+    
     const newData = ChangeRiskManagementDetails.filter(
       (item) => item.key !== key
     ).map((item, index) => {
       return {
         ...item,
         key: index,
-      };
+        DueDate: dayjs(item.DueDate, DATE_FORMAT),    
+        };
     });
+    
     console.log("after deleting", ChangeRiskManagementDetails, newData);
     setChangeRiskManagementDetails(newData);
     // form.resetFields();
+    
     form.setFieldsValue({
       ["ChangeRiskManagementDetails"]: newData,
     });
@@ -751,7 +777,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Area}
                 >
                   <Select
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView ||
+                      (submitted && !underAmmendment) ||
+                      pcrnSubmission
+                    }
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -776,7 +806,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Section}
                 >
                   <Select
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView ||
+                      (submitted && !underAmmendment) ||
+                      pcrnSubmission
+                    }
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -808,7 +842,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Machine}
                 >
                   <Select
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView ||
+                      (submitted && !underAmmendment) ||
+                      pcrnSubmission
+                    }
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -840,7 +878,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.SubMachine}
                 >
                   <Select
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView ||
+                      (submitted && !underAmmendment) ||
+                      pcrnSubmission
+                    }
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -874,7 +916,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.ImpName}
                 >
                   <TextArea
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView ||
+                      (submitted && !underAmmendment) ||
+                      pcrnSubmission
+                    }
                     maxLength={100}
                     rows={3}
                   />
@@ -887,7 +933,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Purpose}
                 >
                   <TextArea
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView ||
+                      (submitted && !underAmmendment) ||
+                      pcrnSubmission
+                    }
                     maxLength={1000}
                     rows={3}
                   />
@@ -906,7 +956,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView ||
+                      (submitted && !underAmmendment) ||
+                      pcrnSubmission
+                    }
                     key={`file-upload-current-situation`}
                     folderName={
                       form.getFieldValue("EquipmentImprovementNo") ??
@@ -966,7 +1020,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.CurrSituation}
                 >
                   <TextArea
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView ||
+                      (submitted && !underAmmendment) ||
+                      pcrnSubmission
+                    }
                     maxLength={1000}
                     rows={3}
                   />
@@ -981,7 +1039,15 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   name="Improvement"
                   rules={validationRules.ImpDesc}
                 >
-                  <TextArea disabled={isModeView} maxLength={1000} rows={3} />
+                  <TextArea
+                    disabled={
+                      isModeView ||
+                      (submitted && !underAmmendment) ||
+                      pcrnSubmission
+                    }
+                    maxLength={1000}
+                    rows={3}
+                  />
                 </Form.Item>
               </div>
 
@@ -1000,7 +1066,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView ||
+                      (submitted && !underAmmendment) ||
+                      pcrnSubmission
+                    }
                     key={`file-upload-improvement`}
                     folderName={
                       form.getFieldValue("EquipmentImprovementNo") ??
@@ -1090,7 +1160,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 // }}
               />
             </div>
-            {console.log("PCRN",pcrnAttachments)}
+            {console.log("PCRN", pcrnAttachments)}
             {existingEquipmentReport?.IsPcrnRequired && (
               <>
                 <div className="row">
@@ -1099,9 +1169,12 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       label={
                         <span className="text-muted">PCRN Attachments</span>
                       }
-                      name="pcrnAttachment"
-                      // rules={validationRules.attachment}
+                      name="PcrnAttachments"
+                      rules={
+                        !pcrnAttachments ? validationRules.attachment : null
+                      }
                     >
+                      {console.log("PCRN Attachment", pcrnAttachments)}
                       <FileUpload
                         ispcrnRequired={existingEquipmentReport?.IsPcrnRequired}
                         disabled={isModeView || (submitted && !underAmmendment)}
@@ -1112,45 +1185,51 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         }
                         subFolderName={"PCRN Attachments"}
                         libraryName={DocumentLibraries.EQ_Report}
-                        files={pcrnAttachments?.map((a) => ({
-                          ...a,
-                          uid: a.PcrnAttachmentId?.toString() ?? "",
-                          name: a.PcrnDocName,
-                          url: `${a.PcrnFilePath}`,
-                        }))}
+                        files={
+                          pcrnAttachments
+                            ? [
+                                {
+                                  ...pcrnAttachments,
+                                  uid:
+                                    pcrnAttachments.PcrnAttachmentId?.toString() ??
+                                    "",
+                                  name: pcrnAttachments.PcrnDocName,
+                                  url: pcrnAttachments.PcrnFilePath,
+                                },
+                              ]
+                            : []
+                        }
                         setIsLoading={(loading: boolean) => {
                           // setIsLoading(loading);
                         }}
                         isLoading={false}
                         onAddFile={(name: string, url: string) => {
-                        
-                          const existingAttachments = pcrnAttachments ?? [];
-                            const newAttachment: IPCRNAttchments = {
-                              PcrnAttachmentId: 0,
-                              EquipmentImprovementId: parseInt(id),
-                              PcrnDocName: name,
-                              PcrnFilePath: url,
-                              CreatedBy: 76,
-                              ModifiedBy: 76,
-                              IsDeleted: false,
-                            };
-                            const updatedAttachments: IPCRNAttchments[] = [
-                              ...existingAttachments,
-                              newAttachment,
-                            ];
-                            setpcrnAttachments(updatedAttachments);
+                          // const existingAttachments = pcrnAttachments ?? [];
+                          const newAttachment: IPCRNAttchments = {
+                            PcrnAttachmentId: 0,
+                            EquipmentImprovementId: parseInt(id),
+                            PcrnDocName: name,
+                            PcrnFilePath: url,
+                            CreatedBy: 76,
+                            ModifiedBy: 76,
+                            IsDeleted: false,
+                          };
+                          // const updatedAttachments: IPCRNAttchments[] = [
+                          //   ...existingAttachments,
+                          //   newAttachment,
+                          // ];
+                          setpcrnAttachments(newAttachment);
 
-                            console.log("PCRN File Added");
-                          
+                          console.log("PCRN File Added");
                         }}
                         onRemoveFile={(documentName: string) => {
-                          const existingAttachments = pcrnAttachments ?? [];
-    
-                          const updatedAttachments = existingAttachments?.filter(
-                            (doc) => doc.PcrnDocName !== documentName
-                          );
-                          setpcrnAttachments(updatedAttachments);
-                          console.log("File pcrn Removed");
+                          if (
+                            pcrnAttachments &&
+                            pcrnAttachments?.PcrnDocName === documentName
+                          ) {
+                            setpcrnAttachments(null);
+                            console.log("File pcrn Removed");
+                          }
                         }}
                       />
                     </Form.Item>

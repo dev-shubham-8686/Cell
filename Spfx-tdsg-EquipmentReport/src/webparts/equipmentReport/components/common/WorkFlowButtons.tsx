@@ -10,10 +10,15 @@ import useApproveAskToAmmend, {
   IApproveAskToAmendPayload,
   ITargetData,
 } from "../../apis/workflow/useApproveAskToAmmend";
-import { DATE_FORMAT, REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
+import {
+  DATE_FORMAT,
+  DATE_TIME_FORMAT,
+  REQUEST_STATUS,
+} from "../../GLOBAL_CONSTANT";
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import useAddOrUpdateTargetDate from "../../apis/workflow/useAddorUpdateTargetDate";
+import usePullBack, { IPullBack } from "../../apis/workflow/usePullBack";
 dayjs.extend(isSameOrBefore);
 export interface IApproverTask {
   approverTaskId: number;
@@ -21,11 +26,7 @@ export interface IApproverTask {
   userId: number;
   seqNumber?: number;
 }
-export interface IPullBack {
-  materialConsumptionId: number;
-  userId: number;
-  comment: string;
-}
+
 export interface IWorkFlowProps {
   currentApproverTask: IApproverTask;
   eqReport?: IEquipmentImprovementReport;
@@ -55,26 +56,20 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const { mutate: approveAskToAmmend, isLoading: approvingRequest } =
     useApproveAskToAmmend(id ? parseInt(id) : undefined, user.employeeId);
   const { mutate: addOrUpdateTargetDate } = useAddOrUpdateTargetDate();
-  const isToshibaDiscussionTargetDatePast =
-    eqReport?.ToshibaDiscussionTargetDate
-      ? dayjs(eqReport?.ToshibaDiscussionTargetDate).isSameOrBefore(
-          dayjs(),
-          "day"
-        )
-      : false;
-  console.log(
-    "isToshibaDiscussionTargetDatePast",
-    isToshibaDiscussionTargetDatePast,
+  const { mutate: pullBack, isLoading: pullbacking } = usePullBack(
+    id ? parseInt(id) : undefined,
+    user.employeeId
+  );
+  const isToshibaDiscussionTargetDatePast = dayjs(
     eqReport?.ToshibaDiscussionTargetDate,
-    (dayjs(), "day")
-  );
-  const isToshibaApprovalTargetDatePast = eqReport?.ToshibaApprovalTargetDate
-    ? dayjs(eqReport?.ToshibaApprovalTargetDate).isSameOrBefore(dayjs(), "day") // Compare with current date
-    : false;
-  console.log(
-    "isToshibaDiscussionTargetDatePast",
-    isToshibaDiscussionTargetDatePast
-  );
+    DATE_TIME_FORMAT
+  ).isSameOrBefore(dayjs(), "day");
+
+  const isToshibaApprovalTargetDatePast = dayjs(
+    eqReport?.ToshibaApprovalTargetDate,
+    DATE_TIME_FORMAT
+  ).isSameOrBefore(dayjs(), "day"); // Compare with current date
+
   const handleToshibaReview = () => {
     setIsModalVisible(true);
   };
@@ -143,20 +138,20 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
       if (eqReport?.IsPcrnRequired) {
         payload.EquipmentApprovalData.EmailAttachments = emailAttacments;
       }
-      // approveAskToAmmend(payload, {
-      //   onSuccess: (Response) => {
-      //     console.log("ask to ammend / approve  Response: ", Response);
-      //     navigate("/", {
-      //       state: {
-      //         currentTabState: "myapproval-tab",
-      //       },
-      //     });
-      //   },
+      approveAskToAmmend(payload, {
+        onSuccess: (Response) => {
+          console.log("ask to ammend / approve  Response: ", Response);
+          navigate("/equipment-improvement-report", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+        },
 
-      //   onError: (error) => {
-      //     console.error("Export error:", error);
-      //   },
-      // });
+        onError: (error) => {
+          console.error("Export error:", error);
+        },
+      });
 
       console.log("Approved Payload ", payload);
     } catch (error) {
@@ -172,14 +167,27 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     try {
       const payload: ITargetData = {
         EquipmentId: parseInt(id),
-        IsToshibaDiscussion: true,
+        IsToshibaDiscussion: eqReport?.ToshibaApprovalRequired ? false : true,
         TargetDate: dayjs(targetDate).format(DATE_FORMAT) ?? null,
         Comment: comment,
         AdvisorId: 0,
       };
 
-      addOrUpdateTargetDate(payload);
-      console.log("Approved ", payload);
+      addOrUpdateTargetDate(payload, {
+        onSuccess: (Response) => {
+          console.log("add or update target date ", Response);
+          navigate("/equipment-improvement-report", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+        },
+
+        onError: (error) => {
+          console.error("Export error:", error);
+        },
+      });
+      console.log("updated target date ", payload);
     } catch (error) {
       console.error(error);
     }
@@ -187,11 +195,21 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
 
   const onPullbackHandler = async (comment?: string): Promise<void> => {
     try {
-      const params: IPullBack = {
-        materialConsumptionId: parseInt(id),
+      const payload: IPullBack = {
+        equipmentId: parseInt(id),
         userId: user.employeeId,
         comment: comment,
       };
+      pullBack(payload, {
+        onSuccess: (Response) => {
+          console.log("pullback Response: ", Response);
+          navigate(`/equipment-improvement-report`);
+        },
+
+        onError: (error) => {
+          console.error("Export error:", error);
+        },
+      });
     } catch (error) {
       console.error(error);
     }
@@ -285,17 +303,17 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         />
         {console.log(
           "COndition",
-          showWorkflowBtns,
-          approverRequest,
+
           !isToshibaDiscussionTargetDatePast,
           !isToshibaApprovalTargetDatePast
         )}
-        {showWorkflowBtns && approverRequest ? (
+        {(showWorkflowBtns && !user?.isQcTeamHead) && approverRequest ? (
           <>
             <button
               disabled={
-                isToshibaDiscussionTargetDatePast ||
-                isToshibaApprovalTargetDatePast
+                eqReport?.AdvisorId == user?.employeeId &&
+                isTargetDateSet &&
+                !isToshibaDiscussionTargetDatePast
               }
               className="btn btn-primary"
               onClick={() => {
@@ -309,8 +327,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                     ),
                     okText: "Yes",
                     okButtonProps: { className: "btn btn-primary" },
-                    cancelText: "No",
                     cancelButtonProps: { className: "btn-outline-primary" },
+                    cancelText: "No",
                     onOk() {
                       openCommentsPopup("Approve", false, true, false);
                     },
@@ -332,12 +350,15 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         ) : (
           <></>
         )}
-        {showWorkflowBtns && approverRequest ? (
+        {(showWorkflowBtns && approverRequest) ||
+        (eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval &&
+          user?.isQcTeamHead) ? (
           <>
             <button
               disabled={
-                isToshibaDiscussionTargetDatePast ||
-                isToshibaApprovalTargetDatePast
+                eqReport?.AdvisorId == user?.employeeId && isTargetDateSet
+                  ? !isToshibaDiscussionTargetDatePast
+                  : user?.isQcTeamHead && !isToshibaApprovalTargetDatePast
               }
               className="btn btn-primary"
               onClick={() => {
@@ -351,11 +372,11 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         ) : (
           <></>
         )}
-        {showWorkflowBtns && approverRequest ? (
+        {(showWorkflowBtns && !user?.isQcTeamHead) && approverRequest  ? (
           <button
             disabled={
-              isToshibaDiscussionTargetDatePast ||
-              isToshibaApprovalTargetDatePast
+              eqReport?.AdvisorId == user?.employeeId &&
+              !isToshibaDiscussionTargetDatePast
             }
             className="btn btn-primary"
             onClick={() => {
@@ -399,22 +420,25 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
               Toshiba Team Discussion
             </button>
           )}
-        {true && (
-          <button
-            className="btn btn-primary"
-            type="button"
-            onClick={() => {
-              openCommentsPopup("Approve", false, false, false);
-              setapprovedByToshiba(true);
-              setsubmitbuttontext("Approve");
-              handleToshibaReview();
-            }}
-          >
-            Toshiba Approved
-          </button>
-        )}
+        {eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval &&
+          user?.isQcTeamHead && (
+            <button
+              disabled={user?.isQcTeamHead && !isToshibaApprovalTargetDatePast}
+              className="btn btn-primary"
+              type="button"
+              onClick={() => {
+                openCommentsPopup("Approve", false, false, false);
+                setapprovedByToshiba(true);
+                setsubmitbuttontext("Approve");
+                handleToshibaReview();
+              }}
+            >
+              Toshiba Approved
+            </button>
+          )}
         {eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval && (
           <button
+            disabled={user?.isQcTeamHead && !isToshibaApprovalTargetDatePast}
             className="btn btn-primary"
             type="button"
             onClick={() => {
@@ -425,8 +449,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             Toshiba Rejected
           </button>
         )}
-        {(user.employeeId == eqReport?.AdvisorId || user.isQcTeamHead) &&
-          isTargetDateSet && (
+        {((user.employeeId == eqReport?.AdvisorId &&
+          eqReport?.ToshibaDiscussionTargetDate) ||
+          (user.isQcTeamHead && eqReport?.ToshibaApprovalTargetDate)) && showWorkflowBtns && (
             <button
               className="btn btn-primary"
               type="button"
@@ -448,7 +473,12 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           isTargetDateSet={isTargetDateSet}
           advisorRequired={advisorRequired}
           toshibaApproval={toshibaApproval}
-          targetDate={eqReport?.ToshibaDiscussionTargetDate ?? null}
+          toshibadiscussiontargetDate={
+            eqReport?.ToshibaDiscussionTargetDate ?? null
+          }
+          toshibaApprovaltargetDate={
+            eqReport?.ToshibaApprovalTargetDate ?? null
+          }
           isVisible={showModal}
           submitBtnText={submitbuttontext}
           onCancel={() => {

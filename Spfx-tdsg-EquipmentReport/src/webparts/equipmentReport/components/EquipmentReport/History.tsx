@@ -55,7 +55,7 @@ const History: React.FC = () => {
       ];
   return (
     <div>
-       <Table columns={columns} paginationRequired={false} url="/api/Material/GetHistoryData" />
+       <Table columns={columns} paginationRequired={false} url="/api/EquipmentImprovement/GetHistoryData" />
     </div>
   )
 }

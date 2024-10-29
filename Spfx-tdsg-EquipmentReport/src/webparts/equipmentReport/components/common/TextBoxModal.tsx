@@ -22,20 +22,20 @@ export interface ITextBoxModal {
   inputRules?: { [key: string]: string | boolean }[];
   isRequiredField?: boolean;
   isTargetDateSet?: boolean;
-  targetDate?: Date;
+  toshibadiscussiontargetDate?: Date;
+  toshibaApprovaltargetDate?: Date;
   modelTitle?: string;
   isQCHead?: boolean;
-  approvedByToshiba?:boolean,
-  EQReportNo?:string
+  approvedByToshiba?: boolean;
+  EQReportNo?: string;
 }
-export interface IEmailAttachments{
-  EquipmentId :number;
-  EmailAttachmentId :number;
-  EmailDocName :string;
-  EmailDocFilePath :string;
-  CreatedBy:number;
-  ModifiedBy:number;
-
+export interface IEmailAttachments {
+  EquipmentId: number;
+  EmailAttachmentId: number;
+  EmailDocName: string;
+  EmailDocFilePath: string;
+  CreatedBy: number;
+  ModifiedBy: number;
 }
 const TextBoxModal: React.FC<ITextBoxModal> = ({
   modelTitle = "",
@@ -49,12 +49,13 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   advisorRequired,
   isTargetDateSet,
   isQCHead,
-  targetDate,
+  toshibaApprovaltargetDate,
+  toshibadiscussiontargetDate,
   isRequiredField = false,
   onCancel,
   onSubmit,
   approvedByToshiba,
-  EQReportNo
+  EQReportNo,
 }) => {
   const { id } = useParams();
   const [form] = Form.useForm();
@@ -65,15 +66,19 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   >([]);
   // const targetDate = useGetTargetDate();
   useEffect(() => {
-    if (isTargetDateSet) {
-      //  const targetData:any=targetDate.mutate({equipmentId:parseInt(id),toshibaDiscussion})
-      // const parsedDate = dayjs(targetData?.TargetDate, DATE_FORMAT);
-      // if (parsedDate.isValid()) {
-      form.setFieldsValue({ TargetDate: dayjs(targetDate, DATE_FORMAT) });
-      // } else {
-      //   console.error("Invalid Target Date format:", targetData?.TargetDate);
-      // }
-    }
+    
+      if (isQCHead) {
+        if(toshibaApprovaltargetDate){
+        form.setFieldsValue({
+          TargetDate: dayjs(toshibaApprovaltargetDate, DATE_FORMAT),
+        });
+      }
+      } else if (toshibadiscussiontargetDate) {
+        form.setFieldsValue({
+          TargetDate: dayjs(toshibadiscussiontargetDate, DATE_FORMAT),
+        });
+      }
+    
   }, [isVisible, isTargetDateSet]);
   const handleChange = (): void => {
     const fieldErrors = form.getFieldError(titleKey);
@@ -107,8 +112,8 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
                 },
               ]);
             } else {
-              onSubmit({...values,
-                emailAttachments:emailAttachments});
+              void form.validateFields();
+              onSubmit({ ...values, emailAttachments: emailAttachments });
               console.log("Values", values);
               form.resetFields();
             }
@@ -117,7 +122,13 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
         >
           {toshibaApproval ? (
             <>
-              <Form.Item label="Please select Target Date " name="TargetDate">
+              <Form.Item
+                label="Please select Target Date "
+                name="TargetDate"
+                rules={[
+                  { required: true, message: "Please enter Target Date" },
+                ]}
+              >
                 <DatePicker
                   disabledDate={(current) => {
                     // future dates only
@@ -130,11 +141,12 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
             <></>
           )}
 
-          {isQCHead && toshibaApproval ? (
+          {isQCHead && toshibaApproval && !toshibaApprovaltargetDate ? (
             <>
               <Form.Item
                 label="PCRN Attachments Required"
                 name="pcrnAttachmentsRequired"
+                rules={[{ required: true, message: "Please select" }]}
               >
                 <Radio.Group>
                   <Radio value={true}>Yes</Radio>
@@ -150,6 +162,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
             <Form.Item
               label={<span className="text-muted">Please select Advisor</span>}
               name="advisorId"
+              rules={[{ required: true, message: "Please select Advisor" }]}
             >
               <Select
                 showSearch
@@ -165,60 +178,58 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
             <></>
           )}
 
-{approvedByToshiba ? (
+          {approvedByToshiba ? (
             <Form.Item
-              label={<span className="text-muted">Upload Attachments</span>}
+              label={<span className="text-muted">Email Attachments</span>}
               name="emailAttachments"
+              rules={!emailAttachments?[{ required: true, message: "Please Upload Attachments" }]:null}
             >
-            <FileUpload
-                    key={`email-Attachments`}
-                    folderName={
-                      EQReportNo??
-                      "EQReportDocs"
-                    }
-                    subFolderName={"Email Attachments"}
-                    libraryName={DocumentLibraries.EQ_Report}
-                    files={emailAttachments?.map((a) => ({
-                      ...a,
-                      uid: a.EmailAttachmentId ?.toString() ?? "",
-                      name: a.EmailDocName,
-                      url: `${a.EmailDocFilePath}`,
-                    }))}
-                    setIsLoading={(loading: boolean) => {
-                      // setIsLoading(loading);
-                    }}
-                    isLoading={false}
-                    onAddFile={(name: string, url: string) => {
-                      const existingAttachments = emailAttachments ?? [];
-                      console.log("FILES", existingAttachments);
-                      const newAttachment: IEmailAttachments = {
-                        EquipmentId: 0,
-                        EmailAttachmentId : parseInt(id),
-                        EmailDocName : name,
-                        EmailDocFilePath : url,
-                        CreatedBy: 76,
-                        ModifiedBy: 76,
-                      };
+              <FileUpload
+                key={`email-Attachments`}
+                folderName={EQReportNo ?? "EQReportDocs"}
+                subFolderName={"Email Attachments"}
+                libraryName={DocumentLibraries.EQ_Report}
+                files={emailAttachments?.map((a) => ({
+                  ...a,
+                  uid: a.EmailAttachmentId?.toString() ?? "",
+                  name: a.EmailDocName,
+                  url: `${a.EmailDocFilePath}`,
+                }))}
+                setIsLoading={(loading: boolean) => {
+                  // setIsLoading(loading);
+                }}
+                isLoading={false}
+                onAddFile={(name: string, url: string) => {
+                  const existingAttachments = emailAttachments ?? [];
+                  console.log("FILES", existingAttachments);
+                  const newAttachment: IEmailAttachments = {
+                    EquipmentId: 0,
+                    EmailAttachmentId: parseInt(id),
+                    EmailDocName: name,
+                    EmailDocFilePath: url,
+                    CreatedBy: 76,
+                    ModifiedBy: 76,
+                  };
 
-                      const updatedAttachments: IEmailAttachments[] = [
-                        ...existingAttachments,
-                        newAttachment,
-                      ];
+                  const updatedAttachments: IEmailAttachments[] = [
+                    ...existingAttachments,
+                    newAttachment,
+                  ];
 
-                      setEmailAttachments(updatedAttachments);
+                  setEmailAttachments(updatedAttachments);
 
-                      console.log("File Added");
-                    }}
-                    onRemoveFile={(documentName: string) => {
-                      const existingAttachments:any = emailAttachments ?? [];
+                  console.log("File Added");
+                }}
+                onRemoveFile={(documentName: string) => {
+                  const existingAttachments: any = emailAttachments ?? [];
 
-                      const updatedAttachments = existingAttachments?.filter(
-                        (doc) => doc.ImprovementDocName !== documentName
-                      );
-                      setEmailAttachments(updatedAttachments);
-                      console.log("File Removed");
-                    }}
-                  />
+                  const updatedAttachments = existingAttachments?.filter(
+                    (doc) => doc.ImprovementDocName !== documentName
+                  );
+                  setEmailAttachments(updatedAttachments);
+                  console.log("File Removed");
+                }}
+              />
             </Form.Item>
           ) : (
             <></>
@@ -228,6 +239,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
             label={label}
             initialValue={initialValue}
             // rules={inputRules}
+            rules={[{ required: true, message: "Please enter comments" }]}
           >
             <TextArea
               className="mt-2"

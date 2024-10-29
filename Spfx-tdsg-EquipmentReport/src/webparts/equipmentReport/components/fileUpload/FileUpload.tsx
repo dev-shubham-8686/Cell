@@ -89,7 +89,7 @@ const FileUpload: FC<IFileUpload> = ({
   const onDelete = async (file: UploadFile<any>) => {
     const confirm = await DeleteFileModal(file.name);
     if (confirm) {
-      debugger
+      
       const url = `${webPartContext.pageContext.web.absoluteUrl}/_api/web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}/${file.name}')/ListItemAllFields`;
       const response = await webPartContext.spHttpClient.post(
         url,
@@ -102,7 +102,7 @@ const FileUpload: FC<IFileUpload> = ({
           },
         }
       );
-      debugger
+      
       const fileData = await response.json();
       const itemId = fileData.d.Id;
       
@@ -120,12 +120,12 @@ const FileUpload: FC<IFileUpload> = ({
             },
           }
         );
-        debugger
+        
         if (!deleteResponse.ok) {
           console.error(`Error deleting file: ${deleteResponse.statusText}`);
         } else {
           
-          debugger
+          
           onRemoveFile(file.name);
           
           // void displayjsx.showSuccess("File deleted successfully ");
