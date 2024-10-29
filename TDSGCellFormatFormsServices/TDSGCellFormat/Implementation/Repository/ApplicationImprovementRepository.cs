@@ -1028,10 +1028,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false).FirstOrDefault();
 
 
-                    if (data.EquipmentApprovalData != null)
+                    if (data.EquipmentApprovalData != null )
                     {
                         var approvalData = data.EquipmentApprovalData;
-                        if (approvalData.AdvisorId != 0)
+                        if (approvalData.AdvisorId != 0 && approvalData.AdvisorId != null)
                         {
                             var advisorData = new EquipmentAdvisorMaster();
                             advisorData.EmployeeId = approvalData.AdvisorId;
@@ -1048,6 +1048,10 @@ namespace TDSGCellFormat.Implementation.Repository
                                 await _context.SaveChangesAsync();
                             }
                            
+                        }
+                        else if (approvalData.EmailAttachments != null)
+                        {
+                            //skip
                         }
                         else
                         {
@@ -1208,7 +1212,8 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId)
         {
-            var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId && (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString() || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString()) && x.IsActive == true);
+            var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId &&
+            (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString() || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString()) && x.IsActive == true);
             var data = new ApproverTaskId_dto();
             if (materialApprovers != null)
             {
