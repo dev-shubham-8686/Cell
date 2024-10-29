@@ -171,7 +171,7 @@ namespace TDSGCellFormat.Models.Add
         public int? AdvisorId { get; set; }
         public bool? IsPcrnRequired { get; set; }
 
-        public List<EquipmentAttachment>? EquipmentAttachment { get; set; }
+        public List<EquipmentAttachment>? EmailAttachments { get; set; }
     }
 
     public class EquipmentAttachment
