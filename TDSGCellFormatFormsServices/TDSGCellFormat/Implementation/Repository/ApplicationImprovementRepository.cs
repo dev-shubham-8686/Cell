@@ -7,12 +7,16 @@ using TDSGCellFormat.Helper;
 using Microsoft.EntityFrameworkCore;
 using TDSGCellFormat.Models.View;
 using System.Data;
-
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using iTextSharp.tool.xml;
+using ClosedXML.Excel;
 using Microsoft.Graph.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using PnP.Framework.Extensions;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
+
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -116,7 +120,6 @@ namespace TDSGCellFormat.Implementation.Repository
                     Results = section.Results
 
                 }).ToList();
-
             }
 
             var equipmentCurrAttach = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == Id && x.IsDeleted == false).ToList();
@@ -928,7 +931,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 var equipmentData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.ApproverTaskId == data.ApproverTaskId && x.IsActive == true
                                      && x.EquipmentImprovementId == data.EquipmentId
-                                     &&( x.Status !=  ApprovalTaskStatus.Approved.ToString() || x.Status != ApprovalTaskStatus.Pending.ToString())).FirstOrDefault();
+                                     &&(x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString() || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString())).FirstOrDefault();
                 //here change the task as Pending and not approved
                 if (equipmentData == null)
                 {
@@ -1205,7 +1208,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId)
         {
-            var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId && (x.Status != ApprovalTaskStatus.Approved.ToString() || x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true);
+            var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId && (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString() || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString()) && x.IsActive == true);
             var data = new ApproverTaskId_dto();
             if (materialApprovers != null)
             {
@@ -1264,5 +1267,108 @@ namespace TDSGCellFormat.Implementation.Repository
 
         #endregion
 
+        #region Excel and pdf functionality
+        public async Task<AjaxResult> GetEquipmentExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
+        {
+            var res = new AjaxResult();
+
+            try
+            {
+                var excelData = await _context.GetEquipmentExcel(fromDate, toDate, employeeId, type);
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Equipment Improvement");
+
+                    // Get properties and determine columns to exclude
+                    var properties = excelData.GetType().GetGenericArguments()[0].GetProperties();
+                    var columnsToExclude = new List<int>(); // Adjust this list based on your exclusion logic
+
+                    // Write header, excluding specified columns
+                    int columnIndex = 1;
+
+                    foreach (var property in properties)
+                    {
+                        if (!columnsToExclude.Contains(Array.IndexOf(properties, property)))
+                        {
+                            var cell = worksheet.Cell(1, columnIndex);
+                            string headerText = ColumnHeaderMapping.ContainsKey(property.Name) ? ColumnHeaderMapping[property.Name] : CapitalizeFirstLetter(property.Name);
+                            cell.Value = headerText;
+
+                            // Apply style to the header cell
+                            cell.Style.Fill.BackgroundColor = XLColor.LightBlue;
+                            cell.Style.Font.Bold = true;
+                            cell.Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                            columnIndex++;
+                        }
+                    }
+
+                    // Write data, excluding specified columns
+                    for (int i = 0; i < excelData.Count; i++)
+                    {
+                        var item = excelData[i];
+                        columnIndex = 1;
+
+                        foreach (var property in properties)
+                        {
+                            if (!columnsToExclude.Contains(Array.IndexOf(properties, property)))
+                            {
+                                var value = property.GetValue(item, null);
+                                string stringValue = value != null ? value.ToString() : string.Empty;
+
+                                worksheet.Cell(i + 2, columnIndex).Value = stringValue;
+                                columnIndex++;
+                            }
+                        }
+                    }
+
+                    // Add filter to the header row
+                    worksheet.Range(1, 1, 1, columnIndex - 1).SetAutoFilter();
+
+                    // Adjust column widths to fit the content
+                    worksheet.Columns().AdjustToContents();
+
+                    // Save the workbook to a memory stream
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        stream.Position = 0;
+
+                        // Convert the memory stream to a byte array
+                        byte[] byteArray = stream.ToArray();
+                        string base64String = Convert.ToBase64String(byteArray);
+
+                        // Return the byte array as part of your AjaxResult
+                        res.StatusCode = Enums.Status.Success;
+                        res.Message = "File downloaded successfully";
+                        res.ReturnValue = base64String;
+                        return res;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "GetMaterialConsumptionExcel");
+                return res;
+            }
+        }
+
+        private static readonly Dictionary<string, string> ColumnHeaderMapping = new Dictionary<string, string>
+{
+    
+            {"EquipmentImprovementNo","Request No" }
+};
+
+        private string CapitalizeFirstLetter(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            return char.ToUpper(input[0]) + input.Substring(1);
+        }
+        #endregion
     }
 }

@@ -235,5 +235,37 @@ namespace TDSGCellFormat.Controllers
             //return Ok(data);
         }
 
+
+        [HttpGet("EquipmentListingExcel")]
+
+        public async Task<IActionResult> GetEquipmentExcel(DateTime fromDate, DateTime todate, int employeeId, int type)
+        {
+            //var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            //// Call the IsValidAuthentication method
+            //AjaxResult authResult;
+            //bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+            //
+            //
+            //if (!isValidAuth)
+            //{
+            //    // Return unauthorized response if authentication fails
+            //    Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+            //    return Unauthorized(Ajaxresponse);
+            //}
+
+            var result = await _applicationService.GetEquipmentExcel(fromDate, todate, employeeId, type);
+            if (result.StatusCode == Status.Success)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+
+            }
+            return Ok(Ajaxresponse);
+
+        }
+
     }
 }

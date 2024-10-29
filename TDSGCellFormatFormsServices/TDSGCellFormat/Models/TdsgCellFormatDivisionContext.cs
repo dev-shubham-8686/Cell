@@ -141,6 +141,8 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         modelBuilder.Entity<GetUserDetailsView>().HasNoKey();
         modelBuilder.Entity<TroubleReportExcel>().HasNoKey();
         modelBuilder.Entity<MaterialExcel>().HasNoKey();
+
+        modelBuilder.Entity<EquipmentExcelView>().HasNoKey();
         modelBuilder.Ignore<Property>();
         //modelBuilder.Entity<AdjustmentReport>(entity =>
         //{
@@ -423,6 +425,19 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         var typeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@Type", type);
         var result = await this.Set<MaterialExcel>()
         .FromSqlRaw("EXEC GetMaterialConsumptionListExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
+        .ToListAsync();
+        return result;
+
+    }
+
+    public async Task<List<EquipmentExcelView>> GetEquipmentExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
+    {
+        var fromDateParam = new Microsoft.Data.SqlClient.SqlParameter("@FromDate", fromDate.ToString("yyyy-MM-dd"));
+        var toDateParam = new Microsoft.Data.SqlClient.SqlParameter("@ToDate", toDate.ToString("yyyy-MM-dd"));
+        var employeeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@EmployeeId", employeeId);
+        var typeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@Type", type);
+        var result = await this.Set<EquipmentExcelView>()
+        .FromSqlRaw("EXEC GetEquipmentListExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
         .ToListAsync();
         return result;
 
