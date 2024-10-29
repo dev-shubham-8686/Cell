@@ -208,8 +208,8 @@ namespace TDSGCellFormat.Helper
                 //string? templateFilePath = null;
 
                 //prod link
-                //string? documentLink = _configuration["SPSiteUrl"] +
-                 //"/SitePages/Trouble-Report.aspx#/";
+               // string? documentLink = _configuration["SPSiteUrl"] +
+               //  "/SitePages/Trouble-Report.aspx#/";
 
                 //stage link
                 string? documentLink = _configuration["SPSiteUrl"] +
@@ -767,8 +767,14 @@ namespace TDSGCellFormat.Helper
                 bool approvelink = false;
                 bool cpcDeptPeople = false;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
-                string? documentLink = _configuration["SPSiteUrl"] +
-                "/SitePages/MaterialConsumptionSlip.aspx#/material-consumption-slip/";
+
+                //stage link
+                 // string? documentLink = _configuration["SPSiteUrl"] +
+                // "/SitePages/MaterialConsumptionSlip.aspx#/material-consumption-slip/";
+
+                //prod link
+                  string? documentLink = _configuration["SPSiteUrl"] +
+                 "/SitePages/MaterialConsumptionSlip.aspx#/form/";
 
                 if (requestId > 0)
                 {

@@ -82,5 +82,10 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return _applicationRepo.GetHistoryData(equipmentId);
         }
+
+        public async Task<AjaxResult> GetEquipmentExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
+        {
+            return await _applicationRepo.GetEquipmentExcel(fromDate, toDate, employeeId,type);
+        }
     }
 }
