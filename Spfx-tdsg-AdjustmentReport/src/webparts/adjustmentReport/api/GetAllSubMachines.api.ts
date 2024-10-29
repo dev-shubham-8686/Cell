@@ -14,10 +14,9 @@ export interface ISubMachines {
 }
 
 export const getAllSubMachines = async (
-  machineId: number
 ): Promise<ISubMachines> => {
   const response = await apiClient.get<ISubMachines>(
-    `${basePath}/GetAllSubMachines/${machineId}`
+    `${basePath}/GetAllSubMachines`
   );
 
   return {

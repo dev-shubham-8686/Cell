@@ -1,10 +1,10 @@
 import * as React from "react";
 // import PageLayout from "../../pageLayout/PageLayout";
 import { Button, Tabs, TabsProps } from "antd";
-import AdjustmentReportRequests from "./AdjustmentReportRequests";
-import AdjustmentReportApprovals from "./AdjustmentReportApprovals";
 import { PlusCircleOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import AdjustmentReportRequests from "./AdjustmentReportRequests";
+import AdjustmentReportApprovals from "./AdjustmentReportApprovals";
 
 const AdjustmentReportMain: React.FC = () => {
   const navigate = useNavigate();

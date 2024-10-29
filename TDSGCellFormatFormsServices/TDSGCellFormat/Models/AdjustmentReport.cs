@@ -9,7 +9,7 @@ public partial class AdjustmentReport
     [Key]
     public int AdjustMentReportId { get; set; }
 
-    public int? Area { get; set; }
+    public string? Area { get; set; }
 
     public int? MachineName { get; set; }
 

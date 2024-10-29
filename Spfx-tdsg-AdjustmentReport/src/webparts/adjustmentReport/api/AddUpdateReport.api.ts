@@ -3,8 +3,8 @@ import { basePath } from "../GLOBAL_CONSTANT";
 import apiClient from "../utils/axiosInstance";
 
 interface Image {
-  Name: string;
-  FilePath: string;
+  DocumentName: string;
+  DocumentFilePath: string;
   IsOldPhoto: boolean;
   SequenceId: number;
 }
@@ -26,13 +26,13 @@ export interface ChangeRiskManagement {
 }
 
 export interface IAddUpdateReportPayload {
-  ReportNo?: string; //ReportNo
+  ReportNo?: string;
   RequestBy?: string;
   CheckedBy?: number;
   When?: dayjs.Dayjs;
   Area?: number;
   MachineName?: number;
-  SubMachineName?: number;
+  SubMachineName?: number[];
   DescribeProblem?: string;
   Observation?: string;
   RootCause?: string;
@@ -51,7 +51,7 @@ export interface IAddUpdateReportPayload {
 export const addUpdateReport = async (
   payload: IAddUpdateReportPayload
 ): Promise<boolean> => {
-  const url = `${basePath}/MasterSchedule/AddUpdateMasterSchedule`; // need to change
+  const url = `${basePath}/AdjustmentReport/POST`; // need to change
 
   const response = await apiClient.post<boolean>(url, payload);
   return response.data;

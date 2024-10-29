@@ -1,9 +1,6 @@
 import * as React from "react";
-import { Button, Input, Table, Tag } from "antd";
+import { Button, Input, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
-import { AnyObject } from "antd/es/_util/type";
-import { DATE_FORMAT, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
-import * as dayjs from "dayjs";
 import {
   DeleteFilled,
   EditFilled,
@@ -13,13 +10,28 @@ import {
 } from "@ant-design/icons";
 // import { displayRequestStatus } from "../../../utils/utility";
 import { useNavigate } from "react-router-dom";
+import CommonTable from "../../CommonTable/CommonTable";
+import { useCallback, useEffect, useState } from "react";
+import { useGetAllAdjustmentReports } from "../../../hooks/useGetAllAdjustmentReports";
+import { IAdjustmentReportInfo } from "../../../api/IAdjustmentReport";
+import { DATE_FORMAT, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
 import { displayRequestStatus } from "../../../utils/utility";
+import * as dayjs from "dayjs";
 
+export const DEFAULT_PAGE_SIZE = 10;
 export type SortOrder = "descend" | "ascend" | null;
 
-const AdjustmentReportRequests = () => {
+const AdjustmentReportRequests: React.FC = () => {
   const navigate = useNavigate();
-  const [searchText, setSearchText] = React.useState("");
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [sortColumn, setSortColumn] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [orderBy, setOrderBy] = useState("desc");
+  const [masterSchedules, setMasterSchedules] = useState<IAdjustmentReportInfo[]>(
+    []
+  );
+  const [searchValue, setSearchValue] = React.useState("");
 
   const ViewHandler = (id: any): void => {
     navigate(`/form/view/${id}`, {
@@ -33,24 +45,95 @@ const AdjustmentReportRequests = () => {
     });
     return;
   };
+  const { data, isLoading, refetch } = useGetAllAdjustmentReports(
+    pageIndex,
+    pageSize,
+    searchQuery,
+    sortColumn,
+    orderBy
+  );
 
-  const onDelete = () => {
-    console.log("delete");
+  console.log({ data });
+
+  useEffect(() => {
+    void refetch();
+  }, [refetch, searchQuery, pageIndex, pageSize, sortColumn, orderBy]);
+
+  useEffect(() => {
+    if (data?.ReturnValue) {
+      setMasterSchedules(data?.ReturnValue || []);
+    }
+  }, [data]);
+
+  const onSearchClick = () => {
+    setPageIndex(1);
+    setOrderBy("desc");
+    setSearchQuery(searchValue);
   };
 
-  const onSearchChange = () => {
-    console.log("Clicked Search");
+  const refetchCallback = useCallback(refetch, [/* add necessary dependencies here */]);
+
+  useEffect(() => {
+    void refetchCallback();
+  }, [refetchCallback, searchQuery, pageIndex, pageSize, sortColumn, orderBy]);
+
+
+  const handleInputChange = (e: any) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    if (value === "") {
+      setPageIndex(1);
+      setSearchValue("");
+      setSearchQuery("");
+    }
+  };
+
+  // const handleEdit = (key: number) => {
+  //   const rowData = masterSchedules.find(
+  //     (schedule) => schedule.MasterScheduleId == key
+  //   );
+  //   sessionStorage.setItem("rowData", JSON.stringify(rowData));
+  //   navigate(`/master-schedule/edit/${key}`, { state: { rowData } });
+  // };
+
+  // const handleView = (key: number) => {
+  //   const rowData = masterSchedules.find(
+  //     (schedule) => schedule.MasterScheduleId == key
+  //   );
+  //   sessionStorage.setItem("rowData", JSON.stringify(rowData));
+  //   navigate(`/master-schedule/view/${key}`, { state: { rowData } });
+  // };
+
+  const onPaginationChange = useCallback((page: number, pageSize: number) => {
+    setPageIndex(page);
+    setPageSize(pageSize);
+  }, []);
+
+  const onPageSizeChange = useCallback((page: number, pageSize: number) => {
+    setPageIndex(page);
+    setPageSize(pageSize);
+  }, []);
+
+  const setSortingColumn = useCallback((column: string) => {
+    setSortColumn(column);
+  }, []);
+
+  const setOrderColumn = useCallback((order: string) => {
+    setOrderBy(order);
+  }, []);
+  const onDelete = () => {
+    console.log("delete");
   };
 
   const onExportToExcel = () => {
     console.log("Export to Excel");
   };
 
-  const columns: ColumnsType<AnyObject> = [
+  const columns: ColumnsType<IAdjustmentReportInfo> = [
     {
-      title: "Request No",
-      dataIndex: "requestNo",
-      key: "requestNo",
+      title: "Report No",
+      dataIndex: "ReportNo",
+      key: "ReportNo",
       width: 160,
       sorter: true,
       //   filterDropdown: ColumnFilter,
@@ -60,8 +143,8 @@ const AdjustmentReportRequests = () => {
     },
     {
       title: "Department",
-      dataIndex: "department",
-      key: "department",
+      dataIndex: "DepartmentName",
+      key: "DepartmentName",
       width: 160,
       sorter: true,
       //   filterDropdown: ColumnFilter,
@@ -71,8 +154,8 @@ const AdjustmentReportRequests = () => {
     },
     {
       title: "Requestor",
-      dataIndex: "requestor",
-      key: "requestor",
+      dataIndex: "CreatedBy",
+      key: "CreatedBy",
       width: 140,
       sorter: true,
       //   filterDropdown: ColumnFilter,
@@ -81,9 +164,9 @@ const AdjustmentReportRequests = () => {
       //   ),
     },
     {
-      title: "When Date",
-      dataIndex: "whenDate",
-      key: "whenDate",
+      title: "When",
+      dataIndex: "CreatedDate",
+      key: "CreatedDate",
       width: 140,
       sorter: true,
       render: (text) => (
@@ -98,24 +181,23 @@ const AdjustmentReportRequests = () => {
     },
     {
       title: "Status",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "Status",
+      key: "Status",
       width: 150,
       sorter: true,
       render: (text) => (
         <Tag
           bordered={false}
-          className={`status-badge status-badge-${
-            STATUS_COLOUR_CLASS[text] ?? ""
-          }`}
+          className={`status-badge status-badge-${STATUS_COLOUR_CLASS[text] ?? ""
+            }`}
         >
           {text ? displayRequestStatus(text) : "-"}{" "}
         </Tag>
       ),
-      //   filterDropdown: ColumnFilter,
-      //   filterIcon: (filtered: boolean) => (
-      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      //   ),
+      // filterDropdown: ColumnFilter,
+      // filterIcon: (filtered: boolean) => (
+      //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      // ),
     },
     {
       title: "Action",
@@ -128,13 +210,13 @@ const AdjustmentReportRequests = () => {
             type="link"
             title="View"
             icon={<EyeFilled className="text-black" />} // Black icon
-            onClick={() => EditHandler(record.requestNo)}
+            onClick={() => EditHandler(record.ReportNo)}
           />
           <Button
             type="link"
             title="Edit"
             icon={<EditFilled className="text-black" />} // Black icon
-            onClick={() => ViewHandler(record.requestNo)}
+            onClick={() => ViewHandler(record.ReportNo)}
           />
           <Button
             type="link"
@@ -147,79 +229,27 @@ const AdjustmentReportRequests = () => {
     },
   ];
 
-  const dataSource = [
-    {
-      Key: 1,
-      requestNo: "ADJUST-001",
-      department: "Quality Control (Module)",
-      requestor: "Test1 SPO",
-      whenDate: new Date(),
-      status: "Close",
-    },
-    {
-      Key: 2,
-      requestNo: "ADJUST-002",
-      department: "Quality Control (Module)",
-      requestor: "Test1 SPO",
-      whenDate: new Date(),
-      status: "Completed",
-    },
-    {
-      Key: 3,
-      requestNo: "ADJUST-003",
-      department: "Quality Control (Module)",
-      requestor: "Test1 SPO",
-      whenDate: new Date(),
-      status: "Close",
-    },
-    {
-      Key: 4,
-      requestNo: "ADJUST-004",
-      department: "Quality Control (Module)",
-      requestor: "Test1 SPO",
-      whenDate: new Date(),
-      status: "Completed",
-    },
-    {
-      Key: 5,
-      requestNo: "ADJUST-005",
-      department: "Quality Control (Module)",
-      requestor: "Test1 SPO",
-      whenDate: new Date(),
-      status: "Close",
-    },
-  ];
   return (
-    <div className="p-4 custom-table">
-      <div className="flex justify-between items-center mb-3">
-        <div className="flex gap-3">
+    <div>
+      <div className="flex justify-between mb-5">
+        <div className="flex gap-3 mb-3">
           <Input
             type="text"
             placeholder="Search Here"
-            value={searchText}
-            onChange={(e: any) => {
-              setSearchText(e.target.value);
+            value={searchValue}
+            onChange={handleInputChange}
+            allowClear
+            onKeyDown={(e: any) => {
+              if (e.key === "Enter") {
+                onSearchClick();
+              }
             }}
           />
           <div className="position-relative">
-            {searchText && (
-              <i
-                className="fa-solid fa-times position-absolute text-gray font-18"
-                style={{
-                  left: "-2.25rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                }}
-                onClick={() => {
-                  setSearchText("");
-                }}
-              />
-            )}
             <Button
               type="primary"
               icon={<SearchOutlined />}
-              onClick={() => onSearchChange()}
+              onClick={onSearchClick}
             >
               <i className="fa-solid fa-magnifying-glass me-1" /> Search
             </Button>
@@ -235,7 +265,21 @@ const AdjustmentReportRequests = () => {
           Export to Excel
         </Button>
       </div>
-      <Table columns={columns} dataSource={dataSource} />
+      <CommonTable<IAdjustmentReportInfo>
+        bordered
+        columns={columns}
+        totalPage={data?.ReturnValue?.length}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        dataSource={masterSchedules}
+        onPageSizeChange={onPageSizeChange}
+        onPaginationChange={onPaginationChange}
+        setSortColumn={setSortingColumn}
+        setOrderBy={setOrderColumn}
+        loading={isLoading}
+        style={{ borderRadius: 0 }}
+      />
+      {/* <Table columns={columns} dataSource={dataSource} /> */}
     </div>
   );
 };

@@ -90,7 +90,7 @@ const AdjustmentRequestForm = React.forwardRef(
           <Row gutter={48}>
             <Col span={6}>
               <Form.Item label="Report No" name="reportNo">
-                <Input placeholder="Enter Report No" />
+                <Input />
               </Form.Item>
             </Col>
 
@@ -108,8 +108,6 @@ const AdjustmentRequestForm = React.forwardRef(
               >
                 <Select placeholder="Select Checked By">
                   <Option value={1}>Checked By 1</Option>
-                  <Option value={2}>Checked By 2</Option>
-                  <Option value={3}>Checked By 3</Option>
                 </Select>
               </Form.Item>
             </Col>
@@ -181,6 +179,7 @@ const AdjustmentRequestForm = React.forwardRef(
                       beforeUpload={beforeUpload}
                       maxCount={5} // Max attachments
                       showUploadList={{ showRemoveIcon: true }}
+                    //onRemove={}
                     >
                       <Button icon={<UploadOutlined />}>
                         Upload Before Images
@@ -201,9 +200,7 @@ const AdjustmentRequestForm = React.forwardRef(
                     rules={[{ required: true }]}
                   >
                     <Select placeholder="Select Machine Name">
-                      <Option value={1}>Machine 1</Option>
-                      <Option value={2}>Machine 2</Option>
-                      <Option value={3}>Machine 3</Option>
+                      {data?.ReturnValue.map((item) => <Option value={item.MachineId}>{item.MachineName}</Option>)}
                     </Select>
                   </Form.Item>
                 </Col>
@@ -260,8 +257,6 @@ const AdjustmentRequestForm = React.forwardRef(
                   >
                     <Select placeholder="Select Sub-Machine Name">
                       <Option value={1}>Sub-Machine 1</Option>
-                      <Option value={2}>Sub-Machine 2</Option>
-                      <Option value={3}>Sub-Machine 3</Option>
                     </Select>
                   </Form.Item>
                 </Col>

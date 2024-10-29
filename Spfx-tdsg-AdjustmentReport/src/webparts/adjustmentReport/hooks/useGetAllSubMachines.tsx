@@ -6,7 +6,7 @@ export const useGetAllSubMachines = (
 ): UseQueryResult<ISubMachines> => {
   return useQuery(
     ["get-all-sub-machines"],
-    () => getAllSubMachines(machineId),
+    () => getAllSubMachines(),
     {
       keepPreviousData: true,
     }

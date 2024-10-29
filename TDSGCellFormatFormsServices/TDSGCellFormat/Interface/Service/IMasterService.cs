@@ -25,5 +25,7 @@ namespace TDSGCellFormat.Interface.Service
         IQueryable<SectionView> GetAllSection();
         IQueryable<FunctionView> GetAllFunction();
         IQueryable<SectionHeadView> GetAllSections(int departmentId);
+
+        IQueryable<EmployeeMasterView> GetCheckedBy();
     }
 }

@@ -435,5 +435,53 @@ namespace TDSGCellFormat.Controllers
 
             return Ok(Ajaxresponse);
         }
+
+        [HttpGet("GetCheckedBy")]
+        public async Task<IActionResult> GetCheckedBy()
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
+
+            var res = _masterService.GetCheckedBy().ToList();
+            if (res.Count > 0)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetAllAreas")]
+        public async Task<IActionResult> GetAllAreas()
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
+
+            var res = _masterService.GetAllAreas().ToList();
+            if (res.Count > 0)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
     }
 }

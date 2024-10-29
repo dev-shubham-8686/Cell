@@ -5,8 +5,8 @@ import { ConfigProvider } from "antd";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Route, HashRouter as Router, Routes } from "react-router-dom";
 import PageLayout from "./pageLayout/PageLayout";
-import AdjustmentReportMain from "./pages/adjustmentReport/AdjustmentReportMain";
 import ReportFormPage from "./pages/AdjustmentRequest/ReportFormPage";
+import AdjustmentReportMain from "./pages/adjustmentReport/AdjustmentReportMain";
 import Test from "./pages/adjustmentReport/Test";
 
 const queryClient = new QueryClient({

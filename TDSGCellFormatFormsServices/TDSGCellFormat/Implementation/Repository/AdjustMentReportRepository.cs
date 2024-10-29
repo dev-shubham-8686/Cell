@@ -174,7 +174,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var adjustmentReportNo = await GenerateAdjustmentReportNumberAsync();
                 var newReport = new AdjustmentReport()
                 {
-                    Area = request.Area,
+                    Area = request.Area != null && request.Area.Count > 0 ? string.Join(",", request.Area) : "",
                     MachineName = request.MachineName,
                     SubMachineName = request.SubMachineName != null && request.SubMachineName.Count > 0 ? string.Join(",", request.SubMachineName) : "",
                     ReportNo = adjustmentReportNo.ToString(),

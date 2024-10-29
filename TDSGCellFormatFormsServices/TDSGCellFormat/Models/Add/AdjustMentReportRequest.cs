@@ -5,7 +5,7 @@ namespace TDSGCellFormat.Models.Add
     {
         public int AdjustMentReportId { get; set; }
 
-        public int? Area { get; set; }
+        public List<int>? Area { get; set; }
 
         public int? MachineName { get; set; }
 

@@ -1,5 +1,7 @@
 export const DATE_FORMAT = "DD-MM-YYYY";
 export const basePath = `https://localhost:7190`;
+export const GET_LOGIN_SESSION = "https://localhost:7190/api/TroubleReport/GetLoginSession";
+export const GET_USER = "https://localhost:7190/api/TroubleReport/GetUserRole";
 
 //Process Status
 export const ProcessStatus = [
