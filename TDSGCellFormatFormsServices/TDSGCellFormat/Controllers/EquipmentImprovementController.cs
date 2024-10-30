@@ -166,8 +166,19 @@ namespace TDSGCellFormat.Controllers
             //    Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
             //    return Unauthorized(Ajaxresponse);
             //}
-            var result = await _applicationService.GetEquipmentWorkFlowData(equipmentId);
-            if (result != null)
+
+            // Call the service method
+            var (workflowOne, workflowTwo) = await _applicationService.GetEquipmentWorkFlowData(equipmentId);
+
+            // Prepare response data
+            var result = new
+            {
+                WorkflowOne = workflowOne,
+                WorkflowTwo = workflowTwo
+            };
+
+            // Generate response message based on result
+            if (workflowOne.Any() || workflowTwo.Any())
             {
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), result);
             }
@@ -175,6 +186,16 @@ namespace TDSGCellFormat.Controllers
             {
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), result);
             }
+
+            //var result = await _applicationService.GetEquipmentWorkFlowData(equipmentId);
+            //if (result != null)
+            //{
+            //    Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), result);
+            //}
+            //else
+            //{
+            //    Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), result);
+            //}
             return Ok(Ajaxresponse);
             // var data = await _materialService.GetMaterialConsumptionWorkFlow(materialConsumptionId);
             //return Ok(data);
