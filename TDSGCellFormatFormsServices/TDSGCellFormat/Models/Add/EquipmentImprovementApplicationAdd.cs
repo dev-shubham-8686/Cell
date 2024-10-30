@@ -73,6 +73,7 @@ namespace TDSGCellFormat.Models.Add
         public string? TargetDate { get; set; }
         public string? ActualDate { get; set; }
         public bool? IsResultSubmit { get; set; }
+        public bool? IsResultAmendSubmit { get; set; }
         public string? ResultStatus { get; set; }
         public string? ResultMonitoringDate { get; set; }
     }
