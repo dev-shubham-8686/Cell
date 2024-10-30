@@ -35,7 +35,7 @@ public partial class EquipmentImprovementApplication
     public DateTime? ActualDate { get; set; }
 
     public string? ResultStatus { get; set; }
-
+    public string? ResultMonitoring { get; set; }
     public DateTime? ResultMonitorDate { get; set; }
 
     public bool? IsResultSubmit { get; set; }

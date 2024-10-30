@@ -165,6 +165,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 ResultStatus = res.ResultStatus,
                 IsResultSubmit = res.IsResultSubmit,
                 ResultMonitoringDate = res.ResultMonitorDate.HasValue ? res.ResultMonitorDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                ResultMonitoring = res.ResultMonitoring
             };
 
 
@@ -708,6 +709,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.TargetDate = !string.IsNullOrEmpty(data.TargetDate) ? DateTime.Parse(data.TargetDate) : (DateTime?)null;
                 existingReport.IsResultSubmit = data.IsResultSubmit;
                 existingReport.ResultMonitorDate = !string.IsNullOrEmpty(data.ResultMonitoringDate) ? DateTime.Parse(data.ResultMonitoringDate) : (DateTime?)null;
+                existingReport.ResultMonitoring = data.ResultMonitoring;
                 if (data.TargetDate != null && data.ActualDate == null)
                 {
                     existingReport.Status = ApprovalTaskStatus.UnderImplementation.ToString();
