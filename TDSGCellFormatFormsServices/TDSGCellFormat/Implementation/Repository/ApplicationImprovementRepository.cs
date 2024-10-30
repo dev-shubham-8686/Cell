@@ -101,7 +101,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 ToshibaApprovalTargetDate = res.ToshibaApprovalTargetDate.HasValue ? res.ToshibaApprovalTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
                 ToshibaTeamDiscussion = res.ToshibaTeamDiscussion,
                 ToshibaDiscussionTargetDate = res.ToshibaDiscussionTargetDate.HasValue ? res.ToshibaDiscussionTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
-                IsPcrnRequired = res.IsPcrnRequired
+                IsPcrnRequired = res.IsPcrnRequired,
+                WorkflowLevel = res.WorkFlowLevel
                 // Add other properties as needed
             };
 
@@ -1117,7 +1118,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             }
 
                         }
-                        else if (approvalData.EmailAttachments != null)
+                        else if (approvalData.EmailAttachments != null && approvalData.EmailAttachments.Count > 0)
                         {
                             //skip
                             //var attachment = approvalData.EmailAttachments;
