@@ -107,7 +107,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   };
 
   const onApproveAmendHandler = async (
-    actionType: 1 | 3,
+    actionType: 1 | 3 | 4,
     comment: string,
     targetDate?: Date,
     advisorId?: number,
@@ -122,10 +122,15 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         Comment: comment,
         EquipmentId: parseInt(id),
         EquipmentApprovalData:
-          toshibaApproval || advisorId || eqReport.IsPcrnRequired ? {} : null,
+          toshibaApproval ||
+          advisorId ||
+          eqReport.IsPcrnRequired ||
+          emailAttacments?.length>0
+            ? {}
+            : null,
       };
-
-      if (toshibaApproval || advisorId) {
+      debugger;
+      if (toshibaApproval || advisorId || emailAttacments?.length>0) {
         (payload.EquipmentApprovalData.TargetDate = targetDate
           ? dayjs(targetDate).format(DATE_FORMAT)
           : null),
@@ -134,7 +139,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           (payload.EquipmentApprovalData.IsToshibaDiscussion = false),
           (payload.EquipmentApprovalData.EquipmentId = parseInt(id)),
           (payload.EquipmentApprovalData.AdvisorId = advisorId ?? 0);
+        payload.EquipmentApprovalData.EmailAttachments = emailAttacments;
       }
+      debugger;
       if (eqReport?.IsPcrnRequired) {
         payload.EquipmentApprovalData.EmailAttachments = emailAttacments;
       }
@@ -171,6 +178,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         TargetDate: dayjs(targetDate).format(DATE_FORMAT) ?? null,
         Comment: comment,
         AdvisorId: 0,
+        EmailAttachments: [],
       };
 
       addOrUpdateTargetDate(payload, {
@@ -284,6 +292,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         emailAttachments
       ),
     Reject: (comment: string) => onRejectHandler(2, comment),
+    LogicalAmendment: (comment: string) => onApproveAmendHandler(4, comment),
     Amendment: (comment: string) => onApproveAmendHandler(3, comment),
     PullBack: (comment: string) => onPullbackHandler(comment),
     AddUpdateTargetDate: (
@@ -307,13 +316,16 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           !isToshibaDiscussionTargetDatePast,
           !isToshibaApprovalTargetDatePast
         )}
-        {(showWorkflowBtns && !user?.isQcTeamHead) && approverRequest ? (
+        {showWorkflowBtns &&
+        eqReport?.Status !== REQUEST_STATUS.UnderToshibaApproval &&
+        approverRequest ? (
           <>
             <button
               disabled={
+                eqReport?.WorkflowLevel!==2?
                 eqReport?.AdvisorId == user?.employeeId &&
                 isTargetDateSet &&
-                !isToshibaDiscussionTargetDatePast
+                !isToshibaDiscussionTargetDatePast:false
               }
               className="btn btn-primary"
               onClick={() => {
@@ -336,7 +348,10 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                       openCommentsPopup("Approve", false, false, false);
                     },
                   });
-                } else if (user?.employeeId == eqReport?.SectionHeadId) {
+                } else if (
+                  user?.employeeId == eqReport?.SectionHeadId &&
+                  eqReport?.WorkflowStatus != REQUEST_STATUS.W1Completed
+                ) {
                   openCommentsPopup("Approve", false, false, true);
                 } else {
                   openCommentsPopup("Approve", false, false, false);
@@ -350,19 +365,29 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         ) : (
           <></>
         )}
-        {(showWorkflowBtns && approverRequest) ||
-        (eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval &&
-          user?.isQcTeamHead) ? (
+        {console.log(
+          "CONDITION",
+          !isToshibaDiscussionTargetDatePast,
+          !isToshibaApprovalTargetDatePast
+        )}
+
+        {showWorkflowBtns &&
+        eqReport?.WorkflowLevel !== 2 &&
+        // (eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval &&
+        //   user?.isQcTeamHead) &&
+        approverRequest ? (
           <>
             <button
               disabled={
-                eqReport?.AdvisorId == user?.employeeId && isTargetDateSet
-                  ? !isToshibaDiscussionTargetDatePast
-                  : user?.isQcTeamHead && !isToshibaApprovalTargetDatePast
+                eqReport?.AdvisorId == user?.employeeId
+                  ? isTargetDateSet && !isToshibaDiscussionTargetDatePast
+                  : !isToshibaApprovalTargetDatePast &&
+                    eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval
               }
               className="btn btn-primary"
               onClick={() => {
                 openCommentsPopup("Amendment", false, false, false);
+                setapprovedByToshiba(false);
                 setsubmitbuttontext("Ask to Amend");
               }}
             >
@@ -372,10 +397,32 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         ) : (
           <></>
         )}
-        {(showWorkflowBtns && !user?.isQcTeamHead) && approverRequest  ? (
+        {showWorkflowBtns &&
+        eqReport?.ResultAfterImplementation?.IsResultSubmit &&
+        approverRequest ? (
+          <>
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                openCommentsPopup("LogicalAmendment", false, false, false);
+                setapprovedByToshiba(false);
+                setsubmitbuttontext("Logical Amendment");
+              }}
+            >
+              Logical Amendment
+            </button>
+          </>
+        ) : (
+          <></>
+        )}
+        {showWorkflowBtns &&
+        (eqReport?.Status !== REQUEST_STATUS.UnderToshibaApproval &&
+          eqReport?.WorkflowLevel !== 2) &&
+        approverRequest ? (
           <button
             disabled={
               eqReport?.AdvisorId == user?.employeeId &&
+              isTargetDateSet &&
               !isToshibaDiscussionTargetDatePast
             }
             className="btn btn-primary"
@@ -391,6 +438,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
 
         {eqReport?.IsSubmit &&
+        eqReport?.WorkflowStatus != REQUEST_STATUS.W1Completed &&
         eqReport?.CreatedBy == user?.employeeId &&
         eqReport?.Status != REQUEST_STATUS.UnderAmendment ? (
           <button
@@ -407,7 +455,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
         {user.employeeId == eqReport?.AdvisorId &&
           !isTargetDateSet &&
-          showWorkflowBtns && (
+          showWorkflowBtns &&
+          approverRequest && (
             <button
               className="btn btn-primary"
               type="button"
@@ -421,7 +470,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             </button>
           )}
         {eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval &&
-          user?.isQcTeamHead && (
+          user?.isQcTeamHead &&
+          approverRequest &&
+          showWorkflowBtns && (
             <button
               disabled={user?.isQcTeamHead && !isToshibaApprovalTargetDatePast}
               className="btn btn-primary"
@@ -436,27 +487,34 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
               Toshiba Approved
             </button>
           )}
-        {eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval && (
-          <button
-            disabled={user?.isQcTeamHead && !isToshibaApprovalTargetDatePast}
-            className="btn btn-primary"
-            type="button"
-            onClick={() => {
-              openCommentsPopup("Reject", false, false, false);
-              handleToshibaReview();
-            }}
-          >
-            Toshiba Rejected
-          </button>
-        )}
+        {eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval &&
+          user?.isQcTeamHead &&
+          approverRequest &&
+          showWorkflowBtns && (
+            <button
+              disabled={user?.isQcTeamHead && !isToshibaApprovalTargetDatePast}
+              className="btn btn-primary"
+              type="button"
+              onClick={() => {
+                openCommentsPopup("Reject", false, false, false);
+                setapprovedByToshiba(false);
+                handleToshibaReview();
+              }}
+            >
+              Toshiba Rejected
+            </button>
+          )}
         {((user.employeeId == eqReport?.AdvisorId &&
-          eqReport?.ToshibaDiscussionTargetDate) ||
-          (user.isQcTeamHead && eqReport?.ToshibaApprovalTargetDate)) && showWorkflowBtns && (
+          eqReport?.ToshibaDiscussionTargetDate && eqReport?.WorkflowLevel!==2) ||
+          (user.isQcTeamHead && eqReport?.ToshibaApprovalTargetDate)) &&
+          showWorkflowBtns &&
+          approverRequest && (
             <button
               className="btn btn-primary"
               type="button"
               onClick={() => {
                 openCommentsPopup("AddUpdateTargetDate", null, true);
+                setapprovedByToshiba(false);
                 handleToshibaReview();
               }}
             >

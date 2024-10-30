@@ -14,15 +14,24 @@ import {
   faFilePdf,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
+import {
+  DATE_FORMAT,
+  REQUEST_STATUS,
+  STATUS_COLOUR_CLASS,
+} from "../../../GLOBAL_CONSTANT";
 import useDeleteEQReport from "../../../apis/equipmentReport/useDelete/useDeleteEQReport";
 import { Modal } from "antd";
 import { IUser, UserContext } from "../../../context/userContext";
+import ColumnFilter from "../../table/columnFilter/columnFilter";
+import { displayRequestStatus } from "../../../utility/utility";
+import dayjs from "dayjs";
+import usePDFViewer from "../../../apis/pdf/usePDFViewer";
 
 const EquipmentReportTable: React.FC<{}> = ({}) => {
   const navigate = useNavigate();
-  const user:IUser = useContext(UserContext);
+  const user: IUser = useContext(UserContext);
   const { mutate: deleteEquipment } = useDeleteEQReport();
+  const { mutate: pdfDownload, isLoading: pdfLoading } = usePDFViewer();
 
   // const handleExportToExcel = (id: any) => {
   //   try {
@@ -34,27 +43,28 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
   //   }
   // };
 
-  // const handlePDF = (id: any) => {
-  //   try {
-  //     console.log("MATERIALID",id)
+  const handlePDF = (id: any, EQReportNo: any) => {
+    try {
+      console.log("MATERIALID", id);
 
-  //     pdfDownload.mutate(id, {
-  //     onSuccess: (pdfResponse) => {
+      pdfDownload(
+        { id, EQNo: EQReportNo },
+        {
+          onSuccess: (pdfResponse) => {
+            console.log("PDF Response: ", pdfResponse);
+            // window.open(pdfResponse, "_blank");  //this will Open the PDF in a new tab
+          },
 
-  //       console.log("PDF Response: ", pdfResponse);
-  //       // window.open(pdfResponse, "_blank");  //this will Open the PDF in a new tab
-  //     },
-
-  //     onError: (error) => {
-  //       console.error("Export error:", error);
-  //     },
-
-  //   });
-  //     console.log("PDF downloaded ")
-  //   } catch (error) {
-  //     console.error("Export error:", error);
-  //   }
-  // };
+          onError: (error) => {
+            console.error("Export error:", error);
+          },
+        }
+      );
+      console.log("PDF downloaded ");
+    } catch (error) {
+      console.error("Export error:", error);
+    }
+  };
 
   const handleDelete = (id: any) => {
     Modal.confirm({
@@ -69,26 +79,24 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
         />
       ),
       okText: "Yes",
-      cancelText:"No",
+      cancelText: "No",
       cancelButtonProps: { className: "btn btn-outline-primary" },
       okButtonProps: { className: "btn btn-primary" },
       onOk() {
-        deleteEquipment(id ,{
+        deleteEquipment(id, {
           onSuccess: (Response) => {
-            
             console.log("ATA Response: ", Response);
             window.location.reload();
           },
-          
+
           onError: (error) => {
             console.error("Export error:", error);
           },
-    
-        })
+        });
       },
       // centered: true,
     });
-  }
+  };
 
   const columns: ColumnsType<AnyObject> = [
     {
@@ -109,12 +117,12 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       width: "10%",
       sorter: true,
       // render: (text) => (
-      //   <p className="text-cell">{format(text, DATE_FORMAT)}</p>
+      //   <p className="text-cell">{dayjs(text).format(DATE_FORMAT)}</p>
       // ),
-      // filterDropdown: ColumnFilter,
-      // filterIcon: (filtered: boolean) => (
-      //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      // ),
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
     },
     {
       title: "Machine Name",
@@ -122,7 +130,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       key: "MachineName",
       width: "15%",
       sorter: true,
-      // filterDropdown: ColumnFilter,
+      filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -133,7 +141,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       key: "SubMachineName",
       width: "15%",
       sorter: true,
-      // filterDropdown: ColumnFilter,
+      filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -144,7 +152,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       key: "SectionName",
       width: "15%",
       sorter: true,
-      // filterDropdown: ColumnFilter,
+      filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -155,26 +163,23 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       key: "ImprovementName",
       width: "15%",
       sorter: true,
-      // filterDropdown: ColumnFilter,
+      filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
-   
-  
+
     {
       title: "Requestor",
       dataIndex: "Requestor",
       key: "Requestor",
       width: "10%",
       sorter: true,
-      render: (text) => (
-        <p className="text-cell">{text??"-"}</p>
+      render: (text) => <p className="text-cell">{text ?? "-"}</p>,
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
-      // filterDropdown: ColumnFilter,
-      // filterIcon: (filtered: boolean) => (
-      //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      // ),
     },
     {
       title: "CurrentApprover",
@@ -182,13 +187,11 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       key: "CurrentApprover",
       width: "10%",
       sorter: true,
-      render: (text) => (
-        <p className="text-cell">{text ?? "-"}</p>
+      render: (text) => <p className="text-cell">{text ?? "-"}</p>,
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
-      // filterDropdown: ColumnFilter,
-      // filterIcon: (filtered: boolean) => (
-      //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      // ),
     },
     {
       title: "Status",
@@ -196,19 +199,19 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       key: "Status",
       width: "10%",
       sorter: true,
-      // filterDropdown: ColumnFilter,
+      filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
-      // render: (text) => (
-      //   <span
-      //     className={`status-badge status-badge-${
-      //       STATUS_COLOUR_CLASS[text] ?? ""
-      //     }`}
-      //   >
-      //     {displayRequestStatus(text)}
-      //   </span>
-      // ),
+      render: (text) => (
+        <span
+          className={`status-badge status-badge-${
+            STATUS_COLOUR_CLASS[text] ?? ""
+          }`}
+        >
+          {displayRequestStatus(text)}
+        </span>
+      ),
     },
     {
       title: <p className="text-center p-0 m-0">Actions</p>,
@@ -227,37 +230,68 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
           >
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
-          {console.log("Edit",row.Status , REQUEST_STATUS.Draft,row.Requestor , user.employeeName)}
-          {((row.Status == REQUEST_STATUS.Draft || row.Status == REQUEST_STATUS.UnderAmendment || row.Status == REQUEST_STATUS.PCRNPending|| row.Status ==REQUEST_STATUS.Approved) &&
-              row.Requestor == user?.employeeName ) && (
-            <button
-              type="button" 
-              style={{ background: "none", border: "none" }}
-              onClick={() =>
-                navigate(
-                  `/equipment-improvement-report/form/edit/${row.EquipmentImprovementId}`
-                )
-              }
-            >
-              <FontAwesomeIcon title="Edit" icon={faEdit} />
-            </button>
+          {console.log(
+            "Edit",
+            row.Status,
+            REQUEST_STATUS.Draft,
+            row.Requestor,
+            user.employeeName
           )}
-          {console.log("DElete",row.Status , REQUEST_STATUS.Draft,row.Requestor , user.employeeName)}
-               {
-            (row.Status == REQUEST_STATUS.Draft &&
-              row.Requestor == user.employeeName) && (
+          {(row.Status == REQUEST_STATUS.LogicalAmendment ||
+            row.Status == REQUEST_STATUS.UnderImplementation ||
+            (row.Status == REQUEST_STATUS.ResultMonitoring && !row.IsResultSubmit) ||
+            row.Status == REQUEST_STATUS.Draft ||
+            row.Status == REQUEST_STATUS.UnderAmendment ||
+            row.Status == REQUEST_STATUS.PCRNPending ||
+            row.Status == REQUEST_STATUS.Approved) &&
+            row.Requestor == user?.employeeName && (
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() =>
+                  navigate(
+                    `/equipment-improvement-report/form/edit/${row.EquipmentImprovementId}`
+                  )
+                }
+              >
+                <FontAwesomeIcon title="Edit" icon={faEdit} />
+              </button>
+            )}
+
+          {true && (
             <button
               type="button"
               style={{ background: "none", border: "none" }}
               onClick={() => {
-                handleDelete(
-                  row.EquipmentImprovementId
+                handlePDF(
+                  row.EquipmentImprovementId,
+                  row.EquipmentImprovementNo
                 );
               }}
             >
-              <FontAwesomeIcon title="Delete" icon={faTrash} />
+              <FontAwesomeIcon title="PDF" icon={faFilePdf} />
             </button>
           )}
+
+          {console.log(
+            "DElete",
+            row.Status,
+            REQUEST_STATUS.Draft,
+            row.Requestor,
+            user.employeeName
+          )}
+          {row.Status == REQUEST_STATUS.Draft &&
+            row.Requestor == user.employeeName && (
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() => {
+                  handleDelete(row.EquipmentImprovementId);
+                }}
+              >
+                <FontAwesomeIcon title="Delete" icon={faTrash} />
+              </button>
+            )}
         </div>
       ),
       sorter: false,

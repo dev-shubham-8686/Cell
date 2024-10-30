@@ -134,7 +134,7 @@ const currentApprover = useGetCurrentApproverData(
           ) : currentTab === "workflow" ? (
             <div>
               <Workflow 
-               approverTasks={approverFlowData??[]}
+               approverTasks={approverFlowData??{ WorkflowOne: [], WorkflowTwo: [] }}
               />
             </div>
           ) : (

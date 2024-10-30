@@ -1,12 +1,13 @@
 import { Button, DatePicker, Form, Input, Modal, Radio, Select } from "antd";
 import dayjs from "dayjs";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import useAreaMaster from "../../apis/masters/useAreaMaster";
 import useAdvisorDetails from "../../apis/masters/useAdvisor";
 import useGetTargetDate from "../../apis/workflow/useGetTargetDate";
 import { useParams } from "react-router-dom";
 import { DATE_FORMAT, DocumentLibraries } from "../../GLOBAL_CONSTANT";
 import FileUpload from "../fileUpload/FileUpload";
+import { UserContext } from "../../context/userContext";
 
 export interface ITextBoxModal {
   label: string | JSX.Element;
@@ -62,8 +63,9 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   const { TextArea } = Input;
   const { data: advisors, isLoading: advisorIsLoading } = useAdvisorDetails();
   const [emailAttachments, setEmailAttachments] = useState<
-    IEmailAttachments[] | []
+    IEmailAttachments[] 
   >([]);
+  const user = useContext(UserContext);
   // const targetDate = useGetTargetDate();
   useEffect(() => {
     
@@ -182,11 +184,11 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
             <Form.Item
               label={<span className="text-muted">Email Attachments</span>}
               name="emailAttachments"
-              rules={!emailAttachments?[{ required: true, message: "Please Upload Attachments" }]:null}
+              rules={(emailAttachments.length==0)?[{ required: true, message: "Please Upload Attachments" }]:[]}
             >
               <FileUpload
                 key={`email-Attachments`}
-                folderName={EQReportNo ?? "EQReportDocs"}
+                folderName={EQReportNo ?? user?.employeeId}
                 subFolderName={"Email Attachments"}
                 libraryName={DocumentLibraries.EQ_Report}
                 files={emailAttachments?.map((a) => ({

@@ -19,6 +19,7 @@ export  interface IEquipmentImprovementReport {
   isAmendReSubmitTask?:boolean,
   TargetDate:string;
   Status?:String;
+  WorkflowStatus?:String;
   ActualDate:string;
   CreatedDate:string;
   CreatedBy:number;
@@ -34,10 +35,21 @@ export  interface IEquipmentImprovementReport {
   ToshibaApprovalTargetDate?:Date;
   ToshibaDiscussionTargetDate?:Date;
   ToshibaTeamDiscussion?:boolean;
-  IsPcrnRequired?:boolean
+  IsPcrnRequired?:boolean;
+  ResultAfterImplementation?:IResultAfterImplementation  ;
+  WorkflowLevel?:number;
   // attachment: File;
 }
 
+export interface IResultAfterImplementation {
+  IsResultSubmit: boolean;
+  ActualDate: string;
+  TargetDate: string;
+  ResultStatus:string;
+  ResultMonitoring:string;
+  ResultMonitoringDate:string;
+  IsResultAmendSubmit?:boolean
+}
 export interface ICurrentSituationAttachments{
   EquipmentCurrSituationAttachmentId:number;
   EquipmentImprovementId:number;

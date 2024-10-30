@@ -8,7 +8,7 @@ import { IEmailAttachments } from "../../components/common/TextBoxModal";
 export interface IApproveAskToAmendPayload {
   ApproverTaskId: number;
   CurrentUserId: number;
-  Type: 1 |2| 3; // 1 for Approve, 2 for Reject and 3 for Ask to Amend
+  Type: 1 |2| 3 |4; // 1 for Approve, 2 for Reject and 3 for Ask to Amend and 4 for logicalamendment (workflow-2)
   Comment: string;
   EquipmentId: number;
   EquipmentApprovalData?: ITargetData;

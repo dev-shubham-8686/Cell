@@ -63,9 +63,7 @@ const TroubleReport: React.FC = () => {
                     setCurrentTab(tab.id);
                     navigate("/equipment-improvement-report", {
                       state: {
-                        currentTabState: isApproverRequest
-                          ? "myapproval-tab"
-                          : "myrequest-tab",
+                        currentTabState: tab.id,
                       },
                     });
                   }}

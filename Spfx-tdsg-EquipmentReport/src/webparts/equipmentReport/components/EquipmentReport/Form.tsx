@@ -80,23 +80,55 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const [submitted, setsubmitted] = useState(false);
   const [pcrnSubmission, setpcrnSubmission] = useState(false);
   const [underAmmendment, setunderAmmendment] = useState(false);
+  const [enableActualDate, setenableActualDate] = useState(false);
+  const [enableResultStatus, setenableResultStatus] = useState(false);
+  const [showResultMonitoringDate, setshowResultMonitoringDate] =
+    useState(false);
+  const resultMonitoringOptions = [
+    { label: "7 Days", value: "7 days" },
+    { label: "Manual Date Selection", value: "manual date selection" },
+    { label: "Logical Amendment", value: "logical amendment" },
+  ];
 
   // const { data: employees, isLoading: employeeisLoading } = useEmployeeMaster();
 
   const handleModalSubmit = (sectionHead?: string) => {
     void form.validateFields();
     const values: IEquipmentImprovementReport = form.getFieldsValue();
-    values.SectionHeadId = parseInt(sectionHead);
+    values.SectionHeadId = sectionHead? parseInt(sectionHead):existingEquipmentReport?.SectionHeadId;
     values.IsSubmit = true;
     values.isAmendReSubmitTask = false; // Set the sectionHead value in the form values
-    console.log("DropDownValues", sectionHead);
-    console.log("Final form values with secHead:", values);
     values.EquipmentImprovementId = parseInt(id);
     values.CreatedBy = user.employeeId;
     values.IsPcrnRequired = existingEquipmentReport?.IsPcrnRequired
       ? true
       : false;
+
+    if (existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed) {
+      let resultDate;
+      if (form.getFieldValue("ResultMonitoring") == "logical amendment") {
+        debugger;
+        resultDate = dayjs().subtract(1, "day");
+      } else if (form.getFieldValue("ResultMonitoring") == "7 days") {
+        debugger;
+        resultDate = dayjs().add(7, "day");
+      } else {
+        debugger;
+        resultDate = form.getFieldValue("ResultMonitoringDate");
+      }
+      values.ResultAfterImplementation = {
+        ...values.ResultAfterImplementation,
+        ActualDate: form.getFieldValue("ActualDate"),
+        TargetDate: form.getFieldValue("TargetDate"),
+        ResultStatus: form.getFieldValue("ResultStatus"),
+        ResultMonitoring: form.getFieldValue("ResultMonitoring"),
+        ResultMonitoringDate: resultDate,
+        IsResultSubmit: true,
+        IsResultAmendSubmit: false,
+      };
+    }
     // Call the submit API here
+
     eqReportSave.mutate(
       { ...values },
       {
@@ -110,8 +142,12 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       }
     );
   };
+
   const onSubmitFormHandler = async (): Promise<void> => {
-    if (existingEquipmentReport?.IsPcrnRequired) {
+    if (
+      existingEquipmentReport?.IsPcrnRequired ||
+      existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed
+    ) {
       Modal.confirm({
         title: "Are you sure you want to submit the form?",
         okText: "Submit",
@@ -129,15 +165,41 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       setshowSubmitModal(true);
     }
   };
+
   const handleModalReSubmit = (sectionHead?: string) => {
     const values: IEquipmentImprovementReport = form.getFieldsValue();
     values.EquipmentImprovementId = parseInt(id);
     values.IsSubmit = true;
     values.isAmendReSubmitTask = true;
-    values.isAmendReSubmitTask = true;
+    values.SectionHeadId = existingEquipmentReport?.SectionHeadId;
     values.IsPcrnRequired = existingEquipmentReport?.IsPcrnRequired
       ? true
       : false;
+
+    if (existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed) {
+      let resultDate;
+      if (form.getFieldValue("ResultMonitoring") == "logical amendment") {
+        debugger;
+        resultDate = dayjs().subtract(1, "day");
+      } else if (form.getFieldValue("ResultMonitoring") == "7 days") {
+        debugger;
+        resultDate = dayjs().add(7, "day");
+      } else {
+        debugger;
+        resultDate = form.getFieldValue("ResultMonitoringDate");
+      }
+      values.ResultAfterImplementation = {
+        ...values.ResultAfterImplementation,
+        ActualDate: form.getFieldValue("ActualDate"),
+        TargetDate: form.getFieldValue("TargetDate"),
+        ResultStatus: form.getFieldValue("ResultStatus"),
+        ResultMonitoring: form.getFieldValue("ResultMonitoring"),
+        ResultMonitoringDate: resultDate,
+        IsResultSubmit: true,
+        IsResultAmendSubmit: true,
+      };
+    }
+
     eqReportSave.mutate(
       { ...values },
       {
@@ -151,10 +213,13 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       }
     );
   };
+
   const onReSubmitFormHandler = async (): Promise<void> => {
     Modal.confirm({
       title: "Are you sure you want to resubmit the form?",
-      okText: "Yes",
+      okText: "Resubmit",
+      okButtonProps: { className: "btn btn-primary" },
+      cancelButtonProps: { className: "btn-outline-primary" },
       cancelText: "Cancel",
       onOk: async () => {
         // Call the resubmit function if user confirms
@@ -174,17 +239,42 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     values.IsPcrnRequired = existingEquipmentReport?.IsPcrnRequired
       ? true
       : false;
-    
+    values.SectionHeadId = existingEquipmentReport?.SectionHeadId;
     values.PcrnAttachments = pcrnAttachments ? pcrnAttachments : null;
     values.IsSubmit = false;
     values.isAmendReSubmitTask = false;
     values.CreatedBy = user.employeeId;
+
+    if (existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed) {
+      let resultDate;
+      if (form.getFieldValue("ResultMonitoring") == "logical amendment") {
+        debugger;
+        resultDate = dayjs().subtract(1, "day");
+      } else if (form.getFieldValue("ResultMonitoring") == "7 days") {
+        debugger;
+        resultDate = dayjs().add(7, "day");
+      } else {
+        debugger;
+        resultDate = form.getFieldValue("ResultMonitoringDate");
+      }
+      values.ResultAfterImplementation = {
+        ...values.ResultAfterImplementation,
+        ActualDate: form.getFieldValue("ActualDate"),
+        TargetDate: form.getFieldValue("TargetDate"),
+        ResultStatus: form.getFieldValue("ResultStatus"),
+        ResultMonitoring: form.getFieldValue("ResultMonitoring"),
+        ResultMonitoringDate: resultDate,
+        IsResultSubmit: false,
+      };
+    }
+
     console.log("form saved as draft data", values);
     if (id) {
       values.EquipmentImprovementId = parseInt(id);
     }
     console.log("values", values);
     await form.validateFields();
+
     eqReportSave.mutate(
       { ...values },
       {
@@ -195,7 +285,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               DocumentLibraries.EQ_Report,
               WEB_URL,
               webPartContext.spHttpClient,
-              "EQReportDocs",
+              user?.employeeId,
               Response.ReturnValue.EquipmentImprovementNo
             );
           }
@@ -260,6 +350,58 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             DueDate: dayjs(data.DueDate, DATE_FORMAT),
           })),
       });
+      if (
+        existingEquipmentReport?.ResultAfterImplementation?.ResultMonitoring ==
+        "logical amendment"
+      ) {
+        setenableResultStatus(true);
+      }
+      if (existingEquipmentReport?.ResultAfterImplementation?.TargetDate){
+        setenableActualDate(true);
+      }
+      if(existingEquipmentReport?.ResultAfterImplementation?.ResultMonitoring=="manual date selection"){
+        setshowResultMonitoringDate(true)
+      }
+      if (existingEquipmentReport?.ResultAfterImplementation?.ActualDate) {
+        form.setFieldsValue({
+          ActualDate: dayjs(
+          existingEquipmentReport?.ResultAfterImplementation?.ActualDate,
+          DATE_FORMAT
+        )})
+      }
+      if (
+        dayjs().isAfter(
+          dayjs(
+            existingEquipmentReport?.ResultAfterImplementation
+              ?.ResultMonitoringDate,
+            DATE_FORMAT
+          ),
+          "day"
+        )
+      ) {
+        setenableResultStatus(true);
+      }
+      if (
+        existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed &&
+        existingEquipmentReport?.Status != REQUEST_STATUS.Approved
+      ) {
+        form.setFieldsValue({
+          TargetDate: dayjs(
+            existingEquipmentReport?.ResultAfterImplementation?.TargetDate,
+            DATE_FORMAT
+          ),
+          ResultMonitoring:
+            existingEquipmentReport?.ResultAfterImplementation
+              ?.ResultMonitoring,
+          ResultStatus:
+            existingEquipmentReport?.ResultAfterImplementation.ResultStatus,
+          ResultMonitoringDate: dayjs(
+            existingEquipmentReport?.ResultAfterImplementation
+              ?.ResultMonitoringDate,
+            DATE_FORMAT
+          ),
+        });
+      }
       // form.setFieldValue([""])
       setImprovementAttchments(
         existingEquipmentReport?.EquipmentImprovementAttachmentDetails ?? []
@@ -276,6 +418,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         existingEquipmentReport?.ChangeRiskManagementDetails,
         changeRiskData
       );
+
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment &&
         existingEquipmentReport.CreatedBy == user.employeeId
@@ -296,6 +439,39 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     );
   }, [existingEquipmentReport]);
 
+  const handleTargetDateChange = (date: Dayjs | null) => {
+    if (date) {
+      setenableActualDate(true);
+    } else {
+      setenableActualDate(false);
+      form.setFieldValue("ActualDate", null);
+    }
+  };
+  const disablePastAndNext7Days = (current) => {
+    const today = dayjs();
+    const next7Days = today.add(8, "day");
+    return (
+      current &&
+      (current.isBefore(today, "day") || current.isBefore(next7Days, "day"))
+    );
+  };
+
+  const handleResultMonitoringChange = (value) => {
+    if (value == "manual date selection") {
+      setshowResultMonitoringDate(true);
+      setenableResultStatus(false);
+    } else if (value == "logical amendment") {
+      // form.setFieldValue("ResultMonitoringDate", dayjs().subtract(1, 'day'));
+      form.setFieldValue("ResultMonitoringDate", null);
+      setenableResultStatus(true);
+      setshowResultMonitoringDate(false);
+    } else {
+      const resultDate = dayjs().add(7, "day");
+      form.setFieldValue("ResultMonitoringDate", null);
+      setshowResultMonitoringDate(false);
+      setenableResultStatus(false);
+    }
+  };
   const handleAdd = (): void => {
     const newData: IChangeRiskData[] = [
       ...ChangeRiskManagementDetails,
@@ -320,21 +496,20 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   };
 
   const handleDelete = (key: React.Key): void => {
-    
     const newData = ChangeRiskManagementDetails.filter(
       (item) => item.key !== key
     ).map((item, index) => {
       return {
         ...item,
         key: index,
-        DueDate: dayjs(item.DueDate, DATE_FORMAT),    
-        };
+        DueDate: dayjs(item.DueDate, DATE_FORMAT),
+      };
     });
-    
+
     console.log("after deleting", ChangeRiskManagementDetails, newData);
     setChangeRiskManagementDetails(newData);
     // form.resetFields();
-    
+
     form.setFieldsValue({
       ["ChangeRiskManagementDetails"]: newData,
     });
@@ -377,7 +552,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           >
             <Input
               maxLength={100}
-              disabled={isModeView}
+              disabled={
+                isModeView ||
+                (submitted && !underAmmendment) ||
+                (pcrnSubmission && !underAmmendment)
+              }
               style={{ width: "100%" }}
               placeholder="Please enter Changes"
               onChange={(e) => {
@@ -409,7 +588,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             rules={validationRules.Function}
           >
             <TextArea
-              disabled={isModeView}
+              disabled={
+                isModeView ||
+                (submitted && !underAmmendment) ||
+                (pcrnSubmission && !underAmmendment)
+              }
               style={{ width: "100%" }}
               placeholder="Select function"
               onChange={(e) => {
@@ -442,7 +625,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             rules={validationRules.Risks}
           >
             <TextArea
-              disabled={isModeView}
+              disabled={
+                isModeView ||
+                (submitted && !underAmmendment) ||
+                (pcrnSubmission && !underAmmendment)
+              }
               maxLength={1000}
               placeholder="Enter risks"
               rows={2}
@@ -475,7 +662,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             rules={validationRules.Factor}
           >
             <TextArea
-              disabled={isModeView}
+              disabled={
+                isModeView ||
+                (submitted && !underAmmendment) ||
+                (pcrnSubmission && !underAmmendment)
+              }
               maxLength={1000}
               placeholder="Add Factor"
               rows={2}
@@ -512,7 +703,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             rules={validationRules.CounterMeasure}
           >
             <TextArea
-              disabled={isModeView}
+              disabled={
+                isModeView ||
+                (submitted && !underAmmendment) ||
+                (pcrnSubmission && !underAmmendment)
+              }
               maxLength={1000}
               placeholder="Add Counter Measures"
               rows={2}
@@ -555,7 +750,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               //     : undefined
               // }
               format="DD-MM-YYYY"
-              disabled={isModeView}
+              disabled={
+                isModeView ||
+                (submitted && !underAmmendment) ||
+                (pcrnSubmission && !underAmmendment)
+              }
               onChange={(date, dateString) => {
                 onChangeTableData(record.key, "DueDate", dateString);
               }}
@@ -584,7 +783,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             rules={validationRules.Person}
           >
             <Select
-              disabled={isModeView}
+              disabled={
+                isModeView ||
+                (submitted && !underAmmendment) ||
+                (pcrnSubmission && !underAmmendment)
+              }
               showSearch
               optionFilterProp="children"
               style={{ width: "100%" }}
@@ -629,7 +832,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             rules={validationRules.Results}
           >
             <TextArea
-              disabled={isModeView}
+              disabled={
+                isModeView ||
+                (submitted && !underAmmendment) ||
+                (pcrnSubmission && !underAmmendment)
+              }
               maxLength={1000}
               placeholder="Enter results"
               rows={2}
@@ -657,8 +864,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               }}
               disabled={
                 isModeView ||
-                submitted ||
-                existingEquipmentReport?.CreatedBy !== user?.employeeId
+                (submitted && !underAmmendment) ||
+                (pcrnSubmission && !underAmmendment) ||
+                (existingEquipmentReport?.CreatedBy !== user?.employeeId &&
+                  existingEquipmentReport?.Status == REQUEST_STATUS.Draft)
               }
             >
               <span>
@@ -678,7 +887,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       <div style={{ position: "absolute", right: "40px", top: "105px" }}>
         {(mode == "add" ||
           (!isModeView &&
-            !submitted &&
+            (!submitted ||
+              (existingEquipmentReport?.WorkflowStatus ==
+                REQUEST_STATUS.W1Completed &&
+                existingEquipmentReport?.Status !=
+                  REQUEST_STATUS.LogicalAmendment)) &&
             existingEquipmentReport?.CreatedBy === user?.employeeId)) && (
           <>
             <div className="d-flex gap-3">
@@ -699,15 +912,16 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             </div>
           </>
         )}
-        {underAmmendment && mode != "view" && (
-          <button
-            className="btn btn-primary"
-            type="button"
-            onClick={onReSubmitFormHandler}
-          >
-            Resubmit
-          </button>
-        )}
+        {(underAmmendment || existingEquipmentReport?.Status ==REQUEST_STATUS.LogicalAmendment) &&
+          mode != "view"  && (
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={onReSubmitFormHandler}
+            >
+              Resubmit
+            </button>
+          )}
       </div>
       <div className="bg-white p-4">
         <ConfigProvider
@@ -780,7 +994,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     disabled={
                       isModeView ||
                       (submitted && !underAmmendment) ||
-                      pcrnSubmission
+                      (pcrnSubmission && !underAmmendment)
                     }
                     showSearch
                     filterOption={(input, option) =>
@@ -809,7 +1023,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     disabled={
                       isModeView ||
                       (submitted && !underAmmendment) ||
-                      pcrnSubmission
+                      (pcrnSubmission && !underAmmendment)
                     }
                     showSearch
                     filterOption={(input, option) =>
@@ -845,7 +1059,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     disabled={
                       isModeView ||
                       (submitted && !underAmmendment) ||
-                      pcrnSubmission
+                      (pcrnSubmission && !underAmmendment)
                     }
                     showSearch
                     filterOption={(input, option) =>
@@ -881,7 +1095,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     disabled={
                       isModeView ||
                       (submitted && !underAmmendment) ||
-                      pcrnSubmission
+                      (pcrnSubmission && !underAmmendment)
                     }
                     showSearch
                     filterOption={(input, option) =>
@@ -919,7 +1133,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     disabled={
                       isModeView ||
                       (submitted && !underAmmendment) ||
-                      pcrnSubmission
+                      (pcrnSubmission && !underAmmendment)
                     }
                     maxLength={100}
                     rows={3}
@@ -936,7 +1150,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     disabled={
                       isModeView ||
                       (submitted && !underAmmendment) ||
-                      pcrnSubmission
+                      (pcrnSubmission && !underAmmendment)
                     }
                     maxLength={1000}
                     rows={3}
@@ -959,12 +1173,12 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     disabled={
                       isModeView ||
                       (submitted && !underAmmendment) ||
-                      pcrnSubmission
+                      (pcrnSubmission && !underAmmendment)
                     }
                     key={`file-upload-current-situation`}
                     folderName={
                       form.getFieldValue("EquipmentImprovementNo") ??
-                      "EQReportDocs"
+                      user?.employeeId
                     }
                     subFolderName={"Current Situation Attachments"}
                     libraryName={DocumentLibraries.EQ_Report}
@@ -1011,7 +1225,13 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 </Form.Item>
               </div>
             </div>
-
+            {console.log(
+              "CON",
+              isModeView,
+              submitted,
+              underAmmendment,
+              pcrnSubmission
+            )}
             <div className="row mb-3">
               <div className="col">
                 <Form.Item
@@ -1023,7 +1243,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     disabled={
                       isModeView ||
                       (submitted && !underAmmendment) ||
-                      pcrnSubmission
+                      (pcrnSubmission && !underAmmendment)
                     }
                     maxLength={1000}
                     rows={3}
@@ -1043,7 +1263,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     disabled={
                       isModeView ||
                       (submitted && !underAmmendment) ||
-                      pcrnSubmission
+                      (pcrnSubmission && !underAmmendment)
                     }
                     maxLength={1000}
                     rows={3}
@@ -1069,12 +1289,12 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     disabled={
                       isModeView ||
                       (submitted && !underAmmendment) ||
-                      pcrnSubmission
+                      (pcrnSubmission && !underAmmendment)
                     }
                     key={`file-upload-improvement`}
                     folderName={
                       form.getFieldValue("EquipmentImprovementNo") ??
-                      "EQReportDocs"
+                      user?.employeeId
                     }
                     subFolderName={"Improvement Attachments"}
                     libraryName={DocumentLibraries.EQ_Report}
@@ -1134,7 +1354,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 {console.log("Mode", mode)}
                 {(mode == "add" ||
                   (!isModeView &&
-                    !submitted &&
+                    (!pcrnSubmission || underAmmendment) &&
+                    (!submitted || underAmmendment) &&
                     existingEquipmentReport?.CreatedBy ===
                       user?.employeeId)) && (
                   <button
@@ -1181,7 +1402,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         key={`pcrnAttachments`}
                         folderName={
                           form.getFieldValue("EquipmentImprovementNo") ??
-                          "EQReportDocs"
+                          user?.employeeId
                         }
                         subFolderName={"PCRN Attachments"}
                         libraryName={DocumentLibraries.EQ_Report}
@@ -1237,8 +1458,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 </div>
               </>
             )}
-            {existingEquipmentReport?.Status == REQUEST_STATUS.Approved &&
+            {(existingEquipmentReport?.WorkflowStatus ==
+              REQUEST_STATUS.W1Completed ) &&
               existingEquipmentReport?.IsSubmit && (
+                // true &&
                 <div>
                   <p
                     className="mt-3"
@@ -1252,10 +1475,18 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         label={
                           <label className="text-muted mb-0">Target Date</label>
                         }
-                        name="TargetDate "
+                        name="TargetDate"
                         rules={validationRules["TargetDate"]}
                       >
-                        <DatePicker disabled={isModeView} className="w-100" />
+                        <DatePicker
+                          disabledDate={(current) => {
+                            // future dates only
+                            return current && current < dayjs().startOf("day");
+                          }}
+                          disabled={isModeView}
+                          onChange={handleTargetDateChange}
+                          className="w-100"
+                        />
                       </Form.Item>
                     </div>
 
@@ -1267,23 +1498,61 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         name="ActualDate"
                         rules={validationRules["ActualDate"]}
                       >
-                        <DatePicker disabled={isModeView} className="w-100" />
+                        <DatePicker
+                          disabled={isModeView || !enableActualDate}
+                          className="w-100"
+                        />
                       </Form.Item>
                     </div>
 
                     <div className="col">
                       <Form.Item
                         label={
-                          <label className="text-muted mb-0">
-                            Result Monitoring Till Date
-                          </label>
+                          <span className="text-muted">Result Monitoring</span>
                         }
-                        // name="ResultDate "
-                        rules={validationRules["TargetDate"]}
+                        name="ResultMonitoring"
+                        initialValue={resultMonitoringOptions[0].value}
+                        rules={validationRules.Area}
                       >
-                        <DatePicker disabled={isModeView} className="w-100" />
+                        <Select
+                          disabled={isModeView}
+                          showSearch
+                          filterOption={(input, option) =>
+                            (option?.label ?? "")
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
+                          options={resultMonitoringOptions?.map((area) => ({
+                            label: area.label,
+                            value: area.value,
+                          }))}
+                          onChange={handleResultMonitoringChange}
+                          loading={areaIsLoading}
+                          className="custom-disabled-select"
+                        />
                       </Form.Item>
                     </div>
+
+                    {showResultMonitoringDate && (
+                      <div className="col">
+                        <Form.Item
+                          label={
+                            <label className="text-muted mb-0">
+                              Result Monitoring Till Date
+                            </label>
+                          }
+                          name="ResultMonitoringDate"
+                          rules={validationRules["ResultMonitoringDate"]}
+                        >
+                          <DatePicker
+                            disabled={isModeView}
+                            disabledDate={disablePastAndNext7Days}
+                            className="w-100"
+                            defaultPickerValue={dayjs().add(7, "day")}
+                          />
+                        </Form.Item>
+                      </div>
+                    )}
 
                     <div className="col">
                       <Form.Item
@@ -1292,11 +1561,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                             Result Status
                           </label>
                         }
-                        name="resultStatus"
-                        rules={validationRules["resultStatus"]}
+                        name="ResultStatus"
+                        rules={validationRules["ResultStatus"]}
                       >
                         <TextArea
-                          disabled={isModeView}
+                          disabled={isModeView || !enableResultStatus}
                           className="w-100"
                           rows={1}
                         />

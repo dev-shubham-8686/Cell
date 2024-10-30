@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faEye } from '@fortawesome/free-solid-svg-icons';
 import { AnyObject } from 'antd/es/_util/type';
 import { ColumnsType } from "antd/es/table/interface";
+import { displayRequestStatus } from '../../../utility/utility';
 
 const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
   const navigate = useNavigate();
@@ -118,19 +119,19 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       key: "Status",
       width: "10%",
       sorter: true,
-      // filterDropdown: ColumnFilter,
+       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
-      // render: (text) => (
-      //   <span
-      //     className={`status-badge status-badge-${
-      //       STATUS_COLOUR_CLASS[text] ?? ""
-      //     }`}
-      //   >
-      //     {displayRequestStatus(text)}
-      //   </span>
-      // ),
+      render: (text) => (
+        <span
+          className={`status-badge status-badge-${
+            STATUS_COLOUR_CLASS[text] ?? ""
+          }`}
+        >
+          {displayRequestStatus(text)}
+        </span>
+      ),
     },
     {
       title: <p className="text-center p-0 m-0">Actions</p>,
