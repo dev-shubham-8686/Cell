@@ -14,6 +14,10 @@
         public string? Status { get; set; }
 
         public int? CreatedBy   { get; set; }
+
+        public bool? IsSubmit {  get; set; }
+
+        public bool? IsResultSubmit { get; set; }
         public int? totalCount { get; set; }
 
     }
