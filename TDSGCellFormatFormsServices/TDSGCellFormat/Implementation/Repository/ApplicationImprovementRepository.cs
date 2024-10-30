@@ -711,7 +711,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     existingReport.Status = ApprovalTaskStatus.UnderImplementation.ToString();
                 }
-                if(data.TargetDate != null && data.ActualDate != null)
+                if (data.TargetDate != null && data.ActualDate != null)
                 {
                     existingReport.Status = ApprovalTaskStatus.ResultMonitoring.ToString();
                 }
@@ -720,10 +720,18 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Enums.Status.Success;
                 res.Message = Enums.EquipmentSave;
 
-                if (data.IsResultSubmit == true)
+                if (data.IsResultSubmit == true && data.IsResultAmendSubmit == false)
                 {
                     var resultSubmit = await ResultSubmit(existingReport.EquipmentImprovementId, report.CreatedBy);
                     if (resultSubmit.StatusCode == Enums.Status.Success)
+                    {
+                        res.Message = Enums.EquipmentSubmit;
+                    }
+                }
+                else if (data.IsResultSubmit == true && data.IsResultAmendSubmit == true)
+                {
+                    var resubmit = await ResultResubmit(existingReport.EquipmentImprovementId, report.CreatedBy);
+                    if (resubmit.StatusCode == Enums.Status.Success)
                     {
                         res.Message = Enums.EquipmentSubmit;
                     }
@@ -732,7 +740,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Status as Draft", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
                 }
-                
+
 
             }
             catch (Exception ex)
@@ -780,6 +788,36 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             return res;
         }
+
+
+        public async Task<AjaxResult> ResultResubmit(int equipmentId, int? createdBy)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var equipmentApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentId && x.IsActive == true && x.Status == ApprovalTaskStatus.LogicalAmendment.ToString()).FirstOrDefault();
+
+                var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == equipmentId && x.IsDeleted == false).FirstOrDefault();
+
+                equipmentApproverTask.Status = ApprovalTaskStatus.LogicalAmendmentInReview.ToString();
+                equipment.Status = ApprovalTaskStatus.LogicalAmendmentInReview.ToString();
+                await _context.SaveChangesAsync();
+                InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.LogicalAmendmentInReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
+
+                res.Message = Enums.EquipmentResubmit;
+                res.StatusCode = Enums.Status.Success;
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "Application Equipment Resubmit");
+                //return res;
+            }
+            return res;
+        }
+
 
         private void MarkAsDeleted<T>(IEnumerable<T> items, int? createdBy, DateTime now) where T : class
         {
@@ -942,7 +980,8 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 var equipmentData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.ApproverTaskId == data.ApproverTaskId && x.IsActive == true
                                      && x.EquipmentImprovementId == data.EquipmentId
-                                     && (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString() || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString())).FirstOrDefault();
+                                     && (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString() 
+                                     || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString() || x.Status == ApprovalTaskStatus.LogicalAmendmentInReview.ToString())).FirstOrDefault();
                 //here change the task as Pending and not approved
                 if (equipmentData == null)
                 {
@@ -1139,13 +1178,13 @@ namespace TDSGCellFormat.Implementation.Repository
                                 if (equipmentForm.WorkFlowLevel == 1)
                                 {
                                     equipmentForm.Status = ApprovalTaskStatus.Approved.ToString();
-                                    equipmentForm.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
+                                    equipmentForm.WorkFlowStatus = ApprovalTaskStatus.Approved.ToString();
                                     await _context.SaveChangesAsync();
                                 }
                                 else
                                 {
                                     equipmentForm.Status = ApprovalTaskStatus.Completed.ToString();
-                                    equipmentForm.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
+                                    equipmentForm.WorkFlowStatus = ApprovalTaskStatus.Completed.ToString();
                                     await _context.SaveChangesAsync();
                                 }
 
@@ -1239,7 +1278,9 @@ namespace TDSGCellFormat.Implementation.Repository
         public ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId)
         {
             var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId &&
-            (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString() || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString()) && x.IsActive == true);
+            (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString() 
+            || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString() || x.Status == ApprovalTaskStatus.LogicalAmendmentInReview.ToString()) && x.IsActive == true);
+
             var data = new ApproverTaskId_dto();
             if (materialApprovers != null)
             {
