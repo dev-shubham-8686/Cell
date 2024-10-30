@@ -710,6 +710,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.IsResultSubmit = data.IsResultSubmit;
                 existingReport.ResultMonitorDate = !string.IsNullOrEmpty(data.ResultMonitoringDate) ? DateTime.Parse(data.ResultMonitoringDate) : (DateTime?)null;
                 existingReport.ResultMonitoring = data.ResultMonitoring;
+                existingReport.WorkFlowLevel = 2;
                 if (data.TargetDate != null && data.ActualDate == null)
                 {
                     existingReport.Status = ApprovalTaskStatus.UnderImplementation.ToString();
@@ -741,7 +742,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else
                 {
-                    InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Status as Draft", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
+                    InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Status as Draft", existingReport.Status, Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
                 }
 
 
@@ -994,7 +995,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (data.Type == ApprovalStatus.Rejected)
                 {
-                    equipmentData.Status = ApprovalTaskStatus.Reject.ToString();
+                    equipmentData.Status = ApprovalTaskStatus.Rejected.ToString();
                     equipmentData.ModifiedBy = data.CurrentUserId;
                     equipmentData.ActionTakenBy = data.CurrentUserId;
                     equipmentData.ActionTakenDate = DateTime.Now;
@@ -1009,7 +1010,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.WorkFlowStatus = ApprovalTaskStatus.Reject.ToString();
                     await _context.SaveChangesAsync();
 
-                    InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, ApprovalTaskStatus.Reject.ToString(), Convert.ToInt32(data.CurrentUserId), HistoryAction.Rejected.ToString(), 0);
+                    InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, ApprovalTaskStatus.Rejected.ToString(), Convert.ToInt32(data.CurrentUserId), HistoryAction.Rejected.ToString(), 0);
 
                     // InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, requestTaskData.Comments, requestTaskData.Status, Convert.ToInt32(requestTaskData.ModifiedBy), ApprovalTaskStatus.UnderAmendment.ToString(), 0);
                     //
@@ -1267,16 +1268,44 @@ namespace TDSGCellFormat.Implementation.Repository
             return equipmentTargetData;
         }
 
-        public async Task<List<EquipmentApproverTaskMasterAdd>> GetEquipmentWorkFlowData(int equipmentId)
+
+        public async Task<(List<EquipmentApproverTaskMasterAdd> WorkflowOne, List<EquipmentApproverTaskMasterAdd> WorkflowTwo)> GetEquipmentWorkFlowData(int equipmentId)
         {
+            // Fetch all workflow data for the given equipmentId
             var approverData = await _context.GetEquipmentWorkFlowData(equipmentId);
-            var processedData = new List<EquipmentApproverTaskMasterAdd>();
+
+            // Separate lists based on workflow level
+            var workflowOne = new List<EquipmentApproverTaskMasterAdd>();
+            var workflowTwo = new List<EquipmentApproverTaskMasterAdd>();
+
+            // Process each entry and add to respective workflow list
             foreach (var entry in approverData)
             {
-                processedData.Add(entry);
+                if (entry.WorkFlowlevel == 1)
+                {
+                    workflowOne.Add(entry);
+                }
+                else if (entry.WorkFlowlevel == 2)
+                {
+                    workflowTwo.Add(entry);
+                }
             }
-            return processedData;
+
+            // Return the two lists as a tuple
+            return (workflowOne, workflowTwo);
         }
+
+
+        //public async Task<List<EquipmentApproverTaskMasterAdd>> GetEquipmentWorkFlowData(int equipmentId)
+        //{
+        //    var approverData = await _context.GetEquipmentWorkFlowData(equipmentId);
+        //    var processedData = new List<EquipmentApproverTaskMasterAdd>();
+        //    foreach (var entry in approverData)
+        //    {
+        //        processedData.Add(entry);
+        //    }
+        //    return processedData;
+        //}
 
         public ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId)
         {
