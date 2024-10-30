@@ -17,10 +17,10 @@ import ChangeRiskManagementForm from "./ChangeRiskManagementForm";
 import { useGetAllMachines } from "../../../hooks/useGetAllMachines";
 import { useGetAllSubMachines } from "../../../hooks/useGetAllSubMachines";
 import { ISubMachine } from "../../../api/GetAllSubMachines.api";
-import { useGetAllAreas } from "../../../hooks/useGetAllAreas";
 import { IArea } from "../../../api/GetAllAreas.api";
 import { useEffect, useState } from "react";
 import { useGetCheckedBy } from "../../../hooks/useGetCheckedBy";
+import { useGetAllAreas } from "../../../hooks/useGetAllAreas";
 // import { ChangeRiskManagement } from "../../../api/AddUpdateReport.api";
 // import { useParams } from "react-router-dom";
 
@@ -41,16 +41,16 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const [selectedMachineId, setSelectedMachineId] = useState<number | null>(null);
   const [filteredSubMachines, setFilteredSubMachines] = useState<ISubMachine[]>([]);
 
-  const { data: machinesResult } = useGetAllMachines();
-  
-  const { data: subMachinesResult } = useGetAllSubMachines();
-  const { data: areasResult } = useGetAllAreas();
-  const { data: checkedByResult } = useGetCheckedBy();
+  const { data: machinesResult, isLoading: machineloading } = useGetAllMachines();
+
+  const { data: subMachinesResult, isLoading: submachineloading } = useGetAllSubMachines();
+  const { data: areasResult, isLoading: arealoading } = useGetAllAreas();
+  const { data: checkedByResult, isLoading: checkedloading } = useGetCheckedBy();
 
   useEffect(() => {
     if (selectedMachineId && subMachinesResult?.ReturnValue) {
       const filtered = subMachinesResult.ReturnValue.filter(
-        (subMachine) => subMachine.MachineId === selectedMachineId
+        (subMachine: any) => subMachine.MachineId === selectedMachineId
       );
       setFilteredSubMachines(filtered);
     } else {
@@ -140,7 +140,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               name="checkedBy"
               rules={[{ required: true }]}
             >
-              <Select placeholder="Select Checked By">
+              <Select placeholder="Select Checked By" loading={checkedloading}>
                 {checkedByResult?.ReturnValue &&
                   checkedByResult.ReturnValue.map((checkedBy) => (
                     <Option key={checkedBy.employeeId} value={checkedBy.employeeId}>
@@ -180,7 +180,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                   <Select
                     mode="multiple"
                     placeholder="Select Area"
-                    showSearch={false}>
+                    showSearch={false}
+                    loading={arealoading}>
                     {areasResult?.ReturnValue &&
                       areasResult.ReturnValue.map((area: IArea) => (
                         <Option key={area.AreaId} value={area.AreaId}>
@@ -246,9 +247,10 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                   <Select
                     placeholder="Select Machine Name"
                     onChange={(value) => setSelectedMachineId(value)} // Update selected machine ID
+                    loading={machineloading}
                   >
                     {machinesResult?.ReturnValue &&
-                      machinesResult.ReturnValue.map((machine) => (
+                      machinesResult.ReturnValue.map((machine: any) => (
                         <Option key={machine.MachineId} value={machine.MachineId}>
                           {machine.MachineName}
                         </Option>
@@ -307,7 +309,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                   name="subMachineName"
                   rules={[{ required: true }]}
                 >
-                  <Select mode="multiple" placeholder="Select Sub-Machine Name">
+                  <Select mode="multiple" placeholder="Select Sub-Machine Name"
+                    loading={submachineloading}>
                     {filteredSubMachines.map((subMachine) => (
                       <Option
                         key={subMachine.SubMachineId}
