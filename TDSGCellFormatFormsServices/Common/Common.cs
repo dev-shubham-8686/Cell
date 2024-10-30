@@ -66,7 +66,13 @@ namespace TDSGCellFormat.Common
             NotifyMembers = 17,
             ReviewByManager = 18,
             Allow = 19,
-            Decline = 20
+            Decline = 20,
+            LogicalAmendment = 21,
+            Update = 22,
+            ToshibaApproved = 23,
+            ToshibaApprovalRequired = 24,
+            PCRNRequired = 25,
+            ToshibaDiscussionRequired = 26
         }
         public enum ApprovalStatus
         {
