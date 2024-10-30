@@ -758,7 +758,7 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public async Task<AjaxResult> ResultSubmit(int equipmentId, int? createdBy)
+        public async Task<AjaxResult> ResultSubmit(int equipmentId, int? userId)
         {
             var res = new AjaxResult();
             try
@@ -772,9 +772,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.IsResultSubmit = true;
                     await _context.SaveChangesAsync();
                 }
-                InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "Submit the form", ApprovalTaskStatus.ResultMonitoring.ToString(), Convert.ToInt32(createdBy), HistoryAction.Submit.ToString(), 0);
+                InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "Submit the form", ApprovalTaskStatus.ResultMonitoring.ToString(), Convert.ToInt32(userId), HistoryAction.Submit.ToString(), 0);
 
-                _context.CallEquipmentApproverMaterix(createdBy, equipmentId);
+                _context.CallEquipmentApproverMaterix(userId, equipmentId);
 
                 //var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 //await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Submitted, string.Empty, 0);
@@ -794,7 +794,7 @@ namespace TDSGCellFormat.Implementation.Repository
         }
 
 
-        public async Task<AjaxResult> ResultResubmit(int equipmentId, int? createdBy)
+        public async Task<AjaxResult> ResultResubmit(int equipmentId, int? userId)
         {
             var res = new AjaxResult();
             try
@@ -806,7 +806,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 equipmentApproverTask.Status = ApprovalTaskStatus.LogicalAmendmentInReview.ToString();
                 equipment.Status = ApprovalTaskStatus.LogicalAmendmentInReview.ToString();
                 await _context.SaveChangesAsync();
-                InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.LogicalAmendmentInReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
+                InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.LogicalAmendmentInReview.ToString(), Convert.ToInt32(userId), HistoryAction.ReSubmitted.ToString(), 0);
+
+                _context.CallEquipmentApproverMaterix(userId, equipmentId);
 
                 res.Message = Enums.EquipmentResubmit;
                 res.StatusCode = Enums.Status.Success;
