@@ -28,7 +28,7 @@ namespace TDSGCellFormat.Models.Add
         public string? PcrnFilePath { get; set; }
         public string? Status { get; set; }
         public string? WorkflowStatus { get; set; }
-
+        public int? WorkflowLevel { get; set; }
         public bool? IsSubmit { get; set; }
 
         public bool? IsAmendReSubmitTask { get; set; }
