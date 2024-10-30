@@ -1117,7 +1117,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             }
 
                         }
-                        else if (approvalData.EmailAttachments != null)
+                        else if (approvalData.EmailAttachments != null && approvalData.EmailAttachments.Count > 0)
                         {
                             //skip
                             //var attachment = approvalData.EmailAttachments;
