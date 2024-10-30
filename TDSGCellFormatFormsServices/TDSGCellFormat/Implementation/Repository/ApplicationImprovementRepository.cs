@@ -93,6 +93,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 // PcrnFilePath = res.PCRNDocFilePath,
                 AdvisorId = _context.EquipmentAdvisorMasters.Where(x => x.EquipmentImprovementId == Id && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(),
                 Status = res.Status,
+                WorkflowStatus = res.WorkFlowStatus,
                 CreatedDate = res.CreatedDate,
                 CreatedBy = res.CreatedBy,
                 IsSubmit = res.IsSubmit,
@@ -763,7 +764,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 if (equipment != null)
                 {
                     equipment.Status = ApprovalTaskStatus.ResultMonitoring.ToString();
-                    equipment.WorkFlowStatus = ApprovalTaskStatus.ResultMonitoring.ToString();
+                    //equipment.WorkFlowStatus = ApprovalTaskStatus.ResultMonitoring.ToString();
                     equipment.WorkFlowLevel = 2;
                     equipment.IsResultSubmit = true;
                     await _context.SaveChangesAsync();
@@ -1029,7 +1030,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false).FirstOrDefault();
                     equipment.Status = ApprovalTaskStatus.UnderAmendment.ToString();
-                    equipment.WorkFlowStatus = ApprovalTaskStatus.UnderAmendment.ToString();
+                    //equipment.WorkFlowStatus = ApprovalTaskStatus.UnderAmendment.ToString();
                     await _context.SaveChangesAsync();
 
                     InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, ApprovalTaskStatus.UnderAmendment.ToString(), Convert.ToInt32(data.CurrentUserId), HistoryAction.UnderAmendment.ToString(), 0);
@@ -1055,7 +1056,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false).FirstOrDefault();
                     equipment.Status = ApprovalTaskStatus.LogicalAmendment.ToString();
-                    equipment.WorkFlowStatus = ApprovalTaskStatus.LogicalAmendment.ToString();
+                    //equipment.WorkFlowStatus = ApprovalTaskStatus.LogicalAmendment.ToString();
                     await _context.SaveChangesAsync();
 
                     InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, ApprovalTaskStatus.LogicalAmendment.ToString(), Convert.ToInt32(data.CurrentUserId), HistoryAction.UnderAmendment.ToString(), 0);
@@ -1178,7 +1179,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 if (equipmentForm.WorkFlowLevel == 1)
                                 {
                                     equipmentForm.Status = ApprovalTaskStatus.Approved.ToString();
-                                    equipmentForm.WorkFlowStatus = ApprovalTaskStatus.Approved.ToString();
+                                    equipmentForm.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
                                     await _context.SaveChangesAsync();
                                 }
                                 else
