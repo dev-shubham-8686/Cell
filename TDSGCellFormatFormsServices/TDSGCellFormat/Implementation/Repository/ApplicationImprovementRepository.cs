@@ -298,7 +298,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     if (report.IsSubmit == true && report.IsAmendReSubmitTask == false)
                     {
-                        var data = await SubmitRequest(existingReport.EquipmentImprovementId, report.CreatedBy);
+                        var data = await SubmitRequest(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                         if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.EquipmentSubmit;
@@ -307,7 +307,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true)
                     {
-                        var data = await Resubmit(existingReport.EquipmentImprovementId, report.CreatedBy);
+                        var data = await Resubmit(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                         if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.EquipmentResubmit;
@@ -664,7 +664,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (report.IsSubmit == true && report.IsAmendReSubmitTask == false && report.PcrnAttachments == null)
                 {
-                    var data = await SubmitRequest(existingReport.EquipmentImprovementId, report.CreatedBy);
+                    var data = await SubmitRequest(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
                     {
                         res.Message = Enums.EquipmentSubmit;
@@ -673,7 +673,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true && report.PcrnAttachments == null)
                 {
-                    var data = await Resubmit(existingReport.EquipmentImprovementId, report.CreatedBy);
+                    var data = await Resubmit(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
                     {
                         res.Message = Enums.EquipmentResubmit;
@@ -726,7 +726,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (data.IsResultSubmit == true && data.IsResultAmendSubmit == false)
                 {
-                    var resultSubmit = await ResultSubmit(existingReport.EquipmentImprovementId, report.CreatedBy);
+                    var resultSubmit = await ResultSubmit(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                     if (resultSubmit.StatusCode == Enums.Status.Success)
                     {
                         res.Message = Enums.EquipmentSubmit;
@@ -734,7 +734,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else if (data.IsResultSubmit == true && data.IsResultAmendSubmit == true)
                 {
-                    var resubmit = await ResultResubmit(existingReport.EquipmentImprovementId, report.CreatedBy);
+                    var resubmit = await ResultResubmit(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                     if (resubmit.StatusCode == Enums.Status.Success)
                     {
                         res.Message = Enums.EquipmentSubmit;
@@ -803,8 +803,17 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == equipmentId && x.IsDeleted == false).FirstOrDefault();
 
-                equipmentApproverTask.Status = ApprovalTaskStatus.LogicalAmendmentInReview.ToString();
+                var approverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentId && x.IsActive == true && x.WorkFlowlevel == 2).ToList();
+                approverTask.ForEach(a =>
+                {
+                    a.IsActive = false;
+                    a.ModifiedBy = userId;
+                    a.ModifiedDate = DateTime.Now;
+                });
+                await _context.SaveChangesAsync();
+                // equipmentApproverTask.Status = ApprovalTaskStatus.LogicalAmendmentInReview.ToString();
                 equipment.Status = ApprovalTaskStatus.LogicalAmendmentInReview.ToString();
+               
                 await _context.SaveChangesAsync();
                 InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.LogicalAmendmentInReview.ToString(), Convert.ToInt32(userId), HistoryAction.ReSubmitted.ToString(), 0);
 
