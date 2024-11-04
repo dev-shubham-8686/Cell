@@ -1243,8 +1243,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Advisor", data.Comment, ApprovalTaskStatus.ToshibaTechnicalReview.ToString(), Convert.ToInt32(data.AdvisorId), HistoryAction.ToshibaDiscussionRequired.ToString(), 0);
 
                 }
-
-                if (data.IsToshibaDiscussion == true)
+                else if (data.IsToshibaDiscussion == true)
                 {
                     equipment.ToshibaTeamDiscussion = true;
                     equipment.ToshibaDiscussionTargetDate = !string.IsNullOrEmpty(data.TargetDate) ? DateTime.Parse(data.TargetDate) : (DateTime?)null;
@@ -1509,6 +1508,8 @@ namespace TDSGCellFormat.Implementation.Repository
 
             return char.ToUpper(input[0]) + input.Substring(1);
         }
+
+
         #endregion
     }
 }
