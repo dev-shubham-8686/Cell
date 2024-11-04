@@ -1021,5 +1021,64 @@ namespace TDSGCellFormat.Helper
             emailSent = true;
             return emailSent;
         }
+
+        public async Task<bool> SendEquipmentEmail(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0)
+        {
+            bool emailSent = false;
+            try
+            {
+                StringBuilder emailBody = new StringBuilder();
+
+                string? templateDirectory = _configuration["TemplateSettings:Normal_Mail"];
+
+                //TroubleReports troubleReports = new TroubleReports();
+                List<string?> emailToAddressList = new List<string?>();
+                List<string?> emailCCAddressList = new List<string?>();
+                string? emailSubject = null;
+                string? templateFile = null, templateFilePath = null;
+                bool isApprovedtask = false;
+                bool isInReviewTask = false;
+                bool isRequestorinToEmail = false;
+                bool isRequestorinCCEmail = false;
+                bool isIsAmendTask = false;
+                string? requesterUserName = null, requesterUserEmail = null;
+                bool approvelink = false;
+                string? AdminEmailNotification = _configuration["AdminEmailNotification"];
+
+                //stage link
+                // string? documentLink = _configuration["SPSiteUrl"] +
+                // "/SitePages/MaterialConsumptionSlip.aspx#/material-consumption-slip/";
+
+                //prod link
+                string? documentLink = _configuration["SPSiteUrl"] +
+               "/SitePages/MaterialConsumptionSlip.aspx#/form/";
+
+                if(requestId > 0)
+                {
+                    var equipmentData = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == requestId && x.IsDeleted == false).FirstOrDefault();
+                    var equipmentNo = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == requestId && x.IsDeleted == false).Select(x => x.EquipmentImprovementNo).FirstOrDefault();
+
+                    if(equipmentData != null)
+                    {
+                        if (equipmentData.CreatedBy > 0)
+                        {
+                            EmployeeMaster? requestorUserDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == equipmentData.CreatedBy && x.IsActive == true).FirstOrDefault();
+                            requesterUserName = requestorUserDetails?.EmployeeName;
+                            requesterUserEmail = requestorUserDetails?.Email;
+                        }
+
+                        var approverData = _context.GetEquipmentWorkFlowData(requestId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "SendEquipmentEmail");
+                return false;
+            }
+            emailSent = true;
+            return emailSent;
+        }
     }
 }
