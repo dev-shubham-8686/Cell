@@ -174,7 +174,7 @@ namespace TDSGCellFormat.Models.Add
         public string? Comment { get; set; }
         public int? AdvisorId { get; set; }
         public bool? IsPcrnRequired { get; set; }
-
+        public int? EmployeeId { get; set; }
         public List<EquipmentAttachment>? EmailAttachments { get; set; }
     }
 
