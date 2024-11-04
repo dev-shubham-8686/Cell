@@ -16,12 +16,12 @@ interface Photos {
 
 export interface ChangeRiskManagement {
   Changes?: string;
-  RiskWithChanges?: string;
+  RisksWithChanges?: string;
   Factors?: string;
   CounterMeasures: string;
-  Function?: string;
-  DueDate?: dayjs.Dayjs;
-  PersonInChargeId?: number;
+  FunctionId?: string;
+  DueDate?: string;
+  PersonInCharge?: number;
   Results?: string;
 }
 
@@ -51,8 +51,8 @@ export interface IAddUpdateReportPayload {
 export const addUpdateReport = async (
   payload: IAddUpdateReportPayload
 ): Promise<boolean> => {
-  const url = `${basePath}/AdjustmentReport/POST`; // need to change
-
+  const url = `${basePath}/api/AdjustmentReport/AddOrUpdate`; // need to change
+  console.log(JSON.stringify(payload))
   const response = await apiClient.post<boolean>(url, payload);
   return response.data;
 };

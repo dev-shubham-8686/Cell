@@ -23,6 +23,7 @@ import { useGetCheckedBy } from "../../../hooks/useGetCheckedBy";
 import { useGetAllAreas } from "../../../hooks/useGetAllAreas";
 import { ChangeRiskManagement } from "../../../api/AddUpdateReport.api";
 import { UserContext } from "../../../context/UserContext";
+import * as moment from "moment";
 //import { useParams } from "react-router-dom";
 // import { ChangeRiskManagement } from "../../../api/AddUpdateReport.api";
 // import { useParams } from "react-router-dom";
@@ -78,12 +79,12 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       // Create a ChangeRiskManagement object for each section
       const changeRiskManagement: ChangeRiskManagement = {
         Changes: values[`changes-${i}`],
-        RiskWithChanges: values[`riskWithChanges-${i}`],
+        RisksWithChanges: values[`riskWithChanges-${i}`],
         Factors: values[`factor-${i}`],
         CounterMeasures: values[`counterMeasures-${i}`],
-        Function: values[`function-${i}`],
-        DueDate: values[`date-${i}`],
-        PersonInChargeId: values[`personInCharge-${i}`],
+        FunctionId: values[`function-${i}`],
+        DueDate: moment(values[`date-${i}`]).format('DD-MM-YYYY'),
+        PersonInCharge: values[`personInCharge-${i}`],
         Results: values[`results-${i}`],
       };
 

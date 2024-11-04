@@ -57,7 +57,7 @@ namespace TDSGCellFormat.Models.Add
         public int ChangeRiskManagementId { get; set; }
         public int? AdjustMentReportId { get; set; }
         public string? Changes { get; set; }
-        public int? FunctionId { get; set; }
+        public string? FunctionId { get; set; }
         public string? RiskAssociated { get; set; }
         public string? Factor { get; set; }
         public string? CounterMeasures { get; set; }

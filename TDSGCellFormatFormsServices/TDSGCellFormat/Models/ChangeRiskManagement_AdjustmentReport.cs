@@ -14,7 +14,7 @@ namespace TDSGCellFormat.Models
 
         public string? Changes { get; set; }
 
-        public int? FunctionId { get; set; }
+        public string? FunctionId { get; set; }
 
         public string? RisksWithChanges { get; set; }
 
@@ -44,7 +44,7 @@ namespace TDSGCellFormat.Models
 
         [ForeignKey("AdjustMentReportId")]
         public virtual AdjustmentReport? AdjustmentReport { get; set; }
-        [ForeignKey("FunctionId")]
-        public virtual FunctionMaster? FunctionMaster { get; set; }
+        //[ForeignKey("FunctionId")]
+        //public virtual FunctionMaster? FunctionMaster { get; set; }
     }
 }
