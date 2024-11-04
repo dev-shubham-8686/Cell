@@ -36,6 +36,7 @@ export const getAllAdjustmentReports = async (
     (item: any, index: number) => ({
       Key: index + 1,
       ReportNo: item.ReportNo,
+      AdjustmentReportId : item.AdjustmentReportId,
       EmployeeName: item.EmployeeName,
       DepartmentName: item.DepartmentName,
       DivisionName: item.DivisionName,

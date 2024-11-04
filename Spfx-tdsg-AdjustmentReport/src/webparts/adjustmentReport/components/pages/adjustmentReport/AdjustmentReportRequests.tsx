@@ -33,9 +33,9 @@ const AdjustmentReportRequests: React.FC = () => {
   );
   const [searchValue, setSearchValue] = React.useState("");
 
-  const ViewHandler = (id: string): void => {
+  const ViewHandler = (id: number): void => {
     const rowData = adjustmentReports.filter(
-      (adjustmentReport) => adjustmentReport.ReportNo == id
+      (adjustmentReport) => adjustmentReport.AdjustmentReportId == id
     );
     sessionStorage.setItem("rowData", JSON.stringify(rowData));
     navigate(`/form/view/${id}`, {
@@ -224,13 +224,13 @@ const AdjustmentReportRequests: React.FC = () => {
             type="link"
             title="View"
             icon={<EyeFilled className="text-black" />} // Black icon
-            onClick={() => EditHandler(record.ReportNo)}
+            onClick={() => EditHandler(record.AdjustmentReportId)}
           />
           <Button
             type="link"
             title="Edit"
             icon={<EditFilled className="text-black" />} // Black icon
-            onClick={() => ViewHandler(record.ReportNo)}
+            onClick={() => ViewHandler(record.AdjustmentReportId)}
           />
           <Button
             type="link"

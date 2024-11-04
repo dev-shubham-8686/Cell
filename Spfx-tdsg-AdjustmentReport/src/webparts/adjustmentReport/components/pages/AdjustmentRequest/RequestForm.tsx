@@ -18,10 +18,12 @@ import { useGetAllMachines } from "../../../hooks/useGetAllMachines";
 import { useGetAllSubMachines } from "../../../hooks/useGetAllSubMachines";
 import { ISubMachine } from "../../../api/GetAllSubMachines.api";
 import { IArea } from "../../../api/GetAllAreas.api";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useGetCheckedBy } from "../../../hooks/useGetCheckedBy";
 import { useGetAllAreas } from "../../../hooks/useGetAllAreas";
 import { ChangeRiskManagement } from "../../../api/AddUpdateReport.api";
+import { UserContext } from "../../../context/UserContext";
+//import { useParams } from "react-router-dom";
 // import { ChangeRiskManagement } from "../../../api/AddUpdateReport.api";
 // import { useParams } from "react-router-dom";
 
@@ -35,8 +37,9 @@ interface RequestFormProps {
 
 const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const [form] = Form.useForm();
-  // const { mode } = useParams();
+  //const { id, mode } = useParams();
   const currentDateTime = dayjs();
+  useContext(UserContext);
   const [cRMRequired, setCRMRequired] = React.useState<boolean | null>(null);
   const [formSections, setFormSections] = React.useState<number[]>([0]); // Initially, one form section
   const [selectedMachineId, setSelectedMachineId] = useState<number | null>(null);
@@ -68,7 +71,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const onFinish = (values: any) => {
     values.ChangeRiskManagementRequired = cRMRequired;
     values.ChangeRiskManagementList = []
-    
+
     const numberOfSections = formSections.length;
 
     for (let i = 0; i < numberOfSections; i++) {
