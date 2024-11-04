@@ -1240,7 +1240,13 @@ namespace TDSGCellFormat.Implementation.Repository
                 var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false).FirstOrDefault();
                 if(data.IsToshibaDiscussion == true && (equipment.ToshibaTeamDiscussion == false || equipment.ToshibaTeamDiscussion == null) &&  equipment.ToshibaDiscussionTargetDate == null)
                 {
-                    InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Advisor", data.Comment, ApprovalTaskStatus.ToshibaTechnicalReview.ToString(), Convert.ToInt32(data.AdvisorId), HistoryAction.ToshibaDiscussionRequired.ToString(), 0);
+                    equipment.ToshibaTeamDiscussion = true;
+                    equipment.ToshibaDiscussionTargetDate = !string.IsNullOrEmpty(data.TargetDate) ? DateTime.Parse(data.TargetDate) : (DateTime?)null;
+                    equipment.Status = ApprovalTaskStatus.ToshibaTechnicalReview.ToString();
+                    equipment.ToshibaDicussionComment = data.Comment;
+                    await _context.SaveChangesAsync();
+
+                    InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Advisor", data.Comment, ApprovalTaskStatus.ToshibaTechnicalReview.ToString(), Convert.ToInt32(data.EmployeeId), HistoryAction.ToshibaDiscussionRequired.ToString(), 0);
 
                 }
                 else if (data.IsToshibaDiscussion == true)
@@ -1251,7 +1257,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.ToshibaDicussionComment = data.Comment;
                     await _context.SaveChangesAsync();
 
-                    InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Advisor", data.Comment, equipment.Status, Convert.ToInt32(data.AdvisorId), HistoryAction.Update.ToString(), 0);
+                    InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Advisor", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.Update.ToString(), 0);
 
                 }
                 else
