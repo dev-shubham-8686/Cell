@@ -24,5 +24,7 @@ namespace TDSGCellFormat.Interface.Service
         ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId);
         List<TroubleReportHistoryView> GetHistoryData(int equipmentId);
         Task<AjaxResult> GetEquipmentExcel(DateTime fromDate, DateTime toDate, int employeeId, int type);
+
+        Task<GetEquipmentUser> GetUserRole(string email);
     }
 }

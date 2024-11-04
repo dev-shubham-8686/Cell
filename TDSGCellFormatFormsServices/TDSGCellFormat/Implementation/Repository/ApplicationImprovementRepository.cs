@@ -7,6 +7,7 @@ using TDSGCellFormat.Helper;
 using Microsoft.EntityFrameworkCore;
 using TDSGCellFormat.Models.View;
 using System.Data;
+using System.Data.SqlClient;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.tool.xml;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using PnP.Framework.Extensions;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
+using Dapper;
 
 
 namespace TDSGCellFormat.Implementation.Repository
@@ -61,6 +63,27 @@ namespace TDSGCellFormat.Implementation.Repository
 
             return res;
         }
+
+        #region GetUserRole
+        public async Task<GetEquipmentUser> GetUserRole(string userEmail)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserEmail", userEmail, DbType.String, ParameterDirection.Input, 150);
+
+                var result = await connection.QueryFirstOrDefaultAsync<GetEquipmentUser>(
+                    "dbo.SPP_GetUserDetails_EQP",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                return result;
+            }
+        }
+        #endregion
 
         #region CRUD 
         public EquipmentImprovementApplicationAdd GetById(int Id)

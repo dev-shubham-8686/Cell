@@ -19,6 +19,11 @@ namespace TDSGCellFormat.Implementation.Service
 
         }
 
+        public Task<GetEquipmentUser> GetUserRole(string email)
+        {
+            return _applicationRepo.GetUserRole(email);
+        }
+
         public IQueryable<EquipmentImprovementApplicationAdd> GetAll()
         {
             return _applicationRepo.GetAll();
