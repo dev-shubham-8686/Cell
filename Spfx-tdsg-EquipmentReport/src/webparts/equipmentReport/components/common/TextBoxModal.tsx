@@ -187,6 +187,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
               rules={(emailAttachments.length==0)?[{ required: true, message: "Please Upload Attachments" }]:[]}
             >
               <FileUpload
+                isEmailAttachments={true}
                 key={`email-Attachments`}
                 folderName={EQReportNo ?? user?.employeeId}
                 subFolderName={"Email Attachments"}

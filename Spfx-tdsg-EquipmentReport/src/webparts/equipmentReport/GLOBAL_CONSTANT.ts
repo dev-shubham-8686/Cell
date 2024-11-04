@@ -73,15 +73,17 @@ export const REQUEST_STATUS = {
   ResultMonitoring:"ResultMonitoring",
   UnderImplementation:"UnderImplementation",
   LogicalAmendmentInReview:"LogicalAmendmentInReview",
-  LogicalAmendment:"LogicalAmendment"
+  LogicalAmendment:"LogicalAmendment",
+  ToshibaTechnicalReview:"ToshibaTechnicalReview"
 };
 
 // It returns the background colour class for the status
 export const STATUS_COLOUR_CLASS: { [key: string]: string } = {
   InReview: "in-review",
   UnderAmendment: "under-amendment",
+  ToshibaTechnicalReview:"toshiba-technical-review",
   PCRNPending:"pcrn-pending",
-  UnderToshibaApproval:"under-ToshibaApproval",
+  UnderToshibaApproval:"under-toshiba-approval",
   Draft: "draft",
   Approved: "approved",
   Rejected: "rejected",

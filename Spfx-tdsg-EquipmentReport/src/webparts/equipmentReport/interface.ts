@@ -18,8 +18,8 @@ export  interface IEquipmentImprovementReport {
   IsSubmit:boolean;
   isAmendReSubmitTask?:boolean,
   TargetDate:string;
-  Status?:String;
-  WorkflowStatus?:String;
+  Status?:string;
+  WorkflowStatus?:string;
   ActualDate:string;
   CreatedDate:string;
   CreatedBy:number;

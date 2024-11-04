@@ -19,9 +19,9 @@
   }
 
   &.status-badge-in-review,
+  &.status-badge-toshiba-technical-review,
   &.status-badge-logical-amendment-inReview,
-  &.status-badge-result-monitoring,
-  &.status-badge-under-ToshibaApproval {
+  &.status-badge-result-monitoring {
     color: $yellow-1;
     background-color: $yellow-bg;
   }
@@ -32,7 +32,8 @@
   }
 
   &.status-badge-under-amendment,
-  &.status-badge-logical-amendment
+  &.status-badge-logical-amendment,
+  &.status-badge-under-toshiba-approval
    {
     color: $warning;
     background-color: rgba($color: $warning, $alpha: 0.1);

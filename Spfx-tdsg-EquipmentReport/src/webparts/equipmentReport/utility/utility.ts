@@ -63,7 +63,7 @@ export  const create_UUID = (): string => {
       });
       
       const todayDate = new Date().toISOString().split("T")[0];
-      const filename = `MaterialConsumption_${todayDate}.xlsx`;
+      const filename = `EquipmentReport_${todayDate}.xlsx`;
       
       saveAs(blob, filename);
     } else {
@@ -106,6 +106,9 @@ export  const create_UUID = (): string => {
       case REQUEST_STATUS.LogicalAmendmentInReview:
         statusText = "Logical Ammendment InReview";
         break;
+      case REQUEST_STATUS.ToshibaTechnicalReview:
+        statusText = "Toshiba Technical Review";
+        break;
       case REQUEST_STATUS.LogicalAmendment:
         statusText = "Logical Ammendment";
         break;
@@ -119,7 +122,7 @@ export  const create_UUID = (): string => {
         statusText = "PCRN Pending";
         break;
       case REQUEST_STATUS.UnderToshibaApproval:
-        statusText = "Under ToshibaApproval";
+        statusText = "Under Toshiba Approval";
         break;
       case REQUEST_STATUS.AutoApproved:
         statusText = "Auto Approved";

@@ -125,12 +125,12 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           toshibaApproval ||
           advisorId ||
           eqReport.IsPcrnRequired ||
-          emailAttacments?.length>0
+          emailAttacments?.length > 0
             ? {}
             : null,
       };
-      debugger;
-      if (toshibaApproval || advisorId || emailAttacments?.length>0) {
+
+      if (toshibaApproval || advisorId || emailAttacments?.length > 0) {
         (payload.EquipmentApprovalData.TargetDate = targetDate
           ? dayjs(targetDate).format(DATE_FORMAT)
           : null),
@@ -141,7 +141,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           (payload.EquipmentApprovalData.AdvisorId = advisorId ?? 0);
         payload.EquipmentApprovalData.EmailAttachments = emailAttacments;
       }
-      debugger;
+
       if (eqReport?.IsPcrnRequired) {
         payload.EquipmentApprovalData.EmailAttachments = emailAttacments;
       }
@@ -178,6 +178,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         TargetDate: dayjs(targetDate).format(DATE_FORMAT) ?? null,
         Comment: comment,
         AdvisorId: 0,
+        EmployeeId: user?.employeeId,
         EmailAttachments: [],
       };
 
@@ -322,10 +323,11 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           <>
             <button
               disabled={
-                eqReport?.WorkflowLevel!==2?
-                eqReport?.AdvisorId == user?.employeeId &&
-                isTargetDateSet &&
-                !isToshibaDiscussionTargetDatePast:false
+                eqReport?.WorkflowLevel !== 2
+                  ? eqReport?.AdvisorId == user?.employeeId &&
+                    isTargetDateSet &&
+                    !isToshibaDiscussionTargetDatePast
+                  : false
               }
               className="btn btn-primary"
               onClick={() => {
@@ -416,8 +418,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           <></>
         )}
         {showWorkflowBtns &&
-        (eqReport?.Status !== REQUEST_STATUS.UnderToshibaApproval &&
-          eqReport?.WorkflowLevel !== 2) &&
+        eqReport?.Status !== REQUEST_STATUS.UnderToshibaApproval &&
+        eqReport?.WorkflowLevel !== 2 &&
         approverRequest ? (
           <button
             disabled={
@@ -436,11 +438,37 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         ) : (
           <></>
         )}
+        {/* 
+        {((eqReport?.WorkflowLevel === 1 &&
+          (eqReport?.Status != REQUEST_STATUS.Approved ||
+            eqReport?.Status != REQUEST_STATUS.UnderAmendment || eqReport?.Status != REQUEST_STATUS.PCRNPending)) ||
+          (eqReport?.WorkflowStatus == REQUEST_STATUS.W1Completed &&
+            eqReport?.ResultAfterImplementation?.IsResultAmendSubmit)) &&
+        eqReport?.CreatedBy == user?.employeeId ? (
+          // eqReport?.Status != REQUEST_STATUS.UnderAmendment && eqReport?.Status != REQUEST_STATUS.Completed?
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              openCommentsPopup("PullBack");
+              setsubmitbuttontext("Pull Back");
+            }}
+          >
+            Pull Back
+          </button>
+        ) : (
+          <></>
+        )} */}
 
-        {eqReport?.IsSubmit &&
-        eqReport?.WorkflowStatus != REQUEST_STATUS.W1Completed &&
-        eqReport?.CreatedBy == user?.employeeId &&
-        eqReport?.Status != REQUEST_STATUS.UnderAmendment ? (
+        {(eqReport?.WorkflowLevel === 1 && eqReport?.IsSubmit &&  
+          eqReport?.CreatedBy === user?.employeeId &&
+          ![
+            REQUEST_STATUS.Approved,
+            REQUEST_STATUS.UnderAmendment,
+            REQUEST_STATUS.PCRNPending,
+          ].includes(eqReport?.Status)) ||
+        (eqReport?.WorkflowStatus === REQUEST_STATUS.W1Completed &&
+          eqReport?.CreatedBy === user?.employeeId &&
+          eqReport?.ResultAfterImplementation?.IsResultAmendSubmit) ? (
           <button
             className="btn btn-primary"
             onClick={() => {
@@ -505,7 +533,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             </button>
           )}
         {((user.employeeId == eqReport?.AdvisorId &&
-          eqReport?.ToshibaDiscussionTargetDate && eqReport?.WorkflowLevel!==2) ||
+          eqReport?.ToshibaDiscussionTargetDate &&
+          eqReport?.WorkflowLevel !== 2) ||
           (user.isQcTeamHead && eqReport?.ToshibaApprovalTargetDate)) &&
           showWorkflowBtns &&
           approverRequest && (

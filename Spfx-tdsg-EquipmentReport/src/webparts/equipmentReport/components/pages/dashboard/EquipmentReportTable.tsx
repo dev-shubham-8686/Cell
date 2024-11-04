@@ -258,7 +258,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
               </button>
             )}
 
-          {true && (
+          {row.Status==REQUEST_STATUS.Completed && (
             <button
               type="button"
               style={{ background: "none", border: "none" }}

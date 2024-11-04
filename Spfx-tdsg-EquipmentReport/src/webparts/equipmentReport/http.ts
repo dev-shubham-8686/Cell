@@ -17,7 +17,7 @@ http.interceptors.response.use(
     
     const config: ICustomAxiosConfig = res.config;
     if (config.SHOW_NOTIFICATION && res.data.Message) {
-      void showSuccess(res?.data?.ReturnValue?.Message);
+      void showSuccess(res?.data?.Message);
     }
 
     return res;
@@ -26,7 +26,7 @@ http.interceptors.response.use(
     
     const config: ICustomAxiosConfig = res.config;
     if ((config.SHOW_NOTIFICATION??true) && res.response?.data?.Message) {
-      void showErrorMsg(res.response?.data?.ReturnValue?.Message);
+      void showErrorMsg(res.response?.data?.Message);
     }
   }
 );

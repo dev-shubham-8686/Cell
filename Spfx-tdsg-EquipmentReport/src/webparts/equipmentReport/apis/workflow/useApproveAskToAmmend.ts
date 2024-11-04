@@ -22,6 +22,7 @@ export interface ITargetData {
   Comment?: string;
   AdvisorId?: number;
   EmailAttachments?:IEmailAttachments[];
+  EmployeeId?:number
 }
 
 const ApproveAskToAmmend = async (payload: IApproveAskToAmendPayload) => {

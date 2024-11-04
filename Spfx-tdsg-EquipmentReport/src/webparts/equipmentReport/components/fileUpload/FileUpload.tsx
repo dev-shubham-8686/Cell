@@ -29,7 +29,8 @@ interface IFileUpload {
   onRemoveFile: (documentName: string) => void;
   disabled?: boolean; // disabled when mode is view and submitted
   isLoading?: boolean;
-  ispcrnRequired?:boolean
+  ispcrnRequired?:boolean;
+  isEmailAttachments?:boolean;
 }
 
 const FileUpload: FC<IFileUpload> = ({
@@ -42,6 +43,7 @@ const FileUpload: FC<IFileUpload> = ({
   onRemoveFile,
   disabled,ispcrnRequired,
   isLoading,
+  isEmailAttachments
 }) => {
   const VALIDATIONS = {
     attachment: {
@@ -52,6 +54,7 @@ const FileUpload: FC<IFileUpload> = ({
       uploadAcceptTypes: ".jpeg,.pdf,.jpg,.png,.xlsx,.xls,.msg,.eml",
       noOfFiles: `Maximum ${ispcrnRequired?1:10} ${ispcrnRequired?"File is":"Files are"}  allowed! `,
       maxFileCount: ispcrnRequired?1:10,
+      emailAttachment:/\.(eml)(\.[0-9]*)?$/
     },
   };
   console.log("DISABLEUPLOAD", disabled);
@@ -71,13 +74,16 @@ const FileUpload: FC<IFileUpload> = ({
       description = `${VALIDATIONS.attachment.fileNamingErrMsg}`;
     }
     // Check file type
+    if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.test(file.type)){
+      description= "only Email Attachments are allowed. "
+    }
     else if (
       file.type &&
       VALIDATIONS.attachment.notallowedFileTypes==file.type
     ) {
       description = `exe Files are not allowed.`;
     }
-
+    
     if (description) {
       void displayjsx.showErrorMsg(description);
       // notification.displayErrorNoti("", description);
@@ -165,7 +171,7 @@ const FileUpload: FC<IFileUpload> = ({
 
   const uploadFile = async (file: File, fileName: string): Promise<boolean> => {
     try {
-      
+      debugger
       setItemLoading(true);
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
