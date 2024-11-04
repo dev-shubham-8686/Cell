@@ -19,7 +19,7 @@ export interface ChangeRiskManagement {
   RiskWithChanges?: string;
   Factors?: string;
   CounterMeasures: string;
-  FunctionId?: string;
+  Function?: string;
   DueDate?: dayjs.Dayjs;
   PersonInChargeId?: number;
   Results?: string;

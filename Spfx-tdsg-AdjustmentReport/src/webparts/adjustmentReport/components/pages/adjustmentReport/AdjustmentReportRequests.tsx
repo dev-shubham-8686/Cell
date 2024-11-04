@@ -28,23 +28,39 @@ const AdjustmentReportRequests: React.FC = () => {
   const [sortColumn, setSortColumn] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [orderBy, setOrderBy] = useState("desc");
-  const [masterSchedules, setMasterSchedules] = useState<IAdjustmentReportInfo[]>(
+  const [adjustmentReports, setAdjustmentReports] = useState<IAdjustmentReportInfo[]>(
     []
   );
   const [searchValue, setSearchValue] = React.useState("");
 
-  const ViewHandler = (id: any): void => {
+  const ViewHandler = (id: string): void => {
+    const rowData = adjustmentReports.filter(
+      (adjustmentReport) => adjustmentReport.ReportNo == id
+    );
+    sessionStorage.setItem("rowData", JSON.stringify(rowData));
     navigate(`/form/view/${id}`, {
-      state: { isApproverRequest: false, requestNo: id },
+      state: { rowData },
     });
   };
 
   const EditHandler = (id: any): void => {
+    const rowData = adjustmentReports.filter(
+      (adjustmentReport) => adjustmentReport.ReportNo == id
+    );
+    sessionStorage.setItem("rowData", JSON.stringify(rowData));
     navigate(`/form/edit/${id}`, {
-      state: { isApproverRequest: false },
+      state: { rowData },
     });
     return;
   };
+  // const handleEdit = (key: number) => {
+  //   const rowData = masterSchedules.find(
+  //     (schedule) => schedule.MasterScheduleId == key
+  //   );
+  //   sessionStorage.setItem("rowData", JSON.stringify(rowData));
+  //   navigate(`/master-schedule/edit/${key}`, { state: { rowData } });
+  // };
+
   const { data, isLoading, refetch } = useGetAllAdjustmentReports(
     pageIndex,
     pageSize,
@@ -53,15 +69,13 @@ const AdjustmentReportRequests: React.FC = () => {
     orderBy
   );
 
-  console.log({ data });
-
   useEffect(() => {
     void refetch();
   }, [refetch, searchQuery, pageIndex, pageSize, sortColumn, orderBy]);
 
   useEffect(() => {
     if (data?.ReturnValue) {
-      setMasterSchedules(data?.ReturnValue || []);
+      setAdjustmentReports(data?.ReturnValue || []);
     }
   }, [data]);
 
@@ -271,7 +285,7 @@ const AdjustmentReportRequests: React.FC = () => {
         totalPage={data?.ReturnValue?.length}
         pageIndex={pageIndex}
         pageSize={pageSize}
-        dataSource={masterSchedules}
+        dataSource={adjustmentReports}
         onPageSizeChange={onPageSizeChange}
         onPaginationChange={onPaginationChange}
         setSortColumn={setSortingColumn}

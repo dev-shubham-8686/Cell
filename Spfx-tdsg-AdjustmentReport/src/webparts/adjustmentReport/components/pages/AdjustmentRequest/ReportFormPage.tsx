@@ -9,6 +9,7 @@ import { MESSAGES } from "../../../GLOBAL_CONSTANT";
 import * as dayjs from "dayjs";
 import { IAddUpdateReportPayload } from "../../../api/AddUpdateReport.api";
 import { AnyObject } from "antd/es/_util/type";
+import { useAddUpdateReport } from "../../../hooks/useAddUpdateReport";
 
 const { confirm } = Modal;
 
@@ -17,7 +18,8 @@ const ReportFormPage = () => {
   const [activeTabKey, setActiveTabKey] = React.useState<string>("1");
   const [isSave, setIsSave] = React.useState<boolean>(true);
 
-  // const { mutate: addUpdateReport } = useAddUpdateReport();
+  //const { key } = useParams();
+  const { mutate: addUpdateReport } = useAddUpdateReport();
 
   const handleTabChange = (key: string) => {
     setActiveTabKey(key);
@@ -47,12 +49,12 @@ const ReportFormPage = () => {
       ChangeRiskManagementRequired: values.ChangeRiskManagementRequired, // done
       ChangeRiskManagementList: values.ChangeRiskManagementList, // Ensure this is an array of ChangeRiskManagement objects
       IsSubmit: !isSave, //done
-      CreatedBy: 1, //need to change
+      CreatedBy: values.requestedBy, //need to change
       CreatedDate: dayjs(),
       ModifiedBy: values.ModifiedById, // need to change conditionally
       ModifiedDate: dayjs(), // change conditionally , if modifying then pass only
     };
-    console.log({ payload });
+    return payload;
   };
 
   const onSaveFormHandler = (showPopUp: boolean, values: any) => {
@@ -70,13 +72,12 @@ const ReportFormPage = () => {
         cancelText: "No",
         okButtonProps: { className: "modal-ok-button" },
         onOk: async () => {
-          console.log("Data:", values);
-          // try {
-          //   await addUpdateReport();
-          // } catch (error) {
-          //   console.error("Error submitting form:", error);
-          // }
-          CreatePayload(values);
+          try {
+            const payload = CreatePayload(values);
+            addUpdateReport(payload);
+          } catch (error) {
+            console.error("Error submitting form:", error);
+          }
         },
         onCancel() {
           console.log("Cancel submission");
@@ -87,18 +88,13 @@ const ReportFormPage = () => {
 
   const handleSave = (isSave: boolean) => {
     setIsSave(isSave);
+
     if (formRef.current) {
       formRef.current.submit();
     }
   };
 
-  // const CreatePhotosPayload = (photos: AnyObject) => {
-
-  // }
-
   const handleFormSubmit = (values: any) => {
-    console.log({ values });
-
     onSaveFormHandler(true, values);
   };
 

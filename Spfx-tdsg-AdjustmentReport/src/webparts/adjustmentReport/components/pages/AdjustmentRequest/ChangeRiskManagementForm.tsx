@@ -77,7 +77,6 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
               >
                 <DatePicker
                   disabledDate={disabledDate}
-                  showTime
                   placeholder="Date"
                   format={DATE_FORMAT}
                   className="bg-antdDisabledBg border-antdDisabledBorder w-full"

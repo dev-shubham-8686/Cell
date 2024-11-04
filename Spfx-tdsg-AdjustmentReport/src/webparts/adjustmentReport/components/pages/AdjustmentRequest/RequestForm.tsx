@@ -21,6 +21,7 @@ import { IArea } from "../../../api/GetAllAreas.api";
 import { useEffect, useState } from "react";
 import { useGetCheckedBy } from "../../../hooks/useGetCheckedBy";
 import { useGetAllAreas } from "../../../hooks/useGetAllAreas";
+import { ChangeRiskManagement } from "../../../api/AddUpdateReport.api";
 // import { ChangeRiskManagement } from "../../../api/AddUpdateReport.api";
 // import { useParams } from "react-router-dom";
 
@@ -66,28 +67,27 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
 
   const onFinish = (values: any) => {
     values.ChangeRiskManagementRequired = cRMRequired;
-    // const numberOfSections = formSections.length;
+    values.ChangeRiskManagementList = []
+    
+    const numberOfSections = formSections.length;
 
-    // for (let i = 0; i < numberOfSections; i++) {
-    //   // Create a ChangeRiskManagement object for each section
-    //   const changeRiskManagement: ChangeRiskManagement = {
-    //     Changes: values[`changes-${i}`],
-    //     RiskWithChanges: values[`riskWithChanges-${i}`],
-    //     Factors: values[`factors-${i}`],
-    //     CounterMeasures: values[`counterMeasures-${i}`],
-    //     FunctionId: values[`functionId-${i}`],
-    //     DueDate: values[`dueDate-${i}`],
-    //     PersonInChargeId: values[`personInChargeId-${i}`],
-    //     Results: values[`results-${i}`],
-    //   };
+    for (let i = 0; i < numberOfSections; i++) {
+      // Create a ChangeRiskManagement object for each section
+      const changeRiskManagement: ChangeRiskManagement = {
+        Changes: values[`changes-${i}`],
+        RiskWithChanges: values[`riskWithChanges-${i}`],
+        Factors: values[`factor-${i}`],
+        CounterMeasures: values[`counterMeasures-${i}`],
+        Function: values[`function-${i}`],
+        DueDate: values[`date-${i}`],
+        PersonInChargeId: values[`personInCharge-${i}`],
+        Results: values[`results-${i}`],
+      };
 
-    // Add to array
-    // changeRiskManagementSections.push(changeRiskManagement);
-    // }
+      values.ChangeRiskManagementList.push(changeRiskManagement);
+    }
 
-    // console.log("Payload:", changeRiskManagementSections);
-
-    // props.onFormSubmit(values);
+    props.onFormSubmit(values);
   };
 
   // Function to handle the file validation
