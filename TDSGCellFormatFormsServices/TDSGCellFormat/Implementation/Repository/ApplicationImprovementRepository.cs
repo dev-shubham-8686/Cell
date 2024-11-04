@@ -971,7 +971,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     }
                 }
-                res.Message = Enums.MaterialPullback;
+                res.Message = Enums.EquipmentPullback;
                 res.StatusCode = Enums.Status.Success;
             }
             catch (Exception ex)
