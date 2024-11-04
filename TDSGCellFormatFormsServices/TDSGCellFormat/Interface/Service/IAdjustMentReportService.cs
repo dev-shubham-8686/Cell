@@ -18,5 +18,15 @@ namespace TDSGCellFormat.Interface.Service
         Task<AjaxResult> AddOrUpdateReport(AdjustMentReportRequest report);
 
         Task<AjaxResult> DeleteAttachment(int Id);
+
+        Task<AjaxResult> GetAdjustmentReportApproverList(int Id);
+
+        Task<AjaxResult> UpdateApproveAskToAmend(int ApproverTaskId, int CurrentUserId, ApprovalStatus type, string comment, int Id);
+
+        Task<AjaxResult> PullBackRequest(int Id, int userId, string comment);
+
+        Task<AjaxResult> GeAdjustmentReportWorkFlow(int Id);
+
+        Task<AjaxResult> GetCurrentApproverTask(int Id, int userId);
     }
 }

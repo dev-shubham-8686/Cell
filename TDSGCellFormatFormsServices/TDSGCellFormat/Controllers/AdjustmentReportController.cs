@@ -105,5 +105,86 @@ namespace TDSGCellFormat.Controllers
             }
             return Ok(Ajaxresponse);
         }
+
+        [HttpGet("GetApprovalList")]
+        public async Task<IActionResult> GetApprovalList(int Id)
+        {
+            var result = await _tdsgService.GetAdjustmentReportApproverList(Id);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpPost("UpdateApproveAskToAmend")]
+        public async Task<IActionResult> UpdateApproveAskToAmend(int ApproverTaskId, int CurrentUserId, ApprovalStatus type, string comment, int Id)
+        {
+            var result = await _tdsgService.UpdateApproveAskToAmend(ApproverTaskId, CurrentUserId, type, comment, Id);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+
+        [HttpPost("PullBack")]
+        public async Task<IActionResult> PullBackRequest(int Id, int userId, string comment)
+        {
+            var result = await _tdsgService.PullBackRequest(Id, userId, comment);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetApprorverFlowData")]
+        public async Task<IActionResult> GetApproverData(int Id)
+        {
+            var result = await _tdsgService.GeAdjustmentReportWorkFlow(Id);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetCurrentApprover")]
+        public async Task<IActionResult> GetCurrentApproverTask(int Id, int userId)
+        {
+            var result = await _tdsgService.GetCurrentApproverTask(Id, userId);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
     }
 }

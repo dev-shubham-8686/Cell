@@ -47,9 +47,9 @@ const ReportFormPage = () => {
       ConditionAfterAdjustment: values.conditionAfterAdjustment, // done
       Photos: values.Photos,
       ChangeRiskManagementRequired: values.ChangeRiskManagementRequired, // done
-      ChangeRiskManagementList: values.ChangeRiskManagementList, // Ensure this is an array of ChangeRiskManagement objects
+      ChangeRiskManagement_AdjustmentReport: values.ChangeRiskManagementList, // Ensure this is an array of ChangeRiskManagement objects
       IsSubmit: !isSave, //done
-      CreatedBy: values.requestedBy, //need to change
+      //CreatedBy: values.requestedBy, //need to change
       CreatedDate: dayjs(),
       ModifiedBy: values.ModifiedById, // need to change conditionally
       ModifiedDate: dayjs(), // change conditionally , if modifying then pass only

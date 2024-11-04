@@ -1,4 +1,8 @@
-﻿using TDSGCellFormat.Interface.Repository;
+﻿using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Http.HttpResults;
+using System.Buffers;
+using TDSGCellFormat.Interface.Repository;
 using TDSGCellFormat.Interface.Service;
 using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
@@ -46,8 +50,32 @@ namespace TDSGCellFormat.Implementation.Service
 
         public async Task<AjaxResult> DeleteAttachment(int Id)
         {
-
             return await _adjustMentRepository.DeleteAttachment(Id);
+        }
+
+        public async Task<AjaxResult> GetAdjustmentReportApproverList(int Id)
+        {
+            return await _adjustMentRepository.GetAdjustmentReportApproverList(Id);
+        }
+
+        public async Task<AjaxResult> UpdateApproveAskToAmend(int ApproverTaskId, int CurrentUserId, ApprovalStatus type, string comment, int Id)
+        {
+            return await _adjustMentRepository.UpdateApproveAskToAmend(ApproverTaskId, CurrentUserId, type, comment, Id);
+        }
+
+        public async Task<AjaxResult> PullBackRequest(int Id, int userId, string comment)
+        {
+            return await _adjustMentRepository.PullBackRequest(Id, userId, comment);
+        }
+
+        public async Task<AjaxResult> GeAdjustmentReportWorkFlow(int Id)
+        {
+            return await _adjustMentRepository.GeAdjustmentReportWorkFlow(Id);
+        }
+
+        public async Task<AjaxResult> GetCurrentApproverTask(int Id, int userId)
+        {
+            return await _adjustMentRepository.GetCurrentApproverTask(Id, userId);
         }
     }
 }

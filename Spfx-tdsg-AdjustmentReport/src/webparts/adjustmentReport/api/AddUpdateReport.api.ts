@@ -40,7 +40,7 @@ export interface IAddUpdateReportPayload {
   ConditionAfterAdjustment?: string;
   Photos?: Photos;
   ChangeRiskManagementRequired?: boolean;
-  ChangeRiskManagementList: ChangeRiskManagement[];
+  ChangeRiskManagement_AdjustmentReport: ChangeRiskManagement[];
   IsSubmit?: boolean;
   CreatedBy?: number;
   CreatedDate?: dayjs.Dayjs;

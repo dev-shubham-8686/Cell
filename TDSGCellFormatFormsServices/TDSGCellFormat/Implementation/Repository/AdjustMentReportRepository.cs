@@ -1,8 +1,13 @@
 ﻿using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using PnP.Framework.Extensions;
+using System.Buffers;
+using System.Data;
 using TDSGCellFormat.Common;
 using TDSGCellFormat.Extensions;
+using TDSGCellFormat.Helper;
 using TDSGCellFormat.Interface.Repository;
 using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
@@ -439,6 +444,146 @@ namespace TDSGCellFormat.Implementation.Repository
                     res.Message = "Record deletion failed.";
                 }
             }
+            return res;
+        }
+
+        public async Task<AjaxResult> GetAdjustmentReportApproverList(int Id)
+        {
+            await _sprocRepository.GetStoredProcedure("[dbo].[GetAdjustmentReportApproverList]").WithSqlParams(
+                ("@EmployeeId", Id)
+                ).ExecuteStoredProcedureAsync<AdjustmentReportView>();
+            return new AjaxResult();
+        }
+
+        public async Task<AjaxResult> UpdateApproveAskToAmend(int ApproverTaskId, int CurrentUserId, ApprovalStatus type, string comment, int Id)
+        {
+            var res = new AjaxResult();
+            ///bool result = false;
+            try
+            {
+                var requestTaskData = _context.AdjustmentReportApproverTaskMasters.Where(x => x.ApproverTaskId == ApproverTaskId && x.IsActive == true
+                                     && x.AdjustmentReportId == Id
+                                     && x.Status == ApprovalTaskStatus.InReview.ToString()).FirstOrDefault();
+                if (requestTaskData == null)
+                {
+                    res.Message = "Adjustment Report request does not have any review task";
+                    return res;
+                }
+
+                if (type == ApprovalStatus.Approved)
+                {
+                    requestTaskData.Status = ApprovalTaskStatus.Approved.ToString();
+                    requestTaskData.ModifiedBy = CurrentUserId;
+                    requestTaskData.ActionTakenBy = CurrentUserId;
+                    requestTaskData.ActionTakenDate = DateTime.Now;
+                    requestTaskData.ModifiedDate = DateTime.Now;
+                    requestTaskData.Comments = comment;
+                    await _context.SaveChangesAsync();
+                    res.Message = Enums.MaterialApprove;
+
+                    var currentApproverTask = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == Id && x.IsActive == true
+                                                 && x.ApproverTaskId == ApproverTaskId && x.Status == ApprovalTaskStatus.Approved.ToString()).FirstOrDefault();
+                    if (currentApproverTask != null)
+                    {
+                        var nextApproveTask = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == requestTaskData.AdjustmentReportId && x.IsActive == true
+                                 && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (requestTaskData.SequenceNo) + 1).ToList();
+
+                        if (nextApproveTask.Any())
+                        {
+                            foreach (var nextTask in nextApproveTask)
+                            {
+                                nextTask.Status = ApprovalTaskStatus.InReview.ToString();
+                                nextTask.ModifiedDate = DateTime.Now;
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                }
+                if (type == ApprovalStatus.AskToAmend)
+                {
+                    requestTaskData.Status = ApprovalTaskStatus.UnderAmendment.ToString();
+                    requestTaskData.ModifiedBy = CurrentUserId;
+                    requestTaskData.ActionTakenBy = CurrentUserId;
+                    requestTaskData.ActionTakenDate = DateTime.Now;
+                    requestTaskData.ModifiedDate = DateTime.Now;
+                    requestTaskData.Comments = comment;
+
+                    _context.SaveChanges();
+                    res.Message = Enums.MaterialAsktoAmend;
+                }
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Status.Error;
+                var commonHelper = new CommonHelper(_context);
+            }
+            return res;
+        }
+
+        public async Task<AjaxResult> PullBackRequest(int Id, int userId, string comment)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var materialConsumption = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == Id && x.IsDeleted == false).FirstOrDefault();
+                if (materialConsumption != null)
+                {
+                    materialConsumption.IsSubmit = false;
+                    materialConsumption.Status = ApprovalTaskStatus.Draft.ToString();
+                    materialConsumption.ModifiedBy = userId;
+
+                    await _context.SaveChangesAsync();
+                    
+                    var approverTaskDetails = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == Id).ToList();
+                    approverTaskDetails.ForEach(a =>
+                    {
+                        a.IsActive = false;
+                        a.ModifiedBy = userId;
+                        a.ModifiedDate = DateTime.Now;
+                    });
+                    await _context.SaveChangesAsync();
+
+                    res.StatusCode = Status.Success;
+                }
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                return res;
+            }
+            return res;
+        }
+
+        public async Task<AjaxResult> GeAdjustmentReportWorkFlow(int Id)
+        {
+            var res = new AjaxResult();
+            var approverData = await _context.GetMaterialWorkFlowData(Id);
+            var processedData = new List<MaterialConsumptionApproverTaskMasterAdd>();
+            foreach (var entry in approverData)
+            {
+                processedData.Add(entry);
+            }
+            res.ReturnValue = processedData;
+            return res;
+        }
+
+        public async Task<AjaxResult> GetCurrentApproverTask(int Id, int userId)
+        {
+            var res = new AjaxResult();
+            var materialApprovers = _context.AdjustmentReportApproverTaskMasters.FirstOrDefault(x => x.AdjustmentReportId == Id && x.AssignedToUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+            var data = new ApproverTaskId_dto();
+            if (materialApprovers != null)
+            {
+                data.approverTaskId = materialApprovers.ApproverTaskId;
+                data.userId = materialApprovers.AssignedToUserId ?? 0;
+                data.status = materialApprovers.Status;
+                data.seqNumber = materialApprovers.SequenceNo;
+
+            }
+            res.ReturnValue= data;
             return res;
         }
     }
