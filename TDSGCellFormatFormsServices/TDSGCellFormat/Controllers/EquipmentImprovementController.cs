@@ -57,6 +57,11 @@ namespace TDSGCellFormat.Controllers
                 {
                     Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
                 }
+                else
+                {
+                    Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+
+                }
                 return Ok(Ajaxresponse);
             }
             else
@@ -109,9 +114,9 @@ namespace TDSGCellFormat.Controllers
         {
             var res = await _applicationService.PullBackRequest(data);
             if (res != null)
-                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, res.Message, res.ReturnValue);
             else
-                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, res.Message, res.ReturnValue);
 
             return Ok(Ajaxresponse);
         }
@@ -121,9 +126,9 @@ namespace TDSGCellFormat.Controllers
         {
             var res = await _applicationService.UpdateApproveAskToAmend(data);
             if (res != null)
-                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, res.Message, res.ReturnValue);
             else
-                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, res.Message, res.ReturnValue);
 
             return Ok(Ajaxresponse);
         }
@@ -133,9 +138,9 @@ namespace TDSGCellFormat.Controllers
         {
             var res = await _applicationService.UpdateTargetDates(data);
             if (res != null)
-                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, res.Message, res.ReturnValue);
             else
-                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, res.Message, res.ReturnValue);
 
             return Ok(Ajaxresponse);
         }
