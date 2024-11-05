@@ -122,6 +122,7 @@ const currentApprover = useGetCurrentApproverData(
             <>
               <div>
                 <EquipmentReportForm
+                  reportLoading={equipmentReport.isLoading}
                   existingEquipmentReport={equipmentReport.data}
                   mode={mode}
                 />

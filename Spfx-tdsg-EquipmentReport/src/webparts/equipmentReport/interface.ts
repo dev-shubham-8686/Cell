@@ -84,7 +84,7 @@ export interface IChangeRiskData {
   Factor : string;
   CounterMeasures : string;
   DueDate :  dayjs.Dayjs;
-  PersonInCharge :string;
+  PersonInCharge :number;
   Results :string
 }
 

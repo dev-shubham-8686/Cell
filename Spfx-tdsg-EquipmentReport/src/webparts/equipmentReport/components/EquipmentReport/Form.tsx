@@ -1,4 +1,4 @@
-import { ConfigProvider, Empty, Modal, Select, Table, message } from "antd";
+import { ConfigProvider, Empty, Modal, Select, Spin, Table, message } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import { DatePicker, Input, Button, Upload, Form } from "antd";
 import { ArrowLeftOutlined, UploadOutlined } from "@ant-design/icons";
@@ -40,12 +40,13 @@ import displayjsx from "../../utility/displayjsx";
 const { TextArea } = Input;
 
 interface ICreateEditEquipmentReportProps {
+  reportLoading?:boolean
   existingEquipmentReport?: IEquipmentImprovementReport;
   mode?: string;
 }
 
 const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
-  existingEquipmentReport,
+  existingEquipmentReport,reportLoading
 }) => {
   dayjs.extend(customParseFormat);
 
@@ -401,7 +402,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         ChangeRiskManagementDetails:
           existingEquipmentReport.ChangeRiskManagementDetails.map((data) => ({
             ...data,
-            DueDate: dayjs(data.DueDate, DATE_FORMAT),
+            DueDate: dayjs(data.DueDate, DATE_FORMAT)??null,
           })),
       });
       if (
@@ -436,14 +437,14 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         setenableResultStatus(true);
       }
       if (
-        existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed ||
-        existingEquipmentReport?.Status != REQUEST_STATUS.Approved 
+       ( existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed ||
+        existingEquipmentReport?.Status != REQUEST_STATUS.Approved ) && existingEquipmentReport?.ResultAfterImplementation?.TargetDate
       ) {
         form.setFieldsValue({
           TargetDate: dayjs(
-            existingEquipmentReport?.ResultAfterImplementation?.TargetDate,
+            existingEquipmentReport?.ResultAfterImplementation?.TargetDate ,
             DATE_FORMAT
-          ),
+          )??"-",
           ResultMonitoring:
             existingEquipmentReport?.ResultAfterImplementation
               ?.ResultMonitoring,
@@ -537,7 +538,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         Factor: "",
         CounterMeasures: "",
         DueDate: null,
-        PersonInCharge: "",
+        PersonInCharge: null,
         Results: "",
       },
     ];
@@ -556,7 +557,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       return {
         ...item,
         key: index,
-        DueDate: dayjs(item.DueDate, DATE_FORMAT),
+        DueDate:item.DueDate? dayjs(item.DueDate,DATE_FORMAT):null,
       };
     });
 
@@ -614,7 +615,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               style={{ width: "100%" }}
               placeholder="Please enter Changes"
               onChange={(e) => {
-                onChangeTableData(record.key, "changes", e.target.value);
+                onChangeTableData(record.key, "Changes", e.target.value);
               }}
               className="custom-disabled-select"
             />
@@ -831,7 +832,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               form.getFieldValue([
                 "ChangeRiskManagementDetails",
                 record.key,
-                "personInCharge",
+                "PersonInCharge",
               ]) ?? record.employeeId
             }
             rules={validationRules.Person}
@@ -847,7 +848,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               style={{ width: "100%" }}
               placeholder="Select Person in Charge "
               onChange={(value) => {
-                onChangeTableData(record.key, "personInCharge", value);
+                onChangeTableData(record.key, "PersonInCharge", value);
               }}
               filterOption={(input, option) =>
                 option?.label
@@ -895,7 +896,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               placeholder="Enter results"
               rows={2}
               onChange={(e) => {
-                onChangeTableData(record.key, "results", e.target.value);
+                onChangeTableData(record.key, "Results", e.target.value);
               }}
             />
           </Form.Item>
@@ -1532,6 +1533,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         rules={existingEquipmentReport?.WorkflowLevel===2 ?validationRules["TargetDate"]:null}
                       >
                         <DatePicker
+                          format={DATE_FORMAT}
                           disabledDate={(current) => {
                             // future dates only
                             return current && current < dayjs().startOf("day");
@@ -1552,6 +1554,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         rules={existingEquipmentReport?.WorkflowLevel===2 ?validationRules["ActualDate"]:null}
                       >
                         <DatePicker
+                        format={DATE_FORMAT}
                           disabled={isModeView || !enableActualDate}
                           className="w-100"
                         />
@@ -1598,6 +1601,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                           rules={existingEquipmentReport?.WorkflowLevel===2 ?validationRules["ResultMonitoringDate"]:null}
                           >
                           <DatePicker
+                            format={DATE_FORMAT}
                             disabled={isModeView}
                             disabledDate={disablePastAndNext7Days}
                             className="w-100"
@@ -1635,6 +1639,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         setmodalVisible={setshowSubmitModal}
         onSubmit={handleModalSubmit} // Pass the callback function to modal
       />
+<Spin spinning={reportLoading || eqReportSave.isLoading} fullscreen />
+
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { SearchOutlined } from "@ant-design/icons";
 import { AnyObject } from "antd/es/_util/type";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ColumnsType } from "antd/es/table/interface";
 import Table from "../../table/table";
 import { useNavigate } from "react-router-dom";
@@ -32,7 +32,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
   const user: IUser = useContext(UserContext);
   const { mutate: deleteEquipment } = useDeleteEQReport();
   const { mutate: pdfDownload, isLoading: pdfLoading } = usePDFViewer();
-
+  const [deleted , setDelete]=useState<string>("");
   // const handleExportToExcel = (id: any) => {
   //   try {
   //     console.log("MATERIALID",id)
@@ -42,7 +42,9 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
   //     console.error("Export error:", error);
   //   }
   // };
-
+useEffect(()=>{
+console.log("Deleted",deleted)
+},[deleted])
   const handlePDF = (id: any, EQReportNo: any) => {
     try {
       console.log("MATERIALID", id);
@@ -86,7 +88,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
         deleteEquipment(id, {
           onSuccess: (Response) => {
             console.log("ATA Response: ", Response);
-            window.location.reload();
+            // window.location.reload();
           },
 
           onError: (error) => {
@@ -98,14 +100,214 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
     });
   };
 
+  // const columns: ColumnsType<AnyObject> = [
+  //   {
+  //     title: "Application No",
+  //     dataIndex: "EquipmentImprovementNo",
+  //     key: "EquipmentImprovementNo",
+  //     width: "10%",
+  //     sorter: true,
+  //     // filterDropdown: ColumnFilter,
+  //     filterIcon: (filtered: boolean) => (
+  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+  //     ),
+  //   },
+  //   {
+  //     title: "Issue Date",
+  //     dataIndex: "IssueDate",
+  //     key: "IssueDate",
+  //     width: "10%",
+  //     sorter: true,
+  //     // render: (text) => (
+  //     //   <p className="text-cell">{dayjs(text).format(DATE_FORMAT)}</p>
+  //     // ),
+  //     filterDropdown: ColumnFilter,
+  //     filterIcon: (filtered: boolean) => (
+  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+  //     ),
+  //   },
+  //   {
+  //     title: "Machine Name",
+  //     dataIndex: "MachineName",
+  //     key: "MachineName",
+  //     width: "15%",
+  //     sorter: true,
+  //     filterDropdown: ColumnFilter,
+  //     filterIcon: (filtered: boolean) => (
+  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+  //     ),
+  //   },
+  //   {
+  //     title: "Sub Machine Name",
+  //     dataIndex: "SubMachineName",
+  //     key: "SubMachineName",
+  //     width: "15%",
+  //     sorter: true,
+  //     filterDropdown: ColumnFilter,
+  //     filterIcon: (filtered: boolean) => (
+  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+  //     ),
+  //   },
+  //   {
+  //     title: "Section Name",
+  //     dataIndex: "SectionName",
+  //     key: "SectionName",
+  //     width: "15%",
+  //     sorter: true,
+  //     filterDropdown: ColumnFilter,
+  //     filterIcon: (filtered: boolean) => (
+  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+  //     ),
+  //   },
+  //   {
+  //     title: "Improvement Name",
+  //     dataIndex: "ImprovementName",
+  //     key: "ImprovementName",
+  //     width: "15%",
+  //     sorter: true,
+  //     filterDropdown: ColumnFilter,
+  //     filterIcon: (filtered: boolean) => (
+  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+  //     ),
+  //   },
+
+  //   {
+  //     title: "Requestor",
+  //     dataIndex: "Requestor",
+  //     key: "Requestor",
+  //     width: "10%",
+  //     sorter: true,
+  //     render: (text) => <p className="text-cell">{text ?? "-"}</p>,
+  //     filterDropdown: ColumnFilter,
+  //     filterIcon: (filtered: boolean) => (
+  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+  //     ),
+  //   },
+  //   {
+  //     title: "CurrentApprover",
+  //     dataIndex: "CurrentApprover",
+  //     key: "CurrentApprover",
+  //     width: "10%",
+  //     sorter: true,
+  //     render: (text) => <p className="text-cell">{text ?? "-"}</p>,
+  //     filterDropdown: ColumnFilter,
+  //     filterIcon: (filtered: boolean) => (
+  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+  //     ),
+  //   },
+  //   {
+  //     title: "Status",
+  //     dataIndex: "Status",
+  //     key: "Status",
+  //     width: "100",
+  //     sorter: true,
+  //     filterDropdown: ColumnFilter,
+  //     filterIcon: (filtered: boolean) => (
+  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+  //     ),
+  //     render: (text) => (
+  //       <span
+  //         className={`status-badge status-badge-${
+  //           STATUS_COLOUR_CLASS[text] ?? ""
+  //         }`}
+  //       >
+  //         {displayRequestStatus(text)}
+  //       </span>
+  //     ),
+  //   },
+  //   {
+  //     title: <p className="text-center p-0 m-0">Actions</p>,
+  //     key: "action",
+  //     render: (row) => (
+  //       <div className="action-cell">
+  //         {console.log("EQ DATA", row)}
+  //         <button
+  //           type="button"
+  //           style={{ background: "none", border: "none" }}
+  //           onClick={() =>
+  //             navigate(
+  //               `/equipment-improvement-report/form/view/${row.EquipmentImprovementId}`
+  //             )
+  //           }
+  //         >
+  //           <FontAwesomeIcon title="View" icon={faEye} />
+  //         </button>
+  //         {console.log(
+  //           "Edit",
+  //           row.Status,
+  //           REQUEST_STATUS.Draft,
+  //           row.Requestor,
+  //           user.employeeName
+  //         )}
+  //         {(row.Status == REQUEST_STATUS.LogicalAmendment ||
+  //           row.Status == REQUEST_STATUS.UnderImplementation ||
+  //           (row.Status == REQUEST_STATUS.ResultMonitoring && !row.IsResultSubmit) ||
+  //           row.Status == REQUEST_STATUS.Draft ||
+  //           row.Status == REQUEST_STATUS.UnderAmendment ||
+  //           row.Status == REQUEST_STATUS.PCRNPending ||
+  //           row.Status == REQUEST_STATUS.Approved) &&
+  //           row.Requestor == user?.employeeName && (
+  //             <button
+  //               type="button"
+  //               style={{ background: "none", border: "none" }}
+  //               onClick={() =>
+  //                 navigate(
+  //                   `/equipment-improvement-report/form/edit/${row.EquipmentImprovementId}`
+  //                 )
+  //               }
+  //             >
+  //               <FontAwesomeIcon title="Edit" icon={faEdit} />
+  //             </button>
+  //           )}
+
+  //         {row.Status==REQUEST_STATUS.Completed && (
+  //           <button
+  //             type="button"
+  //             style={{ background: "none", border: "none" }}
+  //             onClick={() => {
+  //               handlePDF(
+  //                 row.EquipmentImprovementId,
+  //                 row.EquipmentImprovementNo
+  //               );
+  //             }}
+  //           >
+  //             <FontAwesomeIcon title="PDF" icon={faFilePdf} />
+  //           </button>
+  //         )}
+
+  //         {console.log(
+  //           "DElete",
+  //           row.Status,
+  //           REQUEST_STATUS.Draft,
+  //           row.Requestor,
+  //           user.employeeName
+  //         )}
+  //         {row.Status == REQUEST_STATUS.Draft &&
+  //           row.Requestor == user.employeeName && (
+  //             <button
+  //               type="button"
+  //               style={{ background: "none", border: "none" }}
+  //               onClick={() => {
+  //                 handleDelete(row.EquipmentImprovementId);
+  //               }}
+  //             >
+  //               <FontAwesomeIcon title="Delete" icon={faTrash} />
+  //             </button>
+  //           )}
+  //       </div>
+  //     ),
+  //     sorter: false,
+  //     width: "10%",
+  //   },
+  // ];
+
   const columns: ColumnsType<AnyObject> = [
     {
       title: "Application No",
       dataIndex: "EquipmentImprovementNo",
       key: "EquipmentImprovementNo",
-      width: "10%",
+      width: 100, // width in pixels
       sorter: true,
-      // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -114,11 +316,8 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Issue Date",
       dataIndex: "IssueDate",
       key: "IssueDate",
-      width: "10%",
+      width: 100,
       sorter: true,
-      // render: (text) => (
-      //   <p className="text-cell">{dayjs(text).format(DATE_FORMAT)}</p>
-      // ),
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
@@ -128,7 +327,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Machine Name",
       dataIndex: "MachineName",
       key: "MachineName",
-      width: "15%",
+      width: 150,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -139,7 +338,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Sub Machine Name",
       dataIndex: "SubMachineName",
       key: "SubMachineName",
-      width: "15%",
+      width: 150,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -150,7 +349,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Section Name",
       dataIndex: "SectionName",
       key: "SectionName",
-      width: "15%",
+      width: 150,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -161,19 +360,18 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Improvement Name",
       dataIndex: "ImprovementName",
       key: "ImprovementName",
-      width: "15%",
+      width: 150,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
-
     {
       title: "Requestor",
       dataIndex: "Requestor",
       key: "Requestor",
-      width: "10%",
+      width: 100,
       sorter: true,
       render: (text) => <p className="text-cell">{text ?? "-"}</p>,
       filterDropdown: ColumnFilter,
@@ -185,7 +383,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "CurrentApprover",
       dataIndex: "CurrentApprover",
       key: "CurrentApprover",
-      width: "10%",
+      width: 100,
       sorter: true,
       render: (text) => <p className="text-cell">{text ?? "-"}</p>,
       filterDropdown: ColumnFilter,
@@ -197,7 +395,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      width: "10%",
+      width: 170,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -216,9 +414,9 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
     {
       title: <p className="text-center p-0 m-0">Actions</p>,
       key: "action",
+      width: 120,
       render: (row) => (
         <div className="action-cell">
-          {console.log("EQ DATA", row)}
           <button
             type="button"
             style={{ background: "none", border: "none" }}
@@ -230,21 +428,14 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
           >
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
-          {console.log(
-            "Edit",
-            row.Status,
-            REQUEST_STATUS.Draft,
-            row.Requestor,
-            user.employeeName
-          )}
-          {(row.Status == REQUEST_STATUS.LogicalAmendment ||
-            row.Status == REQUEST_STATUS.UnderImplementation ||
-            (row.Status == REQUEST_STATUS.ResultMonitoring && !row.IsResultSubmit) ||
-            row.Status == REQUEST_STATUS.Draft ||
-            row.Status == REQUEST_STATUS.UnderAmendment ||
-            row.Status == REQUEST_STATUS.PCRNPending ||
-            row.Status == REQUEST_STATUS.Approved) &&
-            row.Requestor == user?.employeeName && (
+          {(row.Status === REQUEST_STATUS.LogicalAmendment ||
+            row.Status === REQUEST_STATUS.UnderImplementation ||
+            (row.Status === REQUEST_STATUS.ResultMonitoring && !row.IsResultSubmit) ||
+            row.Status === REQUEST_STATUS.Draft ||
+            row.Status === REQUEST_STATUS.UnderAmendment ||
+            row.Status === REQUEST_STATUS.PCRNPending ||
+            row.Status === REQUEST_STATUS.Approved) &&
+            row.Requestor === user?.employeeName && (
               <button
                 type="button"
                 style={{ background: "none", border: "none" }}
@@ -257,31 +448,19 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
                 <FontAwesomeIcon title="Edit" icon={faEdit} />
               </button>
             )}
-
-          {row.Status==REQUEST_STATUS.Completed && (
+          {row.Status === REQUEST_STATUS.Completed && (
             <button
               type="button"
               style={{ background: "none", border: "none" }}
               onClick={() => {
-                handlePDF(
-                  row.EquipmentImprovementId,
-                  row.EquipmentImprovementNo
-                );
+                handlePDF(row.EquipmentImprovementId, row.EquipmentImprovementNo);
               }}
             >
               <FontAwesomeIcon title="PDF" icon={faFilePdf} />
             </button>
           )}
-
-          {console.log(
-            "DElete",
-            row.Status,
-            REQUEST_STATUS.Draft,
-            row.Requestor,
-            user.employeeName
-          )}
-          {row.Status == REQUEST_STATUS.Draft &&
-            row.Requestor == user.employeeName && (
+          {row.Status === REQUEST_STATUS.Draft &&
+            row.Requestor === user.employeeName && (
               <button
                 type="button"
                 style={{ background: "none", border: "none" }}
@@ -295,9 +474,9 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
         </div>
       ),
       sorter: false,
-      width: "10%",
     },
   ];
+  
   return (
     <Table
       columns={columns}

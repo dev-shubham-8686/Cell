@@ -100,20 +100,6 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       // ),
     },
     {
-      title: "CurrentApprover",
-      dataIndex: "CurrentApprover",
-      key: "CurrentApprover",
-      width: "10%",
-      sorter: true,
-      render: (text) => (
-        <p className="text-cell">{text ?? "-"}</p>
-      ),
-      // filterDropdown: ColumnFilter,
-      // filterIcon: (filtered: boolean) => (
-      //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      // ),
-    },
-    {
       title: "Status",
       dataIndex: "Status",
       key: "Status",

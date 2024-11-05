@@ -53,9 +53,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const [approvedByToshiba, setapprovedByToshiba] = useState(false);
   const [toshibaDiscussion, settoshibaDiscussion] = useState(false);
   const [advisorRequired, setadvisorRequired] = useState(false);
-  const { mutate: approveAskToAmmend, isLoading: approvingRequest } =
+  const { mutate: approveAskToAmmend, isLoading: approving } =
     useApproveAskToAmmend(id ? parseInt(id) : undefined, user.employeeId);
-  const { mutate: addOrUpdateTargetDate } = useAddOrUpdateTargetDate();
+  const { mutate: addOrUpdateTargetDate,isLoading:updatingTargetDate } = useAddOrUpdateTargetDate();
   const { mutate: pullBack, isLoading: pullbacking } = usePullBack(
     id ? parseInt(id) : undefined,
     user.employeeId
@@ -438,27 +438,14 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         ) : (
           <></>
         )}
-        {/* 
+        {/* { 
         {((eqReport?.WorkflowLevel === 1 &&
           (eqReport?.Status != REQUEST_STATUS.Approved ||
             eqReport?.Status != REQUEST_STATUS.UnderAmendment || eqReport?.Status != REQUEST_STATUS.PCRNPending)) ||
           (eqReport?.WorkflowStatus == REQUEST_STATUS.W1Completed &&
             eqReport?.ResultAfterImplementation?.IsResultAmendSubmit)) &&
-        eqReport?.CreatedBy == user?.employeeId ? (
-          // eqReport?.Status != REQUEST_STATUS.UnderAmendment && eqReport?.Status != REQUEST_STATUS.Completed?
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              openCommentsPopup("PullBack");
-              setsubmitbuttontext("Pull Back");
-            }}
-          >
-            Pull Back
-          </button>
-        ) : (
-          <></>
-        )} */}
-
+        eqReport?.CreatedBy == user?.employeeId ? ( */}
+       
         {(eqReport?.WorkflowLevel === 1 && eqReport?.IsSubmit &&  
           eqReport?.CreatedBy === user?.employeeId &&
           ![
@@ -468,7 +455,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           ].includes(eqReport?.Status)) ||
         (eqReport?.WorkflowStatus === REQUEST_STATUS.W1Completed &&
           eqReport?.CreatedBy === user?.employeeId &&
-          eqReport?.ResultAfterImplementation?.IsResultAmendSubmit) ? (
+          eqReport?.ResultAfterImplementation?.IsResultSubmit) ? (
           <button
             className="btn btn-primary"
             onClick={() => {
@@ -603,6 +590,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           isRequiredField={true}
         />
       </div>
+      <Spin spinning={approving || pullbacking || updatingTargetDate} fullscreen />
     </>
   );
 };
