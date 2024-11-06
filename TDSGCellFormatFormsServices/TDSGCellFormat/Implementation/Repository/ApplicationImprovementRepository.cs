@@ -7,6 +7,7 @@ using TDSGCellFormat.Helper;
 using Microsoft.EntityFrameworkCore;
 using TDSGCellFormat.Models.View;
 using System.Data;
+using System.Data.SqlClient;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.tool.xml;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using PnP.Framework.Extensions;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.ApplicationInsights.Extensibility.Implementation;
+using Dapper;
 
 
 namespace TDSGCellFormat.Implementation.Repository
@@ -61,6 +63,27 @@ namespace TDSGCellFormat.Implementation.Repository
 
             return res;
         }
+
+        #region GetUserRole
+        public async Task<GetEquipmentUser> GetUserRole(string userEmail)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserEmail", userEmail, DbType.String, ParameterDirection.Input, 150);
+
+                var result = await connection.QueryFirstOrDefaultAsync<GetEquipmentUser>(
+                    "dbo.SPP_GetUserDetails_EQP",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                return result;
+            }
+        }
+        #endregion
 
         #region CRUD 
         public EquipmentImprovementApplicationAdd GetById(int Id)
@@ -595,8 +618,14 @@ namespace TDSGCellFormat.Implementation.Repository
                 MarkAsDeleted(existingPCRN, existingReport.CreatedBy, DateTime.Now);
                 _context.SaveChanges();
 
+
+                //to check for pull back while pcrn 
+                var pcrnTrueApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.IsActive == true).LastOrDefault();
+
+
                 if (report.PcrnAttachments != null)
                 {
+
                     var pcrndata = report.PcrnAttachments;
                     var existingPcrn = _context.EquipmentPCRNAttachments.Where(x => x.PCRNId == pcrndata.PcrnAttachmentId && x.IsDeleted == false && x.EquipmentImprovementId == existingReport.EquipmentImprovementId).FirstOrDefault();
                     if (existingPcrn != null)
@@ -607,21 +636,39 @@ namespace TDSGCellFormat.Implementation.Repository
                         existingPcrn.ModifiedBy = report.ModifiedBy;
                         existingPcrn.IsDeleted = pcrndata.IsDeleted;
 
-                        if (report.IsSubmit == false)
+                        //var pcrnTrueApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.IsActive == true).LastOrDefault();
+
+                       //var pcrnFalseApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.IsActive == false).LastOrDefault();
+
+                        if (report.IsSubmit == false && pcrnTrueApproverTask != null)
                         {
                             existingReport.Status = ApprovalTaskStatus.PCRNPending.ToString();
 
                         }
-                        else
+                        else if(report.IsSubmit == true && pcrnTrueApproverTask != null)
                         {
                             existingReport.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                            existingReport.IsSubmit = true;
+                        }
+                        else if (report.IsSubmit == false && pcrnTrueApproverTask == null)
+                        {
+                            existingReport.Status = ApprovalTaskStatus.Draft.ToString();
+                            //existingReport.IsSubmit = true;
+                        }
+                        else if(report.IsSubmit == true && pcrnTrueApproverTask == null)
+                        {
+                            existingReport.Status = ApprovalTaskStatus.InReview.ToString();
                             existingReport.IsSubmit = true;
                         }
                         await _context.SaveChangesAsync();
 
                         var qcTeamData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == existingReport.EquipmentImprovementId && x.IsActive == true && x.SequenceNo == 5 && x.WorkFlowlevel == 1).FirstOrDefault();
-                        qcTeamData.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
-                        await _context.SaveChangesAsync();
+                        if(qcTeamData != null)
+                        {
+                            qcTeamData.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                            await _context.SaveChangesAsync();
+                        }
+                        
                     }
                     else
                     {
@@ -635,21 +682,40 @@ namespace TDSGCellFormat.Implementation.Repository
                         pcrn.CreatedBy = report.ModifiedBy;
                         pcrn.IsDeleted = false;
 
-                        if (report.IsSubmit == false)
+
+                        //var pcrnFalseApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.IsActive == false).LastOrDefault();
+
+                        if (report.IsSubmit == false && pcrnTrueApproverTask != null)
                         {
                             existingReport.Status = ApprovalTaskStatus.PCRNPending.ToString();
+
                         }
-                        else
+                        else if (report.IsSubmit == true && pcrnTrueApproverTask != null)
                         {
                             existingReport.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
                             existingReport.IsSubmit = true;
                         }
+                        else if (report.IsSubmit == false && pcrnTrueApproverTask == null)
+                        {
+                            existingReport.Status = ApprovalTaskStatus.Draft.ToString();
+                            //existingReport.IsSubmit = true;
+                        }
+                        else if (report.IsSubmit == true && pcrnTrueApproverTask == null)
+                        {
+                            existingReport.Status = ApprovalTaskStatus.InReview.ToString();
+                            existingReport.IsSubmit = true;
+                        }
+                        //await _context.SaveChangesAsync();
                         _context.EquipmentPCRNAttachments.Add(pcrn);
                         await _context.SaveChangesAsync();
 
                         var qcTeamData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == existingReport.EquipmentImprovementId && x.IsActive == true && x.SequenceNo == 5 && x.WorkFlowlevel == 1).FirstOrDefault();
-                        qcTeamData.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
-                        await _context.SaveChangesAsync();
+                        if(qcTeamData != null)
+                        {
+
+                            qcTeamData.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                            await _context.SaveChangesAsync();
+                        }
                     }
 
                 }
@@ -672,7 +738,15 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
 
                 }
-                else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true && report.PcrnAttachments == null)
+                else if(report.IsSubmit == true && report.IsAmendReSubmitTask == false && report.PcrnAttachments != null && pcrnTrueApproverTask == null)
+                {
+                    var data = await SubmitRequest(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
+                    if (data.StatusCode == Enums.Status.Success)
+                    {
+                        res.Message = Enums.EquipmentSubmit;
+                    }
+                }
+                else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true)
                 {
                     var data = await Resubmit(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
@@ -712,6 +786,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.ResultMonitorDate = !string.IsNullOrEmpty(data.ResultMonitoringDate) ? DateTime.Parse(data.ResultMonitoringDate) : (DateTime?)null;
                 existingReport.ResultMonitoring = data.ResultMonitoring;
                 existingReport.WorkFlowLevel = 2;
+
                 if (data.TargetDate != null && data.ActualDate == null)
                 {
                     existingReport.Status = ApprovalTaskStatus.UnderImplementation.ToString();
@@ -1139,7 +1214,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.ToshibaApproved.ToString(), 0);
 
                         }
-                        else
+                        else if(approvalData.IsToshibaDiscussion == false)
                         {
                             equipment.ToshibaApprovalRequired = true;
                             equipment.ToshibaApprovalComment = approvalData.Comment;

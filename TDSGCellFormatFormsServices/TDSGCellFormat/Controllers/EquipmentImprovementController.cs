@@ -14,6 +14,10 @@ namespace TDSGCellFormat.Controllers
     public class EquipmentImprovementController : Controller
     {
         private readonly IApplicationImprovementService _applicationService;
+        private AuthenticationHelper _authBL;
+        private readonly TdsgCellFormatDivisionContext _context;
+        private readonly AepplNewCloneStageContext _cloneContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         ResponseHelper responseHelper = new ResponseHelper();
         AjaxResult Ajaxresponse = new AjaxResult();
@@ -21,6 +25,35 @@ namespace TDSGCellFormat.Controllers
         public EquipmentImprovementController(IApplicationImprovementService applicationService)
         {
             _applicationService = applicationService;
+        }
+
+
+        [HttpGet("GetUserRole")]
+        public async Task<IActionResult> GetUserRole(string email)
+        {
+           // var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+           // // Call the IsValidAuthentication method
+           // AjaxResult authResult;
+           // bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+           //
+           // if (!isValidAuth)
+           // {
+           //     // Return unauthorized response if authentication fails
+           //     Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+           //     return Unauthorized(Ajaxresponse);
+           // }
+
+            var userDetails = await _applicationService.GetUserRole(email);
+            if (userDetails == null)
+            {
+                AjaxResult result = new AjaxResult();
+                result.ResultType = (int)MessageType.NotAuthorize;
+                result.StatusCode = Status.NotAuthorize;
+                result.Message = Enums.TroubleAuthorization;
+
+                return NotFound(result);
+            }
+            return Ok(userDetails);
         }
 
         [HttpGet("Get")]
