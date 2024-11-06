@@ -274,7 +274,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         foreach (var attach in report.EquipmentCurrSituationAttachmentDetails)
                         {
-                            var updatedUrl = attach.CurrSituationDocFilePath.Replace("/EQReportDocs/", $"/{equipmentNo}/");
+                            var updatedUrl = attach.CurrSituationDocFilePath.Replace($"/{report.CreatedBy}/", $"/{equipmentNo}/");
                             ///EqReportDocuments/EQReportDocs/Current Situation Attachments/MaterialConsumption_2024-10-09.xlsx
                             var attachment = new EquipmentCurrSituationAttachment()
                             {
@@ -295,7 +295,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         foreach (var attach in report.EquipmentImprovementAttachmentDetails)
                         {
-                            var updatedUrl = attach.ImprovementDocFilePath.Replace("/EQReportDocs/", $"/{equipmentNo}/");
+                            var updatedUrl = attach.ImprovementDocFilePath.Replace($"/{report.CreatedBy}/", $"/{equipmentNo}/");
                             var attachment = new EquipmentImprovementAttachment()
                             {
                                 EquipmentImprovementId = newReport.EquipmentImprovementId,
@@ -551,12 +551,12 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     foreach (var attach in report.EquipmentCurrSituationAttachmentDetails)
                     {
-                        var updatedUrl = attach.CurrSituationDocFilePath.Replace("/EQReportDocs/", $"/{existingReport.EquipmentImprovementNo}/");
+                        var updatedUrl = attach.CurrSituationDocFilePath.Replace($"/{report.CreatedBy}/", $"/{existingReport.EquipmentImprovementNo}/");
                         var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == attach.EquipmentCurrSituationAttachmentId).FirstOrDefault();
                         if (existingAttachData != null)
                         {
                             existingAttachData.CurrSituationDocName = attach.CurrSituationDocName;
-                            existingAttachData.CurrSituationDocFilePath = updatedUrl;
+                            existingAttachData.CurrSituationDocFilePath = attach.CurrSituationDocFilePath;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -587,12 +587,12 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     foreach (var attach in report.EquipmentImprovementAttachmentDetails)
                     {
-                        var updatedUrl = attach.ImprovementDocFilePath.Replace("/EQReportDocs/", $"/{existingReport.EquipmentImprovementNo}/");
+                        var updatedUrl = attach.ImprovementDocFilePath.Replace($"/{report.CreatedBy}/", $"/{existingReport.EquipmentImprovementNo}/");
                         var existingAttachData = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentImprovementAttachmentId == attach.EquipmentImprovementAttachmentId).FirstOrDefault();
                         if (existingAttachData != null)
                         {
                             existingAttachData.ImprovementDocName = attach.ImprovementDocName;
-                            existingAttachData.ImprovementDocFilePath = updatedUrl;
+                            existingAttachData.ImprovementDocFilePath = attach.ImprovementDocFilePath;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -627,7 +627,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
 
                     var pcrndata = report.PcrnAttachments;
-                    var existingPcrn = _context.EquipmentPCRNAttachments.Where(x => x.PCRNId == pcrndata.PcrnAttachmentId && x.IsDeleted == false && x.EquipmentImprovementId == existingReport.EquipmentImprovementId).FirstOrDefault();
+                    var existingPcrn = _context.EquipmentPCRNAttachments.Where(x => x.PCRNId == pcrndata.PcrnAttachmentId  && x.EquipmentImprovementId == existingReport.EquipmentImprovementId).FirstOrDefault();
                     if (existingPcrn != null)
                     {
                         existingPcrn.PCRNDocFileName = pcrndata.PcrnDocName;
@@ -635,10 +635,6 @@ namespace TDSGCellFormat.Implementation.Repository
                         existingPcrn.ModifiedDate = DateTime.Now;
                         existingPcrn.ModifiedBy = report.ModifiedBy;
                         existingPcrn.IsDeleted = pcrndata.IsDeleted;
-
-                        //var pcrnTrueApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.IsActive == true).LastOrDefault();
-
-                       //var pcrnFalseApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.IsActive == false).LastOrDefault();
 
                         if (report.IsSubmit == false && pcrnTrueApproverTask != null && pcrnTrueApproverTask.Count > 0)
                         {
@@ -738,7 +734,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
 
                 }
-                else if(report.IsSubmit == true && report.IsAmendReSubmitTask == false && report.PcrnAttachments != null && pcrnTrueApproverTask == null)
+                else if(report.IsSubmit == true && report.IsAmendReSubmitTask == false && report.PcrnAttachments != null && (pcrnTrueApproverTask == null || pcrnTrueApproverTask.Count  == 0))
                 {
                     var data = await SubmitRequest(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
