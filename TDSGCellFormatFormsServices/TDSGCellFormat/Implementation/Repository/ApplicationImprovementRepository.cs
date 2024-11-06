@@ -322,7 +322,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     if (report.IsSubmit == true && report.IsAmendReSubmitTask == false)
                     {
-                        var data = await SubmitRequest(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
+                        var data = await SubmitRequest(newReport.EquipmentImprovementId, existingReport.CreatedBy);
                         if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.EquipmentSubmit;
@@ -620,7 +620,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
 
                 //to check for pull back while pcrn 
-                var pcrnTrueApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.IsActive == true).LastOrDefault();
+                var pcrnTrueApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.IsActive == true).ToList();
 
 
                 if (report.PcrnAttachments != null)
@@ -640,22 +640,22 @@ namespace TDSGCellFormat.Implementation.Repository
 
                        //var pcrnFalseApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.IsActive == false).LastOrDefault();
 
-                        if (report.IsSubmit == false && pcrnTrueApproverTask != null)
+                        if (report.IsSubmit == false && pcrnTrueApproverTask != null && pcrnTrueApproverTask.Count > 0)
                         {
                             existingReport.Status = ApprovalTaskStatus.PCRNPending.ToString();
 
                         }
-                        else if(report.IsSubmit == true && pcrnTrueApproverTask != null)
+                        else if(report.IsSubmit == true && pcrnTrueApproverTask != null && pcrnTrueApproverTask.Count > 0)
                         {
                             existingReport.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
                             existingReport.IsSubmit = true;
                         }
-                        else if (report.IsSubmit == false && pcrnTrueApproverTask == null)
+                        else if (report.IsSubmit == false && (pcrnTrueApproverTask == null || pcrnTrueApproverTask.Count == 0))
                         {
                             existingReport.Status = ApprovalTaskStatus.Draft.ToString();
                             //existingReport.IsSubmit = true;
                         }
-                        else if(report.IsSubmit == true && pcrnTrueApproverTask == null)
+                        else if(report.IsSubmit == true && ( pcrnTrueApproverTask == null || pcrnTrueApproverTask.Count == 0))
                         {
                             existingReport.Status = ApprovalTaskStatus.InReview.ToString();
                             existingReport.IsSubmit = true;
@@ -685,12 +685,12 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         //var pcrnFalseApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.IsActive == false).LastOrDefault();
 
-                        if (report.IsSubmit == false && pcrnTrueApproverTask != null)
+                        if (report.IsSubmit == false && pcrnTrueApproverTask != null && pcrnTrueApproverTask.Count > 0)
                         {
                             existingReport.Status = ApprovalTaskStatus.PCRNPending.ToString();
 
                         }
-                        else if (report.IsSubmit == true && pcrnTrueApproverTask != null)
+                        else if (report.IsSubmit == true && pcrnTrueApproverTask != null && pcrnTrueApproverTask.Count > 0)
                         {
                             existingReport.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
                             existingReport.IsSubmit = true;
