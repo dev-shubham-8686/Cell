@@ -695,12 +695,12 @@ namespace TDSGCellFormat.Implementation.Repository
                             existingReport.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
                             existingReport.IsSubmit = true;
                         }
-                        else if (report.IsSubmit == false && pcrnTrueApproverTask == null)
+                        else if (report.IsSubmit == false && (pcrnTrueApproverTask == null || pcrnTrueApproverTask.Count == 0))
                         {
                             existingReport.Status = ApprovalTaskStatus.Draft.ToString();
                             //existingReport.IsSubmit = true;
                         }
-                        else if (report.IsSubmit == true && pcrnTrueApproverTask == null)
+                        else if (report.IsSubmit == true && (pcrnTrueApproverTask == null || pcrnTrueApproverTask.Count == 0))
                         {
                             existingReport.Status = ApprovalTaskStatus.InReview.ToString();
                             existingReport.IsSubmit = true;
