@@ -1488,12 +1488,29 @@ namespace TDSGCellFormat.Implementation.Repository
             try
             {
                 var excelData = await _context.GetEquipmentExcel(fromDate, toDate, employeeId, type);
+
+
+                // Check if data is returned
+                if (excelData == null || excelData.Count == 0)
+                {
+                    res.StatusCode = Enums.Status.Error;
+                    res.Message = "No data found for the specified parameters.";
+                    return res;
+                }
+
                 using (var workbook = new XLWorkbook())
                 {
                     var worksheet = workbook.Worksheets.Add("Equipment Improvement");
 
                     // Get properties and determine columns to exclude
-                    var properties = excelData.GetType().GetGenericArguments()[0].GetProperties();
+                    //var properties = excelData.GetType().GetGenericArguments()[0].GetProperties();
+
+                    // Reflect properties based on Type
+                    var properties = type == 1
+                        ? typeof(EquipmentExcelViewForType1).GetProperties()
+                        : typeof(EquipmentExcelViewForType2).GetProperties();
+
+
                     var columnsToExclude = new List<int>(); // Adjust this list based on your exclusion logic
 
                     // Write header, excluding specified columns
