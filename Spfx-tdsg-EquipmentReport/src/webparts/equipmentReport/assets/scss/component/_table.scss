@@ -6,6 +6,8 @@
   font-weight: 500;
 
   &.status-badge-pending,
+  &.status-badge-under-implementation,
+  &.status-badge-pcrn-pending,
   &.status-badge-draft {
     color: $blue-1;
     background-color: $blue-bg;
@@ -16,7 +18,10 @@
     background-color: $red-bg;
   }
 
-  &.status-badge-in-review {
+  &.status-badge-in-review,
+  &.status-badge-toshiba-technical-review,
+  &.status-badge-logical-amendment-inReview,
+  &.status-badge-result-monitoring {
     color: $yellow-1;
     background-color: $yellow-bg;
   }
@@ -26,7 +31,10 @@
     background-color: $green-bg;
   }
 
-  &.status-badge-under-amendment {
+  &.status-badge-under-amendment,
+  &.status-badge-logical-amendment,
+  &.status-badge-under-toshiba-approval
+   {
     color: $warning;
     background-color: rgba($color: $warning, $alpha: 0.1);
   }

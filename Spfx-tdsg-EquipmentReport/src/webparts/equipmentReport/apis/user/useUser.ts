@@ -47,7 +47,7 @@ const authenticateUser = async (email: string): Promise<boolean> => {
   
   const body={
     parameter: base64.encode(JSON.stringify(token)),
-    type: "MATERIALCONSUMPTION",
+    type: "EQUIPMENTREPORT",
   }
   const response = await http.post<AuthResponse>(GET_LOGIN_SESSION, JSON.stringify(body));
   const data=response.data;

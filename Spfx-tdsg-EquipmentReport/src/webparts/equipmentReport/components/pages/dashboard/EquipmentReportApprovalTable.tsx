@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faEye } from '@fortawesome/free-solid-svg-icons';
 import { AnyObject } from 'antd/es/_util/type';
 import { ColumnsType } from "antd/es/table/interface";
+import { displayRequestStatus } from '../../../utility/utility';
 
 const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
   const navigate = useNavigate();
@@ -99,38 +100,24 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       // ),
     },
     {
-      title: "CurrentApprover",
-      dataIndex: "CurrentApprover",
-      key: "CurrentApprover",
-      width: "10%",
-      sorter: true,
-      render: (text) => (
-        <p className="text-cell">{text ?? "-"}</p>
-      ),
-      // filterDropdown: ColumnFilter,
-      // filterIcon: (filtered: boolean) => (
-      //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      // ),
-    },
-    {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
       width: "10%",
       sorter: true,
-      // filterDropdown: ColumnFilter,
+       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
-      // render: (text) => (
-      //   <span
-      //     className={`status-badge status-badge-${
-      //       STATUS_COLOUR_CLASS[text] ?? ""
-      //     }`}
-      //   >
-      //     {displayRequestStatus(text)}
-      //   </span>
-      // ),
+      render: (text) => (
+        <span
+          className={`status-badge status-badge-${
+            STATUS_COLOUR_CLASS[text] ?? ""
+          }`}
+        >
+          {displayRequestStatus(text)}
+        </span>
+      ),
     },
     {
       title: <p className="text-center p-0 m-0">Actions</p>,
@@ -152,7 +139,6 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
           >
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
-
           {false && (
             <button
               type="button"

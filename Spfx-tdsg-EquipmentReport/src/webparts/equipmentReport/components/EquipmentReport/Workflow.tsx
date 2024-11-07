@@ -2,6 +2,7 @@ import  * as React from 'react';
 import { DATE_FORMAT, REQUEST_STATUS } from '../../GLOBAL_CONSTANT';
 import { displayRequestStatus } from '../../utility/utility';
 import dayjs from 'dayjs';
+import { IWorkFlow } from '../../apis/workflow/useGetApprovalFlowData';
 
 
 export interface IRequestStatus {
@@ -36,11 +37,11 @@ export interface IRequestDetails extends IRequestStatus {
     email: string;
   }  
     
-interface IProps {
-     approverTasks?: IWorkflowDetail[];
-    // requestStatus?: IRequestDetails;
-    // userId: number;
-  }
+  interface IProps {
+      approverTasks?: IWorkFlow ;
+      // requestStatus?: IRequestDetails;
+      // userId: number;
+    }
 
 
   const approverTasks = [
@@ -118,19 +119,19 @@ const Workflow : React.FC<IProps>= ({
   //   userId,
   }) => {
 console.log("ApproverTasks",approverTasks)
-    const workflowTableBody: {
+    const workflowTableBody1: {
         head: string;
         cellValues: string[];
         cellColourClass?: string[];
       }[] = [
         {
           head: "Approver",
-          cellValues: approverTasks?.map((item) => item.employeeName) ?? [],
+          cellValues: approverTasks?.WorkflowOne.map((item) => item.employeeName) ?? [],
         },
         {
           head: "Process Status",
           cellValues:
-            approverTasks?.map((item) => {
+            approverTasks?.WorkflowOne.map((item) => {
               const statusValue: string = item?.Status
                 ? displayRequestStatus(item.Status)
                 : "";
@@ -139,7 +140,7 @@ console.log("ApproverTasks",approverTasks)
               return statusValue;
             }) ?? [],
           cellColourClass:
-            approverTasks?.map((item) => {
+            approverTasks?.WorkflowOne.map((item) => {
               let className = "";
               if (item.Status !== REQUEST_STATUS.Pending) {
                 className = `status-cell-${item.Status.toLowerCase()} ${
@@ -154,12 +155,62 @@ console.log("ApproverTasks",approverTasks)
         },
         {
           head: "Reviewer Comments",
-          cellValues: approverTasks?.map((item) => item.Comments) ?? [],
+          cellValues: approverTasks?.WorkflowOne.map((item) => item.Comments) ?? [],
         },
         {
           head: "Date",
           cellValues:
-            approverTasks?.map((item) =>
+          approverTasks?.WorkflowOne.map((item) =>
+              item.ActionTakenDate
+                 ? dayjs(item.ActionTakenDate).format(DATE_FORMAT)
+                // ?item.ActionTakenDate
+                : ""
+            ) ?? [],
+        },
+      ];
+
+      const workflowTableBody2: {
+        head: string;
+        cellValues: string[];
+        cellColourClass?: string[];
+      }[] = [
+        {
+          head: "Approver",
+          cellValues: approverTasks?.WorkflowTwo.map((item) => item.employeeName) ?? [],
+        },
+        {
+          head: "Process Status",
+          cellValues:
+            approverTasks?.WorkflowTwo.map((item) => {
+              const statusValue: string = item?.Status
+                ? displayRequestStatus(item.Status)
+                : "";
+    
+              if (statusValue === REQUEST_STATUS.Pending) return "";
+              return statusValue;
+            }) ?? [],
+          cellColourClass:
+            approverTasks?.WorkflowTwo.map((item) => {
+              let className = "";
+              if (item.Status !== REQUEST_STATUS.Pending) {
+                className = `status-cell-${item.Status.toLowerCase()} ${
+                  item.Status === REQUEST_STATUS.InReview &&
+                  item.AssignedToUserId === userId
+                    ? "active-approver"
+                    : ""
+                }`;
+              }
+              return className;
+            }) ?? [],
+        },
+        {
+          head: "Reviewer Comments",
+          cellValues: approverTasks?.WorkflowTwo.map((item) => item.Comments) ?? [],
+        },
+        {
+          head: "Date",
+          cellValues:
+          approverTasks?.WorkflowTwo.map((item) =>
               item.ActionTakenDate
                  ? dayjs(item.ActionTakenDate).format(DATE_FORMAT)
                 // ?item.ActionTakenDate
@@ -170,26 +221,26 @@ console.log("ApproverTasks",approverTasks)
     return (
         <div className="tab-section p-4">
           <div className="table-responsive ">
-          <p className=" mb-0" style={{fontSize:"20px",color:"#C50017"}}>Workflow -1</p>
-            {approverTasks?.length === 0 ? (
+          <p className=" mb-0" style={{fontSize:"20px",color:"#C50017"}}>Approval Workflow</p>
+            {approverTasks?.WorkflowOne.length === 0 ? (
               <div>Workflow has not been assigned for this request.</div>
             ) : (
               <table className="workflow-table">
                 <thead>
                   <tr>
                     <th>Approver Role</th>
-                    {approverTasks?.length > 0 &&
-                      approverTasks?.map((item, index) => (
+                    {approverTasks?.WorkflowOne.length > 0 &&
+                      approverTasks?.WorkflowOne.map((item, index) => (
                         <th key={index}> {item.Role}</th>
                       ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {workflowTableBody.map((row, index: number) => {
+                  {workflowTableBody1.map((row, index: number) => {
                     return (
                       <tr key={index}>
                         <th>{row.head}</th>
-                        {row.cellValues?.length > 0 &&
+                        {
                           row.cellValues.map((cellValue, index) => (
                             <td
                               key={index}
@@ -210,27 +261,27 @@ console.log("ApproverTasks",approverTasks)
             )}
           </div>
 
-          {/* <div className="table-responsive pt-5 ">
-          <p className=" mb-0" style={{fontSize:"20px",color:"#C50017"}}>Workflow -2</p>
-            {approverTasks?.length === 0 ? (
+          <div className="table-responsive pt-5 ">
+          <p className=" mb-0" style={{fontSize:"20px",color:"#C50017"}}>Result Implementation Workflow </p>
+            {approverTasks?.WorkflowTwo.length === 0 ? (
               <div>Workflow has not been assigned for this request.</div>
             ) : (
-              <table className="workflow-table">
+              <table className="workflow-table" style={{width:"50%"}} >
                 <thead>
                   <tr>
                     <th>Approver Role</th>
-                    {approverTasks?.length > 0 &&
-                      approverTasks?.map((item, index) => (
+                    {approverTasks?.WorkflowTwo.length > 0 &&
+                      approverTasks?.WorkflowTwo.map((item, index) => (
                         <th key={index}> {item.Role}</th>
                       ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {workflowTableBody.map((row, index: number) => {
+                  {workflowTableBody2.map((row, index: number) => {
                     return (
                       <tr key={index}>
                         <th>{row.head}</th>
-                        {row.cellValues?.length > 0 &&
+                        {
                           row.cellValues.map((cellValue, index) => (
                             <td
                               key={index}
@@ -249,7 +300,7 @@ console.log("ApproverTasks",approverTasks)
                 </tbody>
               </table>
             )}
-          </div> */}
+          </div>
         </div>
       );
 }

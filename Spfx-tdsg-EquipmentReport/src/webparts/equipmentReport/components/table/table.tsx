@@ -1,16 +1,17 @@
 import * as React from "react";
-import { useState, useContext, useEffect, useCallback } from "react";
+import { useState, useContext, useEffect, useCallback, useRef } from "react";
 import { Table as AntdTable, Select } from "antd";
 import { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { AnyObject } from "antd/es/_util/type";
 import { DefaultOptionType } from "antd/es/cascader";
 
 import { SorterResult } from "antd/es/table/interface";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { UserContext } from "../../context/userContext";
 import useTable from "./useTable";
+import ExportReportBox from "../common/ExportToExcelModal";
 
 interface ITable {
   url: string;
@@ -41,6 +42,8 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
   const [columnFilter, setColumnFilter] = useState<IColumnFilter | null>(null);
   const [searchText, setSearchText] = useState("");
   const { id } = useParams();
+  
+  const exportReportBoxRef = useRef(null);
 
   const staticData = [
     {
@@ -70,7 +73,11 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
    
   ];
   
-  
+  const handleExportButtonClick = () => {
+    if (exportReportBoxRef.current) {
+      exportReportBoxRef.current.openModal();
+    }
+  };
   const onChange = useCallback(
     (
       pagination: TablePaginationConfig,
@@ -139,7 +146,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
       }
       else {
          params={
-          materialConsumptionId:id
+          equipmentId:id
         }
       }
       
@@ -205,13 +212,22 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
           </div>
         </div>
         <div className="col-md-4" />
-        {/* {paginationRequired &&<div className="col-md-4 text-end">
-          <button className="btn btn-outline-darkgrey text-nowrap">
+        {paginationRequired &&<div className="col-md-4 text-end">
+          <button className="btn btn-outline-darkgrey text-nowrap" 
+                      onClick={handleExportButtonClick}
+>
             <i className="fa-solid fa-file-export me-1 font -16" />
             Export to Excel
           </button>
-        </div>}  */}
+        </div>} 
       </div>
+      <ExportReportBox
+            ref={exportReportBoxRef}
+            // onFinish={handleExportFormSubmit}
+            buttonText=""
+            onCancel={undefined}
+          />
+          
       <AntdTable
         columns={columns}
         dataSource={data}

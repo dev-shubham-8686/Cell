@@ -46,6 +46,7 @@ export const WEB_URL =
 export const DATE_TIME_FORMAT = "DD-MM-YYYY HH:mm:ss";
 export const DATE_FORMAT = "DD-MM-YYYY";
 export const TIME_FORMAT = "HH:mm:ss";
+export const EXCEL_DATE_FORMAT = "YYYY-MM-DD";
 
 export const DocumentLibraries = {
   EQ_Report:"EqReportDocuments"
@@ -53,6 +54,8 @@ export const DocumentLibraries = {
 
 
 export const REQUEST_STATUS = {
+  PCRNPending:"PCRNPending",
+  UnderToshibaApproval:"UnderToshibaApproval",
   InReview: "InReview",
   UnderAmendment: "UnderAmendment",
   Cancelled: "Cancelled",
@@ -66,12 +69,21 @@ export const REQUEST_STATUS = {
   AutoApproved: "AutoApproved",
   Approved: "Approved",
   Rejected: "Rejected",
+  W1Completed :"W1Completed",
+  ResultMonitoring:"ResultMonitoring",
+  UnderImplementation:"UnderImplementation",
+  LogicalAmendmentInReview:"LogicalAmendmentInReview",
+  LogicalAmendment:"LogicalAmendment",
+  ToshibaTechnicalReview:"ToshibaTechnicalReview"
 };
 
 // It returns the background colour class for the status
 export const STATUS_COLOUR_CLASS: { [key: string]: string } = {
   InReview: "in-review",
   UnderAmendment: "under-amendment",
+  ToshibaTechnicalReview:"toshiba-technical-review",
+  PCRNPending:"pcrn-pending",
+  UnderToshibaApproval:"under-toshiba-approval",
   Draft: "draft",
   Approved: "approved",
   Rejected: "rejected",
@@ -83,6 +95,10 @@ export const STATUS_COLOUR_CLASS: { [key: string]: string } = {
   AutoApproved: "approved",
   Cancelled: "rejected",
   Revised: "pending",
+  LogicalAmendment:"logical-amendment",
+  LogicalAmendmentInReview:"logical-amendment-inReview",
+  UnderImplementation:"under-implementation",
+  ResultMonitoring:"result-monitoring"
 };
 
 export const DASHBOARD_LISTING_PAGESIZE = 10;

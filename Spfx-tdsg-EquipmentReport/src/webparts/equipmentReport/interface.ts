@@ -1,4 +1,5 @@
 import { AxiosRequestConfig } from "axios";
+import dayjs from "dayjs";
 
 
 
@@ -15,7 +16,10 @@ export  interface IEquipmentImprovementReport {
   Improvement: string;
   SectionId:string;
   IsSubmit:boolean;
+  isAmendReSubmitTask?:boolean,
   TargetDate:string;
+  Status?:string;
+  WorkflowStatus?:string;
   ActualDate:string;
   CreatedDate:string;
   CreatedBy:number;
@@ -25,14 +29,27 @@ export  interface IEquipmentImprovementReport {
   IsDeleted:boolean;
   EquipmentCurrSituationAttachmentDetails:ICurrentSituationAttachments[];
   EquipmentImprovementAttachmentDetails:IImprovementAttachments[];
+  PcrnAttachments:IPCRNAttchments;
   ChangeRiskManagementDetails:IChangeRiskData[];
   ToshibaApprovalRequired?:boolean;
   ToshibaApprovalTargetDate?:Date;
   ToshibaDiscussionTargetDate?:Date;
   ToshibaTeamDiscussion?:boolean;
+  IsPcrnRequired?:boolean;
+  ResultAfterImplementation?:IResultAfterImplementation  ;
+  WorkflowLevel?:number;
   // attachment: File;
 }
 
+export interface IResultAfterImplementation {
+  IsResultSubmit: boolean;
+  ActualDate: string;
+  TargetDate: string;
+  ResultStatus:string;
+  ResultMonitoring:string;
+  ResultMonitoringDate:string;
+  IsResultAmendSubmit?:boolean
+}
 export interface ICurrentSituationAttachments{
   EquipmentCurrSituationAttachmentId:number;
   EquipmentImprovementId:number;
@@ -49,6 +66,16 @@ export interface IImprovementAttachments{
   CreatedBy:number;
   ModifiedBy:number;
 }
+
+export interface IPCRNAttchments{
+  PcrnAttachmentId:number;
+  EquipmentImprovementId:number;
+  PcrnDocName:string;
+  PcrnFilePath:string;
+  CreatedBy:number;
+  ModifiedBy:number;
+  IsDeleted:boolean;
+}
 export interface IChangeRiskData {
   key:number;
   Changes: string;
@@ -56,8 +83,8 @@ export interface IChangeRiskData {
   RiskAssociated : string;
   Factor : string;
   CounterMeasures : string;
-  DueDate : string;
-  PersonInCharge :string;
+  DueDate :  dayjs.Dayjs;
+  PersonInCharge :number;
   Results :string
 }
 

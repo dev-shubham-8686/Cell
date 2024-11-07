@@ -17,7 +17,7 @@ http.interceptors.response.use(
     
     const config: ICustomAxiosConfig = res.config;
     if (config.SHOW_NOTIFICATION && res.data.Message) {
-      void showSuccess(res.data.Message);
+      void showSuccess(res?.data?.Message);
     }
 
     return res;

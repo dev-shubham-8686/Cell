@@ -1,11 +1,13 @@
-import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
+import { Button, DatePicker, Form, Input, Modal, Radio, Select } from "antd";
 import dayjs from "dayjs";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import useAreaMaster from "../../apis/masters/useAreaMaster";
 import useAdvisorDetails from "../../apis/masters/useAdvisor";
 import useGetTargetDate from "../../apis/workflow/useGetTargetDate";
 import { useParams } from "react-router-dom";
-import { DATE_FORMAT } from "../../GLOBAL_CONSTANT";
+import { DATE_FORMAT, DocumentLibraries } from "../../GLOBAL_CONSTANT";
+import FileUpload from "../fileUpload/FileUpload";
+import { UserContext } from "../../context/userContext";
 
 export interface ITextBoxModal {
   label: string | JSX.Element;
@@ -20,11 +22,22 @@ export interface ITextBoxModal {
   onSubmit: (value: any) => void;
   inputRules?: { [key: string]: string | boolean }[];
   isRequiredField?: boolean;
-  isTargetDateSet?:boolean;
-  targetDate?:Date
+  isTargetDateSet?: boolean;
+  toshibadiscussiontargetDate?: Date;
+  toshibaApprovaltargetDate?: Date;
   modelTitle?: string;
+  isQCHead?: boolean;
+  approvedByToshiba?: boolean;
+  EQReportNo?: string;
 }
-
+export interface IEmailAttachments {
+  EquipmentId: number;
+  EmailAttachmentId: number;
+  EmailDocName: string;
+  EmailDocFilePath: string;
+  CreatedBy: number;
+  ModifiedBy: number;
+}
 const TextBoxModal: React.FC<ITextBoxModal> = ({
   modelTitle = "",
   label,
@@ -36,28 +49,39 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   toshibaApproval,
   advisorRequired,
   isTargetDateSet,
-  targetDate,
+  isQCHead,
+  toshibaApprovaltargetDate,
+  toshibadiscussiontargetDate,
   isRequiredField = false,
   onCancel,
   onSubmit,
+  approvedByToshiba,
+  EQReportNo,
 }) => {
-  const {id}=useParams();
+  const { id } = useParams();
   const [form] = Form.useForm();
   const { TextArea } = Input;
   const { data: advisors, isLoading: advisorIsLoading } = useAdvisorDetails();
+  const [emailAttachments, setEmailAttachments] = useState<
+    IEmailAttachments[] 
+  >([]);
+  const user = useContext(UserContext);
   // const targetDate = useGetTargetDate();
-useEffect(()=>{
-  
-  if (isTargetDateSet) {
-    //  const targetData:any=targetDate.mutate({equipmentId:parseInt(id),toshibaDiscussion})
-    // const parsedDate = dayjs(targetData?.TargetDate, DATE_FORMAT);
-    // if (parsedDate.isValid()) {
-      form.setFieldsValue({ TargetDate: dayjs(targetDate,DATE_FORMAT) });
-    // } else {
-    //   console.error("Invalid Target Date format:", targetData?.TargetDate);
-    // }
-  }
-},[isVisible,isTargetDateSet])
+  useEffect(() => {
+    
+      if (isQCHead) {
+        if(toshibaApprovaltargetDate){
+        form.setFieldsValue({
+          TargetDate: dayjs(toshibaApprovaltargetDate, DATE_FORMAT),
+        });
+      }
+      } else if (toshibadiscussiontargetDate) {
+        form.setFieldsValue({
+          TargetDate: dayjs(toshibadiscussiontargetDate, DATE_FORMAT),
+        });
+      }
+    
+  }, [isVisible, isTargetDateSet]);
   const handleChange = (): void => {
     const fieldErrors = form.getFieldError(titleKey);
     if (fieldErrors.length > 0) {
@@ -90,7 +114,8 @@ useEffect(()=>{
                 },
               ]);
             } else {
-              onSubmit(values);
+              void form.validateFields();
+              onSubmit({ ...values, emailAttachments: emailAttachments });
               console.log("Values", values);
               form.resetFields();
             }
@@ -98,22 +123,48 @@ useEffect(()=>{
           layout="vertical"
         >
           {toshibaApproval ? (
-            <Form.Item label="Please select Target Date " name="TargetDate">
-              <DatePicker
-                disabledDate={(current) => {
-                  // future dates only
-                  return current && current < dayjs().endOf("day");
-                }}
-              />
-            </Form.Item>
+            <>
+              <Form.Item
+                label="Please select Target Date "
+                name="TargetDate"
+                rules={[
+                  { required: true, message: "Please enter Target Date" },
+                ]}
+              >
+                <DatePicker
+                  disabledDate={(current) => {
+                    // future dates only
+                    return current && current < dayjs().startOf("day");
+                  }}
+                />
+              </Form.Item>
+            </>
           ) : (
             <></>
           )}
 
-          { advisorRequired?(
+          {isQCHead && toshibaApproval && !toshibaApprovaltargetDate ? (
+            <>
+              <Form.Item
+                label="PCRN Attachments Required"
+                name="pcrnAttachmentsRequired"
+                rules={[{ required: true, message: "Please select" }]}
+              >
+                <Radio.Group>
+                  <Radio value={true}>Yes</Radio>
+                  <Radio value={false}>No</Radio>
+                </Radio.Group>
+              </Form.Item>
+            </>
+          ) : (
+            <></>
+          )}
+
+          {advisorRequired ? (
             <Form.Item
               label={<span className="text-muted">Please select Advisor</span>}
               name="advisorId"
+              rules={[{ required: true, message: "Please select Advisor" }]}
             >
               <Select
                 showSearch
@@ -128,11 +179,70 @@ useEffect(()=>{
           ) : (
             <></>
           )}
+
+          {approvedByToshiba ? (
+            <Form.Item
+              label={<span className="text-muted">Email Attachments</span>}
+              name="emailAttachments"
+               rules={(emailAttachments.length==0)?[{ required: true, message: "Please Upload Attachments" }]:[]}
+            >
+              <FileUpload
+                isEmailAttachments={true}
+                key={`email-Attachments`}
+                folderName={EQReportNo ?? user?.employeeId}
+                subFolderName={"Email Attachments"}
+                libraryName={DocumentLibraries.EQ_Report}
+                files={emailAttachments?.map((a) => ({
+                  ...a,
+                  uid: a.EmailAttachmentId?.toString() ?? "",
+                  name: a.EmailDocName,
+                  url: `${a.EmailDocFilePath}`,
+                }))}
+                setIsLoading={(loading: boolean) => {
+                  // setIsLoading(loading);
+                }}
+                isLoading={false}
+                onAddFile={(name: string, url: string) => {
+                  const existingAttachments = emailAttachments ?? [];
+                  console.log("FILES", existingAttachments);
+                  const newAttachment: IEmailAttachments = {
+                    EquipmentId: 0,
+                    EmailAttachmentId: parseInt(id),
+                    EmailDocName: name,
+                    EmailDocFilePath: url,
+                    CreatedBy: 76,
+                    ModifiedBy: 76,
+                  };
+
+                  const updatedAttachments: IEmailAttachments[] = [
+                    ...existingAttachments,
+                    newAttachment,
+                  ];
+
+                  setEmailAttachments(updatedAttachments);
+
+                  console.log("File Added");
+                }}
+                onRemoveFile={(documentName: string) => {
+                  const existingAttachments: any = emailAttachments ?? [];
+
+                  const updatedAttachments = existingAttachments?.filter(
+                    (doc) => doc.ImprovementDocName !== documentName
+                  );
+                  setEmailAttachments(updatedAttachments);
+                  console.log("File Removed");
+                }}
+              />
+            </Form.Item>
+          ) : (
+            <></>
+          )}
           <Form.Item
             name={titleKey}
             label={label}
             initialValue={initialValue}
             // rules={inputRules}
+            rules={[{ required: true, message: "Please enter comments" }]}
           >
             <TextArea
               className="mt-2"

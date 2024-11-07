@@ -64,7 +64,7 @@ const currentApprover = useGetCurrentApproverData(
   ];
 
   return (
-    <Page title="Equipment Report">
+    <Page title="Equipment Report Form">
       <div
         className="content w-100 d-flex flex-column"
         style={{
@@ -83,7 +83,8 @@ const currentApprover = useGetCurrentApproverData(
           <div className=" justify-content-right mr-50">
             <WorkFlowButtons currentApproverTask={currentApprover?.data}
             eqReport={equipmentReport?.data}
-            isTargetDateSet={equipmentReport?.data?.ToshibaApprovalRequired ||equipmentReport?.data?.ToshibaTeamDiscussion } />
+            isTargetDateSet={equipmentReport?.data?.ToshibaApprovalRequired ||equipmentReport?.data?.ToshibaTeamDiscussion } 
+            />
           </div>
         </div>
 
@@ -121,6 +122,7 @@ const currentApprover = useGetCurrentApproverData(
             <>
               <div>
                 <EquipmentReportForm
+                  reportLoading={equipmentReport.isLoading}
                   existingEquipmentReport={equipmentReport.data}
                   mode={mode}
                 />
@@ -133,7 +135,7 @@ const currentApprover = useGetCurrentApproverData(
           ) : currentTab === "workflow" ? (
             <div>
               <Workflow 
-               approverTasks={approverFlowData??[]}
+               approverTasks={approverFlowData??{ WorkflowOne: [], WorkflowTwo: [] }}
               />
             </div>
           ) : (

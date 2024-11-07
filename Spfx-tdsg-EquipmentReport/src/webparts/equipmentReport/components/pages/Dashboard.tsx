@@ -29,7 +29,7 @@ const TroubleReport: React.FC = () => {
   ];
 
   return (
-    <Page title="Equipment Report Dashboard">
+    <Page title="Equipment Improvement Dashboard">
       <div className="content flex-grow-1 p-4">
         <div className="text-end px-4 position-relative">
           <div className="request-btn">
@@ -63,9 +63,7 @@ const TroubleReport: React.FC = () => {
                     setCurrentTab(tab.id);
                     navigate("/equipment-improvement-report", {
                       state: {
-                        currentTabState: isApproverRequest
-                          ? "myapproval-tab"
-                          : "myrequest-tab",
+                        currentTabState: tab.id,
                       },
                     });
                   }}

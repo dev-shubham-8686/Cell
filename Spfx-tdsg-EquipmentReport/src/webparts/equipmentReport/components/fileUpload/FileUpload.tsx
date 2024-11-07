@@ -17,17 +17,7 @@ interface ExtendedUploadFile extends UploadFile {
   type?: string;
 }
 
-const VALIDATIONS = {
-  attachment: {
-    fileSize: 32505856 , // 31 MB cause max size is 30 MB
-    fileSizeErrMsg: "File size must be less than or equal to 30 MB!",
-    fileNamingErrMsg: "File must not contain Invalid Characters(*'\"%,&#^@)!",
-    notallowedFileTypes: "application/x-msdownload",
-    uploadAcceptTypes: ".jpeg,.pdf,.jpg,.png,.xlsx,.xls,.msg,.eml",
-    noOfFiles: "Maximum 2 Files are allowed! ",
-    maxFileCount: 10,
-  },
-};
+
 
 interface IFileUpload {
   folderName: string;
@@ -39,6 +29,8 @@ interface IFileUpload {
   onRemoveFile: (documentName: string) => void;
   disabled?: boolean; // disabled when mode is view and submitted
   isLoading?: boolean;
+  ispcrnRequired?:boolean;
+  isEmailAttachments?:boolean;
 }
 
 const FileUpload: FC<IFileUpload> = ({
@@ -49,9 +41,22 @@ const FileUpload: FC<IFileUpload> = ({
   setIsLoading,
   onAddFile,
   onRemoveFile,
-  disabled,
+  disabled,ispcrnRequired,
   isLoading,
+  isEmailAttachments
 }) => {
+  const VALIDATIONS = {
+    attachment: {
+      fileSize: 32505856 , // 31 MB cause max size is 30 MB
+      fileSizeErrMsg: "File size must be less than or equal to 30 MB!",
+      fileNamingErrMsg: "File must not contain Invalid Characters(*'\"%,&#^@)!",
+      notallowedFileTypes: "application/x-msdownload",
+      uploadAcceptTypes: ".jpeg,.pdf,.jpg,.png,.xlsx,.xls,.msg,.eml",
+      noOfFiles: `Maximum ${ispcrnRequired?1:10} ${ispcrnRequired?"File is":"Files are"}  allowed! `,
+      maxFileCount: ispcrnRequired?1:10,
+      emailAttachment:/\.(eml)(\.[0-9]*)?$/
+    },
+  };
   console.log("DISABLEUPLOAD", disabled);
   const webPartContext = React.useContext(WebPartContext);
   const [itemLoading, setItemLoading] = React.useState(false);
@@ -69,13 +74,16 @@ const FileUpload: FC<IFileUpload> = ({
       description = `${VALIDATIONS.attachment.fileNamingErrMsg}`;
     }
     // Check file type
+    // if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.test(file.type)){
+    //   description= "only Email Attachments are allowed. "
+    // }
     else if (
       file.type &&
       VALIDATIONS.attachment.notallowedFileTypes==file.type
     ) {
       description = `exe Files are not allowed.`;
     }
-
+    
     if (description) {
       void displayjsx.showErrorMsg(description);
       // notification.displayErrorNoti("", description);
@@ -122,6 +130,7 @@ const FileUpload: FC<IFileUpload> = ({
         if (!deleteResponse.ok) {
           console.error(`Error deleting file: ${deleteResponse.statusText}`);
         } else {
+          
           
           onRemoveFile(file.name);
           
@@ -180,6 +189,7 @@ const FileUpload: FC<IFileUpload> = ({
           body: file,
         }
       );
+      
       // const response:any="";
       if (response.status !== 200) {
         void showErrorMsg(
@@ -308,7 +318,7 @@ const FileUpload: FC<IFileUpload> = ({
       {itemLoading && <Spin />}
 
       <Upload
-        maxCount={10}
+        maxCount={ispcrnRequired?1:10}
         className="custom-upload"
         disabled={disabled}
         onRemove={onDelete}

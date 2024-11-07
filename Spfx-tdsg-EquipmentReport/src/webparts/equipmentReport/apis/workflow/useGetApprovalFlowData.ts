@@ -3,12 +3,15 @@ import { IWorkflowDetail } from "../../components/equipmentReport/Workflow";
 import { GET_APPROVER_FLOW_DATA } from "../../URLs";
 import http from "../../http";
 
-
+export interface IWorkFlow{
+  WorkflowOne:IWorkflowDetail[];
+  WorkflowTwo:IWorkflowDetail[]
+}
 const getApproverFlowData = async (id?: number) => {
   if (!id) return undefined;
 
   const response = await http.get<{
-    ReturnValue: IWorkflowDetail[];
+    ReturnValue: IWorkFlow;
   }>(GET_APPROVER_FLOW_DATA, { params: {equipmentId: id } });
   console.log("Approval Flow Data RESPONSE",response)
   
@@ -16,7 +19,7 @@ const getApproverFlowData = async (id?: number) => {
 };
 
 const useGetApproverFlowData = (id?: number) =>
-  useQuery<IWorkflowDetail[] | undefined>({
+  useQuery<IWorkFlow | undefined>({
     queryKey: ["get-approver-flow-data", id],
     queryFn: () => getApproverFlowData(id),
     cacheTime: 0,
