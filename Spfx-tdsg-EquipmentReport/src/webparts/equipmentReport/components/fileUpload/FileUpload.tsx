@@ -74,9 +74,9 @@ const FileUpload: FC<IFileUpload> = ({
       description = `${VALIDATIONS.attachment.fileNamingErrMsg}`;
     }
     // Check file type
-    if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.test(file.type)){
-      description= "only Email Attachments are allowed. "
-    }
+    // if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.test(file.type)){
+    //   description= "only Email Attachments are allowed. "
+    // }
     else if (
       file.type &&
       VALIDATIONS.attachment.notallowedFileTypes==file.type
@@ -171,7 +171,7 @@ const FileUpload: FC<IFileUpload> = ({
 
   const uploadFile = async (file: File, fileName: string): Promise<boolean> => {
     try {
-      debugger
+      
       setItemLoading(true);
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
@@ -189,6 +189,7 @@ const FileUpload: FC<IFileUpload> = ({
           body: file,
         }
       );
+      
       // const response:any="";
       if (response.status !== 200) {
         void showErrorMsg(

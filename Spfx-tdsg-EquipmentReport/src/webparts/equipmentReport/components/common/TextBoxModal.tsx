@@ -184,7 +184,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
             <Form.Item
               label={<span className="text-muted">Email Attachments</span>}
               name="emailAttachments"
-              // rules={(emailAttachments.length==0)?[{ required: true, message: "Please Upload Attachments" }]:[]}
+               rules={(emailAttachments.length==0)?[{ required: true, message: "Please Upload Attachments" }]:[]}
             >
               <FileUpload
                 isEmailAttachments={true}

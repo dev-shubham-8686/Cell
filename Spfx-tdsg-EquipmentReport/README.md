@@ -1,6 +1,7 @@
 # spx-tdsg-equipment-report
 
 ## Summary
+node v - 18.20.2
 
 Short summary on functionality and used technologies.
 

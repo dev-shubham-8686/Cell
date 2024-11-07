@@ -454,6 +454,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             REQUEST_STATUS.PCRNPending,
           ].includes(eqReport?.Status)) ||
         (eqReport?.WorkflowStatus === REQUEST_STATUS.W1Completed &&
+          eqReport?.Status!==REQUEST_STATUS.LogicalAmendment&&
           eqReport?.CreatedBy === user?.employeeId &&
           eqReport?.ResultAfterImplementation?.IsResultSubmit) ? (
           <button
