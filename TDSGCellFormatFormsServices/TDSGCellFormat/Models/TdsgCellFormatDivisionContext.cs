@@ -354,6 +354,14 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         Database.ExecuteSqlRaw("EXECUTE dbo.SPP_EquipmentApproverMatrix @UserId, @EquipmentId", userIdParam, equipmentIdParams);
     }
 
+    public void CallAdjustmentReportApproverMaterix(int? userId, int adjustmentReportId)
+    {
+        var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@UserId", userId);
+        var adjustmentReportIdParams = new Microsoft.Data.SqlClient.SqlParameter("@AdjustmentReportId", adjustmentReportId);
+
+        Database.ExecuteSqlRaw("EXECUTE dbo.SPP_AdjustmentReportApproverMatrix @UserId, @AdjustmentReportId", userIdParam, adjustmentReportIdParams);
+    }
+
 
     public void ExceptionLog(string exceptionMessage, string exceptionType, string exceptionStackTrack, string webMethodName, Nullable<int> employeeId)
     {

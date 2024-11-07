@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TDSGCellFormat.Common;
+using TDSGCellFormat.Helper;
 using TDSGCellFormat.Interface.Service;
 using TDSGCellFormat.Models.Add;
 using static TDSGCellFormat.Common.Enums;
@@ -200,6 +201,23 @@ namespace TDSGCellFormat.Controllers
                 //return Ok(Ajaxresponse);
             }
             return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("AdjustmentExcelListing")]
+        public async Task<IActionResult> GetTechnicalInstructionExcel(DateTime fromDate, DateTime todate, int employeeId, int type)
+        {
+            var result = await _tdsgService.GetAdjustmentReportExcel(fromDate, todate, employeeId, type);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+
         }
     }
 }

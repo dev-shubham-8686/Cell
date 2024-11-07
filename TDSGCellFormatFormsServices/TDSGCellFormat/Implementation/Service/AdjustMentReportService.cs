@@ -82,5 +82,10 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return await _adjustMentRepository.GetCurrentApproverTask(Id, userId);
         }
+
+        public async Task<AjaxResult> GetAdjustmentReportExcel(DateTime fromDate, DateTime todate, int employeeId, int type)
+        {
+            return await _adjustMentRepository.GetAdjustmentReportExcel(fromDate, todate, employeeId, type);
+        }
     }
 }

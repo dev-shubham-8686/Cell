@@ -1,5 +1,7 @@
-﻿using DocumentFormat.OpenXml.Bibliography;
+﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using PnP.Framework.Extensions;
@@ -617,6 +619,116 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             res.ReturnValue = data;
             return res;
+        }
+
+        public async Task<AjaxResult> GetAdjustmentReportExcel(DateTime fromDate, DateTime todate, int employeeId, int type)
+        {
+            var res = new AjaxResult();
+            
+            try
+            {
+                var excelData = await _sprocRepository.GetStoredProcedure("[dbo].[GetAdjustmentReportExcel]")
+                .WithSqlParams(
+                    ("@FromDate", fromDate),
+                    ("@ToDate", todate),
+                    ("@EmployeeId", employeeId),
+                    ("@Type", type)
+                ).ExecuteStoredProcedureAsync<AdjustmentReportView>();
+
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Technical Instruction");
+
+                    // Get properties and determine columns to exclude
+                    var properties = excelData.GetType().GetGenericArguments()[0].GetProperties();
+                    var columnsToExclude = new List<int>(); // Adjust this list based on your exclusion logic
+
+                    // Write header, excluding specified columns
+                    int columnIndex = 1;
+
+                    foreach (var property in properties)
+                    {
+                        if (!columnsToExclude.Contains(Array.IndexOf(properties, property)))
+                        {
+                            var cell = worksheet.Cell(1, columnIndex);
+                            string headerText = ColumnHeaderMapping.ContainsKey(property.Name) ? ColumnHeaderMapping[property.Name] : CapitalizeFirstLetter(property.Name);
+                            cell.Value = headerText;
+
+                            // Apply style to the header cell
+                            cell.Style.Fill.BackgroundColor = XLColor.LightBlue;
+                            cell.Style.Font.Bold = true;
+                            cell.Style.Border.BottomBorder = XLBorderStyleValues.Thick;
+                            columnIndex++;
+                        }
+                    }
+
+                    // Write data, excluding specified columns
+                    for (int i = 0; i < excelData.Count; i++)
+                    {
+                        var item = excelData[i];
+                        columnIndex = 1;
+
+                        foreach (var property in properties)
+                        {
+                            if (!columnsToExclude.Contains(Array.IndexOf(properties, property)))
+                            {
+                                var value = property.GetValue(item, null);
+                                string stringValue = value != null ? value.ToString() : string.Empty;
+
+                                worksheet.Cell(i + 2, columnIndex).Value = stringValue;
+                                columnIndex++;
+                            }
+                        }
+                    }
+
+                    // Add filter to the header row
+                    worksheet.Range(1, 1, 1, columnIndex - 1).SetAutoFilter();
+
+                    // Adjust column widths to fit the content
+                    worksheet.Columns().AdjustToContents();
+
+                    // Save the workbook to a memory stream
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        stream.Position = 0;
+
+                        // Convert the memory stream to a byte array
+                        byte[] byteArray = stream.ToArray();
+                        string base64String = Convert.ToBase64String(byteArray);
+
+                        // Return the byte array as part of your AjaxResult
+                        res.StatusCode = Status.Success;
+                        res.Message = "File downloaded successfully";
+                        res.ReturnValue = base64String;
+                        return res;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "GetAdjustmentReportExcel");
+                return res;
+            }
+        }
+
+        private static readonly Dictionary<string, string> ColumnHeaderMapping = new Dictionary<string, string>
+        {
+            {"RequestedDate", "Requested Date" },
+            {"CTINumber","Request No" },
+            //{"ClosedDate","Closed Date" }
+        };
+
+        private string CapitalizeFirstLetter(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            return char.ToUpper(input[0]) + input.Substring(1);
         }
     }
 }

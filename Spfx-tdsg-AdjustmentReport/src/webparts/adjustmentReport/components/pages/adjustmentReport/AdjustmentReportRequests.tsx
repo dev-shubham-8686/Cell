@@ -166,10 +166,48 @@ const AdjustmentReportRequests: React.FC = () => {
       //   ),
     },
     {
-      title: "Department",
-      dataIndex: "DepartmentName",
-      key: "DepartmentName",
-      width: 160,
+      title: "When",
+      dataIndex: "CreatedDate",
+      key: "CreatedDate",
+      width: 140,
+      sorter: true,
+      render: (text) => (
+        <p className="text-cell">
+          {text ? dayjs(text).format(DATE_FORMAT) : ""}
+        </p>
+      ),
+      //   filterDropdown: ColumnFilter,
+      //   filterIcon: (filtered: boolean) => (
+      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      //   ),
+    },
+    {
+      title: "Area",
+      dataIndex: "Area",
+      key: "Area",
+      width: 140,
+      sorter: true,
+      //   filterDropdown: ColumnFilter,
+      //   filterIcon: (filtered: boolean) => (
+      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      //   ),
+    },
+    {
+      title: "Machine Name",
+      dataIndex: "MachineName",
+      key: "MachineName",
+      width: 140,
+      sorter: true,
+      //   filterDropdown: ColumnFilter,
+      //   filterIcon: (filtered: boolean) => (
+      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      //   ),
+    },
+    {
+      title: "Sub-Machine Name",
+      dataIndex: "SubMachineName",
+      key: "SubMachineName",
+      width: 140,
       sorter: true,
       //   filterDropdown: ColumnFilter,
       //   filterIcon: (filtered: boolean) => (
@@ -188,16 +226,11 @@ const AdjustmentReportRequests: React.FC = () => {
       //   ),
     },
     {
-      title: "When",
-      dataIndex: "CreatedDate",
-      key: "CreatedDate",
+      title: "Current Approver",
+      dataIndex: "CurrentApprover",
+      key: "CurrentApprover",
       width: 140,
       sorter: true,
-      render: (text) => (
-        <p className="text-cell">
-          {text ? dayjs(text).format(DATE_FORMAT) : ""}
-        </p>
-      ),
       //   filterDropdown: ColumnFilter,
       //   filterIcon: (filtered: boolean) => (
       //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />

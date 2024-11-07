@@ -30,5 +30,7 @@ namespace TDSGCellFormat.Interface.Repository
         Task<AjaxResult> GeAdjustmentReportWorkFlow(int Id);
 
         Task<AjaxResult> GetCurrentApproverTask(int Id, int userId);
+
+        Task<AjaxResult> GetAdjustmentReportExcel(DateTime fromDate, DateTime todate, int employeeId, int type);
     }
 }
