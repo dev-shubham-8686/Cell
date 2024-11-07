@@ -1,6 +1,28 @@
 import { Table } from "antd";
 import * as React from "react";
 
+export interface IWorkflowDetail {
+  ApproverTaskId: number;
+  FormType: string;
+  EquipmentImprovementId: number; // Changed from vehicleRequestId to troubleReportId
+  AssignedToUserId: number;
+  DelegateUserId: number;
+  DelegateBy: number;
+  Status: string;
+  Role: string;
+  DisplayName: string;
+  SequenceNo: number;
+  ActionTakenDate:string;
+  Comments:string;
+  CreatedBy: number;
+  CreatedDate: string; // Date format
+  processName:string;
+  IsActive: boolean;
+  employeeName: string;
+  employeeNameWithoutCode: string;
+  email: string;
+}  
+
 const Workflow = () => {
   const dataSource = [
     {

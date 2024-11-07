@@ -17,6 +17,7 @@ import { IAdjustmentReportInfo } from "../../../api/IAdjustmentReport";
 import { DATE_FORMAT, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
 import { displayRequestStatus } from "../../../utils/utility";
 import * as dayjs from "dayjs";
+import { useDeleteAdjustmentReport } from "../../../hooks/useDeleteAdjustmentReport";
 
 export const DEFAULT_PAGE_SIZE = 10;
 export type SortOrder = "descend" | "ascend" | null;
@@ -33,24 +34,22 @@ const AdjustmentReportRequests: React.FC = () => {
   );
   const [searchValue, setSearchValue] = React.useState("");
 
+  const deleteMutation = useDeleteAdjustmentReport();
+
   const ViewHandler = (id: number): void => {
     const rowData = adjustmentReports.filter(
       (adjustmentReport) => adjustmentReport.AdjustmentReportId == id
     );
     sessionStorage.setItem("rowData", JSON.stringify(rowData));
-    navigate(`/form/view/${id}`, {
-      state: { rowData },
-    });
+    navigate(`/form/view/${id}`, { state: { isApproverRequest: false } });
   };
 
   const EditHandler = (id: any): void => {
     const rowData = adjustmentReports.filter(
-      (adjustmentReport) => adjustmentReport.ReportNo == id
+      (adjustmentReport) => adjustmentReport.AdjustmentReportId == id
     );
     sessionStorage.setItem("rowData", JSON.stringify(rowData));
-    navigate(`/form/edit/${id}`, {
-      state: { rowData },
-    });
+    navigate(`/form/edit/${id}`, { state: { isApproverRequest: false } });
     return;
   };
   // const handleEdit = (key: number) => {
@@ -135,8 +134,19 @@ const AdjustmentReportRequests: React.FC = () => {
   const setOrderColumn = useCallback((order: string) => {
     setOrderBy(order);
   }, []);
-  const onDelete = () => {
-    console.log("delete");
+  const onDelete = async (id: number) => {
+    const confirmed = window.confirm("Are you sure you want to delete this report?");
+    if (confirmed) {
+      deleteMutation.mutate(id, {
+        onSuccess: () => {
+          setAdjustmentReports(prevReports => prevReports.filter(report => report.AdjustmentReportId !== id));
+          alert("Report deleted successfully!"); // Optional success message
+        },
+        onError: (error) => {
+          alert(`Failed to delete report: ${error.message}`); // Optional error message
+        }
+      });
+    }
   };
 
   const onExportToExcel = () => {
@@ -224,19 +234,19 @@ const AdjustmentReportRequests: React.FC = () => {
             type="link"
             title="View"
             icon={<EyeFilled className="text-black" />} // Black icon
-            onClick={() => EditHandler(record.AdjustmentReportId)}
+            onClick={() => ViewHandler(record.AdjustmentReportId)}
           />
           <Button
             type="link"
             title="Edit"
             icon={<EditFilled className="text-black" />} // Black icon
-            onClick={() => ViewHandler(record.AdjustmentReportId)}
+            onClick={() => EditHandler(record.AdjustmentReportId)}
           />
           <Button
             type="link"
             title="Delete"
             icon={<DeleteFilled className="text-black" />} // Black icon
-            onClick={() => onDelete()}
+            onClick={() => onDelete(record.AdjustmentReportId)}
           />
         </div>
       ),

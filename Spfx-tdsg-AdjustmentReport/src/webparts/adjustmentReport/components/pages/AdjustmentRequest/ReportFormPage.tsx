@@ -1,15 +1,18 @@
 import { Button, Modal, Tabs, TabsProps } from "antd";
 import * as React from "react";
-import Workflow from "./Workflow";
 import History from "./History";
 import { LeftCircleFilled } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import RequestForm from "./RequestForm";
 import { MESSAGES } from "../../../GLOBAL_CONSTANT";
 import * as dayjs from "dayjs";
 import { IAddUpdateReportPayload } from "../../../api/AddUpdateReport.api";
 import { AnyObject } from "antd/es/_util/type";
 import { useAddUpdateReport } from "../../../hooks/useAddUpdateReport";
+import Workflow from "./WorkflowTab";
+import { useUserContext } from "../../../context/UserContext";
+// import { useEffect } from "react";
+// import { useGetApprorverFlowData } from "../../../hooks/useGetApprorverFlowData";
 
 const { confirm } = Modal;
 
@@ -17,8 +20,11 @@ const ReportFormPage = () => {
   const navigate = useNavigate();
   const [activeTabKey, setActiveTabKey] = React.useState<string>("1");
   const [isSave, setIsSave] = React.useState<boolean>(true);
-
-  //const { key } = useParams();
+  //const [approverFlowData, setapproverFlowData] = React.useState<any>([]);
+  const { mode, id } = useParams();
+  const { user } = useUserContext();
+  console.log({user})
+  console.log({ mode })
   const { mutate: addUpdateReport } = useAddUpdateReport();
 
   const handleTabChange = (key: string) => {
@@ -31,11 +37,18 @@ const ReportFormPage = () => {
 
   const formRef = React.useRef<any>(null);
 
+  // useEffect(() => {
+  //   setapproverFlowData(useGetApprorverFlowData(id ? parseInt(id, 10) : 0).data.ReturnValue);
+  // }, []);
+
   const CreatePayload = (values: AnyObject) => {
+    
     const payload: IAddUpdateReportPayload = {
+      AdjustmentReportId: id ? parseInt(id, 10) : 0,
+      EmployeeId: user?.EmployeeId,
       ReportNo: values.reportNo, //done
       RequestBy: values.requestedBy, //done
-      CheckedBy: values.CheckedBy, //done
+      CheckedBy: values.checkedBy, //done
       When: values.dateTime, // need to confirm
       Area: values.area, //done
       MachineName: values.machineName, //done
@@ -74,7 +87,9 @@ const ReportFormPage = () => {
         onOk: async () => {
           try {
             const payload = CreatePayload(values);
+            //const res = 
             addUpdateReport(payload);
+            navigate(-1);
           } catch (error) {
             console.error("Error submitting form:", error);
           }
@@ -112,9 +127,38 @@ const ReportFormPage = () => {
     {
       key: "3",
       label: "Workflow",
-      children: <Workflow />,
+      children: <Workflow approverTasks={[]} />,
     },
   ];
+  
+  const extraContent = activeTabKey === "1" ? (
+    <div>
+      <Button
+        type="primary"
+        onClick={() => handleSave(true)}
+        className="request-button"
+        style={{ marginRight: "10px" }}
+      >
+        Save
+      </Button>
+      <Button
+        type="primary"
+        onClick={() => handleSave(false)}
+        className="request-button"
+      >
+        Submit
+      </Button>
+    </div>
+  ) : activeTabKey === "3" ? (
+    <Button
+      type="primary"
+      onClick={() => console.log("Additional Approval Action")}
+      className="request-button"
+    >
+      Additional Approval
+    </Button>
+  ) : null;
+
 
   return (
     <div>
@@ -129,27 +173,7 @@ const ReportFormPage = () => {
       <Tabs
         activeKey={activeTabKey}
         onChange={handleTabChange}
-        tabBarExtraContent={
-          activeTabKey === "1" && (
-            <div>
-              <Button
-                type="primary"
-                onClick={() => handleSave(true)}
-                className="request-button"
-                style={{ marginRight: "10px" }}
-              >
-                Save
-              </Button>
-              <Button
-                type="primary"
-                onClick={() => handleSave(false)}
-                className="request-button"
-              >
-                Submit
-              </Button>
-            </div>
-          )
-        }
+        tabBarExtraContent={extraContent}
         items={items}
       />
     </div>
@@ -157,3 +181,4 @@ const ReportFormPage = () => {
 };
 
 export default ReportFormPage;
+

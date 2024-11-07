@@ -1,5 +1,5 @@
 import * as moment from "moment";
-import { basePath } from "../GLOBAL_CONSTANT";
+import { basePathwithprefix } from "../GLOBAL_CONSTANT";
 import apiClient from "../utils/axiosInstance";
 import { IAdjustmentReportInfo } from "./IAdjustmentReport";
 
@@ -17,7 +17,7 @@ export const getAllAdjustmentReports = async (
   orderBy?: string
 ): Promise<IAdjustmentReportListing> => {
   const response = await apiClient.get<IAdjustmentReportListing>(
-    `${basePath}/api/AdjustmentReport/GetAllAdjustmentData`,
+    `${basePathwithprefix}/AdjustmentReport/GetAllAdjustmentData`,
     {
       params: {
         pageIndex,

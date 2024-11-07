@@ -381,6 +381,15 @@ public partial class TdsgCellFormatDivisionContext : DbContext
             .FromSqlRaw("EXEC SPP_GetMaterialConsumptionWorkFlowDetails @MaterialConsumptionId", userIdParam)
             .ToListAsync();
     }
+
+    public async Task<List<AdjustmentReportApproverTaskMasterAdd>> GeAdjustmentReportWorkFlow(int adjsutmentReportId)
+    {
+        var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@AdjustmentReportId", adjsutmentReportId);
+        return await this.Set<AdjustmentReportApproverTaskMasterAdd>()
+            .FromSqlRaw("EXEC SPP_GetAdjustmentReportWorkFlowDetails @AdjustmentReportId", userIdParam)
+            .ToListAsync();
+    }
+
     public async Task<GetUserDetailsView> GetUserRole(string email)
     {
         var emailParam = new Microsoft.Data.SqlClient.SqlParameter("@UserEmail", email);

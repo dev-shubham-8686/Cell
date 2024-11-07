@@ -141,6 +141,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 RootCause = res.RootCause,
                 AdjustmentDescription = res.AdjustmentDescription,
                 Photos = GetAdjustmentReportPhotos(Id),
+                ChangeRiskManagementRequired = res.ChangeRiskManagementRequired,
                 ConditionAfterAdjustment = res.ConditionAfterAdjustment,
                 Status = res.Status,
                 IsSubmit = res.IsSubmit,
@@ -150,7 +151,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
             var changeRiskManagement = _context.ChangeRiskManagement_AdjustmentReport.Where(x => x.AdjustMentReportId == Id && x.IsDeleted == false).ToList();
             if (changeRiskManagement != null)
-            {
+            { 
                 adjustmentData.ChangeRiskManagement_AdjustmentReport = changeRiskManagement.Select(section => new ChangeRiskManagement_AdjustmentReports
                 {
                     ChangeRiskManagementId = section.ChangeRiskManagementId,
@@ -191,6 +192,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     RootCause = request.RootCause,
                     AdjustmentDescription = request.AdjustmentDescription,
                     ConditionAfterAdjustment = request.ConditionAfterAdjustment,
+                    ChangeRiskManagementRequired = request.ChangeRiskManagementRequired,
                     Status = ApprovalTaskStatus.Draft.ToString(),
                     IsSubmit = request.IsSubmit,
                     CreatedDate = DateTime.Now,
@@ -216,7 +218,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             RisksWithChanges = changeReport.RiskAssociated,
                             Factors = changeReport.Factor,
                             CounterMeasures = changeReport.CounterMeasures,
-                            DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.Parse(changeReport.DueDate) : (DateOnly?)null,
+                            DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null,
                             PersonInCharge = changeReport.PersonInCharge,
                             Results = changeReport.Results,
                             CreatedBy = changeReport.CreatedBy,
@@ -261,7 +263,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.RootCause = request.RootCause;
                 existingReport.AdjustmentDescription = request.AdjustmentDescription;
                 existingReport.ConditionAfterAdjustment = request.ConditionAfterAdjustment;
-                existingReport.Status = request.Status;
+                existingReport.ChangeRiskManagementRequired = request.ChangeRiskManagementRequired;
+                existingReport.Status = request.Status ?? ApprovalTaskStatus.Draft.ToString();
                 existingReport.IsSubmit = request.IsSubmit;
                 existingReport.ModifiedDate = DateTime.Now;
                 existingReport.ModifiedBy = request.ModifiedBy;
@@ -283,7 +286,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             existingChange.RisksWithChanges = changeReport.RiskAssociated;
                             existingChange.Factors = changeReport.Factor;
                             existingChange.CounterMeasures = changeReport.CounterMeasures;
-                            existingChange.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.Parse(changeReport.DueDate) : (DateOnly?)null;
+                            existingChange.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null;
                             existingChange.PersonInCharge = changeReport.PersonInCharge;
                             existingChange.Results = changeReport.Results;
                             existingChange.ModifiedBy = changeReport.ModifiedBy;
@@ -300,7 +303,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 RisksWithChanges = changeReport.RiskAssociated,
                                 Factors = changeReport.Factor,
                                 CounterMeasures = changeReport.CounterMeasures,
-                                DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.Parse(changeReport.DueDate) : (DateOnly?)null,
+                                DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null,
                                 PersonInCharge = changeReport.PersonInCharge,
                                 Results = changeReport.Results,
                                 CreatedBy = changeReport.CreatedBy,
@@ -447,10 +450,39 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public async Task<AjaxResult> GetAdjustmentReportApproverList(int Id)
+        public async Task<AjaxResult> GetEmployeeDetailsById(int id, string email)
         {
-            await _sprocRepository.GetStoredProcedure("[dbo].[GetAdjustmentReportApproverList]").WithSqlParams(
-                ("@EmployeeId", Id)
+            var res = new AjaxResult();
+            var result = await _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetEmployeeDetails]")
+                                            .WithSqlParams(
+                                                 ("@ID", id),
+                                                 ("@email", email)
+                                            ).ExecuteStoredProcedureAsync<EmployeeDetailsView>();
+            if (result == null)
+            {
+                res.Message = "Employee Data not found";
+                res.StatusCode = Status.Error;
+                return res;
+            }
+            else
+            {
+                res.Message = "Employee Details Fetched Successfully";
+                res.StatusCode = Status.Success;
+                res.ReturnValue = result.FirstOrDefault();
+            }
+            return res;
+        }
+
+        public async Task<AjaxResult> GetAdjustmentReportApproverList(int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "DESC", string searchValue = "")
+        {
+            await _sprocRepository.GetStoredProcedure("[dbo].[GetAdjustmentReportApproverList]")
+                .WithSqlParams(
+                        ("@CreatedBy", createdBy),
+                        ("@PageIndex", pageIndex),
+                        ("@PageSize", pageSize),
+                        ("@SortColumn", sortColumn),
+                        ("@Order", orderBy),
+                        ("@Where", searchValue)
                 ).ExecuteStoredProcedureAsync<AdjustmentReportView>();
             return new AjaxResult();
         }
@@ -479,7 +511,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     requestTaskData.ModifiedDate = DateTime.Now;
                     requestTaskData.Comments = comment;
                     await _context.SaveChangesAsync();
-                    res.Message = Enums.MaterialApprove;
+                    res.Message = Enums.AdjustMentApprove;
 
                     var currentApproverTask = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == Id && x.IsActive == true
                                                  && x.ApproverTaskId == ApproverTaskId && x.Status == ApprovalTaskStatus.Approved.ToString()).FirstOrDefault();
@@ -509,7 +541,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     requestTaskData.Comments = comment;
 
                     _context.SaveChanges();
-                    res.Message = Enums.MaterialAsktoAmend;
+                    res.Message = Enums.AdjustMentAsktoAmend;
                 }
             }
             catch (Exception ex)
@@ -534,7 +566,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     materialConsumption.ModifiedBy = userId;
 
                     await _context.SaveChangesAsync();
-                    
+
                     var approverTaskDetails = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == Id).ToList();
                     approverTaskDetails.ForEach(a =>
                     {
@@ -560,8 +592,8 @@ namespace TDSGCellFormat.Implementation.Repository
         public async Task<AjaxResult> GeAdjustmentReportWorkFlow(int Id)
         {
             var res = new AjaxResult();
-            var approverData = await _context.GetMaterialWorkFlowData(Id);
-            var processedData = new List<MaterialConsumptionApproverTaskMasterAdd>();
+            var approverData = await _context.GeAdjustmentReportWorkFlow(Id);
+            var processedData = new List<AdjustmentReportApproverTaskMasterAdd>();
             foreach (var entry in approverData)
             {
                 processedData.Add(entry);
@@ -573,7 +605,7 @@ namespace TDSGCellFormat.Implementation.Repository
         public async Task<AjaxResult> GetCurrentApproverTask(int Id, int userId)
         {
             var res = new AjaxResult();
-            var materialApprovers = _context.AdjustmentReportApproverTaskMasters.FirstOrDefault(x => x.AdjustmentReportId == Id && x.AssignedToUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+            var materialApprovers = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.AssignedToUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
             var data = new ApproverTaskId_dto();
             if (materialApprovers != null)
             {
@@ -583,7 +615,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 data.seqNumber = materialApprovers.SequenceNo;
 
             }
-            res.ReturnValue= data;
+            res.ReturnValue = data;
             return res;
         }
     }

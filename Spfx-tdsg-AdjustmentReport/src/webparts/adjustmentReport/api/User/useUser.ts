@@ -1,13 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { create_UUID } from "../../utils/utility";
-import { GET_LOGIN_SESSION } from "../../GLOBAL_CONSTANT";
+import { GET_LOGIN_SESSION, GET_USER } from "../../GLOBAL_CONSTANT";
 import apiClient from "../../utils/axiosInstance";
+import { IAjaxResult } from "../DeleteAdjustmentReport.api";
 
 export interface AuthResponse {
   Message: string;
-  Status: boolean;
+  StatusCode: string;
   Type: string;
-  RequestId: number;
+  ReturnValue: object;
   Data: string;
   ResultType: number;
 }
@@ -32,11 +33,11 @@ const authenticateUser = async (email: string): Promise<boolean> => {
 
   const body = {
     parameter: btoa(JSON.stringify(token)),
-    //type: "MATERIALCONSUMPTION",
+    type: "MATERIALCONSUMPTION",
   }
-  const response = await apiClient.post<AuthResponse>(GET_LOGIN_SESSION, JSON.stringify(body));
+  const response = await apiClient.post<any>(GET_LOGIN_SESSION, JSON.stringify(body));
+  console.log(response)
   const data = response.data;
-  console.log(response.data, apiClient.defaults.headers)
   // eslint-disable-next-line require-atomic-updates
   apiClient.defaults.headers.common.Authorization = data.Message;
 
@@ -46,20 +47,23 @@ const authenticateUser = async (email: string): Promise<boolean> => {
 
 const getUser = async (email: string) => {
   console.log(email)
-  await authenticateUser(email);
-  // if(res){
+  let res = await authenticateUser(email);
+  if (res) {
 
-  //   const response = await apiClient.get<IUser>(GET_USER, { params: { email } });
-  //   return response.data;
-  // }
-  // return null;
-  
+    const response = await apiClient.get<IAjaxResult>(GET_USER, { params: { email } });
+    return response.data.ReturnValue;
+  }
+  return null;
 };
 
-const useUser = (email: string) => {
+const useUser = (email: string): UseQueryResult<any> => {
+  console.log(email)
   return useQuery(
     ["get-user"],
     () => getUser(email),
+    {
+      keepPreviousData: true
+    }
   )
 };
 

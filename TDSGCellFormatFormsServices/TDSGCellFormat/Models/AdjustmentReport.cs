@@ -31,6 +31,10 @@ public partial class AdjustmentReport
 
     public string? ConditionAfterAdjustment { get; set; }
 
+    public bool? ChangeRiskManagementRequired { get; set; }
+
+    public int? EmployeeId { get; set; }
+
     public string? Status { get; set; }
 
     public bool? IsSubmit { get; set; }
@@ -44,8 +48,6 @@ public partial class AdjustmentReport
     public int? ModifiedBy { get; set; }
 
     public bool? IsDeleted { get; set; }
-
-    public int? EmployeeId { get; set; }
 
     public virtual ICollection<ChangeRiskManagement_AdjustmentReport> ChangeRiskManagement_AdjustmentReport { get; set; } = new List<ChangeRiskManagement_AdjustmentReport>();
 }

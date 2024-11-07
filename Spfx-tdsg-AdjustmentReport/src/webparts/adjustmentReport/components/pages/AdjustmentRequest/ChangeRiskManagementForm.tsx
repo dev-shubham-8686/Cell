@@ -4,6 +4,9 @@ import * as React from "react";
 import { DATE_FORMAT } from "../../../GLOBAL_CONSTANT";
 import { disabledDate } from "../../../utils/helper";
 import { useGetAllEmployees } from "../../../hooks/useGetAllEmployees";
+import { ChangeRiskManagement } from "../../../api/AddUpdateReport.api";
+import { useEffect } from "react";
+import * as dayjs from "dayjs";
 
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -11,13 +14,30 @@ const { Option } = Select;
 interface ChangeRiskManagementFormProps {
   form: any;
   index: number;
+  initialData: ChangeRiskManagement | undefined;
 }
 
 const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
   form,
   index,
+  initialData
 }) => {
   const { data: employeesResult } = useGetAllEmployees();
+
+  useEffect(() => {
+    if (initialData) {
+      form.setFieldsValue({
+        [`changes-${index}`]: initialData?.Changes,
+        [`riskWithChanges-${index}`]: initialData?.RisksWithChanges,
+        [`factor-${index}`]: initialData?.Factors,
+        [`counterMeasures-${index}`]: initialData?.CounterMeasures,
+        [`function-${index}`]: initialData?.FunctionId,
+        [`date-${index}`]: initialData.DueDate ? dayjs(initialData.DueDate, "DD-MM-YYYY") : null,
+        [`personInCharge-${index}`]: initialData?.PersonInCharge,
+        [`results-${index}`]: initialData?.Results,
+      });
+    }
+  }, [initialData, form, index]);
 
   return (
     <div className="my-3">
@@ -25,7 +45,10 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
         <Panel header={`Change Risk Management ${index + 1}`} key={index}>
           <Row gutter={48}>
             <Col span={6}>
-              <Form.Item label="Changes" name={`changes-${index}`}>
+              <Form.Item
+                label="Changes"
+                name={`changes-${index}`}
+              >
                 <TextArea rows={2} maxLength={100} placeholder="Changes" />
               </Form.Item>
             </Col>
@@ -44,7 +67,10 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
             </Col>
 
             <Col span={6}>
-              <Form.Item label="Factor/Causes" name={`factor-${index}`}>
+              <Form.Item
+                label="Factor/Causes"
+                name={`factor-${index}`}
+              >
                 <TextArea rows={2} maxLength={1000} placeholder="Factor" />
               </Form.Item>
             </Col>
@@ -64,7 +90,10 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
           </Row>
           <Row gutter={48}>
             <Col span={6}>
-              <Form.Item label="Function" name={`function-${index}`}>
+              <Form.Item
+                label="Function"
+                name={`function-${index}`}
+              >
                 <Input placeholder="Enter Function" />
               </Form.Item>
             </Col>
@@ -101,7 +130,10 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
             </Col>
 
             <Col span={6}>
-              <Form.Item label="Results" name={`results-${index}`}>
+              <Form.Item
+                label="Results"
+                name={`results-${index}`}
+              >
                 <TextArea rows={2} maxLength={1000} placeholder="Results" />
               </Form.Item>
             </Col>

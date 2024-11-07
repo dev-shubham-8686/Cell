@@ -53,9 +53,14 @@ namespace TDSGCellFormat.Implementation.Service
             return await _adjustMentRepository.DeleteAttachment(Id);
         }
 
-        public async Task<AjaxResult> GetAdjustmentReportApproverList(int Id)
+        public async Task<AjaxResult> GetEmployeeDetailsById(int id, string email)
         {
-            return await _adjustMentRepository.GetAdjustmentReportApproverList(Id);
+            return await _adjustMentRepository.GetEmployeeDetailsById(id, email);
+        }
+
+        public async Task<AjaxResult> GetAdjustmentReportApproverList(int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "DESC", string searchValue = "")
+        {
+            return await _adjustMentRepository.GetAdjustmentReportApproverList(pageIndex, pageSize, createdBy, sortColumn , orderBy , searchValue );
         }
 
         public async Task<AjaxResult> UpdateApproveAskToAmend(int ApproverTaskId, int CurrentUserId, ApprovalStatus type, string comment, int Id)

@@ -252,6 +252,12 @@ namespace TDSGCellFormat.Common
         public const string EquipmentDateUpdate = "Equipment Improvement record updated";
 
         public const string AdjustMentSave = "Adjustment Report saved successfully";
+        public const string AdjustMentSubmit = "AdjustMent form submitted successfully";
+        public const string AdjustMentPullback = "AdjustMent form has been pulled back successfully";
+        public const string AdjustMentAsktoAmend = "Amendment Asked successfully";
+        public const string AdjustMentApprove = "AdjustMent form has been approved";
+        public const string AdjustMentReject = "AdjustMent rejected";
+        public const string AdjustMentDateUpdate = "AdjustMent record updated";
 
         public const string MaterialSave = "Material Consumption form saved successfully";
         public const string MaterialSubmit = "Material Consumption form submitted successfully";

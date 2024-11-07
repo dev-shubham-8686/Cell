@@ -1,8 +1,8 @@
 import { basePathwithprefix } from "../GLOBAL_CONSTANT";
 import apiClient from "../utils/axiosInstance";
 
-export const getAdjustmentReportById = async (id : number): Promise<any> => {
-    const response = await apiClient.get(`${basePathwithprefix}/AdjustmentReport/GetById?Id=${id}`,
+export const getApprorverFlowData = async (id : number): Promise<any> => {
+    const response = await apiClient.get(`${basePathwithprefix}/GetApprorverFlowData/${id}`,
     );
   
     return {

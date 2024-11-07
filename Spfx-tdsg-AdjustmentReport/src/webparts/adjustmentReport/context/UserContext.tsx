@@ -14,26 +14,32 @@ export interface IUser {
     DivisionName: string;
 }
 
-export const UserContext = createContext<IUser | null | any>(null);
-
 interface IUserProvider {
     userEmail: string;
     children?: ReactNode;
 }
 
-export const useUserContext = () => {
+interface UserContextType {
+    user: IUser | null;
+    setUser: React.Dispatch<React.SetStateAction<IUser | null>>;
+  }
+  
+  // Create context
+  const UserContext = createContext<UserContextType | undefined>(undefined);
+  
+  // Create a custom hook to use the UserContext
+  export const useUserContext = () => {
     const context = useContext(UserContext);
     if (context === undefined) {
-        throw new Error("useUserContext must be used within a UserProvider");
+      throw new Error("useUserContext must be used within a UserProvider");
     }
     return context;
-};
+  };
 
 export const UserProvider: React.FC<IUserProvider> = ({
     children,
     userEmail,
 }) => {
-
     const [user, setUser] = useState<IUser | null>(null);
     const { data, isLoading } = useUser(
         userEmail
@@ -45,7 +51,9 @@ export const UserProvider: React.FC<IUserProvider> = ({
         }
     }, [data]);
 
-    if (isLoading) { <Spin spinning fullscreen /> }
+    if (isLoading) {
+        return <Spin spinning fullscreen />;
+    }
     return (
         <UserContext.Provider value={{ user, setUser }}>
             {children}

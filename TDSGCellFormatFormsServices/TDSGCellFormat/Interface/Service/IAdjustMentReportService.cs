@@ -19,7 +19,9 @@ namespace TDSGCellFormat.Interface.Service
 
         Task<AjaxResult> DeleteAttachment(int Id);
 
-        Task<AjaxResult> GetAdjustmentReportApproverList(int Id);
+        Task<AjaxResult> GetEmployeeDetailsById(int id, string email);
+
+        Task<AjaxResult> GetAdjustmentReportApproverList(int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "DESC", string searchValue = "");
 
         Task<AjaxResult> UpdateApproveAskToAmend(int ApproverTaskId, int CurrentUserId, ApprovalStatus type, string comment, int Id);
 

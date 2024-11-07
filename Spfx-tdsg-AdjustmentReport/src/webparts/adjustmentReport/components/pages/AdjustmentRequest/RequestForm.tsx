@@ -18,15 +18,14 @@ import { useGetAllMachines } from "../../../hooks/useGetAllMachines";
 import { useGetAllSubMachines } from "../../../hooks/useGetAllSubMachines";
 import { ISubMachine } from "../../../api/GetAllSubMachines.api";
 import { IArea } from "../../../api/GetAllAreas.api";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetCheckedBy } from "../../../hooks/useGetCheckedBy";
 import { useGetAllAreas } from "../../../hooks/useGetAllAreas";
 import { ChangeRiskManagement } from "../../../api/AddUpdateReport.api";
-import { UserContext } from "../../../context/UserContext";
-import * as moment from "moment";
-//import { useParams } from "react-router-dom";
+import { useUserContext } from "../../../context/UserContext";
+import { useGetAdjustmentReportById } from "../../../hooks/useGetAdjustmentReportById";
+import { useParams } from "react-router-dom";
 // import { ChangeRiskManagement } from "../../../api/AddUpdateReport.api";
-// import { useParams } from "react-router-dom";
 
 // const { TextArea } = Input;
 const { Option } = Select;
@@ -38,20 +37,100 @@ interface RequestFormProps {
 
 const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const [form] = Form.useForm();
-  //const { id, mode } = useParams();
   const currentDateTime = dayjs();
-  useContext(UserContext);
+  useUserContext();
   const [cRMRequired, setCRMRequired] = React.useState<boolean | null>(null);
   const [formSections, setFormSections] = React.useState<number[]>([0]); // Initially, one form section
   const [selectedMachineId, setSelectedMachineId] = useState<number | null>(null);
   const [filteredSubMachines, setFilteredSubMachines] = useState<ISubMachine[]>([]);
-
+  const [reportNo, setreportNo] = React.useState<string>("");
+  const [cRM, setCRM] = React.useState<ChangeRiskManagement[]>([]);
+  //const [isApprovalModalVisible, setApprovalModalVisible] = useState(false);
   const { data: machinesResult, isLoading: machineloading } = useGetAllMachines();
-
   const { data: subMachinesResult, isLoading: submachineloading } = useGetAllSubMachines();
   const { data: areasResult, isLoading: arealoading } = useGetAllAreas();
   const { data: checkedByResult, isLoading: checkedloading } = useGetCheckedBy();
+  const { mode, id } = useParams();
+  console.log({ id })
+  const isViewMode = mode === "view";
+  const isEditMode = mode === "edit";
+  const initialData = {
+    dateTime: currentDateTime,
+    reportNo: reportNo === undefined ? "" : reportNo,
+  };
+  const { data: reportData } = useGetAdjustmentReportById(id ? parseInt(id, 10) : 0);
+  console.log({ reportData })
 
+  // Use effect to set report data when it becomes available
+  useEffect(() => {
+    if (reportData && (isEditMode)) {
+      // Populate initial form values
+      setreportNo(reportData.ReturnValue.ReportNo);
+      setCRMRequired(reportData.ReturnValue.ChangeRiskManagementRequired)
+      setCRM(reportData.ReturnValue.ChangeRiskManagement_AdjustmentReport)
+
+      // if (reportData.ReturnValue.ChangeRiskManagement_AdjustmentReport) {
+      //   setFormSections(
+      //     Array.from({ length: reportData.ReturnValue.ChangeRiskManagement_AdjustmentReport.length }, (_: any, i: any) => i)
+      //   );
+      // }
+      const crmSectionCount = reportData.ReturnValue.ChangeRiskManagement_AdjustmentReport.length;
+      const sections = [];
+      for (let i = 0; i < crmSectionCount; i++) {
+        sections.push(i);
+      }
+      setFormSections(sections);
+
+      console.log({ cRM })
+      console.log({ formSections })
+      console.log(reportData.ReturnValue.ChangeRiskManagement_AdjustmentReport)
+      setSelectedMachineId(reportData.ReturnValue.MachineName); // Set machine initially
+      form.setFieldsValue({
+        reportNo: reportData.ReturnValue.ReportNo,
+        area: reportData.ReturnValue.Area,
+        machineName: reportData.ReturnValue.MachineName,
+        subMachineName: reportData.ReturnValue.SubMachineName,
+        requestedBy: reportData.ReturnValue.RequestBy,
+        checkedBy: reportData.ReturnValue.CheckedBy,
+        dateTime: dayjs(reportData.ReturnValue.CreatedDate),
+        observation: reportData.ReturnValue.Observation,
+        rootCause: reportData.ReturnValue.RootCause,
+        adjustmentDescription: reportData.ReturnValue.AdjustmentDescription,
+        conditionAfterAdjustment: reportData.ReturnValue.ConditionAfterAdjustment,
+        describeProblem: reportData.ReturnValue.DescribeProblem,
+      });
+
+      // Pre-filter sub-machines based on the machine from reportData
+      if (reportData.ReturnValue.MachineName && subMachinesResult?.ReturnValue) {
+        const initialFiltered = subMachinesResult.ReturnValue.filter(
+          (subMachine: any) => subMachine.MachineId === reportData.ReturnValue.MachineName
+        );
+        setFilteredSubMachines(initialFiltered);
+      }
+    }
+  }, [reportData, isEditMode, isViewMode, subMachinesResult, form]);
+
+  // Handle machine change by user, clearing subMachineName selection
+  const handleMachineChange = (value: number) => {
+    setSelectedMachineId(value); // Update selected machine ID
+    setFilteredSubMachines([]); // Clear filtered options temporarily
+    form.setFieldsValue({ subMachineName: [] }); // Reset sub-machine selection
+  };
+
+  // const handleAdditionalApprovalClick = () => {
+  //   setApprovalModalVisible(true);
+  // };
+
+  // const handleProceed = (approvalData) => {
+  //   // Process the approvalData, which contains selected department heads and sequences
+  //   console.log("Additional Approvals:", approvalData);
+  //   setApprovalModalVisible(false);
+
+  //   // Here, integrate logic to add department heads to the workflow.
+  // };
+
+
+  // Watch selectedMachineId for updates and filter sub-machines accordingly
   useEffect(() => {
     if (selectedMachineId && subMachinesResult?.ReturnValue) {
       const filtered = subMachinesResult.ReturnValue.filter(
@@ -61,12 +140,12 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     } else {
       setFilteredSubMachines([]);
     }
-
-    form.setFieldsValue({ subMachineName: [] });
-  }, [selectedMachineId, subMachinesResult, form]);
+  }, [selectedMachineId, subMachinesResult]);
 
   const addFormSection = () => {
-    setFormSections((prevSections) => [...prevSections, prevSections.length]);
+    setFormSections((prevSections) =>
+      [...prevSections, prevSections.length]);
+    console.log({ formSections })
   };
 
   const onFinish = (values: any) => {
@@ -83,7 +162,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
         Factors: values[`factor-${i}`],
         CounterMeasures: values[`counterMeasures-${i}`],
         FunctionId: values[`function-${i}`],
-        DueDate: moment(values[`date-${i}`]).format('DD-MM-YYYY'),
+        DueDate: values[`date-${i}`],
         PersonInCharge: values[`personInCharge-${i}`],
         Results: values[`results-${i}`],
       };
@@ -120,10 +199,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
         layout="vertical"
         form={form}
         onFinish={onFinish}
-        initialValues={{
-          dateTime: currentDateTime,
-          reportNo: "",
-        }}
+        initialValues={initialData}
       >
         <Row gutter={48}>
           <Col span={6}>
@@ -250,7 +326,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                 >
                   <Select
                     placeholder="Select Machine Name"
-                    onChange={(value) => setSelectedMachineId(value)} // Update selected machine ID
+                    onChange={handleMachineChange} // Update selected machine ID
                     loading={machineloading}
                   >
                     {machinesResult?.ReturnValue &&
@@ -315,7 +391,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                 >
                   <Select mode="multiple" placeholder="Select Sub-Machine Name"
                     loading={submachineloading}>
-                    {filteredSubMachines.map((subMachine) => (
+                    {filteredSubMachines?.map((subMachine) => (
                       <Option
                         key={subMachine.SubMachineId}
                         value={subMachine.SubMachineId}
@@ -384,7 +460,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             </span>
             <Radio.Group
               onChange={(e: any) => setCRMRequired(e.target.value)}
-              value={cRMRequired}
+              value={cRMRequired} name="cRMRequired"
             >
               <Radio value={true} style={{ marginRight: 16 }}>
                 Yes
@@ -395,14 +471,14 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
         </div>
 
         {/* Render multiple form sections */}
-        {cRMRequired &&
-          formSections.map((sectionIndex) => (
-            <ChangeRiskManagementForm
-              key={sectionIndex}
-              index={sectionIndex}
-              form={form}
-            />
-          ))}
+        {cRMRequired && formSections.map((sectionIndex) => (
+          <ChangeRiskManagementForm
+            key={sectionIndex}
+            index={sectionIndex}
+            form={form}
+            initialData={cRM[sectionIndex]} // Pass each section's data directly
+          />
+        ))}
         {/* Button to add new form section */}
         {cRMRequired && (
           <div className="flex justify-end items-center my-3">
@@ -413,6 +489,19 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             </div>
           </div>
         )}
+{/* 
+        <Button
+          onClick={handleAdditionalApprovalClick}
+          icon={<FileExcelOutlined />}
+        //style={{ display: isRequestorDeptHead ? 'inline' : 'none' }}
+        >
+          Additional Approval
+        </Button>
+        <AdditionalApprovalModal
+          visible={isApprovalModalVisible}
+          onClose={() => setApprovalModalVisible(false)}
+          onProceed={handleProceed}
+        /> */}
       </Form>
     </div>
   );

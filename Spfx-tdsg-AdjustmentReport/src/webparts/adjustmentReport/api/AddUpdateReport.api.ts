@@ -1,5 +1,5 @@
 import * as dayjs from "dayjs";
-import { basePath } from "../GLOBAL_CONSTANT";
+import { basePathwithprefix } from "../GLOBAL_CONSTANT";
 import apiClient from "../utils/axiosInstance";
 
 interface Image {
@@ -26,6 +26,8 @@ export interface ChangeRiskManagement {
 }
 
 export interface IAddUpdateReportPayload {
+  AdjustmentReportId?: number,
+  EmployeeId?: number,
   ReportNo?: string;
   RequestBy?: string;
   CheckedBy?: number;
@@ -51,7 +53,7 @@ export interface IAddUpdateReportPayload {
 export const addUpdateReport = async (
   payload: IAddUpdateReportPayload
 ): Promise<boolean> => {
-  const url = `${basePath}/api/AdjustmentReport/AddOrUpdate`; // need to change
+  const url = `${basePathwithprefix}/AdjustmentReport/AddOrUpdate`; // need to change
   console.log(JSON.stringify(payload))
   const response = await apiClient.post<boolean>(url, payload);
   return response.data;

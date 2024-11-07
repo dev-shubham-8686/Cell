@@ -106,10 +106,26 @@ namespace TDSGCellFormat.Controllers
             return Ok(Ajaxresponse);
         }
 
-        [HttpGet("GetApprovalList")]
-        public async Task<IActionResult> GetApprovalList(int Id)
+
+        [HttpGet("GetEmployeeDetailsById")]
+        public async Task<IActionResult> GetEmployeeDetailsById(int id = 0, string email = "")
         {
-            var result = await _tdsgService.GetAdjustmentReportApproverList(Id);
+            var result = await _tdsgService.GetEmployeeDetailsById(id, email);
+            if (result.StatusCode == Status.Success)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetApprovalList")]
+        public async Task<IActionResult> GetApprovalList(int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "DESC", string searchValue = "")
+        {
+            var result = await _tdsgService.GetAdjustmentReportApproverList(pageIndex, pageSize, createdBy, sortColumn , orderBy , searchValue);
             if (result != null)
             {
                 Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
@@ -137,7 +153,6 @@ namespace TDSGCellFormat.Controllers
             }
             return Ok(Ajaxresponse);
         }
-
 
         [HttpPost("PullBack")]
         public async Task<IActionResult> PullBackRequest(int Id, int userId, string comment)
