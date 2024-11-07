@@ -145,7 +145,8 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         modelBuilder.Entity<TroubleReportExcel>().HasNoKey();
         modelBuilder.Entity<MaterialExcel>().HasNoKey();
 
-        modelBuilder.Entity<EquipmentExcelView>().HasNoKey();
+        modelBuilder.Entity<EquipmentExcelViewForType1>().HasNoKey();
+        modelBuilder.Entity<EquipmentExcelViewForType2>().HasNoKey();
         modelBuilder.Ignore<Property>();
         //modelBuilder.Entity<AdjustmentReport>(entity =>
         //{
@@ -433,18 +434,40 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
     }
 
-    public async Task<List<EquipmentExcelView>> GetEquipmentExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
+    //public async Task<List<EquipmentExcelView>> GetEquipmentExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
+    //{
+    //    var fromDateParam = new Microsoft.Data.SqlClient.SqlParameter("@FromDate", fromDate.ToString("yyyy-MM-dd"));
+    //    var toDateParam = new Microsoft.Data.SqlClient.SqlParameter("@ToDate", toDate.ToString("yyyy-MM-dd"));
+    //    var employeeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@EmployeeId", employeeId);
+    //    var typeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@Type", type);
+    //    var result = await this.Set<EquipmentExcelView>()
+    //    .FromSqlRaw("EXEC GetEquipmentListExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
+    //    .ToListAsync();
+    //    return result;
+
+    //}
+
+    public async Task<List<object>> GetEquipmentExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
     {
         var fromDateParam = new Microsoft.Data.SqlClient.SqlParameter("@FromDate", fromDate.ToString("yyyy-MM-dd"));
         var toDateParam = new Microsoft.Data.SqlClient.SqlParameter("@ToDate", toDate.ToString("yyyy-MM-dd"));
         var employeeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@EmployeeId", employeeId);
         var typeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@Type", type);
-        var result = await this.Set<EquipmentExcelView>()
-        .FromSqlRaw("EXEC GetEquipmentListExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
-        .ToListAsync();
-        return result;
 
+        if (type == 1)
+        {
+            return await this.Set<EquipmentExcelViewForType1>()
+                .FromSqlRaw("EXEC GetEquipmentListExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
+                .ToListAsync<object>();
+        }
+        else
+        {
+            return await this.Set<EquipmentExcelViewForType2>()
+                .FromSqlRaw("EXEC GetEquipmentListExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
+                .ToListAsync<object>();
+        }
     }
+
 
     public async Task<List<EquipmentImprovementView>> GetEquipmentImprovementApplication(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
     {

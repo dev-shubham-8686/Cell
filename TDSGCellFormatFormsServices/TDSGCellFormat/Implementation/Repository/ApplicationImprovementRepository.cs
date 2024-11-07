@@ -177,7 +177,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     PcrnAttachmentId = pcrnAttachment.PCRNId,
                     EquipmentImprovementId = pcrnAttachment.EquipmentImprovementId,
                     PcrnDocName = pcrnAttachment.PCRNDocFileName,
-                    PcrnFilePath = pcrnAttachment.PCRNDocFileName,
+                    PcrnFilePath = pcrnAttachment.PCRNDocFilePath,
                     IsDeleted = pcrnAttachment.IsDeleted
                 };
             }
@@ -454,10 +454,6 @@ namespace TDSGCellFormat.Implementation.Repository
                     InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
                 }
 
-
-
-                // equipment.Status = ApprovalTaskStatus.InReview.ToString();
-                // await _context.SaveChangesAsync();
 
                 res.Message = Enums.EquipmentResubmit;
                 res.StatusCode = Enums.Status.Success;
