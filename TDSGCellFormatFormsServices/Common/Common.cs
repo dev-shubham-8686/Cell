@@ -41,7 +41,7 @@ namespace TDSGCellFormat.Common
         {
             TroubleReport = 1,
             AdjustMentReport = 2,
-            ApplicationImprovement = 3,
+            Equipment = 3,
             MaterialConsumption = 4, //MATERIALCONSUMPTION
             TechnicalInstruction = 5
         }
