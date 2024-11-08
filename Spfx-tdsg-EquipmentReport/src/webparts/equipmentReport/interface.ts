@@ -10,6 +10,7 @@ export  interface IEquipmentImprovementReport {
   When: string;
   MachineName: string;
   SubMachineName:number[]
+  otherSubMachine?:string;
   Purpose: string;
   CurrentSituation: string;
   ImprovementName:string;

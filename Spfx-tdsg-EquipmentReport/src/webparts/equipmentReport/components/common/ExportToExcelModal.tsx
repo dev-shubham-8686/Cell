@@ -110,7 +110,7 @@ import useExportToExcelListing from "../../apis/exportToExcel/useExportToExcelLi
                 Cancel
               </Button>,
               <Button key="submit" type="primary" className="btn btn-primary" onClick={handleSubmit}>
-                Submit
+                Export
               </Button>,
             ]}
           >

@@ -27,11 +27,11 @@ import { displayRequestStatus } from "../../../utility/utility";
 import dayjs from "dayjs";
 import usePDFViewer from "../../../apis/pdf/usePDFViewer";
 
-const EquipmentReportTable: React.FC<{}> = ({}) => {
+const AllRequestTable: React.FC<{}> = ({}) => {
   const navigate = useNavigate();
   const user: IUser = useContext(UserContext);
-  const { mutate: deleteEquipment } = useDeleteEQReport();
   const { mutate: pdfDownload, isLoading: pdfLoading } = usePDFViewer();
+  const { mutate: deleteEquipment } = useDeleteEQReport();
   const [refetchKey , setrefetchKey]=useState<number>(0);
 
 
@@ -90,208 +90,12 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       // centered: true,
     });
   };
-
-  // const columns: ColumnsType<AnyObject> = [
-  //   {
-  //     title: "Application No",
-  //     dataIndex: "EquipmentImprovementNo",
-  //     key: "EquipmentImprovementNo",
-  //     width: "10%",
-  //     sorter: true,
-  //     // filterDropdown: ColumnFilter,
-  //     filterIcon: (filtered: boolean) => (
-  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-  //     ),
-  //   },
-  //   {
-  //     title: "Issue Date",
-  //     dataIndex: "IssueDate",
-  //     key: "IssueDate",
-  //     width: "10%",
-  //     sorter: true,
-  //     // render: (text) => (
-  //     //   <p className="text-cell">{dayjs(text).format(DATE_FORMAT)}</p>
-  //     // ),
-  //     filterDropdown: ColumnFilter,
-  //     filterIcon: (filtered: boolean) => (
-  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-  //     ),
-  //   },
-  //   {
-  //     title: "Machine Name",
-  //     dataIndex: "MachineName",
-  //     key: "MachineName",
-  //     width: "15%",
-  //     sorter: true,
-  //     filterDropdown: ColumnFilter,
-  //     filterIcon: (filtered: boolean) => (
-  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-  //     ),
-  //   },
-  //   {
-  //     title: "Sub Machine Name",
-  //     dataIndex: "SubMachineName",
-  //     key: "SubMachineName",
-  //     width: "15%",
-  //     sorter: true,
-  //     filterDropdown: ColumnFilter,
-  //     filterIcon: (filtered: boolean) => (
-  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-  //     ),
-  //   },
-  //   {
-  //     title: "Section Name",
-  //     dataIndex: "SectionName",
-  //     key: "SectionName",
-  //     width: "15%",
-  //     sorter: true,
-  //     filterDropdown: ColumnFilter,
-  //     filterIcon: (filtered: boolean) => (
-  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-  //     ),
-  //   },
-  //   {
-  //     title: "Improvement Name",
-  //     dataIndex: "ImprovementName",
-  //     key: "ImprovementName",
-  //     width: "15%",
-  //     sorter: true,
-  //     filterDropdown: ColumnFilter,
-  //     filterIcon: (filtered: boolean) => (
-  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-  //     ),
-  //   },
-
-  //   {
-  //     title: "Requestor",
-  //     dataIndex: "Requestor",
-  //     key: "Requestor",
-  //     width: "10%",
-  //     sorter: true,
-  //     render: (text) => <p className="text-cell">{text ?? "-"}</p>,
-  //     filterDropdown: ColumnFilter,
-  //     filterIcon: (filtered: boolean) => (
-  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-  //     ),
-  //   },
-  //   {
-  //     title: "CurrentApprover",
-  //     dataIndex: "CurrentApprover",
-  //     key: "CurrentApprover",
-  //     width: "10%",
-  //     sorter: true,
-  //     render: (text) => <p className="text-cell">{text ?? "-"}</p>,
-  //     filterDropdown: ColumnFilter,
-  //     filterIcon: (filtered: boolean) => (
-  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-  //     ),
-  //   },
-  //   {
-  //     title: "Status",
-  //     dataIndex: "Status",
-  //     key: "Status",
-  //     width: "100",
-  //     sorter: true,
-  //     filterDropdown: ColumnFilter,
-  //     filterIcon: (filtered: boolean) => (
-  //       <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-  //     ),
-  //     render: (text) => (
-  //       <span
-  //         className={`status-badge status-badge-${
-  //           STATUS_COLOUR_CLASS[text] ?? ""
-  //         }`}
-  //       >
-  //         {displayRequestStatus(text)}
-  //       </span>
-  //     ),
-  //   },
-  //   {
-  //     title: <p className="text-center p-0 m-0">Actions</p>,
-  //     key: "action",
-  //     render: (row) => (
-  //       <div className="action-cell">
-  //         {console.log("EQ DATA", row)}
-  //         <button
-  //           type="button"
-  //           style={{ background: "none", border: "none" }}
-  //           onClick={() =>
-  //             navigate(
-  //               `/form/view/${row.EquipmentImprovementId}`
-  //             )
-  //           }
-  //         >
-  //           <FontAwesomeIcon title="View" icon={faEye} />
-  //         </button>
-  //         {console.log(
-  //           "Edit",
-  //           row.Status,
-  //           REQUEST_STATUS.Draft,
-  //           row.Requestor,
-  //           user.employeeName
-  //         )}
-  //         {(row.Status == REQUEST_STATUS.LogicalAmendment ||
-  //           row.Status == REQUEST_STATUS.UnderImplementation ||
-  //           (row.Status == REQUEST_STATUS.ResultMonitoring && !row.IsResultSubmit) ||
-  //           row.Status == REQUEST_STATUS.Draft ||
-  //           row.Status == REQUEST_STATUS.UnderAmendment ||
-  //           row.Status == REQUEST_STATUS.PCRNPending ||
-  //           row.Status == REQUEST_STATUS.Approved) &&
-  //           row.CreatedBy == user?.employeeId && (
-  //             <button
-  //               type="button"
-  //               style={{ background: "none", border: "none" }}
-  //               onClick={() =>
-  //                 navigate(
-  //                   `/form/edit/${row.EquipmentImprovementId}`
-  //                 )
-  //               }
-  //             >
-  //               <FontAwesomeIcon title="Edit" icon={faEdit} />
-  //             </button>
-  //           )}
-
-  //         {(row.Status==REQUEST_STATUS.Completed ||( row.IsSubmit && row.CurrentApproverId==user?.employeeId && user?.isQcTeamHead)) && (
-  //           <button
-  //             type="button"
-  //             style={{ background: "none", border: "none" }}
-  //             onClick={() => {
-  //               handlePDF(
-  //                 row.EquipmentImprovementId,
-  //                 row.EquipmentImprovementNo
-  //               );
-  //             }}
-  //           >
-  //             <FontAwesomeIcon title="PDF" icon={faFilePdf} />
-  //           </button>
-  //         )}
-
-      
-  //         {row.Status == REQUEST_STATUS.Draft &&
-  //           row.CreatedBy == user?.employeeId && (
-  //             <button
-  //               type="button"
-  //               style={{ background: "none", border: "none" }}
-  //               onClick={() => {
-  //                 handleDelete(row.EquipmentImprovementId);
-  //               }}
-  //             >
-  //               <FontAwesomeIcon title="Delete" icon={faTrash} />
-  //             </button>
-  //           )}
-  //       </div>
-  //     ),
-  //     sorter: false,
-  //     width: "10%",
-  //   },
-  // ];
-
   const columns: ColumnsType<AnyObject> = [
     {
       title: "Application No",
       dataIndex: "EquipmentImprovementNo",
       key: "EquipmentImprovementNo",
-      // width: 100, 
+       //width: 100, 
       sorter: true,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
@@ -424,6 +228,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
           >
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
+         
           {(row.Status === REQUEST_STATUS.LogicalAmendment ||
             row.Status === REQUEST_STATUS.UnderImplementation ||
             (row.Status === REQUEST_STATUS.ResultMonitoring && !row.IsResultSubmit) ||
@@ -455,7 +260,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
               <FontAwesomeIcon title="PDF" icon={faFilePdf} />
             </button>
           )}
-          {row.Status === REQUEST_STATUS.Draft &&
+       {row.Status === REQUEST_STATUS.Draft &&
             row.CreatedBy == user?.employeeId && (
               <button
                 type="button"
@@ -475,12 +280,12 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
   
   return (
     <Table
+      refetchKey={refetchKey}
       columns={columns}
       paginationRequired={true}
       url="/api/EquipmentImprovement/EqupimentList"
-      refetchKey={refetchKey}
     />
   );
 };
 
-export default EquipmentReportTable;
+export default AllRequestTable;

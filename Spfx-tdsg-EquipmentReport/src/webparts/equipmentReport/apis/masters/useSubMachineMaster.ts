@@ -12,7 +12,7 @@ export interface ISubMachineMaster {
   }
 
   
-const getSubDeviceMaster = async () => {
+const getSubMachineMaster = async () => {
  try{ 
 
   const response = await http.get<{ ReturnValue: ISubMachineMaster[]}>(GET_SUB_MACHINE_MASTER);
@@ -28,10 +28,10 @@ const getSubDeviceMaster = async () => {
   }
 };
 
-const useSubDeviceMaster = () =>
+const useSubMachineMaster = () =>
     useQuery<ISubMachineMaster[]>({
         queryKey: ["sub-device-master"],
-        queryFn: () => getSubDeviceMaster(),
+        queryFn: () => getSubMachineMaster(),
 });
 
-export default useSubDeviceMaster;
+export default useSubMachineMaster;

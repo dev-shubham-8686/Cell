@@ -1,24 +1,50 @@
-import React from 'react'
-import Table from '../../table/table';
-import { useNavigate } from 'react-router-dom';
-import { SearchOutlined } from '@ant-design/icons';
-import ColumnFilter from '../../table/columnFilter/columnFilter';
-import { STATUS_COLOUR_CLASS } from '../../../GLOBAL_CONSTANT';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faEye } from '@fortawesome/free-solid-svg-icons';
-import { AnyObject } from 'antd/es/_util/type';
+import React, { useContext } from "react";
+import Table from "../../table/table";
+import { useNavigate } from "react-router-dom";
+import { SearchOutlined } from "@ant-design/icons";
+import ColumnFilter from "../../table/columnFilter/columnFilter";
+import { REQUEST_STATUS, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faEye, faFilePdf } from "@fortawesome/free-solid-svg-icons";
+import { AnyObject } from "antd/es/_util/type";
 import { ColumnsType } from "antd/es/table/interface";
-import { displayRequestStatus } from '../../../utility/utility';
+import { displayRequestStatus } from "../../../utility/utility";
+import { IUser, UserContext } from "../../../context/userContext";
+import usePDFViewer from "../../../apis/pdf/usePDFViewer";
 
-const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
+const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
   const navigate = useNavigate();
+  const { mutate: pdfDownload, isLoading: pdfLoading } = usePDFViewer();
+  const user: IUser = useContext(UserContext);
 
+  const handlePDF = (id: any, EQReportNo: any) => {
+    try {
+      console.log("MATERIALID", id);
+
+      pdfDownload(
+        { id, EQNo: EQReportNo },
+        {
+          onSuccess: (pdfResponse) => {
+            console.log("PDF Response: ", pdfResponse);
+            // window.open(pdfResponse, "_blank");  //this will Open the PDF in a new tab
+          },
+
+          onError: (error) => {
+            console.error("Export error:", error);
+          },
+        }
+      );
+      console.log("PDF downloaded ");
+    } catch (error) {
+      console.error("Export error:", error);
+    }
+  };
   const columns: ColumnsType<AnyObject> = [
     {
       title: "Application No",
       dataIndex: "EquipmentImprovementNo",
       key: "EquipmentImprovementNo",
-      width: "10%",
+      // width: "10%",
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -29,7 +55,7 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       title: "Issue Date",
       dataIndex: "IssueDate",
       key: "IssueDate",
-      width: "10%",
+      // width: "10%",
       sorter: true,
       // render: (text) => (
       //   <p className="text-cell">{format(text, DATE_FORMAT)}</p>
@@ -40,10 +66,21 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       // ),
     },
     {
+      title: "Area",
+      dataIndex: "Area",
+      key: "Area",
+      // width: 150,
+      sorter: true,
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
+    },
+    {
       title: "Machine Name",
       dataIndex: "MachineName",
       key: "MachineName",
-      width: "15%",
+      // width: "15%",
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -54,7 +91,7 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       title: "Sub Machine Name",
       dataIndex: "SubMachineName",
       key: "SubMachineName",
-      width: "15%",
+      // width: "15%",
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -65,7 +102,7 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       title: "Section Name",
       dataIndex: "SectionName",
       key: "SectionName",
-      width: "15%",
+      // width: "15%",
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -76,36 +113,53 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
       title: "Improvement Name",
       dataIndex: "ImprovementName",
       key: "ImprovementName",
-      width: "15%",
+      // width: "15%",
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
-   
-  
+
     {
       title: "Requestor",
       dataIndex: "Requestor",
       key: "Requestor",
-      width: "10%",
+      // width: "10%",
       sorter: true,
-      render: (text) => (
-        <p className="text-cell">{text??"-"}</p>
-      ),
+      render: (text) => <p className="text-cell">{text ?? "-"}</p>,
       // filterDropdown: ColumnFilter,
       // filterIcon: (filtered: boolean) => (
       //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       // ),
     },
+    // {
+    //   title: "Approval Status",
+    //   dataIndex: "ApproverTaskStatus",
+    //   key: "ApproverTaskStatus",
+    //  width: "10%",
+    //   sorter: true,
+    //   filterDropdown: ColumnFilter,
+    //   filterIcon: (filtered: boolean) => (
+    //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+    //   ),
+    //   render: (text) => (
+    //     <span
+    //       className={`status-badge status-badge-${
+    //         STATUS_COLOUR_CLASS[text] ?? ""
+    //       }`}
+    //     >
+    //       {displayRequestStatus(text)}
+    //     </span>
+    //   ),
+    // },
     {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      width: "10%",
+      // width: "10%",
       sorter: true,
-       filterDropdown: ColumnFilter,
+      filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -129,42 +183,46 @@ const EquipmentReportApprovalTable : React.FC<{ }> = ({ }) => {
             type="button"
             style={{ background: "none", border: "none" }}
             onClick={() =>
-              navigate(
-                `/equipment-improvement-report/form/view/${row.EquipmentImprovementId}`,
-                {
-                  state: { isApproverRequest: true },
-                }
-              )
+              navigate(`/form/view/${row.EquipmentImprovementId}`, {
+                state: { isApproverRequest: true },
+              })
             }
           >
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
-          {false && (
-            <button
-              type="button"
-              style={{ background: "none", border: "none" }}
-              onClick={() =>
-                navigate(
-                  `/equipment-improvement-report/form/edit/${row.EquipmentImprovementId}`,
-                  {
-                    state: { isApproverRequest: true },
-                  }
-                )
-              }
-            >
-              <FontAwesomeIcon title="Edit" icon={faEdit} />
-            </button>
-          )}
+          {
+          // row.IsSubmit &&
+            user?.isQcTeamHead &&
+            (row.ApproverTaskStatus == REQUEST_STATUS.InReview ||
+              row.ApproverTaskStatus ==
+                REQUEST_STATUS.UnderToshibaApproval) && (
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() => {
+                  handlePDF(
+                    row.EquipmentImprovementId,
+                    row.EquipmentImprovementNo
+                  );
+                }}
+              >
+                <FontAwesomeIcon title="PDF" icon={faFilePdf} />
+              </button>
+            )}
         </div>
       ),
       sorter: false,
       width: "10%",
     },
   ];
-  
-  return (
-    <Table columns={columns} paginationRequired={true} url="/api/EquipmentImprovement/EqupimentApproverList" />
-  )
-}
 
-export default EquipmentReportApprovalTable
+  return (
+    <Table
+      columns={columns}
+      paginationRequired={true}
+      url="/api/EquipmentImprovement/EqupimentApproverList"
+    />
+  );
+};
+
+export default EquipmentReportApprovalTable;

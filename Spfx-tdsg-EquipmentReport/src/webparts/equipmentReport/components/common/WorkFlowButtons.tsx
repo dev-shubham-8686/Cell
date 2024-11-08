@@ -4,7 +4,6 @@ import { Modal, Spin } from "antd";
 import { IUser, UserContext } from "../../context/userContext";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { IEquipmentImprovementReport } from "../../interface";
-import ToshibaApprovalModal from "./ToshibaApproval";
 import TextBoxModal, { IEmailAttachments } from "./TextBoxModal";
 import useApproveAskToAmmend, {
   IApproveAskToAmendPayload,
@@ -148,7 +147,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
       approveAskToAmmend(payload, {
         onSuccess: (Response) => {
           console.log("ask to ammend / approve  Response: ", Response);
-          navigate("/equipment-improvement-report", {
+          navigate("/", {
             state: {
               currentTabState: "myapproval-tab",
             },
@@ -185,7 +184,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
       addOrUpdateTargetDate(payload, {
         onSuccess: (Response) => {
           console.log("add or update target date ", Response);
-          navigate("/equipment-improvement-report", {
+          navigate("/", {
             state: {
               currentTabState: "myapproval-tab",
             },
@@ -212,7 +211,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
       pullBack(payload, {
         onSuccess: (Response) => {
           console.log("pullback Response: ", Response);
-          navigate(`/equipment-improvement-report`);
+          navigate(`/`);
         },
 
         onError: (error) => {
@@ -345,9 +344,11 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                     cancelText: "No",
                     onOk() {
                       openCommentsPopup("Approve", false, true, false);
+                      setsubmitbuttontext("Proceed");
                     },
                     onCancel() {
                       openCommentsPopup("Approve", false, false, false);
+                      setsubmitbuttontext("Approve");
                     },
                   });
                 } else if (
@@ -355,10 +356,12 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                   eqReport?.WorkflowStatus != REQUEST_STATUS.W1Completed
                 ) {
                   openCommentsPopup("Approve", false, false, true);
+                  setsubmitbuttontext("Approve");
                 } else {
                   openCommentsPopup("Approve", false, false, false);
+                  setsubmitbuttontext("Approve");
                 }
-                setsubmitbuttontext("Approve");
+                
               }}
             >
               Approve

@@ -52,7 +52,7 @@ export  const create_UUID = (): string => {
       const base64String = value;
       const byteCharacters = atob(base64String);
       const byteNumbers = new Array(byteCharacters.length);
-                
+             
       for (let i = 0; i < byteCharacters.length; i++) {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
@@ -64,7 +64,7 @@ export  const create_UUID = (): string => {
       
       const todayDate = new Date().toISOString().split("T")[0];
       const filename = `EquipmentReport_${todayDate}.xlsx`;
-      
+      debugger
       saveAs(blob, filename);
     } else {
       console.error("Failed to download file:");

@@ -54,7 +54,7 @@ const FileUpload: FC<IFileUpload> = ({
       uploadAcceptTypes: ".jpeg,.pdf,.jpg,.png,.xlsx,.xls,.msg,.eml",
       noOfFiles: `Maximum ${ispcrnRequired?1:10} ${ispcrnRequired?"File is":"Files are"}  allowed! `,
       maxFileCount: ispcrnRequired?1:10,
-      emailAttachment:/\.(eml)(\.[0-9]*)?$/
+      emailAttachment: /\.(eml|msg|oft)(\.[0-9]*)?$/i
     },
   };
   console.log("DISABLEUPLOAD", disabled);
