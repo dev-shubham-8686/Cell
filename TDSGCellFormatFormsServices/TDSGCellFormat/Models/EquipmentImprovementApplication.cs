@@ -75,8 +75,4 @@ public partial class EquipmentImprovementApplication
     [ForeignKey("SectionId")]
     public virtual SectionMaster? SectionMaster { get; set; }
 
-
-    [ForeignKey("AreaId")]
-    public virtual Area? Area { get; set; }
-
 }
