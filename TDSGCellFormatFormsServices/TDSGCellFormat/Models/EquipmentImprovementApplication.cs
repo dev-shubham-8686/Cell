@@ -13,7 +13,7 @@ public partial class EquipmentImprovementApplication
     public string? EquipmentImprovementNo { get; set; }
 
     public DateTime? When { get; set; }
-    public int? AreaId { get; set; }
+    public string? AreaId { get; set; }
     public int? SectionId  { get; set; }
     public int? SectionHeadId { get; set; }
     public int? MachineId { get; set; }

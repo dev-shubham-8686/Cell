@@ -11,6 +11,8 @@
         public string? ImprovementName { get; set; }
         public string? Requestor {  get; set; }
         public string? CurrentApprover { get; set; }
+
+        public int? CurrentApproverId { get; set; }
         public string? Status { get; set; }
 
         public int? CreatedBy   { get; set; }
