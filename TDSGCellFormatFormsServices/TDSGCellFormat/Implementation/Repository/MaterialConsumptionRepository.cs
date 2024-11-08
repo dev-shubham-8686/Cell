@@ -1150,7 +1150,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 // Log the exception using your logging mechanism
                 var commonHelper = new CommonHelper(_context);
-                commonHelper.LogException(ex, "ExportToPdf");
+                commonHelper.LogException(ex, "Material ExportToPdf");
 
                 return res;
             }
