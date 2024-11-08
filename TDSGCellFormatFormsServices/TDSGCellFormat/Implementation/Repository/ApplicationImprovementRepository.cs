@@ -350,7 +350,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         var formData = await Editformdata(report);
                         if (formData.StatusCode == Enums.Status.Success)
                         {
-                            res.Message = Enums.EquipmentSubmit;
+                            res.Message = formData.Message;
                         }
                     }
                     if (report.ResultAfterImplementation != null)
@@ -360,12 +360,12 @@ namespace TDSGCellFormat.Implementation.Repository
                             var formData = await Editformdata(report);
                             if (formData.StatusCode == Enums.Status.Success)
                             {
-                                res.Message = Enums.EquipmentSubmit;
+                                res.Message = formData.Message;
                             }
                             var nextData = await EditResult(report);
                             if (nextData.StatusCode == Enums.Status.Success)
                             {
-                                res.Message = Enums.EquipmentSubmit;
+                                res.Message = nextData.Message;
                             }
                         }
                         else
@@ -373,7 +373,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             var nextData = await EditResult(report);
                             if (nextData.StatusCode == Enums.Status.Success)
                             {
-                                res.Message = Enums.EquipmentSubmit;
+                                res.Message = nextData.Message;
                             }
                         }
                     }
@@ -732,7 +732,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
 
                 }
-                else if(report.IsSubmit == true && report.IsAmendReSubmitTask == false && report.PcrnAttachments != null && (pcrnTrueApproverTask == null || pcrnTrueApproverTask.Count  == 0))
+                else if (report.IsSubmit == true && report.IsAmendReSubmitTask == false && report.PcrnAttachments != null && (pcrnTrueApproverTask == null || pcrnTrueApproverTask.Count == 0))
                 {
                     var data = await SubmitRequest(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
@@ -749,11 +749,17 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
 
                 }
+                else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true && report.PcrnAttachments != null && pcrnTrueApproverTask != null)
+                {
+                    res.Message = Enums.EquipmentSubmit;
+                    InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.UnderToshibaApproval.ToString(), Convert.ToInt32(report.CreatedBy), HistoryAction.Submit.ToString(), 0);
+
+                }
                 else
                 {
                     InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Status as Draft", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
-
                 }
+                return res;
             }
             catch (Exception ex)
             {
@@ -807,7 +813,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var resubmit = await ResultResubmit(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                     if (resubmit.StatusCode == Enums.Status.Success)
                     {
-                        res.Message = Enums.EquipmentSubmit;
+                        res.Message = Enums.EquipmentResubmit;
                     }
                 }
                 else
@@ -1599,7 +1605,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
             return char.ToUpper(input[0]) + input.Substring(1);
         }
-
 
         #endregion
     }
