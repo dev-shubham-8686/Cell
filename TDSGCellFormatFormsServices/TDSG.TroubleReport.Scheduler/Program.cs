@@ -30,6 +30,7 @@ public class Program
                                    .Where(tr => tr.ImmediateCorrectiveAction == null &&
                                                 EF.Functions.DateDiffHour(tr.When, DateTime.Now) >= 48 && tr.IsDeleted == false)
                                    .ToList();
+
             var reminderEmails = new ReminderEmails(dbContext, context);
 
             foreach (var report in icaReport)
@@ -37,12 +38,10 @@ public class Program
                 DateTime now = DateTime.Now;
                 DateTime lastEmailSent = (DateTime)(report?.LastEmailSent ?? report?.When); // Use the report creation time if no email was sent
                 TimeSpan hoursSinceLastEmail = now - lastEmailSent;
-                //int hoursSinceLastEmail = (int)hours.TotalHours;
-                //double hoursSinceLastEmail = difference.TotalHours;
-                //var emailFlag = report.RaiserEmailSent;
+
                 var raiser = dbContext.TroubleReports.Where(x => x.TroubleReportId == report.TroubleReportId && report.IsDeleted == false).Select(x => x.CreatedBy).FirstOrDefault();
                 var sectionHead = context.EmployeeMasters.Where(x => x.EmployeeID == raiser && x.IsActive == true).Select(x => x.ReportingManagerId).ToList();
-
+                
                 var departMentHead = (from em in context.EmployeeMasters
                                       join dm in context.DepartmentMasters on em.DepartmentID equals dm.DepartmentID
                                       where em.EmployeeID == raiser && em.IsActive == true
@@ -73,7 +72,6 @@ public class Program
                 else if (report.ManagerEmailSent == 3 && report.DepartMentHeadEmailSent <3 && hoursSinceLastEmail.TotalHours >= 24)
                 {
                     //email to department head
-
 
                     reminderEmails.SendEmailReminder(report.TroubleReportId, templateFile, emailSubject, departMentHead);
                     report.DepartMentHeadEmailSent += 1;
