@@ -156,7 +156,7 @@ namespace TDSG.TroubleReport.Scheduler
             return emailSent;
         }
 
-        public bool SendEmailReminder(int troubleId, string templateFile, string emailSubject, List<int?> employeeId = null)
+        public bool SendEmailReminder(int? troubleId, string templateFile, string emailSubject, List<int?> employeeId = null)
         {
             bool emailSent = false;
             try
@@ -166,6 +166,12 @@ namespace TDSG.TroubleReport.Scheduler
 
                 EmployeeMaster? requesterUserDetail = null;
                 string? requesterUserName = null, requesterUserEmail = null;
+                EmployeeMaster? raiserDetails = null;
+                string? raiserCCName = null, raiserCCEmail = null;
+
+                EmployeeMaster? raiserManagerData = null;
+                string? raiserManagerName = null, raiserManagerEmail = null;
+
                 StringBuilder emailBody = new StringBuilder();
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? templateFilePath = null;
@@ -176,6 +182,29 @@ namespace TDSG.TroubleReport.Scheduler
                 List<string> emailToAddressList = new List<string>();
                 List<string> emailCCAddressList = new List<string>();
                 string? workDoneName = null, workDoneEmail = null;
+
+                if(troubleId != null)
+                {
+                    var reaiser = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId && x.IsDeleted == false).Select(x => x.CreatedBy).FirstOrDefault();
+                    raiserDetails = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == reaiser);
+                    raiserCCName = raiserDetails?.EmployeeName; //CommonMethod.CombinateEmployeeName(requesterUserDetail?.EmployeeName, requesterUserDetail?.EmployeeCode);
+                    raiserCCEmail = raiserDetails?.Email;
+                    emailCCAddressList.Add(raiserCCEmail);
+
+                    var raiserRM = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId && x.IsDeleted == false).Select(x => x.CreatedBy).FirstOrDefault();
+                    var raiserRmID = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == raiserRM && x.IsActive == true).Select(x => x.ReportingManagerId).FirstOrDefault();
+                    raiserDetails = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == raiserRmID);
+                    raiserCCName = raiserDetails?.EmployeeName; //CommonMethod.CombinateEmployeeName(requesterUserDetail?.EmployeeName, requesterUserDetail?.EmployeeCode);
+                    raiserCCEmail = raiserDetails?.Email;
+                    foreach(var employee in employeeId)
+                    {
+                        if(employee != raiserRmID)
+                        {
+                            emailCCAddressList.Add(raiserCCEmail);
+                        }
+                    }
+                   
+                }
 
                 if (employeeId != null)
                 {
