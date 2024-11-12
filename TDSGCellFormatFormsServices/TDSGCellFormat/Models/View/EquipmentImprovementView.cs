@@ -8,6 +8,8 @@
         public string? MachineName { get; set; }
         public string? SubMachineName { get; set; }
         public string? SectionName { get; set; }
+
+        public string? Area {  get; set; }
         public string? ImprovementName { get; set; }
         public string? Requestor {  get; set; }
         public string? CurrentApprover { get; set; }
@@ -31,6 +33,7 @@
         public string? IssueDate { get; set; }
         public string? MachineName { get; set; }
         public string? SubMachineName { get; set; }
+        public string? Area { get; set; }
         public string? SectionName { get; set; }
         public string? ImprovementName { get; set; }
         public string? Requestor { get; set; }

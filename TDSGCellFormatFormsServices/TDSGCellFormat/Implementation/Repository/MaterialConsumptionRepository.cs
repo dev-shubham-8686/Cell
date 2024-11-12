@@ -103,7 +103,7 @@ namespace TDSGCellFormat.Implementation.Repository
         public MaterialConsumptionSlipView GetById(int Id)
         {
             var materialConsumptionSlips = _context.MaterialConsumptionSlips
-                        .Where(n => n.IsDeleted == false && n.MaterialConsumptionSlipId == Id)
+                        .Where(n => n.IsDeleted == false && n.MaterialConsumptionSlipId == Id && n.IsDeleted == false)
                         .FirstOrDefault();
 
             if (materialConsumptionSlips == null)

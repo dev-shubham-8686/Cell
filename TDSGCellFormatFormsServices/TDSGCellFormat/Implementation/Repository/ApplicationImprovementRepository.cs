@@ -103,6 +103,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 AreaId = !string.IsNullOrEmpty(res.AreaId) ? res.AreaId.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
                 MachineName = res.MachineId,
                 SubMachineName = !string.IsNullOrEmpty(res.SubMachineId) ? res.SubMachineId.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
+                otherSubMachine = res.OtherSubMachine,
                 Purpose = res.Purpose,
                 SectionId = res.SectionId,
                 SectionHeadId = res.SectionHeadId,
@@ -210,6 +211,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.When = DateTime.Now;
                     newReport.MachineId = report.MachineName;
                     newReport.SubMachineId = report.SubMachineName != null ? string.Join(",", report.SubMachineName) : string.Empty;
+                    newReport.OtherSubMachine = report.SubMachineName != null && report.SubMachineName.Contains(-2)
+                           ? report.otherSubMachine
+                           : "";
                     newReport.SectionId = report.SectionId;
                     newReport.SectionHeadId = report.SectionHeadId;
                     newReport.AreaId = report.AreaId != null ? string.Join(",", report.AreaId) : string.Empty; 
@@ -477,6 +481,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 var existingReport = await _context.EquipmentImprovementApplication.FindAsync(report.EquipmentImprovementId);
                 existingReport.MachineId = report.MachineName;
                 existingReport.SubMachineId = report.SubMachineName != null ? string.Join(",", report.SubMachineName) : string.Empty;
+                existingReport.OtherSubMachine = report.SubMachineName != null && report.SubMachineName.Contains(-2)
+                           ? report.otherSubMachine
+                           : "";
                 existingReport.SectionId = report.SectionId;
                 existingReport.SectionHeadId = report.SectionHeadId;
                 existingReport.AreaId = report.AreaId != null ? string.Join(",", report.AreaId) : string.Empty; 
