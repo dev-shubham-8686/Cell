@@ -19,6 +19,8 @@ public partial class EquipmentImprovementApplication
     public int? MachineId { get; set; }
 
     public string? SubMachineId  { get; set; }
+
+    public string? OtherSubMachine { get; set; }
     public string? ImprovementName { get; set; }
     public string? Purpose { get; set; }
 
