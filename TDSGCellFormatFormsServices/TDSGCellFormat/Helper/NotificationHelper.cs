@@ -711,7 +711,14 @@ namespace TDSGCellFormat.Helper
                                 emailBody = emailBody.Replace("#AmendmendBy#", "");
                                 emailBody = emailBody.Replace("#ApprovedBy#", "");
 
-                                emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
+                                // Remove common addresses from emailCCAddressList and only keep them in emailToAddressList
+                                var distinctToAddresses = emailToAddressList.Distinct().ToList();
+                                var distinctCCAddresses = emailCCAddressList.Except(emailToAddressList).Distinct().ToList();
+
+                                // Call SendEmailNotification with filtered lists
+                                emailSent = SendEmailNotification(distinctToAddresses, distinctCCAddresses, emailBody, emailSubject);
+
+                               // emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
                                 // InsertHistoryData(troubleReportId, FormType.TroubleReport.ToString(), "Raiser", "Form Send to Manager", ApprovalTaskStatus.InProcess.ToString(), userId, HistoryAction.SendToManager.ToString(), 0);
 
                                 var requestData = new EmailLogMaster()

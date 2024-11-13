@@ -202,7 +202,7 @@ namespace TDSG.TroubleReport.Scheduler
                     raiserDetails = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == reaiser);
                     raiserCCName = raiserDetails?.EmployeeName; //CommonMethod.CombinateEmployeeName(requesterUserDetail?.EmployeeName, requesterUserDetail?.EmployeeCode);
                     raiserCCEmail = raiserDetails?.Email;
-                    
+                    emailCCAddressList.Add(raiserCCEmail);
                     //var raiserRM = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId && x.IsDeleted == false).Select(x => x.CreatedBy).FirstOrDefault();
                     var raiserRmID = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == reaiser && x.IsActive == true).Select(x => x.ReportingManagerId).FirstOrDefault();
                     raiserManagerData = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == raiserRmID);
