@@ -52,9 +52,10 @@ public class Program
                 var divisionHead = dbContext.CellDivisionRoleMasters.Where(x => x.DivisionId == 1 && x.FormName == "TroubleReport").Select(x => x.DeputyDivisionHead).ToList();
 
                 var workDoneData = dbContext.WorkDoneDetails.Where(x => x.TroubleReportId == report.TroubleReportId && x.IsDeleted == false).ToList();
-
+              
                 if (workDoneData.Count > 0 && workDoneData != null)
                 {
+                    
                     // var twentyFourHours = TimeSpan.FromHours(24);
                     templateFile = "TroubleReport_ICA.html";
                     emailSubject = $"ICA Reminder for Trouble Report Number: {report.TroubleReportNo}";
@@ -97,12 +98,11 @@ public class Program
                     }
 
                     dbContext.SaveChanges(); // Save the changes to the database
-                    Console.WriteLine($"Sending email for Report ID: {report.TroubleReportId}, Email Type: {report.RaiserEmailSent + 1}");
-                    // Console.WriteLine(_configuration);
+                    
                 }
                 else
                 {
-                    templateFile = "TroubleReport_Reminder_Action";
+                    templateFile = "TroubleReport_Reminder_Action.html";
                     emailSubject = $"[Action Required] for Trouble Report : {report.TroubleReportNo}";
                     reminderEmails.SendEmailReminder(report.TroubleReportId, templateFile, emailSubject, sectionHead);
                 }
