@@ -236,6 +236,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.IsSubmit = report.IsSubmit;
                     newReport.Status = ApprovalTaskStatus.Draft.ToString();
                     newReport.WorkFlowLevel = 0;
+                    newReport.IsLogicalAmend = false;
                     newReport.ToshibaApprovalRequired = false;
                     newReport.WorkFlowStatus = ApprovalTaskStatus.Draft.ToString();
                     _context.EquipmentImprovementApplication.Add(newReport);
@@ -1132,6 +1133,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false).FirstOrDefault();
                     equipment.Status = ApprovalTaskStatus.LogicalAmendment.ToString();
+                    equipment.IsLogicalAmend = true;
                     //equipment.WorkFlowStatus = ApprovalTaskStatus.LogicalAmendment.ToString();
                     await _context.SaveChangesAsync();
 
