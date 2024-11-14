@@ -570,6 +570,16 @@ namespace TDSGCellFormat.Implementation.Repository
                 //report.ModifiedDate = DateTime.Now;
                 int rowsAffected = await _context.SaveChangesAsync();
 
+
+                var reportApprover = _context.TroubleReportApproverTaskMasters.Where(x => x.TroubleReportId == Id).ToList();
+
+                reportApprover.ForEach(a =>
+                {
+                    a.IsActive = false;
+                    a.ModifiedDate = DateTime.Now;
+                });
+                await _context.SaveChangesAsync();
+
                 if (rowsAffected > 0)
                 {
                     res.StatusCode = Status.Success;
