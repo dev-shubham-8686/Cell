@@ -63,6 +63,7 @@ public partial class EquipmentImprovementApplication
 
     public DateTime? ModifiedDate { get; set; }
 
+    public bool? IsLogicalAmend { get; set; }
     public bool? IsDeleted { get; set; }
 
     public virtual ICollection<ChangeRiskManagement> ChangeRiskManagement { get; set; } = new List<ChangeRiskManagement>();

@@ -203,6 +203,7 @@ namespace TDSG.TroubleReport.Scheduler
                     raiserCCName = raiserDetails?.EmployeeName; //CommonMethod.CombinateEmployeeName(requesterUserDetail?.EmployeeName, requesterUserDetail?.EmployeeCode);
                     raiserCCEmail = raiserDetails?.Email;
                     emailCCAddressList.Add(raiserCCEmail);
+
                     //var raiserRM = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId && x.IsDeleted == false).Select(x => x.CreatedBy).FirstOrDefault();
                     var raiserRmID = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == reaiser && x.IsActive == true).Select(x => x.ReportingManagerId).FirstOrDefault();
                     raiserManagerData = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == raiserRmID);
@@ -261,14 +262,14 @@ namespace TDSG.TroubleReport.Scheduler
                     }
                     if (emailBody?.Length > 0)
                     {
-                        string docLink = documentLink + "form/view/" + troubleId;
+                        string docLink = documentLink + "form/edit/" + troubleId;
 
                         emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
                         emailBody = emailBody.Replace("#TroubleReportNo#", troubleReportNo);
                         emailBody = emailBody.Replace("#ReporTitle#", reportTitle);
                         emailBody = emailBody.Replace("#TroubleLink#", docLink);
 
-                        emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), null, emailBody, emailSubject);
+                        emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
 
                         var requestData = new EmailLogMaster()
                         {

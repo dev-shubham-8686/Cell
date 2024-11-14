@@ -53,7 +53,7 @@ public class Program
 
                 var workDoneData = dbContext.WorkDoneDetails.Where(x => x.TroubleReportId == report.TroubleReportId && x.IsDeleted == false).ToList();
               
-                if (workDoneData.Count > 0 && workDoneData != null)
+                if (workDoneData.Count > 0 || workDoneData != null)
                 {
                     
                     // var twentyFourHours = TimeSpan.FromHours(24);
