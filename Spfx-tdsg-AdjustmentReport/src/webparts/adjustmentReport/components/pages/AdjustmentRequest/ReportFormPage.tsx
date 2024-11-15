@@ -1,16 +1,24 @@
-import { Button, Modal, Tabs, TabsProps } from "antd";
+import { Button, Form, Modal, Tabs, TabsProps } from "antd";
 import * as React from "react";
 import History from "./History";
 import { LeftCircleFilled } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import RequestForm from "./RequestForm";
-import { MESSAGES } from "../../../GLOBAL_CONSTANT";
+import { MESSAGES, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
 import * as dayjs from "dayjs";
 import { IAddUpdateReportPayload } from "../../../api/AddUpdateReport.api";
 import { AnyObject } from "antd/es/_util/type";
 import { useAddUpdateReport } from "../../../hooks/useAddUpdateReport";
 import Workflow from "./WorkflowTab";
 import { useUserContext } from "../../../context/UserContext";
+import { IAdjustmentReportPhoto } from "../../../interface";
+import WorkFlowButtons from "../../common/WorkFlowButtons";
+import { useUpdateApproveAskToAmend } from "../../../hooks/useUpdateApproveAskToAmend";
+import { IApproveAskToAmendPayload } from "../../../api/UpdateApproveAskToAmend.api";
+import { IPullBack } from "../../../api/PullBack.api";
+import { usePullBack } from "../../../hooks/usePullBack";
+import { useGetAdjustmentReportById } from "../../../hooks/useGetAdjustmentReportById";
+import { useGetCurrentApprover } from "../../../hooks/useGetCurrentApprover";
 // import { useEffect } from "react";
 // import { useGetApprorverFlowData } from "../../../hooks/useGetApprorverFlowData";
 
@@ -23,9 +31,19 @@ const ReportFormPage = () => {
   //const [approverFlowData, setapproverFlowData] = React.useState<any>([]);
   const { mode, id } = useParams();
   const { user } = useUserContext();
-  console.log({user})
+  const isViewMode = mode === "view";
+  const isEditMode = mode === "edit";
+  console.log({ user })
   console.log({ mode })
   const { mutate: addUpdateReport } = useAddUpdateReport();
+  const [submitted, setsubmitted] = React.useState(false);
+  const [underAmmendment, setunderAmmendment] = React.useState(false);
+  const [currentApproverTask, setcurrentApproverTask] = React.useState<any>(null);
+  const [existingAdjustmentReport, setexistingAdjustmentReport] = React.useState<any>(null);
+  const { mutate: askToAmend } = useUpdateApproveAskToAmend();
+  const { mutate: pullback } = usePullBack();
+  const { data: reportData } = useGetAdjustmentReportById(id ? parseInt(id, 10) : 0);
+  const { mutate: getCurrentApprover } = useGetCurrentApprover();
 
   const handleTabChange = (key: string) => {
     setActiveTabKey(key);
@@ -35,6 +53,35 @@ const ReportFormPage = () => {
     navigate(-1);
   };
 
+  const loadData = async () => {
+    if (isEditMode || isViewMode) {
+      setexistingAdjustmentReport(reportData?.ReturnValue);
+      debugger
+
+      if (reportData?.ReturnValue?.IsSubmit) {
+        setsubmitted(true);
+      }
+
+      if (
+        reportData?.ReturnValue?.Status == REQUEST_STATUS.UnderAmendment &&
+        reportData?.ReturnValue.EmployeeId == user?.EmployeeId
+      ) {
+        setunderAmmendment(true);
+      }
+      const currentApprover = getCurrentApprover(
+        {
+          AdjustmentReportId: id ? parseInt(id, 10) : 0,
+          userId: user?.EmployeeId ? user?.EmployeeId : 0
+        },
+      )
+      setcurrentApproverTask(currentApprover);
+    }
+  };
+
+  React.useEffect(() => {
+    void loadData();
+  }, [reportData, isEditMode, isViewMode]);
+
   const formRef = React.useRef<any>(null);
 
   // useEffect(() => {
@@ -42,7 +89,10 @@ const ReportFormPage = () => {
   // }, []);
 
   const CreatePayload = (values: AnyObject) => {
-    
+    console.log({ values })
+    const beforeImages: IAdjustmentReportPhoto[] = values.beforeImages;
+    const afterImages: IAdjustmentReportPhoto[] = values.afterImages;
+
     const payload: IAddUpdateReportPayload = {
       AdjustmentReportId: id ? parseInt(id, 10) : 0,
       EmployeeId: user?.EmployeeId,
@@ -58,10 +108,11 @@ const ReportFormPage = () => {
       RootCause: values.rootCause, //done
       AdjustmentDescription: values.adjustmentDescription, //done
       ConditionAfterAdjustment: values.conditionAfterAdjustment, // done
-      Photos: values.Photos,
       ChangeRiskManagementRequired: values.ChangeRiskManagementRequired, // done
       ChangeRiskManagement_AdjustmentReport: values.ChangeRiskManagementList, // Ensure this is an array of ChangeRiskManagement objects
       IsSubmit: !isSave, //done
+      IsAmendReSubmitTask: false,
+      Photos: { BeforeImages: beforeImages, AfterImages: afterImages },
       //CreatedBy: values.requestedBy, //need to change
       CreatedDate: dayjs(),
       ModifiedBy: values.ModifiedById, // need to change conditionally
@@ -113,6 +164,72 @@ const ReportFormPage = () => {
     onSaveFormHandler(true, values);
   };
 
+  const handleApprove = async (comment: string): Promise<void> => {
+    console.log("Approved with comment:", comment);
+    const data: IApproveAskToAmendPayload = {
+      ApproverTaskId: currentApproverTask.approverTaskId,
+      CurrentUserId: user?.EmployeeId ? user?.EmployeeId : 0,
+      Type: 1, //Approved
+      Comment: comment,
+      AdjustmentId: id ? parseInt(id, 10) : 0,
+    };
+
+    askToAmend(
+      data,
+      {
+        onSuccess: (data) => {
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+
+        }
+      }
+    );
+  };
+
+  const handleAskToAmend = async (comment: string): Promise<void> => {
+    const data: IApproveAskToAmendPayload = {
+      ApproverTaskId: currentApproverTask.approverTaskId,
+      CurrentUserId: user?.EmployeeId ? user?.EmployeeId : 0,
+      Type: 3, //AskToAmend
+      Comment: comment,
+      AdjustmentId: id ? parseInt(id, 10) : 0,
+    };
+
+    askToAmend(
+      data,
+      {
+        onSuccess: (data) => {
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+
+        }
+      }
+    );
+  };
+
+  const handlePullBack = async (comment: string): Promise<void> => {
+    const data: IPullBack = {
+      AdjustmentReportId: id ? parseInt(id, 10) : 0,
+      userId: user?.EmployeeId ? user?.EmployeeId : 0,
+      comment: comment,
+    };
+
+    pullback(
+      data,
+      {
+        onSuccess: (data) => {
+          navigate("/");
+        }
+      }
+    );
+  };
+
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -130,35 +247,79 @@ const ReportFormPage = () => {
       children: <Workflow approverTasks={[]} />,
     },
   ];
-  
-  const extraContent = activeTabKey === "1" ? (
-    <div>
-      <Button
-        type="primary"
-        onClick={() => handleSave(true)}
-        className="request-button"
-        style={{ marginRight: "10px" }}
-      >
-        Save
-      </Button>
-      <Button
-        type="primary"
-        onClick={() => handleSave(false)}
-        className="request-button"
-      >
-        Submit
-      </Button>
-    </div>
-  ) : activeTabKey === "3" ? (
-    <Button
-      type="primary"
-      onClick={() => console.log("Additional Approval Action")}
-      className="request-button"
-    >
-      Additional Approval
-    </Button>
-  ) : null;
 
+  const extraContent = (
+    <div>
+      {!isViewMode &&
+        activeTabKey === "1" &&
+        !submitted && ( //||
+          //(currentApproverTask?.userId == user?.employeeId //&& currentApproverTask?.seqNumber != 3)
+          <Form.Item
+            style={{
+              display: "inline-block", // Ensure inline layout
+              marginRight: "10px", // Add some space between the buttons
+            }}
+          >
+            <Button
+              type="primary"
+              onClick={() => handleSave(true)}
+              className="request-button"
+              style={{ marginRight: "10px" }}
+            >
+              Save
+            </Button>
+          </Form.Item>
+        )}
+
+      {!isViewMode && activeTabKey === "1" && !submitted && (
+        <Form.Item
+          style={{
+            display: "inline-block", // Inline display for second button as well
+            marginRight: "10px",
+          }}
+        >
+          <Button
+            type="primary"
+            onClick={() => handleSave(false)}
+            className="request-button"
+          >
+            Submit
+          </Button>
+        </Form.Item>
+      )}
+
+      {!isViewMode && activeTabKey === "1" && underAmmendment && (
+        <Form.Item
+          style={{
+            display: "inline-block", // Inline display for second button as well
+            marginRight: "10px",
+          }}
+        >
+          <Button
+            type="primary"
+            onClick={() => handleSave(false)}
+            className="request-button"
+          >
+            Resubmit
+          </Button>
+        </Form.Item>
+      )}
+
+      {true && (
+        <WorkFlowButtons
+          onApprove={handleApprove}
+          onAskToAmend={handleAskToAmend}
+          onPullBack={handlePullBack}
+          currentApproverTask={currentApproverTask}
+          existingAdjustmentReport={existingAdjustmentReport}
+          //isFormModified={isEditMode && isViewMode == false ? true : false}
+          isFormModified={isEditMode ? true : false}
+          advisorRequired={false}
+          departmentHead={true}
+        />
+      )}
+    </div>
+  );
 
   return (
     <div>

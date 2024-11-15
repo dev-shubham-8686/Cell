@@ -29,5 +29,7 @@ namespace TDSGCellFormat.Interface.Service
         IQueryable<EmployeeMasterView> GetCheckedBy();
 
         IQueryable<EmployeeMasterView> GetAllEmployee();
+
+        IQueryable<AdvisorMasterView> GetAllAdvisors();
     }
 }

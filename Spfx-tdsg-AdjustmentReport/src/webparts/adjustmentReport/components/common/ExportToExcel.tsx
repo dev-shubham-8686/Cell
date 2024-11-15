@@ -5,7 +5,7 @@ import { useUserContext } from "../../context/UserContext";
 import * as dayjs from "dayjs";
 import * as React from "react";
 import { downloadExcelFileListing } from "../../utils/utility";
-import { useGetAdjustmentExcelListing } from "../../hooks/useGetAdjustmentExcelListing";
+import { useExportAdjustmentExcelListing } from "../../hooks/useGetAdjustmentExcelListing";
 //import axios from "axios"; // Import axios for API calls
 
 interface ExportToExcelProps {
@@ -17,6 +17,9 @@ const ExportToExcel = forwardRef(({ type }: ExportToExcelProps, ref) => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const user = useUserContext();
+
+  const { mutate } = useExportAdjustmentExcelListing();
+  
   // Expose some methods to the parent via ref
   useImperativeHandle(ref, () => ({
     openModal() {
@@ -66,15 +69,30 @@ const ExportToExcel = forwardRef(({ type }: ExportToExcelProps, ref) => {
       const toDate = values.toDate
         ? dayjs(values.toDate).format("YYYY-MM-DD")
         : "";
-      //console.log(fromDate);
-      //console.log(toDate);
-      const response = useGetAdjustmentExcelListing(
-        fromDate,
-        toDate,
-        user?.user?.EmployeeId?.toString() ?? "",
-        type
-      )
-      downloadExcelFileListing(response.data?.ReturnValue);
+      console.log(fromDate);
+      console.log(toDate);
+      mutate(
+        {
+          fromDate,
+          toDate,
+          employeeId: user?.user?.EmployeeId?.toString() ?? "",
+          type,
+        },
+        {
+          onSuccess: (data) => {
+            // Handle success - download the file
+            downloadExcelFileListing(data?.ReturnValue?.toString());
+            setIsModalVisible(false);
+            form.resetFields(); // Reset form after submission
+          },
+          onError: (error) => {
+            console.error("Error exporting data to Excel:", error);
+          },
+          onSettled: () => {
+            setLoading(false);
+          },
+        }
+      );
 
       // Call the API to export data with the selected dates
       //await exportDataToExcel(fromDate, toDate);

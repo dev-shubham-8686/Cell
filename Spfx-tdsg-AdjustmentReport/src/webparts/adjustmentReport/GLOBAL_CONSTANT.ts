@@ -6,6 +6,11 @@ export const GET_USER = "https://localhost:7190/api/AdjustmentReport/GetEmployee
 
 export const MY_DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm:ss";
 
+export const WEB_URL = 
+// "https://synopsandbox.sharepoint.com/sites/Training2024"
+ "https://synopsandbox.sharepoint.com/sites/e-app-stage"
+//"https://tdsgj.sharepoint.com/sites/e-app-stage"
+
 //Process Status
 export const ProcessStatus = [
   "approved",

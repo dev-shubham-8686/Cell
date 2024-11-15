@@ -110,4 +110,12 @@
         public string? headName { get; set; }
         public string? sectionName { get; set; }
     }
+
+    public class AdvisorMasterView
+    {
+        public int employeeId { get; set; }
+        public string? employeeName { get; set; }
+
+        public string? Email { get; set; }
+    }
 }

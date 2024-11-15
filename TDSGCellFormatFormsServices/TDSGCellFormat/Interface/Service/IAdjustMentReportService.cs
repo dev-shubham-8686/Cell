@@ -32,5 +32,7 @@ namespace TDSGCellFormat.Interface.Service
         Task<AjaxResult> GetCurrentApproverTask(int Id, int userId);
 
         Task<AjaxResult> GetAdjustmentReportExcel(DateTime fromDate, DateTime todate, int employeeId, int type);
+
+        Task<AjaxResult> ExportToPdf(int adjustmentreportId);
     }
 }

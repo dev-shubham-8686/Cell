@@ -3,11 +3,10 @@ import { ColumnsType } from "antd/es/table";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { DATE_FORMAT, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
-import * as dayjs from "dayjs";
 import { displayRequestStatus } from "../../../utils/utility";
 import {
+  EditFilled,
   EyeFilled,
-  FileExcelOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import CommonTable from "../../CommonTable/CommonTable";
@@ -15,6 +14,7 @@ import { IAdjustmentReportInfo } from "../../../api/IAdjustmentReport";
 import { useCallback, useEffect, useState } from "react";
 import { useGetApprovalList } from "../../../hooks/useGetApprovalList";
 import { useUserContext } from "../../../context/UserContext";
+import * as dayjs from "dayjs";
 
 
 export const DEFAULT_PAGE_SIZE = 10;
@@ -31,10 +31,12 @@ const AdjustmentReportApprovals = () => {
     []
   );
 
-  const {user} = useUserContext();
+  const { user } = useUserContext();
 
-  const ViewHandler = (id: any): void => {
-    navigate(`/form/view/${id}`, { state: { isApproverRequest: true } });
+
+
+  const ViewHandler = (id: any, type: string): void => {
+    navigate(`/form/${type}/${id}`, { state: { isApproverRequest: true } });
   };
 
   const { data, isLoading, refetch } = useGetApprovalList(
@@ -79,15 +81,11 @@ const AdjustmentReportApprovals = () => {
     console.log("Clicked Search");
   };
 
-  const onExportToExcel = () => {
-    console.log("Export to Excel");
-  };
-
   const columns: ColumnsType<IAdjustmentReportInfo> = [
     {
-      title: "Request No",
-      dataIndex: "RequestNo",
-      key: "RequestNo",
+      title: "Report No",
+      dataIndex: "ReportNo",
+      key: "ReportNo",
       width: 160,
       sorter: true,
       //   filterDropdown: ColumnFilter,
@@ -96,32 +94,10 @@ const AdjustmentReportApprovals = () => {
       //   ),
     },
     {
-      title: "Department",
-      dataIndex: "Department",
-      key: "Department",
-      width: 160,
-      sorter: true,
-      //   filterDropdown: ColumnFilter,
-      //   filterIcon: (filtered: boolean) => (
-      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      //   ),
-    },
-    {
-      title: "Requestor",
-      dataIndex: "CreatedBy",
-      key: "CreatedBy",
-      width: 140,
-      sorter: true,
-      //   filterDropdown: ColumnFilter,
-      //   filterIcon: (filtered: boolean) => (
-      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      //   ),
-    },
-    {
-      title: "When Date",
+      title: "When",
       dataIndex: "CreatedDate",
       key: "CreatedDate",
-      width: 140,
+      width: 160,
       sorter: true,
       render: (text) => (
         <p className="text-cell">
@@ -134,9 +110,65 @@ const AdjustmentReportApprovals = () => {
       //   ),
     },
     {
+      title: "Area",
+      dataIndex: "AreaName",
+      key: "AreaName",
+      width: 140,
+      sorter: true,
+      //   filterDropdown: ColumnFilter,
+      //   filterIcon: (filtered: boolean) => (
+      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      //   ),
+    },
+    {
+      title: "Machine Name",
+      dataIndex: "MachineName",
+      key: "MachineName",
+      width: 140,
+      sorter: true,
+      //   filterDropdown: ColumnFilter,
+      //   filterIcon: (filtered: boolean) => (
+      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      //   ),
+    },
+    {
+      title: "Sub-Machine Name",
+      dataIndex: "SubMachineName",
+      key: "SubMachineName",
+      width: 140,
+      sorter: true,
+      //   filterDropdown: ColumnFilter,
+      //   filterIcon: (filtered: boolean) => (
+      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      //   ),
+    },
+    {
+      title: "Requestor",
+      dataIndex: "Requestor",
+      key: "Requestor",
+      width: 140,
+      sorter: true,
+      //   filterDropdown: ColumnFilter,
+      //   filterIcon: (filtered: boolean) => (
+      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      //   ),
+    },
+    {
+      title: "Current Approver",
+      dataIndex: "CurrentApprover",
+      key: "CurrentApprover",
+      width: 140,
+      sorter: true,
+      render: (text) => (
+        <span style={{ display: "flex", justifyContent: "center" }}>
+          {text ? text : "-"}
+        </span>
+      ),
+    },
+    {
       title: "Status",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "Status",
+      key: "Status",
       width: 150,
       sorter: true,
       render: (text) => (
@@ -148,10 +180,10 @@ const AdjustmentReportApprovals = () => {
           {text ? displayRequestStatus(text) : "-"}{" "}
         </Tag>
       ),
-      //   filterDropdown: ColumnFilter,
-      //   filterIcon: (filtered: boolean) => (
-      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      //   ),
+      // filterDropdown: ColumnFilter,
+      // filterIcon: (filtered: boolean) => (
+      //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      // ),
     },
     {
       title: "Action",
@@ -164,14 +196,15 @@ const AdjustmentReportApprovals = () => {
             type="link"
             title="View"
             icon={<EyeFilled className="text-black" />} // Black icon
-            onClick={() => ViewHandler(record.AdjustmentReportId)}
+            onClick={() => ViewHandler(record.AdjustmentReportId, "view")}
           />
-          {/* <Button
+          <Button
             type="link"
             title="Edit"
             icon={<EditFilled className="text-black" />} // Black icon
-            onClick={() => ViewHandler(record.requestNo)}
+            onClick={() => ViewHandler(record.AdjustmentReportId, "edit")}
           />
+          {/* 
           <Button
             type="link"
             title="Delete"
@@ -221,14 +254,14 @@ const AdjustmentReportApprovals = () => {
         </div>
 
         {/* Export to Excel button on the right */}
-        <Button
+        {/* <Button
           type="primary"
           className="export-excel"
           onClick={() => onExportToExcel()}
           icon={<FileExcelOutlined />}
         >
           Export to Excel
-        </Button>
+        </Button> */}
       </div>
       {/* <Table
         columns={columns}

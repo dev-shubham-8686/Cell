@@ -8,5 +8,7 @@
         public string? DepartmentName { get; set; }
         public string? DivisionName { get; set; }
         public string? Email { get; set; }
+
+        public bool IsAdmin { get; set; }
     }
 }

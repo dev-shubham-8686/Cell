@@ -22,6 +22,8 @@
       "webpack-env"
     ],
     "lib": [
+      "es2020",
+      "ES2016",
       "es5",
       "dom",
       "es2015.collection",

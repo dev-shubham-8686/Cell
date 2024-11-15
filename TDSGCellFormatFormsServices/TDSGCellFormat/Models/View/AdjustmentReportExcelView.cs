@@ -1,14 +1,10 @@
 ﻿namespace TDSGCellFormat.Models.View
 {
-    public class AdjustmentReportView
+    public class AdjustmentReportExcelView
     {
-        public int AdjustmentReportId { get; set; }
-
-        public int ApproverTaskId {  get; set; }
-
         public string? ReportNo { get; set; }
 
-        public DateTime? CreatedDate { get; set; }
+        public string WhenDate { get; set; }
 
         public string? AreaName { get; set; }
 
@@ -20,12 +16,6 @@
 
         public string? CurrentApprover { get; set; }
 
-        public int EmployeeId { get; set; }
-
         public string? Status { get; set; }
-
-        public bool? IsDeleted { get; set; }
-
-        public string? CreatedBy { get; set; }
     }
 }

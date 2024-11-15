@@ -20,6 +20,7 @@ export interface IUser {
   EmployeeName: string;
   DepartmentName: string;
   DivisionName: string;
+  IsAdmin: number;
 }
 
 const authenticateUser = async (email: string): Promise<boolean> => {

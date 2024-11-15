@@ -87,5 +87,10 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return await _adjustMentRepository.GetAdjustmentReportExcel(fromDate, todate, employeeId, type);
         }
+
+        public async Task<AjaxResult> ExportToPdf(int adjustmentreportId)
+        {
+            return await _adjustMentRepository.ExportToPdf(adjustmentreportId);
+        }
     }
 }

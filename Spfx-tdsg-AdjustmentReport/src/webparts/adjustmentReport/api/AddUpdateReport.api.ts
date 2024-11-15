@@ -1,17 +1,18 @@
 import * as dayjs from "dayjs";
 import { basePathwithprefix } from "../GLOBAL_CONSTANT";
 import apiClient from "../utils/axiosInstance";
+import { IAdjustmentReportPhoto } from "../interface";
 
-interface Image {
-  DocumentName: string;
-  DocumentFilePath: string;
-  IsOldPhoto: boolean;
-  SequenceId: number;
-}
+// interface Image {
+//   DocumentName: string;
+//   DocumentFilePath: string;
+//   IsOldPhoto: boolean;
+//   SequenceId: number;
+// }
 
 interface Photos {
-  BeforeImages: Image[];
-  AfterImages: Image[];
+  BeforeImages: IAdjustmentReportPhoto[];
+  AfterImages: IAdjustmentReportPhoto[];
 }
 
 export interface ChangeRiskManagement {
@@ -32,7 +33,7 @@ export interface IAddUpdateReportPayload {
   RequestBy?: string;
   CheckedBy?: number;
   When?: dayjs.Dayjs;
-  Area?: number;
+  Area?: number[];
   MachineName?: number;
   SubMachineName?: number[];
   DescribeProblem?: string;
@@ -48,6 +49,8 @@ export interface IAddUpdateReportPayload {
   CreatedDate?: dayjs.Dayjs;
   ModifiedBy?: number;
   ModifiedDate?: dayjs.Dayjs;
+  Status?: string;
+  IsAmendReSubmitTask?: boolean,
 }
 
 export const addUpdateReport = async (

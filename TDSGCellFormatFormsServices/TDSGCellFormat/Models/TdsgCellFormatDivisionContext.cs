@@ -134,6 +134,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         modelBuilder.Entity<MaterialConsumptionApproverTaskMasterAdd>().HasNoKey();
         modelBuilder.Entity<EquipmentImprovementView>().HasNoKey();
         modelBuilder.Entity<MaterialConsumptionListView>().HasNoKey();
+        modelBuilder.Entity<AdjustmentReportApproverTaskMasterAdd>().HasNoKey();
         //JsonDataSet
         modelBuilder.Entity<JsonDataSet>().HasNoKey();
         modelBuilder.Entity<GetUserDetailsView>().HasNoKey();

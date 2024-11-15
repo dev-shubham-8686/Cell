@@ -14,10 +14,15 @@ import CommonTable from "../../CommonTable/CommonTable";
 import { useCallback, useEffect, useState } from "react";
 import { useGetAllAdjustmentReports } from "../../../hooks/useGetAllAdjustmentReports";
 import { IAdjustmentReportInfo } from "../../../api/IAdjustmentReport";
-import { DATE_FORMAT, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
-import { displayRequestStatus } from "../../../utils/utility";
+import { DATE_FORMAT, REQUEST_STATUS, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
+import { displayRequestStatus, downloadPDF } from "../../../utils/utility";
 import * as dayjs from "dayjs";
 import { useDeleteAdjustmentReport } from "../../../hooks/useDeleteAdjustmentReport";
+import ExportToExcel from "../../common/ExportToExcel";
+import { useUserContext } from "../../../context/UserContext";
+import { useGetAdjustmentReportPDF } from "../../../hooks/useGetAdjustmentReportPDF";
+import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export const DEFAULT_PAGE_SIZE = 10;
 export type SortOrder = "descend" | "ascend" | null;
@@ -33,8 +38,18 @@ const AdjustmentReportRequests: React.FC = () => {
     []
   );
   const [searchValue, setSearchValue] = React.useState("");
-
+  const exportRef = React.useRef<any>();
   const deleteMutation = useDeleteAdjustmentReport();
+
+  const mutation = useGetAdjustmentReportPDF();
+
+  const { user } = useUserContext();
+
+  const handleExportToExcel = (): void => {
+    if (exportRef.current) {
+      exportRef.current.openModal();
+    }
+  };
 
   const ViewHandler = (id: number): void => {
     const rowData = adjustmentReports.filter(
@@ -49,16 +64,10 @@ const AdjustmentReportRequests: React.FC = () => {
       (adjustmentReport) => adjustmentReport.AdjustmentReportId == id
     );
     sessionStorage.setItem("rowData", JSON.stringify(rowData));
+
     navigate(`/form/edit/${id}`, { state: { isApproverRequest: false } });
     return;
   };
-  // const handleEdit = (key: number) => {
-  //   const rowData = masterSchedules.find(
-  //     (schedule) => schedule.MasterScheduleId == key
-  //   );
-  //   sessionStorage.setItem("rowData", JSON.stringify(rowData));
-  //   navigate(`/master-schedule/edit/${key}`, { state: { rowData } });
-  // };
 
   const { data, isLoading, refetch } = useGetAllAdjustmentReports(
     pageIndex,
@@ -149,8 +158,19 @@ const AdjustmentReportRequests: React.FC = () => {
     }
   };
 
-  const onExportToExcel = () => {
-    console.log("Export to Excel");
+  const handlePdf = (id: number, no: string): void => {
+    const response = mutation.mutate(id, {
+      onSuccess: (data) => {
+        console.log("PDF data received:", data);
+        downloadPDF(data?.ReturnValue?.toString(), no)
+        // Additional logic for handling the PDF data, such as triggering a download or opening it.
+      },
+      onError: (error) => {
+        console.error("Error fetching PDF:", error.message);
+        // Additional error handling logic can be added here.
+      },
+    });
+    console.log(response);
   };
 
   const columns: ColumnsType<IAdjustmentReportInfo> = [
@@ -183,8 +203,8 @@ const AdjustmentReportRequests: React.FC = () => {
     },
     {
       title: "Area",
-      dataIndex: "Area",
-      key: "Area",
+      dataIndex: "AreaName",
+      key: "AreaName",
       width: 140,
       sorter: true,
       //   filterDropdown: ColumnFilter,
@@ -216,8 +236,8 @@ const AdjustmentReportRequests: React.FC = () => {
     },
     {
       title: "Requestor",
-      dataIndex: "CreatedBy",
-      key: "CreatedBy",
+      dataIndex: "Requestor",
+      key: "Requestor",
       width: 140,
       sorter: true,
       //   filterDropdown: ColumnFilter,
@@ -231,10 +251,11 @@ const AdjustmentReportRequests: React.FC = () => {
       key: "CurrentApprover",
       width: 140,
       sorter: true,
-      //   filterDropdown: ColumnFilter,
-      //   filterIcon: (filtered: boolean) => (
-      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      //   ),
+      render: (text) => (
+        <span style={{ display: "flex", justifyContent: "center" }}>
+          {text ? text : "-"}
+        </span>
+      ),
     },
     {
       title: "Status",
@@ -269,18 +290,43 @@ const AdjustmentReportRequests: React.FC = () => {
             icon={<EyeFilled className="text-black" />} // Black icon
             onClick={() => ViewHandler(record.AdjustmentReportId)}
           />
-          <Button
-            type="link"
-            title="Edit"
-            icon={<EditFilled className="text-black" />} // Black icon
-            onClick={() => EditHandler(record.AdjustmentReportId)}
-          />
-          <Button
-            type="link"
-            title="Delete"
-            icon={<DeleteFilled className="text-black" />} // Black icon
-            onClick={() => onDelete(record.AdjustmentReportId)}
-          />
+
+          {(user?.IsAdmin ||
+            ((record.Status === REQUEST_STATUS.Draft ||
+              record.Status === REQUEST_STATUS.UnderAmendment) &&
+              record.EmployeeId == user?.EmployeeId)) && (
+              <Button
+                type="link"
+                title="Edit"
+                icon={<EditFilled className="text-black" />}
+                onClick={() => EditHandler(record.AdjustmentReportId)}
+              />
+            )}
+
+          {(user?.IsAdmin || record.EmployeeId == user?.EmployeeId
+
+            && (
+            record.Status == REQUEST_STATUS.Completed ||
+            record.Status == REQUEST_STATUS.Approved)
+          ) && (
+              <Button
+                title="PDF"
+                className="action-btn"
+                icon={<FontAwesomeIcon title="PDF" icon={faFilePdf} />}
+                onClick={() => handlePdf(record.AdjustmentReportId, record.ReportNo)}
+              />
+            )}
+
+          {(user?.IsAdmin ||
+            (record.Status == REQUEST_STATUS.Draft &&
+              record.EmployeeId == user?.EmployeeId)) && (
+              <Button
+                type="link"
+                title="Delete"
+                icon={<DeleteFilled className="text-black" />} // Black icon
+                onClick={() => onDelete(record.AdjustmentReportId)}
+              />
+            )}
         </div>
       ),
     },
@@ -316,11 +362,12 @@ const AdjustmentReportRequests: React.FC = () => {
         {/* Export to Excel button on the right */}
         <Button
           className="export-excel"
-          onClick={() => onExportToExcel()}
+          onClick={handleExportToExcel}
           icon={<FileExcelOutlined />}
         >
           Export to Excel
         </Button>
+        <ExportToExcel ref={exportRef} type={"1"} />
       </div>
       <CommonTable<IAdjustmentReportInfo>
         bordered

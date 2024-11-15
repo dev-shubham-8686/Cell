@@ -12,6 +12,7 @@ export interface IUser {
     EmployeeName: string;
     DepartmentName: string;
     DivisionName: string;
+    IsAdmin: number;
 }
 
 interface IUserProvider {
@@ -42,7 +43,8 @@ export const UserProvider: React.FC<IUserProvider> = ({
 }) => {
     const [user, setUser] = useState<IUser | null>(null);
     const { data, isLoading } = useUser(
-        userEmail
+        //userEmail
+        "j@synoptek.com"
     );
 
     useEffect(() => {

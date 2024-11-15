@@ -1,30 +1,14 @@
-import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import { IAdjustmentReportListing } from "../api/AdjustmentReportListing.api";
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { getAdjustmentExcelListing } from "../api/AdjustmentExcelListing.api";
+import { IAjaxResult } from "../api/DeleteAdjustmentReport.api";
 
-export const useGetAdjustmentExcelListing = (
-    fromDate: string,
-    todate: string,
-    employeeId: string,
-    type: string
-): UseQueryResult<IAdjustmentReportListing> => {
-    return useQuery(
-        [
-            "get-all-adjustment-reports",
-            fromDate,
-            todate,
-            employeeId,
-            type,
-        ],
-        () =>
-            getAdjustmentExcelListing(
-                fromDate,
-                todate,
-                employeeId,
-                type,
-            ),
-        {
-            keepPreviousData: true,
-        }
+export const useExportAdjustmentExcelListing = (): UseMutationResult<IAjaxResult, unknown, {
+    fromDate: string;
+    toDate: string;
+    employeeId: string;
+    type: string;
+}> => {
+    return useMutation(({ fromDate, toDate, employeeId, type }) =>
+        getAdjustmentExcelListing(fromDate, toDate, employeeId, type)
     );
 };

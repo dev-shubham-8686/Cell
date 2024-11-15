@@ -41,6 +41,8 @@ namespace TDSGCellFormat.Models.Add
 
         public bool? IsSubmit { get; set; }
 
+        public bool? IsAmendReSubmitTask { get; set; }
+
         public DateTime? CreatedDate { get; set; }
 
         public int? CreatedBy { get; set; }

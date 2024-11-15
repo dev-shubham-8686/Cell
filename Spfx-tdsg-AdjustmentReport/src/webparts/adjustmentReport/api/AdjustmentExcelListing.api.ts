@@ -1,5 +1,6 @@
 import { basePathwithprefix } from "../GLOBAL_CONSTANT";
 import apiClient from "../utils/axiosInstance";
+import { IAjaxResult } from "./DeleteAdjustmentReport.api";
 import { IAdjustmentReportInfo } from "./IAdjustmentReport";
 
 export interface IAdjustmentReportListing {
@@ -13,8 +14,8 @@ export const getAdjustmentExcelListing = async (
     todate: string,
     employeeId: string,
     type: string
-): Promise<IAdjustmentReportListing> => {
-    const response = await apiClient.get<IAdjustmentReportListing>(
+): Promise<IAjaxResult> => {
+    const response = await apiClient.get<IAjaxResult>(
         `${basePathwithprefix}/AdjustmentReport/AdjustmentExcelListing`,
         {
             params: {

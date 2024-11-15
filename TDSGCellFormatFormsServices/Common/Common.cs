@@ -258,6 +258,9 @@ namespace TDSGCellFormat.Common
         public const string AdjustMentApprove = "AdjustMent form has been approved";
         public const string AdjustMentReject = "AdjustMent rejected";
         public const string AdjustMentDateUpdate = "AdjustMent record updated";
+        public const string AdjustMentExcel = "Excel file downloaded successfully";
+        public const string AdjustMentPdf = "PDF file downloaded successfully";
+        public const string AdjustMentNotFound = "Please complete the approval process to download the excel";
 
         public const string MaterialSave = "Material Consumption form saved successfully";
         public const string MaterialSubmit = "Material Consumption form submitted successfully";

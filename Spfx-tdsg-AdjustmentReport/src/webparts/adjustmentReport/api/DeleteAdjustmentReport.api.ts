@@ -7,7 +7,7 @@ export interface IAjaxResult {
     ResultType?: number;
     StatusCode?: number;
     Message: string;
-    ReturnValue: object;
+    ReturnValue: any;
 }
 
 export const deleteAdjustmentReport = async (

@@ -155,31 +155,32 @@ export  const create_UUID = (): string => {
       console.error("Failed to download file:");
     }
   };
-  // export const downloadPDF = (value: any,materialNo:string): void => {
+
+  export const downloadPDF = (value: any,reportNo:string): void => {
   
-  //   if (value && value !== "") {
+    if (value && value !== "") {
       
-  //     const base64String = value;
-  //     const byteCharacters = atob(base64String);
-  //     const byteNumbers = new Array(byteCharacters.length);
+      const base64String = value;
+      const byteCharacters = atob(base64String);
+      const byteNumbers = new Array(byteCharacters.length);
               
-  //     for (let i = 0; i < byteCharacters.length; i++) {
-  //       byteNumbers[i] = byteCharacters.charCodeAt(i);
-  //     }
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
       
-  //     const byteArray = new Uint8Array(byteNumbers);
-  //     const blob = new Blob([byteArray], {
-  //       type: "application/pdf",
-  //     });
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], {
+        type: "application/pdf",
+      });
       
-  //     const todayDate = new Date().toISOString().split("T")[0];
-  //     const filename = `${materialNo}_${todayDate}.pdf`;
+      const todayDate = new Date().toISOString().split("T")[0];
+      const filename = `${reportNo}_${todayDate}.pdf`;
       
-  //     saveAs(blob, filename);
-  //   } else {
-  //     console.error("Failed to download file:");
-  //   }
-  // };
+      saveAs(blob, filename);
+    } else {
+      console.error("Failed to download file:");
+    }
+  };
 
   export const redirectToHome = (infoMessgae?: string): void => {
     void showInfo(infoMessgae ?? "Redirecting you to homepage...");

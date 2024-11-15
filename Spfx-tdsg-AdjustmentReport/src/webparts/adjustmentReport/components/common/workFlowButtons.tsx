@@ -1,16 +1,21 @@
 import { useState } from "react";
-import { Button, Modal, Input, Form } from "antd";
+import { Button, Modal, Input, Form, Select, Row, Col } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import * as React from "react";
 import { useUserContext } from "../../context/UserContext";
+import { useGetAllAdvisors } from "../../hooks/useGetAllAdvisors";
+
+const { Option } = Select;
 
 interface WorkFlowButtonsProps {
   onApprove: (comment: string) => Promise<void>;
   onAskToAmend: (comment: string) => Promise<void>;
   onPullBack: (comment: string) => Promise<void>;
   currentApproverTask: any;
-  existingTechniaclInstructionSlip: any;
+  existingAdjustmentReport: any;
   isFormModified: boolean;
+  advisorRequired: boolean;
+  departmentHead: boolean;
 }
 
 const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
@@ -18,8 +23,10 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   onAskToAmend,
   onPullBack,
   currentApproverTask,
-  existingTechniaclInstructionSlip,
+  existingAdjustmentReport,
   isFormModified,
+  advisorRequired,
+  departmentHead
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -32,7 +39,10 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   const [actionType, setActionType] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
-  const user = useUserContext();
+  const { user } = useUserContext();
+
+  const { data: advisors = [] } = useGetAllAdvisors();
+  const [isApprovalSectionVisible, setApprovalSectionVisible] = useState(false);
 
   React.useEffect(() => {
     debugger
@@ -40,11 +50,11 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
     if (isApproverRequest) {
       setApproverRequest(true); // Set the approver request state to true
     }
-  
+
     // Get URL parameters from the current window location
     const params = new URLSearchParams(window.location.search);
     const actionValue = params.get("action"); // Extract the `action` parameter value
-  
+
     // If `action` parameter exists in the URL, proceed with parameter removal and navigation
     if (actionValue) {
       // Remove specified Outlook parameters that are no longer needed
@@ -52,10 +62,10 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
       params.delete("CT");
       params.delete("OR");
       params.delete("CID");
-  
+
       // Update component state to indicate this is an approver request
       setApproverRequest(true);
-  
+
       // Use `navigate` to replace the URL with the cleaned parameters, and set tab state
       navigate(location.pathname, {
         state: {
@@ -65,14 +75,32 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
       });
     }
   }, []); // Empty dependency array to run only on component mount
-  
+
 
   React.useEffect(() => {
+    debugger
     setShowWorkflowBtns(
       currentApproverTask?.approverTaskId &&
-        currentApproverTask?.approverTaskId !== 0
+      currentApproverTask?.approverTaskId !== 0
     );
+    console.log({showWorkflowBtns})
   }, [currentApproverTask]);
+
+  const handleApprovalButtonClick = () => {
+    setApprovalSectionVisible(!isApprovalSectionVisible);
+  };
+
+  const handleProceed = () => {
+    const approvalSequenceValues = form.getFieldsValue(["approvalSequence"]);
+    console.log("Submitted approval sequence:", approvalSequenceValues);
+
+    // Handle form submission, e.g., send data to an API or update the state
+  };
+
+  const handleCancel = () => {
+    // Reset or close the approval section
+    setApprovalSectionVisible(false); // Hide the approval section
+  };
 
   // Handle opening the modal for comment input
   const handleClick = (type: string) => {
@@ -140,10 +168,10 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
         </>
       ) : null}
 
-      {existingTechniaclInstructionSlip?.isSubmit &&
-      existingTechniaclInstructionSlip?.status !== "UnderAmendment" &&
-      user?.user?.EmployeeId === existingTechniaclInstructionSlip?.userId &&
-      existingTechniaclInstructionSlip?.seqNumber < 2 ? (
+      {existingAdjustmentReport?.isSubmit &&
+        existingAdjustmentReport?.status !== "UnderAmendment" &&
+        user?.EmployeeId === existingAdjustmentReport?.userId &&
+        existingAdjustmentReport?.seqNumber < 2 ? (
         <Button
           color="primary"
           variant="solid"
@@ -155,7 +183,6 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
 
       {/* Comment Modal */}
       <Modal
-        //title={`Add Comment for ${actionType}`}
         open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         onOk={handleSubmit}
@@ -164,15 +191,114 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
         cancelText="Cancel"
       >
         <Form form={form} layout="vertical">
+          {advisorRequired && (
+            <Form.Item
+              label="Select Advisor"
+              name="advisor"
+              rules={[{ required: true, message: "Please select an advisor" }]} // Validation rule
+            >
+              <Select placeholder="Please select an advisor">
+                {advisors.map((advisor) => (
+                  <Option key={advisor.employeeId} value={advisor.employeeId}>
+                    {advisor.employeeName}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          )}
+
+          {departmentHead && (
+            <Form.Item>
+              <Button type="primary" onClick={handleApprovalButtonClick}>
+                Additional Approval Required?
+              </Button>
+            </Form.Item>
+          )}
+
+          {/* Conditional Approval Section */}
+          {isApprovalSectionVisible && (
+            <>
+              <Form.List name="approvalSequence" initialValue={[]}>
+                {(fields, { add, remove }) => (
+                  <>
+                    {fields.map(({ key, name }) => (
+                      <Row gutter={16} key={key}>
+                        <Col span={8}>
+                          <Form.Item
+                            name={[name, "departmentHead"]}
+                            label="Department Head"
+                            rules={[{ required: true, message: "Please select a department head" }]}
+                          >
+                            <Select placeholder="Select Department Head">
+                              {advisors.map((advisor) => (
+                                <Option key={advisor.employeeId} value={advisor.employeeId}>
+                                  {advisor.employeeName}
+                                </Option>
+                              ))}
+                            </Select>
+                          </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                          <Form.Item
+                            name={[name, "approvalSequence"]}
+                            label="Approval Sequence"
+                            rules={[{ required: true, message: "Please select approval sequence" }]}
+                          >
+                            <Select placeholder="Select Sequence">
+                              <Option value={1}>1</Option>
+                              <Option value={2}>2</Option>
+                              <Option value={3}>3</Option>
+                            </Select>
+                          </Form.Item>
+                        </Col>
+                        <Col span={8} style={{ display: "flex", alignItems: "center" }}>
+                          <Button
+                            type="danger"
+                            onClick={() => remove(name)}
+                            style={{ width: "100%" }}
+                          >
+                            Remove
+                          </Button>
+                        </Col>
+                      </Row>
+                    ))}
+
+                    {/* Add button to add new department head */}
+                    <Form.Item>
+                      <Button
+                        type="dashed"
+                        onClick={() => add()}
+                        block
+                        icon={<i className="anticon anticon-plus" />}
+                      >
+                        Add Department Head
+                      </Button>
+                    </Form.Item>
+
+                    {/* Proceed and Cancel buttons */}
+                    <Form.Item>
+                      <Button
+                        type="primary"
+                        onClick={handleProceed}
+                        style={{ marginRight: "8px" }}
+                      >
+                        Proceed
+                      </Button>
+                      <Button onClick={handleCancel}>Cancel</Button>
+                    </Form.Item>
+                  </>
+                )}
+              </Form.List>
+
+            </>
+          )}
+
           <Form.Item
             label="Comments"
             name="comment"
             rules={[{ required: true }]} // Validation rule
           >
-            <Input.TextArea
-              rows={4}
-              //placeholder="Please provide your comment"
-            />
+            <Input.TextArea rows={4} placeholder="Please provide your comment" />
           </Form.Item>
         </Form>
       </Modal>
