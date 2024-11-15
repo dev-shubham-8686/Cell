@@ -526,6 +526,15 @@ namespace TDSGCellFormat.Implementation.Repository
                 report.ModifiedDate = DateTime.Now;
                 int rowsAffected = await _context.SaveChangesAsync();
 
+                var reportApprover = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.MaterialConsumptionId == Id).ToList();
+
+                reportApprover.ForEach(a =>
+                {
+                    a.IsActive = false;
+                    a.ModifiedDate = DateTime.Now;
+                });
+                await _context.SaveChangesAsync();
+
                 if (rowsAffected > 0)
                 {
                     res.StatusCode = Enums.Status.Success;

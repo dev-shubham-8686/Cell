@@ -570,6 +570,16 @@ namespace TDSGCellFormat.Implementation.Repository
                 //report.ModifiedDate = DateTime.Now;
                 int rowsAffected = await _context.SaveChangesAsync();
 
+
+                var reportApprover = _context.TroubleReportApproverTaskMasters.Where(x => x.TroubleReportId == Id).ToList();
+
+                reportApprover.ForEach(a =>
+                {
+                    a.IsActive = false;
+                    a.ModifiedDate = DateTime.Now;
+                });
+                await _context.SaveChangesAsync();
+
                 if (rowsAffected > 0)
                 {
                     res.StatusCode = Status.Success;
@@ -616,7 +626,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 var notificationHelper = new NotificationHelper(_context,_cloneContext);
                 await notificationHelper.SendEmail(troubleReportId , EmailNotificationAction.NotifyManager,null,0);
-                InsertHistoryData(troubleReportId, FormType.TroubleReport.ToString(), "Raiser", "emailsent", ApprovalTaskStatus.InProcess.ToString(), userId, HistoryAction.SendToManager.ToString(), 0);
+                //InsertHistoryData(troubleReportId, FormType.TroubleReport.ToString(), "Raiser", "emailsent", ApprovalTaskStatus.InProcess.ToString(), userId, HistoryAction.SendToManager.ToString(), 0);
 
 
                 var troubleData = _context.TroubleReports.Where(x => x.TroubleReportId == troubleReportId && x.IsDeleted == false && x.IsActive == true).FirstOrDefault();

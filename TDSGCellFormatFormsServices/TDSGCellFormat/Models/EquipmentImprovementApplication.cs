@@ -37,7 +37,7 @@ public partial class EquipmentImprovementApplication
     public DateTime? ActualDate { get; set; }
 
     public string? ResultStatus { get; set; }
-    public string? ResultMonitoring { get; set; }
+    public int? ResultMonitoring { get; set; }
     public DateTime? ResultMonitorDate { get; set; }
 
     public bool? IsResultSubmit { get; set; }
@@ -63,6 +63,7 @@ public partial class EquipmentImprovementApplication
 
     public DateTime? ModifiedDate { get; set; }
 
+    public bool? IsLogicalAmend { get; set; }
     public bool? IsDeleted { get; set; }
 
     public virtual ICollection<ChangeRiskManagement> ChangeRiskManagement { get; set; } = new List<ChangeRiskManagement>();

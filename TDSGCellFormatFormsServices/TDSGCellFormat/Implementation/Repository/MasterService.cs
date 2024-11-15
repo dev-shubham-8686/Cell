@@ -338,5 +338,17 @@ namespace TDSGCellFormat.Implementation.Repository
 
             return res;
         }
+
+        public IQueryable<ResultMonitorView> GetAllResultMonitor()
+        {
+            IQueryable<ResultMonitorView> res = _context.ResultMonitoringMaster.Where(x => x.IsActive == true)
+                                               .Select(x => new ResultMonitorView
+                                               {
+                                                 resultMonitorId = x.ResultMonitoringId,
+                                                 resultMonitorName = x.ResultMonitoringName
+                                               });
+
+            return res;
+        }
     }
 }

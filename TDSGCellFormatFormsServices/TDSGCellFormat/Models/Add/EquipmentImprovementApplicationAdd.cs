@@ -35,7 +35,7 @@ namespace TDSGCellFormat.Models.Add
 
         public bool? IsAmendReSubmitTask { get; set; }
 
-
+       
         public DateTime? CreatedDate { get; set; }
 
         public int? CreatedBy { get; set; }
@@ -78,7 +78,7 @@ namespace TDSGCellFormat.Models.Add
         public bool? IsResultSubmit { get; set; }
         public bool? IsResultAmendSubmit { get; set; }
         public string? ResultStatus { get; set; }
-       public string? ResultMonitoring {  get; set; }
+       public int? ResultMonitoringId {  get; set; }
         public string? ResultMonitoringDate { get; set; }
     }
 
