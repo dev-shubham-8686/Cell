@@ -27,5 +27,7 @@ namespace TDSGCellFormat.Interface.Service
         IQueryable<SectionHeadView> GetAllSections(int departmentId);
 
         IQueryable<AdvisorMasterView> GetAllAdvisorEmp();
+
+        IQueryable<ResultMonitorView> GetAllResultMonitor();
     }
 }
