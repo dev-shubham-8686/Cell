@@ -32,8 +32,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
   const user: IUser = useContext(UserContext);
   const { mutate: deleteEquipment } = useDeleteEQReport();
   const { mutate: pdfDownload, isLoading: pdfLoading } = usePDFViewer();
-  const [refetchKey , setrefetchKey]=useState<number>(0);
-
+  const [refetchKey, setrefetchKey] = useState<number>(0);
 
   const handlePDF = (id: any, EQReportNo: any) => {
     try {
@@ -78,7 +77,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
         deleteEquipment(id, {
           onSuccess: (Response) => {
             console.log("ATA Response: ", Response);
-            setrefetchKey(prevKey=>prevKey+1)
+            setrefetchKey((prevKey) => prevKey + 1);
             // window.location.reload();
           },
 
@@ -266,7 +265,6 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
   //           </button>
   //         )}
 
-      
   //         {row.Status == REQUEST_STATUS.Draft &&
   //           row.CreatedBy == user?.employeeId && (
   //             <button
@@ -291,7 +289,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Application No",
       dataIndex: "EquipmentImprovementNo",
       key: "EquipmentImprovementNo",
-      // width: 100, 
+      width: 150,
       sorter: true,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
@@ -301,7 +299,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Issue Date",
       dataIndex: "IssueDate",
       key: "IssueDate",
-      // width: 100,
+       width: 150,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -312,7 +310,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Area",
       dataIndex: "Area",
       key: "Area",
-      // width: 150,
+       width: 150,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -323,7 +321,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Machine Name",
       dataIndex: "MachineName",
       key: "MachineName",
-      // width: 150,
+       width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -334,18 +332,19 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Sub Machine Name",
       dataIndex: "SubMachineName",
       key: "SubMachineName",
-      // width: 150,
+       width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
+      render: (text) => <p className="text-cell">{text ?? "All"}</p>,
     },
     {
       title: "Section Name",
       dataIndex: "SectionName",
       key: "SectionName",
-      // width: 150,
+       width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -356,7 +355,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Improvement Name",
       dataIndex: "ImprovementName",
       key: "ImprovementName",
-      // width: 150,
+       width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -367,7 +366,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Requestor",
       dataIndex: "Requestor",
       key: "Requestor",
-      // width: 100,
+       width: 120,
       sorter: true,
       render: (text) => <p className="text-cell">{text ?? "-"}</p>,
       filterDropdown: ColumnFilter,
@@ -376,10 +375,10 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       ),
     },
     {
-      title: "CurrentApprover",
+      title: "Current Approver",
       dataIndex: "CurrentApprover",
       key: "CurrentApprover",
-      // width: 100,
+       width: 200,
       sorter: true,
       render: (text) => <p className="text-cell">{text ?? "-"}</p>,
       filterDropdown: ColumnFilter,
@@ -391,7 +390,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      // width: 170,
+       width: 170,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -416,17 +415,14 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
           <button
             type="button"
             style={{ background: "none", border: "none" }}
-            onClick={() =>
-              navigate(
-                `/form/view/${row.EquipmentImprovementId}`
-              )
-            }
+            onClick={() => navigate(`/form/view/${row.EquipmentImprovementId}`)}
           >
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
           {(row.Status === REQUEST_STATUS.LogicalAmendment ||
             row.Status === REQUEST_STATUS.UnderImplementation ||
-            (row.Status === REQUEST_STATUS.ResultMonitoring && !row.IsResultSubmit) ||
+            (row.Status === REQUEST_STATUS.ResultMonitoring &&
+              !row.IsResultSubmit) ||
             row.Status === REQUEST_STATUS.Draft ||
             row.Status === REQUEST_STATUS.UnderAmendment ||
             row.Status === REQUEST_STATUS.PCRNPending ||
@@ -436,9 +432,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
                 type="button"
                 style={{ background: "none", border: "none" }}
                 onClick={() =>
-                  navigate(
-                    `/form/edit/${row.EquipmentImprovementId}`
-                  )
+                  navigate(`/form/edit/${row.EquipmentImprovementId}`)
                 }
               >
                 <FontAwesomeIcon title="Edit" icon={faEdit} />
@@ -449,7 +443,10 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
               type="button"
               style={{ background: "none", border: "none" }}
               onClick={() => {
-                handlePDF(row.EquipmentImprovementId, row.EquipmentImprovementNo);
+                handlePDF(
+                  row.EquipmentImprovementId,
+                  row.EquipmentImprovementNo
+                );
               }}
             >
               <FontAwesomeIcon title="PDF" icon={faFilePdf} />
@@ -472,14 +469,18 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       sorter: false,
     },
   ];
-  
+
   return (
-    <Table
-      columns={columns}
-      paginationRequired={true}
-      url="/api/EquipmentImprovement/EqupimentList"
-      refetchKey={refetchKey}
-    />
+    <>
+      <div>
+        <Table
+          columns={columns}
+          paginationRequired={true}
+          url="/api/EquipmentImprovement/MyEquipmentRequest"
+          refetchKey={refetchKey}
+        />
+      </div>
+    </>
   );
 };
 

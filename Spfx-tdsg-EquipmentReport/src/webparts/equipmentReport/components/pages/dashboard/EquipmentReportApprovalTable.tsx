@@ -44,7 +44,7 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       title: "Application No",
       dataIndex: "EquipmentImprovementNo",
       key: "EquipmentImprovementNo",
-      // width: "10%",
+      width: 150,
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -55,7 +55,7 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       title: "Issue Date",
       dataIndex: "IssueDate",
       key: "IssueDate",
-      // width: "10%",
+      width: 150,
       sorter: true,
       // render: (text) => (
       //   <p className="text-cell">{format(text, DATE_FORMAT)}</p>
@@ -69,7 +69,7 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       title: "Area",
       dataIndex: "Area",
       key: "Area",
-      // width: 150,
+      width: 150,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -80,7 +80,7 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       title: "Machine Name",
       dataIndex: "MachineName",
       key: "MachineName",
-      // width: "15%",
+      width: 200,
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -91,18 +91,19 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       title: "Sub Machine Name",
       dataIndex: "SubMachineName",
       key: "SubMachineName",
-      // width: "15%",
+      width: 200,
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
+      render: (text) => <p className="text-cell">{text ?? "All"}</p>,
     },
     {
       title: "Section Name",
       dataIndex: "SectionName",
       key: "SectionName",
-      // width: "15%",
+      width: 200,
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -113,7 +114,7 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       title: "Improvement Name",
       dataIndex: "ImprovementName",
       key: "ImprovementName",
-      // width: "15%",
+      width: 200,
       sorter: true,
       // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -125,7 +126,7 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       title: "Requestor",
       dataIndex: "Requestor",
       key: "Requestor",
-      // width: "10%",
+      width: 120,
       sorter: true,
       render: (text) => <p className="text-cell">{text ?? "-"}</p>,
       // filterDropdown: ColumnFilter,
@@ -157,7 +158,7 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      // width: "10%",
+      width: 170,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (

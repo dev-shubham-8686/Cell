@@ -95,7 +95,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       title: "Application No",
       dataIndex: "EquipmentImprovementNo",
       key: "EquipmentImprovementNo",
-       //width: 100, 
+      width: 150,
       sorter: true,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
@@ -105,7 +105,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       title: "Issue Date",
       dataIndex: "IssueDate",
       key: "IssueDate",
-      // width: 100,
+      width: 150,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -116,7 +116,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       title: "Area",
       dataIndex: "Area",
       key: "Area",
-      // width: 150,
+      width: 150,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -127,7 +127,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       title: "Machine Name",
       dataIndex: "MachineName",
       key: "MachineName",
-      // width: 150,
+      width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -138,18 +138,20 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       title: "Sub Machine Name",
       dataIndex: "SubMachineName",
       key: "SubMachineName",
-      // width: 150,
+      width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
+      render: (text) => <p className="text-cell">{text ?? "All"}</p>,
+
     },
     {
       title: "Section Name",
       dataIndex: "SectionName",
       key: "SectionName",
-      // width: 150,
+      width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -160,7 +162,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       title: "Improvement Name",
       dataIndex: "ImprovementName",
       key: "ImprovementName",
-      // width: 150,
+      width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -171,7 +173,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       title: "Requestor",
       dataIndex: "Requestor",
       key: "Requestor",
-      // width: 100,
+      width: 120,
       sorter: true,
       render: (text) => <p className="text-cell">{text ?? "-"}</p>,
       filterDropdown: ColumnFilter,
@@ -183,7 +185,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       title: "CurrentApprover",
       dataIndex: "CurrentApprover",
       key: "CurrentApprover",
-      // width: 100,
+      width: 200,
       sorter: true,
       render: (text) => <p className="text-cell">{text ?? "-"}</p>,
       filterDropdown: ColumnFilter,
@@ -195,7 +197,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      // width: 170,
+      width: 170,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (

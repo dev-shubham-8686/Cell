@@ -30,11 +30,13 @@ export interface IWorkFlowProps {
   currentApproverTask: IApproverTask;
   eqReport?: IEquipmentImprovementReport;
   isTargetDateSet?: boolean;
+  ResultMonitoring?: number;
 }
 const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   currentApproverTask,
   eqReport,
   isTargetDateSet,
+  ResultMonitoring,
 }) => {
   const user: IUser = useContext(UserContext);
   const { id, mode } = useParams();
@@ -54,7 +56,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const [advisorRequired, setadvisorRequired] = useState(false);
   const { mutate: approveAskToAmmend, isLoading: approving } =
     useApproveAskToAmmend(id ? parseInt(id) : undefined, user.employeeId);
-  const { mutate: addOrUpdateTargetDate,isLoading:updatingTargetDate } = useAddOrUpdateTargetDate();
+  const { mutate: addOrUpdateTargetDate, isLoading: updatingTargetDate } =
+    useAddOrUpdateTargetDate();
   const { mutate: pullBack, isLoading: pullbacking } = usePullBack(
     id ? parseInt(id) : undefined,
     user.employeeId
@@ -322,11 +325,15 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           <>
             <button
               disabled={
-                eqReport?.WorkflowLevel !== 2
+                (eqReport?.WorkflowLevel !== 2
                   ? eqReport?.AdvisorId == user?.employeeId &&
                     isTargetDateSet &&
                     !isToshibaDiscussionTargetDatePast
-                  : false
+                  : false) ||
+                (eqReport?.WorkflowLevel == 2 &&
+                  eqReport?.Status != REQUEST_STATUS.LogicalAmendmentInReview &&
+                  user?.employeeId == eqReport?.SectionHeadId &&
+                  eqReport?.ResultAfterImplementation?.ResultMonitoringId == 3)
               }
               className="btn btn-primary"
               onClick={() => {
@@ -361,7 +368,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                   openCommentsPopup("Approve", false, false, false);
                   setsubmitbuttontext("Approve");
                 }
-                
               }}
             >
               Approve
@@ -404,6 +410,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
         {showWorkflowBtns &&
         eqReport?.ResultAfterImplementation?.IsResultSubmit &&
+        user?.employeeId == eqReport?.SectionHeadId &&
         approverRequest ? (
           <>
             <button
@@ -422,13 +429,18 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
         {showWorkflowBtns &&
         eqReport?.Status !== REQUEST_STATUS.UnderToshibaApproval &&
-        eqReport?.WorkflowLevel !== 2 &&
         approverRequest ? (
           <button
             disabled={
-              eqReport?.AdvisorId == user?.employeeId &&
-              isTargetDateSet &&
-              !isToshibaDiscussionTargetDatePast
+              (eqReport?.WorkflowLevel !== 2
+                ? eqReport?.AdvisorId == user?.employeeId &&
+                  isTargetDateSet &&
+                  !isToshibaDiscussionTargetDatePast
+                : false) ||
+              (eqReport?.WorkflowLevel == 2 &&
+                eqReport?.Status != REQUEST_STATUS.LogicalAmendmentInReview &&
+                user?.employeeId == eqReport?.SectionHeadId &&
+                eqReport?.ResultAfterImplementation?.ResultMonitoringId == 3)
             }
             className="btn btn-primary"
             onClick={() => {
@@ -448,8 +460,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           (eqReport?.WorkflowStatus == REQUEST_STATUS.W1Completed &&
             eqReport?.ResultAfterImplementation?.IsResultAmendSubmit)) &&
         eqReport?.CreatedBy == user?.employeeId ? ( */}
-       
-        {(eqReport?.WorkflowLevel === 1 && eqReport?.IsSubmit &&  
+
+        {(eqReport?.WorkflowLevel === 1 &&
+          eqReport?.IsSubmit &&
           eqReport?.CreatedBy === user?.employeeId &&
           ![
             REQUEST_STATUS.Approved,
@@ -457,7 +470,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             REQUEST_STATUS.PCRNPending,
           ].includes(eqReport?.Status)) ||
         (eqReport?.WorkflowStatus === REQUEST_STATUS.W1Completed &&
-          eqReport?.Status!==REQUEST_STATUS.LogicalAmendment&&
+          eqReport?.Status !== REQUEST_STATUS.LogicalAmendment &&
           eqReport?.CreatedBy === user?.employeeId &&
           eqReport?.ResultAfterImplementation?.IsResultSubmit) ? (
           <button
@@ -474,6 +487,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
         {user.employeeId == eqReport?.AdvisorId &&
           !isTargetDateSet &&
+          !eqReport?.ResultAfterImplementation?.IsResultSubmit &&
           showWorkflowBtns &&
           approverRequest && (
             <button
@@ -503,7 +517,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                 handleToshibaReview();
               }}
             >
-              Toshiba Approved
+              Approved by Toshiba
             </button>
           )}
         {eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval &&
@@ -520,7 +534,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                 handleToshibaReview();
               }}
             >
-              Toshiba Rejected
+              Rejected by Toshiba
             </button>
           )}
         {((user.employeeId == eqReport?.AdvisorId &&
@@ -594,7 +608,10 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           isRequiredField={true}
         />
       </div>
-      <Spin spinning={approving || pullbacking || updatingTargetDate} fullscreen />
+      <Spin
+        spinning={approving || pullbacking || updatingTargetDate}
+        fullscreen
+      />
     </>
   );
 };

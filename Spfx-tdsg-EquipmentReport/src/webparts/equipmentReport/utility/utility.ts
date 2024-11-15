@@ -64,7 +64,7 @@ export  const create_UUID = (): string => {
       
       const todayDate = new Date().toISOString().split("T")[0];
       const filename = `EquipmentReport_${todayDate}.xlsx`;
-      debugger
+      
       saveAs(blob, filename);
     } else {
       console.error("Failed to download file:");

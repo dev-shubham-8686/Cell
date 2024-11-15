@@ -228,11 +228,11 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
             buttonText=""
             onCancel={undefined}
           />
-          
+         {/* <div className="table"> */}
       <AntdTable
         columns={columns}
         dataSource={data}
-        scroll={{ x: "max-content" }}
+        scroll={{ x: "max-content", y:"300px" }}
         loading={isLoading}
         onChange={onChange}
         pagination={{
@@ -256,6 +256,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
           ),
         }}
       />
+      {/* </div>  */}
     </>
   );
 };
