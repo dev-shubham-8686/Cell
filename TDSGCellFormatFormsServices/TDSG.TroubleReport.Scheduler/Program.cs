@@ -28,7 +28,7 @@ public class Program
             var context = scope.ServiceProvider.GetRequiredService<AepplNewCloneStageContext>();
             var icaReport = dbContext.TroubleReports
                                    .Where(tr => tr.ImmediateCorrectiveAction == null &&
-                                                EF.Functions.DateDiffHour(tr.When, DateTime.Now) >= 48 && tr.IsDeleted == false)
+                                                EF.Functions.DateDiffHour(tr.When, DateTime.Now) >= 48 && tr.IsDeleted == false && tr.IsReOpen == false)
                                    .ToList();
 
             var reminderEmails = new ReminderEmails(dbContext, context);
@@ -111,8 +111,8 @@ public class Program
 
             //change the fields for the RCA count
             var rcaReport = dbContext.TroubleReports
-                                   .Where(tr => tr.ImmediateCorrectiveAction == null &&
-                                                EF.Functions.DateDiffDay(tr.When, DateTime.Now) >= 7 && tr.IsDeleted == false)
+                                   .Where(tr => tr.RootCause == null &&
+                                                EF.Functions.DateDiffDay(tr.When, DateTime.Now) >= 7 && tr.IsDeleted == false && tr.IsReOpen == false)
                                    .ToList();
 
             foreach (var rca in rcaReport)

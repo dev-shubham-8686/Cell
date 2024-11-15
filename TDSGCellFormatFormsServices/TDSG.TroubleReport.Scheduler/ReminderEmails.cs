@@ -182,12 +182,12 @@ namespace TDSG.TroubleReport.Scheduler
                 string? templateFilePath = null;
 
                 //prod link
-                // string? documentLink = _configuration["SPSiteUrl"] +
-                //  "/SitePages/Trouble-Report.aspx#/";
+                 string? documentLink = _configuration["SPSiteUrl"] +
+                  "/SitePages/Trouble-Report.aspx#/";
 
                 //stage link
-                string? documentLink = _configuration["SPSiteUrl"] +
-                "/SitePages/CellFormatStage.aspx#/";
+                //string? documentLink = _configuration["SPSiteUrl"] +
+               // "/SitePages/CellFormatStage.aspx#/";
 
                 string? troubleReportNo = null;
                 string? reportTitle = null;

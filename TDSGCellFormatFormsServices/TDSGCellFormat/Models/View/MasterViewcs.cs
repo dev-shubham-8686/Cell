@@ -118,4 +118,13 @@
         public string? headName { get; set; }
         public string? sectionName { get; set; }
     }
+
+    public class ResultMonitorView
+    {
+        public int resultMonitorId { get; set; }
+
+        public string? resultMonitorName { get; set; }
+
+
+    }
 }
