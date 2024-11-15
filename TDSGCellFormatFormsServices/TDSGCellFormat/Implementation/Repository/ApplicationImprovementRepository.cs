@@ -1258,9 +1258,26 @@ namespace TDSGCellFormat.Implementation.Repository
                                 }
                                 else
                                 {
-                                    equipmentForm.Status = ApprovalTaskStatus.Completed.ToString();
-                                    equipmentForm.WorkFlowStatus = ApprovalTaskStatus.Completed.ToString();
-                                    await _context.SaveChangesAsync();
+                                    if(equipmentForm.IsLogicalAmend == true)
+                                    {
+                                        equipmentForm.Status = ApprovalTaskStatus.ResultMonitoring.ToString();
+                                        equipmentForm.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
+                                        equipmentForm.IsLogicalAmend = false;
+                                        equipmentForm.ResultMonitoring = null;
+                                        equipmentForm.ResultStatus = null;
+                                        equipmentForm.ResultMonitorDate = null;
+                                        equipmentForm.IsResultSubmit = false;
+                                        equipmentForm.TargetDate = null;
+                                        equipmentForm.ActualDate = null;
+                                        await _context.SaveChangesAsync();
+                                    }
+                                    else
+                                    {
+                                        equipmentForm.Status = ApprovalTaskStatus.Completed.ToString();
+                                        equipmentForm.WorkFlowStatus = ApprovalTaskStatus.Completed.ToString();
+                                        await _context.SaveChangesAsync();
+                                    }
+                                    
                                 }
 
                                 //await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Completed, null, 0);
