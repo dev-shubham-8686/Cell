@@ -361,6 +361,14 @@ namespace TDSGCellFormat.Implementation.Repository
                                 res.Message = nextData.Message;
                             }
                         }
+                        if(existingReport.IsLogicalAmend == true)
+                        {
+                            var formData = await Editformdata(report);
+                            if (formData.StatusCode == Enums.Status.Success)
+                            {
+                                res.Message = formData.Message;
+                            }
+                        }
                         else
                         {
                             var nextData = await EditResult(report);
