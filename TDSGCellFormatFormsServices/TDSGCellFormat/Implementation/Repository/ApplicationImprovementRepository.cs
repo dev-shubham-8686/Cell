@@ -348,7 +348,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     if (report.ResultAfterImplementation != null)
                     {
-                        if (report.ModifiedBy == _context.AdminApprovers.Where(x => x.IsActive == true).Select(x => x.AdminId).FirstOrDefault() || existingReport.IsLogicalAmend == true)
+                        if (report.ModifiedBy == _context.AdminApprovers.Where(x => x.IsActive == true).Select(x => x.AdminId).FirstOrDefault())
                         {
                             var formData = await Editformdata(report);
                             if (formData.StatusCode == Enums.Status.Success)
@@ -359,6 +359,14 @@ namespace TDSGCellFormat.Implementation.Repository
                             if (nextData.StatusCode == Enums.Status.Success)
                             {
                                 res.Message = nextData.Message;
+                            }
+                        }
+                        if(existingReport.IsLogicalAmend == true)
+                        {
+                            var formData = await Editformdata(report);
+                            if (formData.StatusCode == Enums.Status.Success)
+                            {
+                                res.Message = formData.Message;
                             }
                         }
                         else
