@@ -36,8 +36,10 @@ const getGridData = async (param: IGridParams ) => {
   });
   
   if(param.listingScreen){
+    
     // const tabledata=response.data.ReturnValue?JSON.parse(response.data?.ReturnValue): []
     const tabledata=response?.data?.ReturnValue?? []
+    
     return tabledata;
   }
   else {

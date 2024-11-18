@@ -171,7 +171,7 @@ const FileUpload: FC<IFileUpload> = ({
 
   const uploadFile = async (file: File, fileName: string): Promise<boolean> => {
     try {
-      
+      debugger
       setItemLoading(true);
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
