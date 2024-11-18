@@ -8,15 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using TDSGCellFormat.Models.View;
 using System.Data;
 using System.Data.SqlClient;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
-using iTextSharp.tool.xml;
 using ClosedXML.Excel;
-using Microsoft.Graph.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
-using PnP.Framework.Extensions;
-using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Dapper;
 
 
