@@ -361,6 +361,14 @@ namespace TDSGCellFormat.Implementation.Repository
                                 res.Message = nextData.Message;
                             }
                         }
+                        if(existingReport.IsLogicalAmend == true)
+                        {
+                            var formData = await Editformdata(report);
+                            if (formData.StatusCode == Enums.Status.Success)
+                            {
+                                res.Message = formData.Message;
+                            }
+                        }
                         else
                         {
                             var nextData = await EditResult(report);
@@ -384,7 +392,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 return res;
             }
         }
-
 
         public async Task<AjaxResult> SubmitRequest(int equipmentId, int? createdBy)
         {
@@ -799,7 +806,26 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.WorkFlowLevel = 2;
                     equipment.IsResultSubmit = true;
                     await _context.SaveChangesAsync();
+
+                    if (equipment.IsLogicalAmend == true)
+                    {
+                        var approverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentId && x.IsActive == true && x.WorkFlowlevel == 2).ToList();
+                        if(approverTask != null)
+                        {
+                            approverTask.ForEach(a =>
+                            {
+                                a.IsActive = false;
+                                a.ModifiedBy = userId;
+                                a.ModifiedDate = DateTime.Now;
+                            });
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+
+                    equipment.IsLogicalAmend = false;
+                    await _context.SaveChangesAsync();
                 }
+
                 InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "Submit the form", ApprovalTaskStatus.ResultMonitoring.ToString(), Convert.ToInt32(userId), HistoryAction.Submit.ToString(), 0);
 
                 _context.CallEquipmentApproverMaterix(userId, equipmentId);
@@ -820,7 +846,6 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             return res;
         }
-
 
         public async Task<AjaxResult> ResultResubmit(int equipmentId, int? userId)
         {
@@ -860,7 +885,6 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             return res;
         }
-
 
         private void MarkAsDeleted<T>(IEnumerable<T> items, int? createdBy, DateTime now) where T : class
         {
@@ -1262,7 +1286,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                     {
                                         equipmentForm.Status = ApprovalTaskStatus.ResultMonitoring.ToString();
                                         equipmentForm.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
-                                        equipmentForm.IsLogicalAmend = false;
+                                        //equipmentForm.IsLogicalAmend = false;
                                         equipmentForm.ResultMonitoring = null;
                                         equipmentForm.ResultStatus = null;
                                         equipmentForm.ResultMonitorDate = null;
@@ -1354,7 +1378,6 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-
         public EquipmentApprovalData GetEquipmentTargetDate(int equipmentId, bool toshibaDiscussion)
         {
             var res = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == equipmentId && x.IsDeleted == false).FirstOrDefault();
@@ -1374,7 +1397,6 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             return equipmentTargetData;
         }
-
 
         public async Task<(List<EquipmentApproverTaskMasterAdd> WorkflowOne, List<EquipmentApproverTaskMasterAdd> WorkflowTwo)> GetEquipmentWorkFlowData(int equipmentId)
         {
@@ -1441,7 +1463,6 @@ namespace TDSGCellFormat.Implementation.Repository
             _context.EquipmentImprovementHistoryMasters.Add(equipmentHistory);
             _context.SaveChanges();
         }
-
 
         public List<TroubleReportHistoryView> GetHistoryData(int equipmentId)
         {
