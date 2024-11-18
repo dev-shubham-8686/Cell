@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.SqlClient;
 using ClosedXML.Excel;
 using Dapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 
 namespace TDSGCellFormat.Implementation.Repository
@@ -687,7 +688,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = Enums.EquipmentSave;
 
 
-                if (report.IsSubmit == true && report.IsAmendReSubmitTask == false)
+                if (report.IsSubmit == true && report.IsAmendReSubmitTask == false && existingReport.IsLogicalAmend == false)
                 {
                     var data = await SubmitRequest(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
@@ -696,7 +697,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
 
                 }
-                else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true)
+                else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true && existingReport.IsLogicalAmend == false)
                 {
                     var data = await Resubmit(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
@@ -704,6 +705,17 @@ namespace TDSGCellFormat.Implementation.Repository
                         res.Message = Enums.EquipmentResubmit;
                     }
 
+                }
+                else if(report.IsSubmit == true && report.IsAmendReSubmitTask == true && existingReport.IsLogicalAmend == true)
+                {
+                    existingReport.Status = ApprovalTaskStatus.LogicalAmendmentInReview.ToString();
+                    existingReport.WorkFlowLevel = 2;
+                    await _context.SaveChangesAsync();
+                    res.Message = Enums.EquipmentResubmit;
+
+                    _context.CallEquipmentApproverMaterix(existingReport.CreatedBy, existingReport.EquipmentImprovementId);
+
+                    InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.LogicalAmendmentInReview.ToString(), Convert.ToInt32(report.CreatedBy), HistoryAction.ReSubmitted.ToString(), 0);
                 }
                 else
                 {

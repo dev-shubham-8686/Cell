@@ -20,5 +20,6 @@ public class SectionMaster
 
     public bool? IsActive { get; set; }
     public virtual ICollection<EquipmentImprovementApplication> EquipmentImprovementApplication { get; set; } = new List<EquipmentImprovementApplication>();
+    public virtual ICollection<SectionHeadEmpMaster> SectionHeadEmpMaster { get; set; } = new List<SectionHeadEmpMaster>();
 }
 
