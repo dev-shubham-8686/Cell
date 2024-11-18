@@ -8,16 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using TDSGCellFormat.Models.View;
 using System.Data;
 using System.Data.SqlClient;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
-using iTextSharp.tool.xml;
 using ClosedXML.Excel;
-using Microsoft.Graph.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
-using PnP.Framework.Extensions;
-using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.ApplicationInsights.Extensibility.Implementation;
 using Dapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 
 namespace TDSGCellFormat.Implementation.Repository
@@ -203,7 +196,7 @@ namespace TDSGCellFormat.Implementation.Repository
                            ? report.otherSubMachine
                            : "";
                     newReport.SectionId = report.SectionId;
-                    newReport.SectionHeadId = report.SectionHeadId;
+                    //newReport.SectionHeadId = report.SectionHeadId;
                     newReport.AreaId = report.AreaId != null ? string.Join(",", report.AreaId) : string.Empty; 
                     newReport.ImprovementName = report.ImprovementName;
                     newReport.Purpose = report.Purpose;
@@ -227,6 +220,26 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.IsLogicalAmend = false;
                     newReport.ToshibaApprovalRequired = false;
                     newReport.WorkFlowStatus = ApprovalTaskStatus.Draft.ToString();
+                    // Assign SectionHeadId based on the conditions
+                    if (report.SectionId == 1)
+                    {
+                        newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 1 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
+                    }
+                    else if (report.SectionId == 2)
+                    {
+                        newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 2 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); ;
+                    }
+                    else if (report.SectionId == 3)
+                    {
+                        if (report.AreaId != null && report.AreaId.Contains(1))
+                        {
+                            newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 3 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); ;
+                        }
+                        else if (report.AreaId != null && (report.AreaId.Contains(2) || report.AreaId.Contains(3)))
+                        {
+                            newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 4 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); ;
+                        }
+                    }
                     _context.EquipmentImprovementApplication.Add(newReport);
                     await _context.SaveChangesAsync();
 
@@ -695,7 +708,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = Enums.EquipmentSave;
 
 
-                if (report.IsSubmit == true && report.IsAmendReSubmitTask == false)
+                if (report.IsSubmit == true && report.IsAmendReSubmitTask == false && existingReport.IsLogicalAmend == false)
                 {
                     var data = await SubmitRequest(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
@@ -704,7 +717,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
 
                 }
-                else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true)
+                else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true && existingReport.IsLogicalAmend == false)
                 {
                     var data = await Resubmit(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
                     if (data.StatusCode == Enums.Status.Success)
@@ -712,6 +725,17 @@ namespace TDSGCellFormat.Implementation.Repository
                         res.Message = Enums.EquipmentResubmit;
                     }
 
+                }
+                else if(report.IsSubmit == true && report.IsAmendReSubmitTask == true && existingReport.IsLogicalAmend == true)
+                {
+                    existingReport.Status = ApprovalTaskStatus.LogicalAmendmentInReview.ToString();
+                    existingReport.WorkFlowLevel = 2;
+                    await _context.SaveChangesAsync();
+                    res.Message = Enums.EquipmentResubmit;
+
+                    _context.CallEquipmentApproverMaterix(existingReport.CreatedBy, existingReport.EquipmentImprovementId);
+
+                    InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.LogicalAmendmentInReview.ToString(), Convert.ToInt32(report.CreatedBy), HistoryAction.ReSubmitted.ToString(), 0);
                 }
                 else
                 {
