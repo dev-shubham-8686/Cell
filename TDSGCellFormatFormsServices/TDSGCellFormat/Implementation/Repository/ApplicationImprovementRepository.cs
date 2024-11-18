@@ -196,7 +196,7 @@ namespace TDSGCellFormat.Implementation.Repository
                            ? report.otherSubMachine
                            : "";
                     newReport.SectionId = report.SectionId;
-                    newReport.SectionHeadId = report.SectionHeadId;
+                    //newReport.SectionHeadId = report.SectionHeadId;
                     newReport.AreaId = report.AreaId != null ? string.Join(",", report.AreaId) : string.Empty; 
                     newReport.ImprovementName = report.ImprovementName;
                     newReport.Purpose = report.Purpose;
@@ -220,6 +220,26 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.IsLogicalAmend = false;
                     newReport.ToshibaApprovalRequired = false;
                     newReport.WorkFlowStatus = ApprovalTaskStatus.Draft.ToString();
+                    // Assign SectionHeadId based on the conditions
+                    if (report.SectionId == 1)
+                    {
+                        newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 1 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
+                    }
+                    else if (report.SectionId == 2)
+                    {
+                        newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 2 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); ;
+                    }
+                    else if (report.SectionId == 3)
+                    {
+                        if (report.AreaId != null && report.AreaId.Contains(1))
+                        {
+                            newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 3 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); ;
+                        }
+                        else if (report.AreaId != null && (report.AreaId.Contains(2) || report.AreaId.Contains(3)))
+                        {
+                            newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 4 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); ;
+                        }
+                    }
                     _context.EquipmentImprovementApplication.Add(newReport);
                     await _context.SaveChangesAsync();
 
