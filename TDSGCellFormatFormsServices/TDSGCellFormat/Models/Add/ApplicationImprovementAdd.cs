@@ -1,4 +1,7 @@
-﻿namespace TDSGCellFormat.Models.Add
+﻿using static TDSGCellFormat.Common.Enums;
+
+namespace TDSGCellFormat.Models.Add
+
 {
     public class ApplicationImprovementAdd
     {
@@ -31,4 +34,6 @@
         public bool? IsDeleted { get; set; }
     }
 
+
+   
 }

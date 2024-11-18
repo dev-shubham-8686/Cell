@@ -49,6 +49,33 @@
   }
 }
 
+/* Disable Form Components styles starts */
+
+.ant-input[disabled],
+.ant-input-number[disabled],
+.ant-input-number-disabled .ant-select-disabled .ant-select-selection-item,
+.ant-select-disabled .ant-select-selection-placeholder,
+.ant-select-disabled .ant-select-selection-overflow-item,
+.ant-textarea[disabled] {
+  color: black !important;
+}
+
+.ant-picker.ant-picker-disabled .ant-picker-input input,
+.ant-picker.ant-picker-disabled .ant-picker-input input::placeholder,
+.ant-picker.ant-picker-disabled .ant-picker-selection-placeholder,
+.ant-picker-input > input[disabled] {
+  color: black !important;
+}
+
+.custom-disabled-select.ant-select-disabled
+  .ant-select-selector
+  span.ant-select-selection-item,
+  .custom-disabled-input.ant-input-number-disabled  {
+  color: black !important;
+}
+
+/* Disable Form Components styles ends */
+
 .ant-input-number {
   &.ant-input-number-in-form-item {
     width: 100%;

@@ -54,6 +54,14 @@
         public string? Email { get; set; }
     }
 
+    public class AdvisorMasterView
+    {
+        public int employeeId { get; set; }
+        public string? employeeName { get; set; }
+
+        public string? Email { get; set; }
+    }
+
     public class AreaMasterView
     {
         public int AreaId { get; set; }
@@ -64,10 +72,15 @@
     public class MachineView
     {
         public int MachineId { get; set; }
-
         public string? MachineName { get; set; }
     }
 
+    public class SubMachineView
+    {
+        public int? MachineId { get; set; }
+        public int SubMachineId {  get; set; }
+        public string? SubMachineName { get; set; }
+    }
     public class DeviceView
     {
         public int deviceId { get; set; }
@@ -95,5 +108,23 @@
         public int functionId { get; set; }
 
         public string? functionName { get; set; }
+    }
+
+    public class SectionHeadView
+    {
+        
+        public int sectionHeadId { get; set; }
+        public int? head {  get; set; }
+        public string? headName { get; set; }
+        public string? sectionName { get; set; }
+    }
+
+    public class ResultMonitorView
+    {
+        public int resultMonitorId { get; set; }
+
+        public string? resultMonitorName { get; set; }
+
+
     }
 }

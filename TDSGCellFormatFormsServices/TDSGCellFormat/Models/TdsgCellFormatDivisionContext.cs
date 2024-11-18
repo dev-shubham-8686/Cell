@@ -25,17 +25,27 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         : base()
     {
     }
+    //EquipmentEmailAttachment
+    public virtual DbSet<EquipmentEmailAttachment> EquipmentEmailAttachments { get; set; }
 
     public virtual DbSet<TroubleReportReviewerTaskMaster> TroubleReportReviewerTaskMasters { get; set; }
 
     public virtual DbSet<AdjustmentReport> AdjustmentReports { get; set; }
-
+    public virtual DbSet<AdminApprover> AdminApprovers  { get; set; }
     public virtual DbSet<EquipmentImprovementApplication> EquipmentImprovementApplication { get; set; }
     public virtual DbSet<EquipmentCurrSituationAttachment> EquipmentCurrSituationAttachment { get; set; }
     public virtual DbSet<EquipmentImprovementAttachment> EquipmentImprovementAttachment { get; set; }
+
+    public virtual DbSet<ResultMonitoringMaster> ResultMonitoringMaster { get; set; }
+    public virtual DbSet<EquipmentImprovementApproverTaskMaster> EquipmentImprovementApproverTaskMasters { get; set; }
+
+    public virtual DbSet<EquipmentImprovementHistoryMaster> EquipmentImprovementHistoryMasters { get; set; }
+    public virtual DbSet<EquipmentAdvisorMaster> EquipmentAdvisorMasters { get; set; }
+    public virtual DbSet<EquipmentPCRNAttachment> EquipmentPCRNAttachments { get; set; }
     public virtual DbSet<ChangeRiskManagement> ChangeRiskManagement { get; set; }
     public virtual DbSet<TroubleAttachment> TroubleAttachments { get; set; }
 
+    public virtual DbSet<CellDivisionRoleMaster> CellDivisionRoleMasters { get; set; }
     public DbSet<TroubleReportNumberResult> TroubleReportNumberResults { get; set; }
 
     [NotMapped]
@@ -125,13 +135,19 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         modelBuilder.Entity<TroubleRevisionResult>().HasNoKey();
         modelBuilder.Entity<TroubleReportApproverTaskMasterAdd>().HasNoKey();
         modelBuilder.Entity<MaterialConsumptionApproverTaskMasterAdd>().HasNoKey();
+        modelBuilder.Entity<EquipmentApproverTaskMasterAdd>().HasNoKey();
         modelBuilder.Entity<EquipmentImprovementView>().HasNoKey();
+        modelBuilder.Entity<EquipmentImprovementApproverView>().HasNoKey();
         modelBuilder.Entity<MaterialConsumptionListView>().HasNoKey();
         //JsonDataSet
         modelBuilder.Entity<JsonDataSet>().HasNoKey();
         modelBuilder.Entity<GetUserDetailsView>().HasNoKey();
+        modelBuilder.Entity<GetEquipmentUser>().HasNoKey();
         modelBuilder.Entity<TroubleReportExcel>().HasNoKey();
         modelBuilder.Entity<MaterialExcel>().HasNoKey();
+
+        modelBuilder.Entity<EquipmentExcelViewForType1>().HasNoKey();
+        modelBuilder.Entity<EquipmentExcelViewForType2>().HasNoKey();
         modelBuilder.Ignore<Property>();
         //modelBuilder.Entity<AdjustmentReport>(entity =>
         //{
@@ -339,6 +355,15 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         Database.ExecuteSqlRaw("EXECUTE dbo.SPP_MaterialConsuptionApproverMatrix @UserId, @MaterialConsumptionId", userIdParam, materialConsumptionIdParam);
     }
 
+    public void CallEquipmentApproverMaterix(int? userId, int equipmentId)
+    {
+        var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@UserId", userId);
+        var equipmentIdParams = new Microsoft.Data.SqlClient.SqlParameter("@EquipmentId", equipmentId);
+
+        Database.ExecuteSqlRaw("EXECUTE dbo.SPP_EquipmentApproverMatrix @UserId, @EquipmentId", userIdParam, equipmentIdParams);
+    }
+
+
     public void ExceptionLog(string exceptionMessage, string exceptionType, string exceptionStackTrack, string webMethodName, Nullable<int> employeeId)
     {
         var exMessage = new Microsoft.Data.SqlClient.SqlParameter("@ExceptionMessage", exceptionMessage);
@@ -363,6 +388,14 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@MaterialConsumptionId", materialConsumptionId);
         return await this.Set<MaterialConsumptionApproverTaskMasterAdd>()
             .FromSqlRaw("EXEC SPP_GetMaterialConsumptionWorkFlowDetails @MaterialConsumptionId", userIdParam)
+            .ToListAsync();
+    }
+
+    public async Task<List<EquipmentApproverTaskMasterAdd>> GetEquipmentWorkFlowData(int equipmentId)
+    {
+        var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@EquipmentId", equipmentId);
+        return await this.Set<EquipmentApproverTaskMasterAdd>()
+            .FromSqlRaw("EXEC SPP_GetEquipmentWorkFlowDetails @EquipmentId", userIdParam)
             .ToListAsync();
     }
     public async Task<GetUserDetailsView> GetUserRole(string email)
@@ -402,6 +435,41 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
     }
 
+    //public async Task<List<EquipmentExcelView>> GetEquipmentExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
+    //{
+    //    var fromDateParam = new Microsoft.Data.SqlClient.SqlParameter("@FromDate", fromDate.ToString("yyyy-MM-dd"));
+    //    var toDateParam = new Microsoft.Data.SqlClient.SqlParameter("@ToDate", toDate.ToString("yyyy-MM-dd"));
+    //    var employeeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@EmployeeId", employeeId);
+    //    var typeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@Type", type);
+    //    var result = await this.Set<EquipmentExcelView>()
+    //    .FromSqlRaw("EXEC GetEquipmentListExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
+    //    .ToListAsync();
+    //    return result;
+
+    //}
+
+    public async Task<List<object>> GetEquipmentExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
+    {
+        var fromDateParam = new Microsoft.Data.SqlClient.SqlParameter("@FromDate", fromDate.ToString("yyyy-MM-dd"));
+        var toDateParam = new Microsoft.Data.SqlClient.SqlParameter("@ToDate", toDate.ToString("yyyy-MM-dd"));
+        var employeeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@EmployeeId", employeeId);
+        var typeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@Type", type);
+
+        if (type == 1)
+        {
+            return await this.Set<EquipmentExcelViewForType1>()
+                .FromSqlRaw("EXEC GetEquipmentListExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
+                .ToListAsync<object>();
+        }
+        else
+        {
+            return await this.Set<EquipmentExcelViewForType2>()
+                .FromSqlRaw("EXEC GetEquipmentListExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
+                .ToListAsync<object>();
+        }
+    }
+
+
     public async Task<List<EquipmentImprovementView>> GetEquipmentImprovementApplication(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
     {
         var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@createdOne", createdBy);
@@ -414,6 +482,36 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
         return await this.Set<EquipmentImprovementView>()
             .FromSqlRaw("EXEC GetEquipmentImprovementApplication @createdOne,@skip,@take,@order,@orderBy,@searchColumn,@searchValue", createdParam,skipParam,takeParam,orderParam,orderByParam,columnParam,valueParam)
+            .ToListAsync();
+    }
+
+    public async Task<List<EquipmentImprovementView>> GetEqupimentImprovementMyRequestList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+    {
+        var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@createdOne", createdBy);
+        var skipParam = new Microsoft.Data.SqlClient.SqlParameter("@skip", skip);
+        var takeParam = new Microsoft.Data.SqlClient.SqlParameter("@take", take);
+        var orderParam = new Microsoft.Data.SqlClient.SqlParameter("@order", order ?? string.Empty);
+        var orderByParam = new Microsoft.Data.SqlClient.SqlParameter("@orderBy", orderBy ?? string.Empty);
+        var columnParam = new Microsoft.Data.SqlClient.SqlParameter("@searchColumn", searchColumn ?? string.Empty);
+        var valueParam = new Microsoft.Data.SqlClient.SqlParameter("@searchValue", searchValue ?? string.Empty);
+
+        return await this.Set<EquipmentImprovementView>()
+            .FromSqlRaw("EXEC GetEquipmentImprovementApplication_MyRequest @createdOne,@skip,@take,@order,@orderBy,@searchColumn,@searchValue", createdParam, skipParam, takeParam, orderParam, orderByParam, columnParam, valueParam)
+            .ToListAsync();
+    }
+
+    public async Task<List<EquipmentImprovementApproverView>> GetEquipmentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+    {
+        var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@createdOne", createdBy);
+        var skipParam = new Microsoft.Data.SqlClient.SqlParameter("@skip", skip);
+        var takeParam = new Microsoft.Data.SqlClient.SqlParameter("@take", take);
+        var orderParam = new Microsoft.Data.SqlClient.SqlParameter("@order", order ?? string.Empty);
+        var orderByParam = new Microsoft.Data.SqlClient.SqlParameter("@orderBy", orderBy ?? string.Empty);
+        var columnParam = new Microsoft.Data.SqlClient.SqlParameter("@searchColumn", searchColumn ?? string.Empty);
+        var valueParam = new Microsoft.Data.SqlClient.SqlParameter("@searchValue", searchValue ?? string.Empty);
+
+        return await this.Set<EquipmentImprovementApproverView>()
+            .FromSqlRaw("EXEC GetEquipmentImprovementApplicationApproverList @createdOne,@skip,@take,@order,@orderBy,@searchColumn,@searchValue", createdParam, skipParam, takeParam, orderParam, orderByParam, columnParam, valueParam)
             .ToListAsync();
     }
 

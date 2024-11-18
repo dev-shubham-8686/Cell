@@ -14,7 +14,7 @@ public class ChangeRiskManagement
     public int? EquipmentImprovementId { get; set; }
     public string? Changes { get; set; }
     
-    public int? FunctionId { get; set; }
+    public string? FunctionId { get; set; }
     public string? RiskAssociatedWithChanges { get; set; }
     public string? Factor {  get; set; }
     public string? CounterMeasures { get; set; }
@@ -31,7 +31,6 @@ public class ChangeRiskManagement
     public DateTime? ModifiedDate { get; set; }
     [ForeignKey("EquipmentImprovementId")]
     public virtual EquipmentImprovementApplication? EquipmentImprovementApplication { get; set; }
-    [ForeignKey("FunctionId")]
-    public virtual FunctionMaster? FunctionMaster { get; set; }
+   
 }
 

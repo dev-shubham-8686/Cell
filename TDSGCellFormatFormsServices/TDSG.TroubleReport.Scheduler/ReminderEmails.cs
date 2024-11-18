@@ -22,7 +22,7 @@ namespace TDSG.TroubleReport.Scheduler
         {
             this._context = context;
             this._cloneContext = cloneContext;
-            var basePath = Path.Combine(Directory.GetCurrentDirectory());
+            var basePath = AppContext.BaseDirectory;
             var configurationBuilder = new ConfigurationBuilder()
                 .SetBasePath(basePath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -156,7 +156,7 @@ namespace TDSG.TroubleReport.Scheduler
             return emailSent;
         }
 
-        public bool SendEmailReminder(int troubleId, string templateFile, string emailSubject, List<int?> employeeId = null)
+        public bool SendEmailReminder(int? troubleId, string templateFile, string emailSubject, List<int?> employeeId = null)
         {
             bool emailSent = false;
             try
@@ -166,16 +166,68 @@ namespace TDSG.TroubleReport.Scheduler
 
                 EmployeeMaster? requesterUserDetail = null;
                 string? requesterUserName = null, requesterUserEmail = null;
+
+                EmployeeMaster? raiserDetails = null;
+                string? raiserCCName = null, raiserCCEmail = null;
+
+                EmployeeMaster? raiserManagerData = null;
+                string? raiserManagerName = null, raiserManagerEmail = null;
+
+
+                EmployeeMaster? workdoneleadManagerdata = null;
+                string? workdoneleadManagerName = null, workdoneleadManagerEmail = null;
+
                 StringBuilder emailBody = new StringBuilder();
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? templateFilePath = null;
-                string documentLink = _configuration["SPSiteUrl"] +
-                    "/SitePages/CellFormatStage.aspx#/trouble-report/";
+
+                //prod link
+                 string? documentLink = _configuration["SPSiteUrl"] +
+                  "/SitePages/Trouble-Report.aspx#/";
+
+                //stage link
+                //string? documentLink = _configuration["SPSiteUrl"] +
+               // "/SitePages/CellFormatStage.aspx#/";
+
                 string? troubleReportNo = null;
                 string? reportTitle = null;
                 List<string> emailToAddressList = new List<string>();
                 List<string> emailCCAddressList = new List<string>();
-                string? workDoneName = null, workDoneEmail = null;
+               
+
+
+                if(troubleId != null)
+                {
+                    var reaiser = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId && x.IsDeleted == false).Select(x => x.CreatedBy).FirstOrDefault();
+                    raiserDetails = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == reaiser);
+                    raiserCCName = raiserDetails?.EmployeeName; //CommonMethod.CombinateEmployeeName(requesterUserDetail?.EmployeeName, requesterUserDetail?.EmployeeCode);
+                    raiserCCEmail = raiserDetails?.Email;
+                    emailCCAddressList.Add(raiserCCEmail);
+
+                    //var raiserRM = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId && x.IsDeleted == false).Select(x => x.CreatedBy).FirstOrDefault();
+                    var raiserRmID = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == reaiser && x.IsActive == true).Select(x => x.ReportingManagerId).FirstOrDefault();
+                    raiserManagerData = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == raiserRmID);
+                    raiserManagerName = raiserManagerData?.EmployeeName; //CommonMethod.CombinateEmployeeName(requesterUserDetail?.EmployeeName, requesterUserDetail?.EmployeeCode);
+                    raiserManagerEmail = raiserManagerData?.Email;
+
+                    foreach(var employee in employeeId)
+                    {
+                        if(employee != raiserRmID)
+                        {
+                            emailCCAddressList.Add(raiserManagerEmail);
+                        }
+                    }
+                   
+                    var workdonelead = _context.WorkDoneDetails.Where(x => x.TroubleReportId == troubleId && x.IsDeleted == false && x.Lead == true).Select(x => x.EmployeeId).FirstOrDefault();
+                    if(workdonelead != null)
+                    {
+                        var wdlLead = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == workdonelead && x.IsActive == true).Select(x => x.ReportingManagerId).FirstOrDefault();
+                        workdoneleadManagerdata = _cloneContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == wdlLead);
+                        workdoneleadManagerName = workdoneleadManagerdata?.EmployeeName; //CommonMethod.CombinateEmployeeName(requesterUserDetail?.EmployeeName, requesterUserDetail?.EmployeeCode);
+                        workdoneleadManagerEmail = workdoneleadManagerdata?.Email;
+                        emailCCAddressList.Add(workdoneleadManagerEmail);
+                    }
+                }
 
                 if (employeeId != null)
                 {
@@ -190,8 +242,8 @@ namespace TDSG.TroubleReport.Scheduler
 
                 if (troubleId > 0)
                 {
-                    troubleReportNo = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId).Select(x => x.TroubleReportNo).FirstOrDefault();
-                    reportTitle = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId).Select(x => x.ReportTitle).FirstOrDefault();
+                    troubleReportNo = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId && x.IsDeleted == false).Select(x => x.TroubleReportNo).FirstOrDefault();
+                    reportTitle = _context.TroubleReports.Where(x => x.TroubleReportId == troubleId && x.IsDeleted == false).Select(x => x.ReportTitle).FirstOrDefault();
 
                 }
                 if (!string.IsNullOrEmpty(templateFile))
@@ -199,27 +251,25 @@ namespace TDSG.TroubleReport.Scheduler
                     string baseDirectory = AppContext.BaseDirectory;
                     //string projectRootDirectory = Directory.GetParent(baseDirectory).Parent.Parent.Parent.Parent.FullName;
                     //templateFilePath = Path.Combine(projectRootDirectory, templateDirectory, templateFile);
-                    string? projectRootDirectory = null;
-                    if (baseDirectory.Contains("Stage"))
-                    {
-                        // Stage environment path
-                        projectRootDirectory = @"D:\Stage\CellFormat";
-                    }
-                    templateFilePath = Path.Combine(projectRootDirectory, templateDirectory, templateFile);
+                    //string? projectRootDirectory = null;
+
+                    //string docLink = documentLink + "form/view/" + troubleId;
+
+                    templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
                     if (!string.IsNullOrEmpty(templateFilePath))
                     {
                         emailBody.Append(System.IO.File.ReadAllText(templateFilePath));
                     }
                     if (emailBody?.Length > 0)
                     {
-                        string docLink = documentLink + "form/view/" + troubleId;
+                        string docLink = documentLink + "form/edit/" + troubleId;
 
                         emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
                         emailBody = emailBody.Replace("#TroubleReportNo#", troubleReportNo);
                         emailBody = emailBody.Replace("#ReporTitle#", reportTitle);
-                        emailBody = emailBody.Replace("#TroubleReportLink#", docLink);
+                        emailBody = emailBody.Replace("#TroubleLink#", docLink);
 
-                        emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), null, emailBody, emailSubject);
+                        emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
 
                         var requestData = new EmailLogMaster()
                         {

@@ -190,6 +190,25 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+
+        public IQueryable<AdvisorMasterView> GetAllAdvisorEmp()
+        {
+            IQueryable<AdvisorMasterView> res = _cloneContext.EmployeeMasters
+                                      .Where(x => x.IsActive == true
+                                             && x.EmpDesignation.StartsWith("Advisor") // Filter for designation
+                                             && _cloneContext.DepartmentMasters
+                                                .Where(d => d.DivisionID == 1)
+                                                .Select(d => d.DepartmentID)
+                                                .Contains(x.DepartmentID))
+                                      .Select(x => new AdvisorMasterView
+                                      {
+                                          employeeId = x.EmployeeID,
+                                          employeeName = x.EmployeeName,
+                                          Email = x.Email // Assuming you want to return department as well
+                                      });
+
+            return res;
+        }
         public IQueryable<EmployeeMasterView> GetEmployeeDetailsById(int id, string email)
         {
             IQueryable<EmployeeMasterView> res = _cloneContext.EmployeeMasters
@@ -219,86 +238,53 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public IQueryable<MachineView> GetAllSubMachines(int machineId)
+        public IQueryable<SubMachineView> GetAllSubMachines()
         {
-            IQueryable<MachineView> res = _context.SubMachines
-                .Where(x => (!x.IsDeleted.HasValue || !x.IsDeleted.Value) && x.MachineId == machineId)
-                .Select(x => new MachineView
-                {
-                    MachineId = x.SubMachineId,
-                    MachineName = x.SubMachineName
-                });
+            IQueryable<SubMachineView> res = _context.SubMachines.Where(x => x.IsDeleted == false)
+                                              .Select(x => new SubMachineView
+                                              {
+                                                  MachineId = x.MachineId,
+                                                  SubMachineId = x.SubMachineId,
+                                                  SubMachineName = x.SubMachineName
+                                              });
 
             return res;
         }
 
         public IQueryable<SectionView> GetAllSection()
-
         {
-
             IQueryable<SectionView> res = _context.SectionMasters.Where(x => x.IsActive == true)
-
                                             .Select(x => new SectionView
-
                                             {
-
                                                 sectionId = x.SectionId,
-
-
-
                                                 sectionName = x.SectionName
-
                                             });
 
-
-
             return res;
-
         }
 
         public IQueryable<SubDeviceView> GetAllSubDevice()
-
         {
-
             IQueryable<SubDeviceView> res = _context.SubDeviceMaster.Where(x => x.IsActive == true)
-
                                             .Select(x => new SubDeviceView
-
                                             {
-
                                                 deviceId = x.DeviceId,
-
                                                 subDeviceId = x.SubDeviceId,
-
                                                 subDeviceName = x.SubDeviceName
-
                                             });
-
-
 
             return res;
 
         }
 
         public IQueryable<FunctionView> GetAllFunction()
-
         {
-
             IQueryable<FunctionView> res = _context.FunctionMaster.Where(x => x.IsActive == true)
-
                                             .Select(x => new FunctionView
-
                                             {
-
                                                 functionId = x.FunctionId,
-
-
-
                                                 functionName = x.FunctionName
-
                                             });
-
-
 
             return res;
 
@@ -326,6 +312,43 @@ namespace TDSGCellFormat.Implementation.Repository
 
             return res;
 
+        }
+
+        public IQueryable<SectionHeadView> GetAllSections(int departmentId)
+        {
+            //int HeadId = _cloneContext.SectionHeadMasters.Where(x => ).
+            IQueryable<SectionHeadView> res = _cloneContext.SectionHeadMasters.Where(x => x.IsActive == true && x.DepartmentId == departmentId)
+
+                                           .Select(x => new SectionHeadView
+
+                                           {
+
+                                               sectionHeadId = x.Sectionid,
+
+                                               head = x.Head,
+                                              headName =  _cloneContext.EmployeeMasters
+                                                         .Where(emp => emp.EmployeeID == x.Head)
+                                                         .Select(emp => emp.EmployeeName)
+                                                         .FirstOrDefault(),
+                                               sectionName = x.SectionName
+
+                                           });
+
+
+
+            return res;
+        }
+
+        public IQueryable<ResultMonitorView> GetAllResultMonitor()
+        {
+            IQueryable<ResultMonitorView> res = _context.ResultMonitoringMaster.Where(x => x.IsActive == true)
+                                               .Select(x => new ResultMonitorView
+                                               {
+                                                 resultMonitorId = x.ResultMonitoringId,
+                                                 resultMonitorName = x.ResultMonitoringName
+                                               });
+
+            return res;
         }
     }
 }

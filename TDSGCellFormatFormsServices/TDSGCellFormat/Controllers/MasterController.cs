@@ -57,7 +57,17 @@ namespace TDSGCellFormat.Controllers
         [HttpGet("GetAllCategories")]
         public async Task<IActionResult> GetAllCategories()
         {
-           
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
             var res = _masterService.GetAllCategories().ToList();
             if (res.Count > 0)
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
@@ -70,6 +80,17 @@ namespace TDSGCellFormat.Controllers
         [HttpGet("costCenters")]
         public async Task<IActionResult> GetAllCostCenters()
         {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
             var res = _masterService.GetAllCostCenters().ToList();
             if (res.Count > 0)
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
@@ -82,6 +103,17 @@ namespace TDSGCellFormat.Controllers
         [HttpGet("unitsOfMeasures")]
         public async Task<IActionResult> GetAllUnitsOfMeasure()
         {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
             var res = _masterService.GetAllUnitsOfMeasure().ToList();
             if (res.Count > 0)
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
@@ -94,6 +126,17 @@ namespace TDSGCellFormat.Controllers
         [HttpPost("unitsOfMeasures")]
         public async Task<IActionResult> CreateUnitOfMeasure([FromBody] UnitOfMeasureAdd unitOfMeasure)
         {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
             var createdUnitOfMeasure = await _masterService.CreateUnitOfMeasure(unitOfMeasure);
             if (createdUnitOfMeasure == null)
             {
@@ -110,6 +153,17 @@ namespace TDSGCellFormat.Controllers
         [HttpPut("unitsOfMeasures")]
         public async Task<IActionResult> UpdateUnitOfMeasure([FromBody] UnitOfMeasureUpdate unitOfMeasure)
         {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
             var createdUnitOfMeasure = await _masterService.UpdateUnitOfMeasure(unitOfMeasure);
             if (createdUnitOfMeasure == null)
             {
@@ -127,7 +181,7 @@ namespace TDSGCellFormat.Controllers
         [HttpGet("GetAllMaterials")]
         public async Task<IActionResult> GetAllMaterials()
         {
-           /* var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
             // Call the IsValidAuthentication method
             AjaxResult authResult;
             bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
@@ -136,8 +190,8 @@ namespace TDSGCellFormat.Controllers
             {
                 // Return unauthorized response if authentication fails
                 Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
-                // return Unauthorized(Ajaxresponse);
-            }*/
+                return Unauthorized(Ajaxresponse);
+            }
             var res = _masterService.GetAllMaterials().ToList();
             if (res.Count > 0)
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
@@ -242,8 +296,8 @@ namespace TDSGCellFormat.Controllers
             return Ok(Ajaxresponse);
         }
 
-        [HttpGet("GetAllSubMachines/{machineId}")]
-        public async Task<IActionResult> GetAllSubMachines(int machineId)
+        [HttpGet("GetAllSubMachines")]
+        public async Task<IActionResult> GetAllSubMachines()
         {
             var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
             // Call the IsValidAuthentication method
@@ -257,7 +311,7 @@ namespace TDSGCellFormat.Controllers
                 return Unauthorized(Ajaxresponse);
             }
 
-            var res = _masterService.GetAllSubMachines(machineId).ToList();
+            var res = _masterService.GetAllSubMachines().ToList();
             if (res.Count > 0)
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
             else
@@ -269,6 +323,17 @@ namespace TDSGCellFormat.Controllers
         [HttpGet("GetAllDevice")]
         public async Task<IActionResult> GetAllDevice()
         {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
             var res = _masterService.GetAllDevice().ToList();
             if (res.Count > 0)
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
@@ -281,6 +346,17 @@ namespace TDSGCellFormat.Controllers
         [HttpGet("GetAllSubDevice")]
         public async Task<IActionResult> GetAllSubDevice()
         {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
             var res = _masterService.GetAllSubDevice().ToList();
             if (res.Count > 0)
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
@@ -293,6 +369,17 @@ namespace TDSGCellFormat.Controllers
         [HttpGet("GetAllSection")]
         public async Task<IActionResult> GetAllSection()
         {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
             var res = _masterService.GetAllSection().ToList();
             if (res.Count > 0)
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
@@ -305,7 +392,89 @@ namespace TDSGCellFormat.Controllers
         [HttpGet("GetAllFunction")]
         public async Task<IActionResult> GetAllFunction()
         {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
             var res = _masterService.GetAllFunction().ToList();
+            if (res.Count > 0)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+
+        [HttpGet("GetAllSections")]
+        public async Task<IActionResult> GetAllSections(int departmentId)
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+            
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
+            var res = _masterService.GetAllSections(departmentId).ToList();
+            if (res.Count > 0)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetAllAdvisor")]
+        ///IQueryable<EmployeeMasterView> GetAllEmployees()
+        public async Task<IActionResult> GetAllAdvisorEmp()
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+            
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
+            var res = _masterService.GetAllAdvisorEmp().ToList();
+            if (res.Count > 0)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetResultMonitor")]
+        public async Task<IActionResult> GetAllResultMonitor()
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
+            var res = _masterService.GetAllResultMonitor().ToList();
             if (res.Count > 0)
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
             else
