@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { MY_DATE_TIME_FORMAT, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
 import { Tooltip } from "antd";
 import { displayRequestStatus } from "../../../utils/utility";
+import { useUserContext } from "../../../context/UserContext";
 
 export interface IRequestStatus {
   formStatus: string;
@@ -111,12 +112,12 @@ interface IProps {
 
 // Define static data for requestStatus
 
-const userId = 1;
 const Workflow: React.FC<IProps> = ({
   approverTasks,
   //   requestStatus,
   //   userId,
 }) => {
+  const { user } = useUserContext();
   const workflowTableBody: {
     head: string;
     cellValues: string[];
@@ -143,7 +144,7 @@ const Workflow: React.FC<IProps> = ({
           if (item.Status !== REQUEST_STATUS.Pending) {
             className = `status-cell-${item.Status.toLowerCase()} ${
               item.Status === REQUEST_STATUS.InReview &&
-              item.AssignedToUserId === userId
+              item.AssignedToUserId === user?.EmployeeId
                 ? "active-approver"
                 : ""
             }`;

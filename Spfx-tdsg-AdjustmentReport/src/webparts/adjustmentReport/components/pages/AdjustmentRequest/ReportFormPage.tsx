@@ -74,6 +74,7 @@ const ReportFormPage = () => {
           userId: user?.EmployeeId ? user?.EmployeeId : 0
         },
       )
+      console.log(id ? parseInt(id, 10) : 0,{currentApprover}, user?.EmployeeId ? user?.EmployeeId : 0)
       setcurrentApproverTask(currentApprover);
     }
   };
