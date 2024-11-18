@@ -4,9 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace TDSGCellFormat.Models;
 
 
-[Table("SectionMaster")]
+[Table("SectionHeadEmpMaster")]
 public class SectionHeadEmpMaster
 {
+    [Key]
     public int SectionHeadMasterId { get; set; }
     public int? EmployeeId { get; set; }
     public string? SectionHeadName { get; set; }
