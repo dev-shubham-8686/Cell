@@ -45,6 +45,7 @@ export const UserProvider: React.FC<IUserProvider> = ({
   const { data, isLoading } = useUser(
     userEmail 
     // "nityashah@synopsandbox.onmicrosoft.com" // ----- section head
+    // "shyamkanojia@synopsandbox.onmicrosoft.com" // ----- section head
     // "j@synoptek.com"                           // ----- advisor
     // "shubham@synopsandbox.onmicrosoft.com" // ----- advisor
     // "dparikh@synoptek.com"                   //----- dep head 

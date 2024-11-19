@@ -171,6 +171,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const onAddUpdateTargetDate = async (
     IsToshibaDiscussion: boolean,
     targetDate: Date,
+    pcrnAttachmentsRequired?:boolean,
     comment?: string
   ): Promise<void> => {
     try {
@@ -180,6 +181,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         TargetDate: dayjs(targetDate).format(DATE_FORMAT) ?? null,
         Comment: comment,
         AdvisorId: 0,
+        IsPcrnRequired:pcrnAttachmentsRequired,
         EmployeeId: user?.employeeId,
         EmailAttachments: [],
       };
@@ -301,8 +303,10 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     AddUpdateTargetDate: (
       comment: string,
       targetDate: Date,
+      advisorId,
+      pcrnAttachmentsRequired:boolean,
       isToshibaDiscussion
-    ) => onAddUpdateTargetDate(isToshibaDiscussion, targetDate, comment),
+    ) => onAddUpdateTargetDate(isToshibaDiscussion, targetDate,pcrnAttachmentsRequired, comment),
   };
   console.log("Buttons", currentApproverTask ?? [], isApproverRequest ?? null);
   return (
@@ -383,7 +387,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
 
         {showWorkflowBtns &&
-        eqReport?.WorkflowLevel !== 2 &&
+        eqReport?.Status != REQUEST_STATUS.LogicalAmendmentInReview&&
+        eqReport?.ResultAfterImplementation?.ResultMonitoringId != 3&&
+        // eqReport?.WorkflowLevel !== 2 &&
         // (eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval &&
         //   user?.isQcTeamHead) &&
         approverRequest ? (
@@ -467,10 +473,11 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           ![
             REQUEST_STATUS.Approved,
             REQUEST_STATUS.UnderAmendment,
-            REQUEST_STATUS.PCRNPending,
+            // REQUEST_STATUS.PCRNPending,
           ].includes(eqReport?.Status)) ||
         (eqReport?.WorkflowStatus === REQUEST_STATUS.W1Completed &&
           eqReport?.Status !== REQUEST_STATUS.LogicalAmendment &&
+          eqReport?.Status !== REQUEST_STATUS.UnderAmendment&&
           eqReport?.CreatedBy === user?.employeeId &&
           eqReport?.ResultAfterImplementation?.IsResultSubmit) ? (
           <button
@@ -571,6 +578,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           toshibaApprovaltargetDate={
             eqReport?.ToshibaApprovalTargetDate ?? null
           }
+          IsPCRNRequired={eqReport?.IsPcrnRequired}
           isVisible={showModal}
           submitBtnText={submitbuttontext}
           onCancel={() => {

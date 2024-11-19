@@ -45,6 +45,7 @@ export  interface IEquipmentImprovementReport {
 export interface IResultAfterImplementation {
   IsResultSubmit: boolean;
   ActualDate: string;
+  PCRNNumber?:string;
   TargetDate: string;
   ResultStatus:string;
   ResultMonitoringId:number;
