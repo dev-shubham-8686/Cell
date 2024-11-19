@@ -111,7 +111,9 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
     public virtual DbSet<FunctionMaster> FunctionMasters { get; set; }
 
-    
+    public virtual DbSet<AdjustmentAdvisorMaster> AdjustmentAdvisorMasters { get; set; }
+
+    public virtual DbSet<AdjustmentAdditionalDepartmentHeadMaster> AdjustmentAdditionalDepartmentHeadMasters { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

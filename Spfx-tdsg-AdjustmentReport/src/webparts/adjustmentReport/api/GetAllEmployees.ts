@@ -1,11 +1,6 @@
 import { basePath } from "../GLOBAL_CONSTANT";
+import { IEmployee } from "../interface";
 import apiClient from "../utils/axiosInstance";
-
-export interface IEmployee {
-  employeeId: number;
-  employeeName?: string;
-  Email?: string;
-}
 
 export interface IEmployeeResponse {
   ResultType?: number;

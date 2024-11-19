@@ -1,7 +1,7 @@
 import * as moment from "moment";
 import { basePathwithprefix } from "../GLOBAL_CONSTANT";
 import apiClient from "../utils/axiosInstance";
-import { IAdjustmentReportInfo } from "./IAdjustmentReport";
+import { IAdjustmentReportInfo } from "../interface";
 
 export interface IAdjustmentReportListing {
   StatusCode: number;

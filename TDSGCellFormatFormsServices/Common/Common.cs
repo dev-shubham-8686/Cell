@@ -253,6 +253,7 @@ namespace TDSGCellFormat.Common
 
         public const string AdjustMentSave = "Adjustment Report saved successfully";
         public const string AdjustMentSubmit = "AdjustMent form submitted successfully";
+        public const string AdjustMentReSubmit = "AdjustMent form Resubmitted successfully";
         public const string AdjustMentPullback = "AdjustMent form has been pulled back successfully";
         public const string AdjustMentAsktoAmend = "Amendment Asked successfully";
         public const string AdjustMentApprove = "AdjustMent form has been approved";

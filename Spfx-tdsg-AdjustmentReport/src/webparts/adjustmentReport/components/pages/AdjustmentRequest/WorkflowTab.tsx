@@ -5,6 +5,7 @@ import { MY_DATE_TIME_FORMAT, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
 import { Tooltip } from "antd";
 import { displayRequestStatus } from "../../../utils/utility";
 import { useUserContext } from "../../../context/UserContext";
+import { IWorkflowDetail } from "../../../interface";
 
 export interface IRequestStatus {
   formStatus: string;
@@ -15,27 +16,6 @@ export interface IRequestDetails extends IRequestStatus {
   activeSectionInBE: number;
   isSubmit: boolean;
   createdBy: number;
-}
-export interface IWorkflowDetail {
-  ApproverTaskId: number;
-  FormType: string;
-  TroubleReportId: number; // Changed from vehicleRequestId to troubleReportId
-  AssignedToUserId: number;
-  DelegateUserId: number;
-  DelegateBy: number;
-  Status: string;
-  Role: string;
-  DisplayName: string;
-  SequenceNo: number;
-  ActionTakenDate: string;
-  Comments: string;
-  CreatedBy: number;
-  CreatedDate: string; // Date format
-  processName: string;
-  IsActive: boolean;
-  employeeName: string;
-  employeeNameWithoutCode: string;
-  email: string;
 }
 
 interface IProps {

@@ -48,6 +48,9 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
               <Form.Item
                 label="Changes"
                 name={`changes-${index}`}
+                rules={[
+                  { required: true, message: "Changes is required" },
+                ]}
               >
                 <TextArea rows={2} maxLength={100} placeholder="Changes" />
               </Form.Item>
@@ -57,6 +60,9 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
               <Form.Item
                 label="Risk Associated With Changes"
                 name={`riskWithChanges-${index}`}
+                rules={[
+                  { required: true, message: "Risk Associated With Changes is required" },
+                ]}
               >
                 <TextArea
                   rows={2}
@@ -70,6 +76,9 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
               <Form.Item
                 label="Factor/Causes"
                 name={`factor-${index}`}
+                rules={[
+                  { required: true, message: "Factor/Causes is required" },
+                ]}
               >
                 <TextArea rows={2} maxLength={1000} placeholder="Factor" />
               </Form.Item>
@@ -79,6 +88,9 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
               <Form.Item
                 label="Counter Measures"
                 name={`counterMeasures-${index}`}
+                rules={[
+                  { required: true, message: "Counter Measures is required" },
+                ]}
               >
                 <TextArea
                   rows={2}
@@ -93,6 +105,9 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
               <Form.Item
                 label="Function"
                 name={`function-${index}`}
+                rules={[
+                  { required: true, message: "Function is required" },
+                ]}
               >
                 <Input placeholder="Enter Function" />
               </Form.Item>
@@ -102,7 +117,7 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
               <Form.Item
                 label="Due Date"
                 name={`date-${index}`}
-                rules={[{ required: true, message: "Please Select Date" }]}
+                rules={[{ required: true, message: "Please Select Due Date" }]}
               >
                 <DatePicker
                   disabledDate={disabledDate}
@@ -117,6 +132,9 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
               <Form.Item
                 label="Person In Charge"
                 name={`personInCharge-${index}`}
+                rules={[
+                  { required: true, message: "Person In Charge is required" },
+                ]}
               >
                 <Select placeholder="Select Person in Charge">
                   {employeesResult?.ReturnValue &&
@@ -133,6 +151,9 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
               <Form.Item
                 label="Results"
                 name={`results-${index}`}
+                rules={[
+                  { required: true, message: "Results is required" },
+                ]}
               >
                 <TextArea rows={2} maxLength={1000} placeholder="Results" />
               </Form.Item>

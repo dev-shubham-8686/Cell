@@ -10,11 +10,11 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import CommonTable from "../../CommonTable/CommonTable";
-import { IAdjustmentReportInfo } from "../../../api/IAdjustmentReport";
 import { useCallback, useEffect, useState } from "react";
 import { useGetApprovalList } from "../../../hooks/useGetApprovalList";
 import { useUserContext } from "../../../context/UserContext";
 import * as dayjs from "dayjs";
+import { IAdjustmentReportInfo } from "../../../interface";
 
 
 export const DEFAULT_PAGE_SIZE = 10;

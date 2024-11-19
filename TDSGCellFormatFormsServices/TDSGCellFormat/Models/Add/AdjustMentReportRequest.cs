@@ -1,4 +1,7 @@
 ﻿
+using Newtonsoft.Json;
+using static TDSGCellFormat.Common.Enums;
+
 namespace TDSGCellFormat.Models.Add
 {
     public class AdjustMentReportRequest
@@ -69,5 +72,41 @@ namespace TDSGCellFormat.Models.Add
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
 
+    }
+
+    public class ApproveAsktoAmend
+    {
+        public int? ApproverTaskId { get; set; }
+
+        public int CurrentUserId { get; set; }
+
+        public ApprovalStatus Type { get; set; }
+
+        public string? Comment { get; set; }
+
+        public int AdjustmentId { get; set; }
+
+        public int? AdvisorId { get; set; }
+
+        [JsonProperty("additionalDepartmentHeads")]
+        public List<AdditionalDepartmentHeads> AdditionalDepartmentHeads { get; set; } = new List<AdditionalDepartmentHeads>();
+    }
+
+    public class PullBackRequest
+    {
+        public int userId { get; set; }
+
+        public string? comment { get; set; }
+
+        public int AdjustmentReportId { get; set; }
+    }
+
+    public class AdditionalDepartmentHeads
+    {
+        [JsonProperty("departmentHead")]
+        public int DepartmentHead { get; set; }
+
+        [JsonProperty("approvalSequence")]
+        public int ApprovalSequence { get; set; }
     }
 }

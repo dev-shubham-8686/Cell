@@ -81,12 +81,17 @@ export const MESSAGES = {
   onReviewByManager: "Do you wish to proceed with the reviewal process?",
   onSave: "Are you sure you want to save the form?",
   onSubmit: "Are you sure you want to Submit the form?",
+  onReSubmit: "Are you sure you want to resubmit the form?",
   SubmitSuccess: "Adjustment report submitted successfully!",
   onDeleteFile: "Do you want to permanently delete this file?",
   reviewBeforeSubmit:
     "You need to get the report reviewed before you can submit it. Please review the form before proceeding.",
   redirection: "Redirecting you to homepage...",
 };
+
+export function getMessage(key: string): string | undefined {
+  return MESSAGES[key as keyof typeof MESSAGES];
+}
 
 export const DocumentLibraries = {
   Adjustment_Attachments: "AdjustmentDocuments",

@@ -11,4 +11,13 @@
 
         public bool IsAdmin { get; set; }
     }
+
+    public class DepartmentHeadsView
+    {
+        public string? EmployeeName { get; set; }
+
+        public int EmployeeId { get; set; }
+
+        public string? Email { get; set; }
+    }
 }

@@ -1,7 +1,7 @@
 import { basePathwithprefix } from "../GLOBAL_CONSTANT";
+import { IAdjustmentReportInfo } from "../interface";
 import apiClient from "../utils/axiosInstance";
 import { IAjaxResult } from "./DeleteAdjustmentReport.api";
-import { IAdjustmentReportInfo } from "./IAdjustmentReport";
 
 export interface IAdjustmentReportListing {
     StatusCode: number;

@@ -1,10 +1,12 @@
 ﻿using ClosedXML.Excel;
 using Dapper;
+using DocumentFormat.OpenXml.InkML;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using System.Data;
+using Microsoft.Data.SqlClient;
 using System.Text;
 using TDSGCellFormat.Common;
 using TDSGCellFormat.Extensions;
@@ -591,14 +593,14 @@ namespace TDSGCellFormat.Implementation.Repository
             return result;
         }
 
-        public async Task<AjaxResult> UpdateApproveAskToAmend(int ApproverTaskId, int CurrentUserId, ApprovalStatus type, string comment, int Id)
+        public async Task<AjaxResult> UpdateApproveAskToAmend(ApproveAsktoAmend asktoAmend)
         {
             var res = new AjaxResult();
             ///bool result = false;
             try
             {
-                var requestTaskData = _context.AdjustmentReportApproverTaskMasters.Where(x => x.ApproverTaskId == ApproverTaskId && x.IsActive == true
-                                     && x.AdjustmentReportId == Id
+                var requestTaskData = _context.AdjustmentReportApproverTaskMasters.Where(x => x.ApproverTaskId == asktoAmend.ApproverTaskId && x.IsActive == true
+                                     && x.AdjustmentReportId == asktoAmend.AdjustmentId
                                      && x.Status == ApprovalTaskStatus.InReview.ToString()).FirstOrDefault();
                 if (requestTaskData == null)
                 {
@@ -606,46 +608,102 @@ namespace TDSGCellFormat.Implementation.Repository
                     return res;
                 }
 
-                if (type == ApprovalStatus.Approved)
+                if (asktoAmend.Type == ApprovalStatus.Approved)
                 {
                     requestTaskData.Status = ApprovalTaskStatus.Approved.ToString();
-                    requestTaskData.ModifiedBy = CurrentUserId;
-                    requestTaskData.ActionTakenBy = CurrentUserId;
+                    requestTaskData.ModifiedBy = asktoAmend.CurrentUserId;
+                    requestTaskData.ActionTakenBy = asktoAmend.CurrentUserId;
                     requestTaskData.ActionTakenDate = DateTime.Now;
                     requestTaskData.ModifiedDate = DateTime.Now;
-                    requestTaskData.Comments = comment;
+                    requestTaskData.Comments = asktoAmend.Comment;
                     await _context.SaveChangesAsync();
                     res.Message = Enums.AdjustMentApprove;
 
-                    var currentApproverTask = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == Id && x.IsActive == true
-                                                 && x.ApproverTaskId == ApproverTaskId && x.Status == ApprovalTaskStatus.Approved.ToString()).FirstOrDefault();
-                    if (currentApproverTask != null)
+                    if (asktoAmend.AdvisorId != null && asktoAmend.AdvisorId > 0)
                     {
-                        var nextApproveTask = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == requestTaskData.AdjustmentReportId && x.IsActive == true
-                                 && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (requestTaskData.SequenceNo) + 1).ToList();
+                        var advisorData = new AdjustmentAdvisorMaster();
+                        advisorData.AdvisorId = asktoAmend.AdvisorId ?? 0;
+                        advisorData.EmployeeId = asktoAmend.CurrentUserId;
+                        advisorData.IsActive = true;
+                        advisorData.AdjustmentReportId = asktoAmend.AdjustmentId;
+                        _context.AdjustmentAdvisorMasters.Add(advisorData);
+                        await _context.SaveChangesAsync();
 
-                        if (nextApproveTask.Any())
+                        var approverTask = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Advisor" && x.IsActive == true && x.SequenceNo == 3).FirstOrDefault();
+                        approverTask.AssignedToUserId = asktoAmend.AdvisorId;
+                        await _context.SaveChangesAsync();
+                    }
+
+                    if (asktoAmend.AdditionalDepartmentHeads != null && asktoAmend.AdditionalDepartmentHeads.Count > 0)
+                    {
+                        foreach (var data in asktoAmend.AdditionalDepartmentHeads)
                         {
-                            foreach (var nextTask in nextApproveTask)
+                            var additionalDepartmentHead = new AdjustmentAdditionalDepartmentHeadMaster();
+                            additionalDepartmentHead.ApprovalSequence = data.ApprovalSequence;
+                            additionalDepartmentHead.DepartmentHeadId = data.DepartmentHead;
+                            additionalDepartmentHead.EmployeeId = asktoAmend.CurrentUserId;
+                            additionalDepartmentHead.IsActive = true;
+                            additionalDepartmentHead.AdjustmentReportId = asktoAmend.AdjustmentId;
+                            _context.AdjustmentAdditionalDepartmentHeadMasters.Add(additionalDepartmentHead);
+                            await _context.SaveChangesAsync();
+                        }
+
+                        var otherdepartmenthead1 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 1" && x.IsActive == true && x.SequenceNo == 5).FirstOrDefault();
+                        if (otherdepartmenthead1 != null)
+                        {
+                            otherdepartmenthead1.AssignedToUserId = asktoAmend.AdditionalDepartmentHeads.Where(x => x.ApprovalSequence == 1).Select(x => x.DepartmentHead).FirstOrDefault();
+                            await _context.SaveChangesAsync();
+                        }
+
+                        var otherdepartmenthead2 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 2" && x.IsActive == true && x.SequenceNo == 6).FirstOrDefault();
+                        if (otherdepartmenthead2 != null)
+                        {
+                            otherdepartmenthead2.AssignedToUserId = asktoAmend.AdditionalDepartmentHeads.Where(x => x.ApprovalSequence == 2).Select(x => x.DepartmentHead).FirstOrDefault();
+                            await _context.SaveChangesAsync();
+                        }
+
+                        var otherdepartmenthead3 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 3" && x.IsActive == true && x.SequenceNo == 7).FirstOrDefault();
+                        if (otherdepartmenthead3 != null)
+                        {
+                            otherdepartmenthead3.AssignedToUserId = asktoAmend.AdditionalDepartmentHeads.Where(x => x.ApprovalSequence == 3).Select(x => x.DepartmentHead).FirstOrDefault();
+                            await _context.SaveChangesAsync();
+                        }
+
+                        var currentApproverTask = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.IsActive == true
+                                                     && x.ApproverTaskId == asktoAmend.ApproverTaskId && x.Status == ApprovalTaskStatus.Approved.ToString()).FirstOrDefault();
+                        if (currentApproverTask != null)
+                        {
+                            var nextApproveTask = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == requestTaskData.AdjustmentReportId && x.IsActive == true
+                                     && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (requestTaskData.SequenceNo) + 1).ToList();
+
+                            if (nextApproveTask.Any())
                             {
-                                nextTask.Status = ApprovalTaskStatus.InReview.ToString();
-                                nextTask.ModifiedDate = DateTime.Now;
-                                await _context.SaveChangesAsync();
+                                foreach (var nextTask in nextApproveTask)
+                                {
+                                    nextTask.Status = ApprovalTaskStatus.InReview.ToString();
+                                    nextTask.ModifiedDate = DateTime.Now;
+                                    await _context.SaveChangesAsync();
+                                }
                             }
                         }
                     }
-                }
-                if (type == ApprovalStatus.AskToAmend)
-                {
-                    requestTaskData.Status = ApprovalTaskStatus.UnderAmendment.ToString();
-                    requestTaskData.ModifiedBy = CurrentUserId;
-                    requestTaskData.ActionTakenBy = CurrentUserId;
-                    requestTaskData.ActionTakenDate = DateTime.Now;
-                    requestTaskData.ModifiedDate = DateTime.Now;
-                    requestTaskData.Comments = comment;
+                    if (asktoAmend.Type == ApprovalStatus.AskToAmend)
+                    {
+                        requestTaskData.Status = ApprovalTaskStatus.UnderAmendment.ToString();
+                        requestTaskData.ModifiedBy = asktoAmend.CurrentUserId;
+                        requestTaskData.ActionTakenBy = asktoAmend.CurrentUserId;
+                        requestTaskData.ActionTakenDate = DateTime.Now;
+                        requestTaskData.ModifiedDate = DateTime.Now;
+                        requestTaskData.Comments = asktoAmend.Comment;
 
-                    _context.SaveChanges();
-                    res.Message = Enums.AdjustMentAsktoAmend;
+                        _context.SaveChanges();
+                        res.Message = Enums.AdjustMentAsktoAmend;
+
+                        var adjustmentReport = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == asktoAmend.AdjustmentId && x.IsDeleted == false).FirstOrDefault();
+                        adjustmentReport.Status = ApprovalTaskStatus.UnderAmendment.ToString();
+                        //equipment.WorkFlowStatus = ApprovalTaskStatus.UnderAmendment.ToString();
+                        await _context.SaveChangesAsync();
+                    }
                 }
             }
             catch (Exception ex)
@@ -757,17 +815,21 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var adjustmentApproverTask = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsActive == true && x.Status == ApprovalTaskStatus.UnderAmendment.ToString()).FirstOrDefault();
+                var adjustmentApproverTask = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsActive == true).ToList();
                 // equipmentApproverTask.Status = ApprovalTaskStatus.InReview.ToString();
                 // await _context.SaveChangesAsync();
 
                 var adjustment = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == adjustmentReportId && x.IsDeleted == false).FirstOrDefault();
 
-                adjustmentApproverTask.Status = ApprovalTaskStatus.InReview.ToString();
+                adjustmentApproverTask.ForEach(x => x.IsActive = false);
+
+                _context.CallAdjustmentReportApproverMaterix(createdBy, adjustmentReportId);
+
                 adjustment.Status = ApprovalTaskStatus.InReview.ToString();
+                adjustment.IsSubmit = true;
                 await _context.SaveChangesAsync();
 
-                res.Message = Enums.AdjustMentSubmit;
+                res.Message = Enums.AdjustMentReSubmit;
                 res.StatusCode = Enums.Status.Success;
             }
             catch (Exception ex)
@@ -1011,7 +1073,118 @@ namespace TDSGCellFormat.Implementation.Repository
                 ).ExecuteStoredProcedureAsync<AdjustmentReportPdfView>();
 
         }
+
+        public async Task<AjaxResult> GetSectionHead(int adjustmentReportId)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var sectionHeadIdParam = new SqlParameter("@SectionHeadId", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                var adjustmentReportIdParam = new SqlParameter("@AdjustmentReportId", SqlDbType.Int)
+                {
+                    Value = adjustmentReportId
+                };
+
+                // Call the stored procedure
+                _context.Database.ExecuteSqlRaw(
+                    "EXEC [dbo].[SPP_GetSectionHead] @AdjustmentReportId, @SectionHeadId OUT",
+                    adjustmentReportIdParam,
+                    sectionHeadIdParam);
+
+                // Retrieve the output parameter value
+                int sectionHeadId = (int)sectionHeadIdParam.Value;
+
+                if (sectionHeadId == 0) // Assuming 0 means no data found
+                {
+                    res.Message = "Data not found";
+                    res.StatusCode = Status.Error;
+                }
+                else
+                {
+                    res.Message = "Details Fetched Successfully";
+                    res.StatusCode = Status.Success;
+                    res.ReturnValue = sectionHeadId;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions
+                res.Message = $"An error occurred: {ex.Message}";
+                res.StatusCode = Status.Error;
+            }
+
+            return res;
+        }
+
+
+        public async Task<AjaxResult> GetDepartmentHead(int adjustmentReportId)
+        {
+            var res = new AjaxResult();
+
+            try
+            {
+                var departmentHeadIdParam = new SqlParameter("@DepartmentHeadId", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                var adjustmentReportIdParam = new SqlParameter("@AdjustmentReportId", SqlDbType.Int)
+                {
+                    Value = adjustmentReportId
+                };
+
+                // Call the stored procedure
+                _context.Database.ExecuteSqlRaw(
+                    "EXEC [dbo].[SPP_GetDepartmentHead] @AdjustmentReportId, @DepartmentHeadId OUT",
+                    adjustmentReportIdParam,
+                    departmentHeadIdParam);
+
+                // Retrieve the output parameter value
+                int departmentHeadId = (int)departmentHeadIdParam.Value;
+
+                if (departmentHeadId == 0) // Assuming 0 means no data found
+                {
+                    res.Message = "Data not found";
+                    res.StatusCode = Status.Error;
+                }
+                else
+                {
+                    res.Message = "Details Fetched Successfully";
+                    res.StatusCode = Status.Success;
+                    res.ReturnValue = departmentHeadId;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions
+                res.Message = $"An error occurred: {ex.Message}";
+                res.StatusCode = Status.Error;
+            }
+
+            return res;
+        }
+
+        public async Task<AjaxResult> GetAdditionalDepartmentHeads()
+        {
+            var res = new AjaxResult();
+            var result = await _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAdditionalDepartmentHeads]")
+                .ExecuteStoredProcedureAsync<DepartmentHeadsView>();
+
+            if (result == null)
+            {
+                res.Message = "Data not found";
+                res.StatusCode = Status.Error;
+                return res;
+            }
+            else
+            {
+                res.Message = "Employee Details Fetched Successfully";
+                res.StatusCode = Status.Success;
+                res.ReturnValue = result;
+            }
+            return res;
+        }
     }
-
-
 }

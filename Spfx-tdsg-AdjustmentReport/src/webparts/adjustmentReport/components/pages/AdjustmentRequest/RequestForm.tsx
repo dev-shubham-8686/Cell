@@ -50,6 +50,10 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
 
   const [beforeAdjustmentReportPhotos, setbeforeAdjustmentReportPhotos] = useState<IAdjustmentReportPhoto[]>([]);
   const [afterAdjustmentReportPhotos, setafterAdjustmentReportPhotos] = useState<IAdjustmentReportPhoto[]>([]);
+  const [showRemarksforSubMachine, setShowRemarksforSubMachine] = useState(false);
+  const [hideOptionsforSubMachine, setHideOptionsforSubMachine] = useState(false);
+  const [showRemarks, setShowRemarks] = useState(false);
+  const [hideOptions, setHideOptions] = useState(false);
   const [cRMRequired, setCRMRequired] = React.useState<boolean | null>(null);
   const [formSections, setFormSections] = React.useState<number[]>([0]); // Initially, one form section
   const [selectedMachineId, setSelectedMachineId] = useState<number | null>(null);
@@ -161,6 +165,28 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     console.log({ afterAdjustmentReportPhotos });
   };
 
+  const handleSubMachineChange = (selected: string[]) => {
+    // Check if "Other" is selected
+    if (selected.includes("other")) {
+      setShowRemarksforSubMachine(true);
+      setHideOptionsforSubMachine(true); // Hide all other options
+      form.setFieldValue("subMachineName", ["other"]); // Keep only "Other" selected
+    } else {
+      setShowRemarksforSubMachine(false);
+      setHideOptionsforSubMachine(false); // Show all options
+    }
+
+    // Handle "Select All" if "Other" is not selected
+    const allSubMachineIds = filteredSubMachines?.map(
+      (subMachine) => subMachine.SubMachineId
+    ) || [];
+    if (!selected.includes("other") && selected.includes("all")) {
+      const newSelected =
+        selected.length === allSubMachineIds.length + 2 ? [] : allSubMachineIds.concat("other");
+      form.setFieldValue("subMachineName", newSelected);
+    }
+  };
+
   // Use effect to set report data when it becomes available
   const loadData = async () => {
 
@@ -217,13 +243,22 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
 
   React.useEffect(() => {
     void loadData();
-  }, [reportData,isEditMode, isViewMode, subMachinesResult, form]);
+  }, [reportData, isEditMode, isViewMode, subMachinesResult, form]);
 
   // Handle machine change by user, clearing subMachineName selection
-  const handleMachineChange = (value: number) => {
-    setSelectedMachineId(value); // Update selected machine ID
-    setFilteredSubMachines([]); // Clear filtered options temporarily
-    form.setFieldsValue({ subMachineName: [] }); // Reset sub-machine selection
+  const handleMachineChange = (value: any) => {
+    if (value === "other") {
+      setShowRemarks(true);
+      setHideOptions(true); // Hide all other options
+      form.setFieldValue("machineName", "other"); // Keep only "Other" selected
+    }
+    else {
+      setShowRemarks(false);
+      setHideOptions(false); // Show all options
+      setSelectedMachineId(value); // Update selected machine ID
+      setFilteredSubMachines([]); // Clear filtered options temporarily
+      form.setFieldsValue({ subMachineName: [] }); // Reset sub-machine selection
+    }
   };
 
   // const handleAdditionalApprovalClick = () => {
@@ -499,13 +534,29 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                 <Form.Item
                   label="Area"
                   name="area"
-                  rules={[{ required: true }]}
+                  rules={[{ required: true, message: "Please select at least one area" }]}
                 >
                   <Select
                     mode="multiple"
                     placeholder="Select Area"
                     showSearch={false}
-                    loading={arealoading}>
+                    loading={arealoading}
+                    onChange={(selected) => {
+                      if (selected.includes("all")) {
+                        const allAreaIds = areasResult?.ReturnValue.map((area: IArea) => area.AreaId) || [];
+                        // If "Select All" is checked, select all items. Otherwise, clear selection.
+                        form.setFieldValue(
+                          "area",
+                          selected.length === allAreaIds.length + 1 ? [] : allAreaIds
+                        );
+                      }
+                    }}
+                  >
+                    {/* "Select All" Option */}
+                    <Option key="all" value="all">
+                      Select All
+                    </Option>
+                    {/* Other Options */}
                     {areasResult?.ReturnValue &&
                       areasResult.ReturnValue.map((area: IArea) => (
                         <Option key={area.AreaId} value={area.AreaId}>
@@ -584,21 +635,39 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                 <Form.Item
                   label="Machine Name"
                   name="machineName"
-                  rules={[{ required: true }]}
+                  rules={[{ required: true, message: "Please select a machine name" }]}
                 >
                   <Select
                     placeholder="Select Machine Name"
-                    onChange={handleMachineChange} // Update selected machine ID
+                    onChange={handleMachineChange}
+                    value={hideOptions ? "other" : undefined}
                     loading={machineloading}
                   >
-                    {machinesResult?.ReturnValue &&
-                      machinesResult.ReturnValue.map((machine: any) => (
+                    {/* Dynamically loaded machine options */}
+                    {!hideOptions &&
+                      machinesResult?.ReturnValue?.map((machine: any) => (
                         <Option key={machine.MachineId} value={machine.MachineId}>
                           {machine.MachineName}
                         </Option>
                       ))}
+
+                    {/* "Other" Option */}
+                    <Option key="other" value="other">
+                      Other
+                    </Option>
                   </Select>
                 </Form.Item>
+
+                {/* Remarks Field */}
+                {showRemarks && (
+                  <Form.Item label="Remarks" name="remarks">
+                    <TextArea
+                      rows={4}
+                      maxLength={500}
+                      placeholder="Provide additional details (optional)"
+                    />
+                  </Form.Item>
+                )}
               </Col>
             </Row>
             <Row gutter={16}>
@@ -667,20 +736,47 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                 <Form.Item
                   label="Sub-Machine Name"
                   name="subMachineName"
-                  rules={[{ required: true }]}
+                  rules={[{ required: true, message: "Please select at least one sub-machine name" }]}
                 >
-                  <Select mode="multiple" placeholder="Select Sub-Machine Name"
-                    loading={submachineloading}>
-                    {filteredSubMachines?.map((subMachine) => (
-                      <Option
-                        key={subMachine.SubMachineId}
-                        value={subMachine.SubMachineId}
-                      >
-                        {subMachine.SubMachineName}
+                  <Select
+                    mode="multiple"
+                    placeholder="Select Sub-Machine Name"
+                    onChange={handleSubMachineChange}
+                    value={hideOptionsforSubMachine ? ["other"] : undefined}
+                    loading={submachineloading}
+                  >
+                    {/* "Select All" Option (hidden if "Other" is selected) */}
+                    {!hideOptionsforSubMachine && (
+                      <Option key="all" value="all">
+                        Select All
                       </Option>
-                    ))}
+                    )}
+
+                    {/* Sub-Machine Options */}
+                    {!hideOptionsforSubMachine &&
+                      filteredSubMachines?.map((subMachine) => (
+                        <Option key={subMachine.SubMachineId} value={subMachine.SubMachineId}>
+                          {subMachine.SubMachineName}
+                        </Option>
+                      ))}
+
+                    {/* "Other" Option */}
+                    <Option key="other" value="other">
+                      Other
+                    </Option>
                   </Select>
                 </Form.Item>
+
+                {/* Remarks Field */}
+                {showRemarksforSubMachine && (
+                  <Form.Item label="Remarks" name="remarks">
+                    <TextArea
+                      rows={4}
+                      maxLength={500}
+                      placeholder="Provide additional details (optional)"
+                    />
+                  </Form.Item>
+                )}
               </Col>
             </Row>
             <Row gutter={16}>

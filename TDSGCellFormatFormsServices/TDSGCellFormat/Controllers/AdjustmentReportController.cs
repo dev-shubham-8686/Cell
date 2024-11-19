@@ -140,9 +140,9 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpPost("UpdateApproveAskToAmend")]
-        public async Task<IActionResult> UpdateApproveAskToAmend(int ApproverTaskId, int CurrentUserId, ApprovalStatus type, string comment, int Id)
+        public async Task<IActionResult> UpdateApproveAskToAmend(ApproveAsktoAmend asktoAmend)
         {
-            var result = await _tdsgService.UpdateApproveAskToAmend(ApproverTaskId, CurrentUserId, type, comment, Id);
+            var result = await _tdsgService.UpdateApproveAskToAmend(asktoAmend);
             if (result != null)
             {
                 Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
@@ -156,9 +156,9 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpPost("PullBack")]
-        public async Task<IActionResult> PullBackRequest(int Id, int userId, string comment)
+        public async Task<IActionResult> PullBackRequest(PullBackRequest pullBackRequest)
         {
-            var result = await _tdsgService.PullBackRequest(Id, userId, comment);
+            var result = await _tdsgService.PullBackRequest(pullBackRequest.AdjustmentReportId, pullBackRequest.userId, pullBackRequest.comment);
             if (result != null)
             {
                 Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
@@ -204,7 +204,7 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpGet("AdjustmentExcelListing")]
-        public async Task<IActionResult> GetTechnicalInstructionExcel(DateTime fromDate, DateTime todate, int employeeId, int type)
+        public async Task<IActionResult> GetAdjustmentExcel(DateTime fromDate, DateTime todate, int employeeId, int type)
         {
             var result = await _tdsgService.GetAdjustmentReportExcel(fromDate, todate, employeeId, type);
             if (result != null)
@@ -224,6 +224,54 @@ namespace TDSGCellFormat.Controllers
         public async Task<IActionResult> ExportToPdf(int adjustmentreportId)
         {
             var result = await _tdsgService.ExportToPdf(adjustmentreportId);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetSectionHead")]
+        public async Task<IActionResult> GetSectionHead(int adjustmentreportId)
+        {
+            var result = await _tdsgService.GetSectionHead(adjustmentreportId);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetDepartmentHead")]
+        public async Task<IActionResult> GetDepartmentHead(int adjustmentreportId)
+        {
+            var result = await _tdsgService.GetDepartmentHead(adjustmentreportId);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetAdditionalDepartmentHeads")]
+        public async Task<IActionResult> GetAdditionalDepartmentHeads()
+        {
+            var result = await _tdsgService.GetAdditionalDepartmentHeads();
             if (result != null)
             {
                 Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);

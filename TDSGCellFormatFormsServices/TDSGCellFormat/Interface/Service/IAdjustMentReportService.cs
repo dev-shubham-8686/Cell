@@ -23,7 +23,7 @@ namespace TDSGCellFormat.Interface.Service
 
         Task<AjaxResult> GetAdjustmentReportApproverList(int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "DESC", string searchValue = "");
 
-        Task<AjaxResult> UpdateApproveAskToAmend(int ApproverTaskId, int CurrentUserId, ApprovalStatus type, string comment, int Id);
+        Task<AjaxResult> UpdateApproveAskToAmend(ApproveAsktoAmend asktoAmend);
 
         Task<AjaxResult> PullBackRequest(int Id, int userId, string comment);
 
@@ -34,5 +34,11 @@ namespace TDSGCellFormat.Interface.Service
         Task<AjaxResult> GetAdjustmentReportExcel(DateTime fromDate, DateTime todate, int employeeId, int type);
 
         Task<AjaxResult> ExportToPdf(int adjustmentreportId);
+
+        Task<AjaxResult> GetSectionHead(int adjustmentReportId);
+
+        Task<AjaxResult> GetDepartmentHead(int adjustmentReportId);
+
+        Task<AjaxResult> GetAdditionalDepartmentHeads();
     }
 }

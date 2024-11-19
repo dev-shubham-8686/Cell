@@ -63,9 +63,9 @@ namespace TDSGCellFormat.Implementation.Service
             return await _adjustMentRepository.GetAdjustmentReportApproverList(pageIndex, pageSize, createdBy, sortColumn , orderBy , searchValue );
         }
 
-        public async Task<AjaxResult> UpdateApproveAskToAmend(int ApproverTaskId, int CurrentUserId, ApprovalStatus type, string comment, int Id)
+        public async Task<AjaxResult> UpdateApproveAskToAmend(ApproveAsktoAmend asktoAmend)
         {
-            return await _adjustMentRepository.UpdateApproveAskToAmend(ApproverTaskId, CurrentUserId, type, comment, Id);
+            return await _adjustMentRepository.UpdateApproveAskToAmend(asktoAmend);
         }
 
         public async Task<AjaxResult> PullBackRequest(int Id, int userId, string comment)
@@ -91,6 +91,21 @@ namespace TDSGCellFormat.Implementation.Service
         public async Task<AjaxResult> ExportToPdf(int adjustmentreportId)
         {
             return await _adjustMentRepository.ExportToPdf(adjustmentreportId);
+        }
+
+        public async Task<AjaxResult> GetSectionHead(int adjustmentReportId)
+        {
+            return await _adjustMentRepository.GetSectionHead(adjustmentReportId);
+        }
+
+        public async Task<AjaxResult> GetDepartmentHead(int adjustmentReportId)
+        {
+            return await _adjustMentRepository.GetDepartmentHead(adjustmentReportId);
+        }
+
+        public async Task<AjaxResult> GetAdditionalDepartmentHeads()
+        {
+            return await _adjustMentRepository.GetAdditionalDepartmentHeads();
         }
     }
 }

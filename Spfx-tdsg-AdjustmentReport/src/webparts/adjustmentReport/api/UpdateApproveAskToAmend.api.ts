@@ -7,6 +7,13 @@ export interface IApproveAskToAmendPayload {
     Type: 1 | 2 | 3; // 1 for Approve, 2 for Reject and 3 for Ask to Amend
     Comment: string;
     AdjustmentId: number;
+    AdvisorId?: number;
+    additionalDepartmentHeads?: IAdditionalDepartmentHeads[]
+}
+
+export interface IAdditionalDepartmentHeads {
+    departmentHead: number;
+    approvalSequence: number;
 }
 
 export const updateApproveAskToAmend = async (

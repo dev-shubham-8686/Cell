@@ -84,11 +84,14 @@ namespace TDSGCellFormat.Extensions
             }
         }
 
-        public static async Task ExecuteNonQuerStoredProcedureAsync(this DbCommand command)
+        public static async Task ExecuteNonQueryStoredProcedureAsync(this DbCommand command)
         {
+            if (command == null)
+                throw new ArgumentNullException(nameof(command));
+
             using (command)
             {
-                if (command?.Connection?.State == ConnectionState.Closed)
+                if (command.Connection?.State == ConnectionState.Closed)
                 {
                     await command.Connection.OpenAsync();
                 }
@@ -99,7 +102,7 @@ namespace TDSGCellFormat.Extensions
                 }
                 finally
                 {
-                    command?.Connection?.Close();
+                    command.Connection?.Close();
                 }
             }
         }

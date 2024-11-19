@@ -13,7 +13,6 @@ import { useNavigate } from "react-router-dom";
 import CommonTable from "../../CommonTable/CommonTable";
 import { useCallback, useEffect, useState } from "react";
 import { useGetAllAdjustmentReports } from "../../../hooks/useGetAllAdjustmentReports";
-import { IAdjustmentReportInfo } from "../../../api/IAdjustmentReport";
 import { DATE_FORMAT, REQUEST_STATUS, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
 import { displayRequestStatus, downloadPDF } from "../../../utils/utility";
 import * as dayjs from "dayjs";
@@ -23,6 +22,7 @@ import { useUserContext } from "../../../context/UserContext";
 import { useGetAdjustmentReportPDF } from "../../../hooks/useGetAdjustmentReportPDF";
 import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IAdjustmentReportInfo } from "../../../interface";
 
 export const DEFAULT_PAGE_SIZE = 10;
 export type SortOrder = "descend" | "ascend" | null;
@@ -291,10 +291,12 @@ const AdjustmentReportRequests: React.FC = () => {
             onClick={() => ViewHandler(record.AdjustmentReportId)}
           />
 
+          {console.log(record,record.EmployeeId,user?.EmployeeId)}
+
           {(user?.IsAdmin ||
             ((record.Status === REQUEST_STATUS.Draft ||
               record.Status === REQUEST_STATUS.UnderAmendment) &&
-              record.EmployeeId == user?.EmployeeId)) && (
+              record.EmployeeId === user?.EmployeeId)) && (
               <Button
                 type="link"
                 title="Edit"
