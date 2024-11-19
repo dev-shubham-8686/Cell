@@ -382,6 +382,9 @@ namespace TDSGCellFormat.Implementation.Repository
                                           employeeName = x.EmployeeName,
                                           Email = x.Email // Assuming you want to return department as well
                                       });
+            return res;
+        }
+
         public IQueryable<ResultMonitorView> GetAllResultMonitor()
         {
             IQueryable<ResultMonitorView> res = _context.ResultMonitoringMaster.Where(x => x.IsActive == true)
