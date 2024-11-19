@@ -212,8 +212,8 @@ namespace TDSGCellFormat.Helper
                  "/SitePages/Trouble-Report.aspx#/";
 
                 //stage link
-               // string? documentLink = _configuration["SPSiteUrl"] +
-                //"/SitePages/CellFormatStage.aspx#/";
+                //string? documentLink = _configuration["SPSiteUrl"] +
+               // "/SitePages/CellFormatStage.aspx#/";
 
                 StringBuilder emailBody = new StringBuilder();
                 if (requestId > 0)
@@ -711,7 +711,14 @@ namespace TDSGCellFormat.Helper
                                 emailBody = emailBody.Replace("#AmendmendBy#", "");
                                 emailBody = emailBody.Replace("#ApprovedBy#", "");
 
-                                emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
+                                // Remove common addresses from emailCCAddressList and only keep them in emailToAddressList
+                                var distinctToAddresses = emailToAddressList.Distinct().ToList();
+                                var distinctCCAddresses = emailCCAddressList.Except(emailToAddressList).Distinct().ToList();
+
+                                // Call SendEmailNotification with filtered lists
+                                emailSent = SendEmailNotification(distinctToAddresses, distinctCCAddresses, emailBody, emailSubject);
+
+                               // emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
                                 // InsertHistoryData(troubleReportId, FormType.TroubleReport.ToString(), "Raiser", "Form Send to Manager", ApprovalTaskStatus.InProcess.ToString(), userId, HistoryAction.SendToManager.ToString(), 0);
 
                                 var requestData = new EmailLogMaster()
@@ -767,8 +774,14 @@ namespace TDSGCellFormat.Helper
                 bool approvelink = false;
                 bool cpcDeptPeople = false;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
-                string? documentLink = _configuration["SPSiteUrl"] +
-                "/SitePages/MaterialConsumptionSlip.aspx#/material-consumption-slip/";
+
+                //stage link
+                 // string? documentLink = _configuration["SPSiteUrl"] +
+               // "/SitePages/MaterialConsumptionSlip.aspx#/form/";
+
+                //prod link
+                  string? documentLink = _configuration["SPSiteUrl"] +
+                 "/SitePages/MaterialConsumptionSlip.aspx#/form/";
 
                 if (requestId > 0)
                 {
@@ -1010,6 +1023,65 @@ namespace TDSGCellFormat.Helper
             {
                 var commonHelper = new CommonHelper(_context);
                 commonHelper.LogException(ex, "SendMaterialConsumptionEmail");
+                return false;
+            }
+            emailSent = true;
+            return emailSent;
+        }
+
+        public async Task<bool> SendEquipmentEmail(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0)
+        {
+            bool emailSent = false;
+            try
+            {
+                StringBuilder emailBody = new StringBuilder();
+
+                string? templateDirectory = _configuration["TemplateSettings:Normal_Mail"];
+
+                //TroubleReports troubleReports = new TroubleReports();
+                List<string?> emailToAddressList = new List<string?>();
+                List<string?> emailCCAddressList = new List<string?>();
+                string? emailSubject = null;
+                string? templateFile = null, templateFilePath = null;
+                bool isApprovedtask = false;
+                bool isInReviewTask = false;
+                bool isRequestorinToEmail = false;
+                bool isRequestorinCCEmail = false;
+                bool isIsAmendTask = false;
+                string? requesterUserName = null, requesterUserEmail = null;
+                bool approvelink = false;
+                string? AdminEmailNotification = _configuration["AdminEmailNotification"];
+
+                //stage link
+                // string? documentLink = _configuration["SPSiteUrl"] +
+                // "/SitePages/MaterialConsumptionSlip.aspx#/material-consumption-slip/";
+
+                //prod link
+                string? documentLink = _configuration["SPSiteUrl"] +
+               "/SitePages/MaterialConsumptionSlip.aspx#/form/";
+
+                if(requestId > 0)
+                {
+                    var equipmentData = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == requestId && x.IsDeleted == false).FirstOrDefault();
+                    var equipmentNo = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == requestId && x.IsDeleted == false).Select(x => x.EquipmentImprovementNo).FirstOrDefault();
+
+                    if(equipmentData != null)
+                    {
+                        if (equipmentData.CreatedBy > 0)
+                        {
+                            EmployeeMaster? requestorUserDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == equipmentData.CreatedBy && x.IsActive == true).FirstOrDefault();
+                            requesterUserName = requestorUserDetails?.EmployeeName;
+                            requesterUserEmail = requestorUserDetails?.Email;
+                        }
+
+                        var approverData = _context.GetEquipmentWorkFlowData(requestId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "SendEquipmentEmail");
                 return false;
             }
             emailSent = true;

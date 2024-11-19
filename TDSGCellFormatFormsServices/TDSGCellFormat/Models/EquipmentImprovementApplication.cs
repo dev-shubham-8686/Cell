@@ -13,12 +13,14 @@ public partial class EquipmentImprovementApplication
     public string? EquipmentImprovementNo { get; set; }
 
     public DateTime? When { get; set; }
-    public int? AreaId { get; set; }
+    public string? AreaId { get; set; }
     public int? SectionId  { get; set; }
     public int? SectionHeadId { get; set; }
     public int? MachineId { get; set; }
 
     public string? SubMachineId  { get; set; }
+
+    public string? OtherSubMachine { get; set; }
     public string? ImprovementName { get; set; }
     public string? Purpose { get; set; }
 
@@ -35,7 +37,7 @@ public partial class EquipmentImprovementApplication
     public DateTime? ActualDate { get; set; }
 
     public string? ResultStatus { get; set; }
-
+    public int? ResultMonitoring { get; set; }
     public DateTime? ResultMonitorDate { get; set; }
 
     public bool? IsResultSubmit { get; set; }
@@ -52,6 +54,7 @@ public partial class EquipmentImprovementApplication
 
     public string? ToshibaApprovalComment { get; set; }
 
+    public bool? IsPcrnRequired { get; set; }
     public DateTime? CreatedDate { get; set; }
 
     public int? CreatedBy { get; set; }
@@ -60,6 +63,7 @@ public partial class EquipmentImprovementApplication
 
     public DateTime? ModifiedDate { get; set; }
 
+    public bool? IsLogicalAmend { get; set; }
     public bool? IsDeleted { get; set; }
 
     public virtual ICollection<ChangeRiskManagement> ChangeRiskManagement { get; set; } = new List<ChangeRiskManagement>();
@@ -73,9 +77,5 @@ public partial class EquipmentImprovementApplication
 
     [ForeignKey("SectionId")]
     public virtual SectionMaster? SectionMaster { get; set; }
-
-
-    [ForeignKey("AreaId")]
-    public virtual Area? Area { get; set; }
 
 }

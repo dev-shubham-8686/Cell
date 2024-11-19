@@ -35,31 +35,5 @@ namespace TDSGCellFormat.Models.Add
     }
 
 
-    public class EquipmentPullBack
-    {
-        public int? equipmentId { get; set; }
-        public int? userId { get; set; }
-        public string? comment { get; set; }
-    }
-
-    public class EquipmentApproveAsktoAmend
-    {
-        public int? ApproverTaskId { get; set; }
-        public int CurrentUserId { get; set; }
-        public ApprovalStatus Type { get; set; }
-        public string? Comment { get; set; }
-        public int EquipmentId { get; set; }
-
-        public EquipmentApprovalData? EquipmentApprovalData   { get; set; }
-    }
-
-    public class EquipmentApprovalData
-    {
-        public int EquipmentId { get; set; }
-        public bool? IsToshibaDiscussion { get; set; }
-
-        public DateTime? TargetDate { get; set; }
-
-        public int? AdvisorId { get; set; }
-    }
+   
 }

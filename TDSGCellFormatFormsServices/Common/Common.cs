@@ -41,7 +41,7 @@ namespace TDSGCellFormat.Common
         {
             TroubleReport = 1,
             AdjustMentReport = 2,
-            ApplicationImprovement = 3,
+            Equipment = 3,
             MaterialConsumption = 4, //MATERIALCONSUMPTION
             TechnicalInstruction = 5
         }
@@ -66,13 +66,20 @@ namespace TDSGCellFormat.Common
             NotifyMembers = 17,
             ReviewByManager = 18,
             Allow = 19,
-            Decline = 20
+            Decline = 20,
+            LogicalAmendment = 21,
+            Update = 22,
+            ToshibaApproved = 23,
+            ToshibaApprovalRequired = 24,
+            PCRNRequired = 25,
+            ToshibaDiscussionRequired = 26
         }
         public enum ApprovalStatus
         {
             Approved = 1,
             Rejected = 2,
-            AskToAmend = 3
+            AskToAmend = 3,
+            LogicalAmendment = 4
         }
         public enum EmailNotificationAction
         {
@@ -130,7 +137,14 @@ namespace TDSGCellFormat.Common
             ReviewDeclined = 24,
             UnderApproval = 25,
             ReOpen =26,
-            W1Completed = 27
+            W1Completed = 27,
+            ToshibaTechnicalReview = 28,
+            UnderToshibaApproval = 29,
+            LogicalAmendment = 30,
+            PCRNPending = 31,
+            UnderImplementation = 32,
+            ResultMonitoring = 33,
+            LogicalAmendmentInReview = 34
 
         }
         public enum FormType
@@ -139,7 +153,7 @@ namespace TDSGCellFormat.Common
             MaterialConsumption = 2,
             AjustmentReport = 3,
             TechnicalInstruction = 4,
-            ApplicationImprovement = 5,
+            EquipmentImprovement = 5,
         }
         public enum Message
         {
@@ -250,6 +264,7 @@ namespace TDSGCellFormat.Common
         public const string EquipmentApprove = "Equipment Improvement form has been approved";
         public const string EquipmentReject = "Equipment Improvement rejected";
         public const string EquipmentDateUpdate = "Equipment Improvement record updated";
+        public const string EquipmentResubmit = "Equipment Improvement form Resubmitted successfully";
 
         public const string AdjustMentSave = "Adjustment Report saved successfully";
         public const string AdjustMentSubmit = "AdjustMent form submitted successfully";

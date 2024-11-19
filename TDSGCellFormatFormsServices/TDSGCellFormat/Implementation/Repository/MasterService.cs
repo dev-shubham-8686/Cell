@@ -191,6 +191,25 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+
+        public IQueryable<AdvisorMasterView> GetAllAdvisorEmp()
+        {
+            IQueryable<AdvisorMasterView> res = _cloneContext.EmployeeMasters
+                                      .Where(x => x.IsActive == true
+                                             && x.EmpDesignation.StartsWith("Advisor") // Filter for designation
+                                             && _cloneContext.DepartmentMasters
+                                                .Where(d => d.DivisionID == 1)
+                                                .Select(d => d.DepartmentID)
+                                                .Contains(x.DepartmentID))
+                                      .Select(x => new AdvisorMasterView
+                                      {
+                                          employeeId = x.EmployeeID,
+                                          employeeName = x.EmployeeName,
+                                          Email = x.Email // Assuming you want to return department as well
+                                      });
+
+            return res;
+        }
         public IQueryable<EmployeeMasterView> GetEmployeeDetailsById(int id, string email)
         {
             IQueryable<EmployeeMasterView> res = _cloneContext.EmployeeMasters
@@ -308,7 +327,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                                sectionHeadId = x.Sectionid,
 
                                                head = x.Head,
-                                               headName = _cloneContext.EmployeeMasters
+                                              headName =  _cloneContext.EmployeeMasters
                                                          .Where(emp => emp.EmployeeID == x.Head)
                                                          .Select(emp => emp.EmployeeName)
                                                          .FirstOrDefault(),
@@ -363,6 +382,14 @@ namespace TDSGCellFormat.Implementation.Repository
                                           employeeName = x.EmployeeName,
                                           Email = x.Email // Assuming you want to return department as well
                                       });
+        public IQueryable<ResultMonitorView> GetAllResultMonitor()
+        {
+            IQueryable<ResultMonitorView> res = _context.ResultMonitoringMaster.Where(x => x.IsActive == true)
+                                               .Select(x => new ResultMonitorView
+                                               {
+                                                 resultMonitorId = x.ResultMonitoringId,
+                                                 resultMonitorName = x.ResultMonitoringName
+                                               });
 
             return res;
         }

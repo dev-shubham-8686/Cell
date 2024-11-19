@@ -570,6 +570,16 @@ namespace TDSGCellFormat.Implementation.Repository
                 //report.ModifiedDate = DateTime.Now;
                 int rowsAffected = await _context.SaveChangesAsync();
 
+
+                var reportApprover = _context.TroubleReportApproverTaskMasters.Where(x => x.TroubleReportId == Id).ToList();
+
+                reportApprover.ForEach(a =>
+                {
+                    a.IsActive = false;
+                    a.ModifiedDate = DateTime.Now;
+                });
+                await _context.SaveChangesAsync();
+
                 if (rowsAffected > 0)
                 {
                     res.StatusCode = Status.Success;
@@ -616,7 +626,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 var notificationHelper = new NotificationHelper(_context,_cloneContext);
                 await notificationHelper.SendEmail(troubleReportId , EmailNotificationAction.NotifyManager,null,0);
-                InsertHistoryData(troubleReportId, FormType.TroubleReport.ToString(), "Raiser", "emailsent", ApprovalTaskStatus.InProcess.ToString(), userId, HistoryAction.SendToManager.ToString(), 0);
+                //InsertHistoryData(troubleReportId, FormType.TroubleReport.ToString(), "Raiser", "emailsent", ApprovalTaskStatus.InProcess.ToString(), userId, HistoryAction.SendToManager.ToString(), 0);
 
 
                 var troubleData = _context.TroubleReports.Where(x => x.TroubleReportId == troubleReportId && x.IsDeleted == false && x.IsActive == true).FirstOrDefault();
@@ -844,9 +854,11 @@ namespace TDSGCellFormat.Implementation.Repository
                         reportinManager.Comment = comment;
 
                     }
+
                     var workDoneManager = _context.TroubleReportReviewerTaskMasters.
                                       Where(x => x.TroubleReportId == troubleReportId && x.IsActive == true && x.IsClsoed == false &&
                                       x.DisplayName == Enums.WorkDoneManager).FirstOrDefault();
+
                     if (workDoneManager != null)
                     {
                         workDoneManager.Status = ApprovalTaskStatus.Decline.ToString();
@@ -877,15 +889,54 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else
                 {
-                    var reviewedData = _context.TroubleReportReviewerTaskMasters.Where(x => x.TroubleReportId == troubleReportId && x.ReviewerId == userId && x.IsActive == true && x.IsClsoed == false && x.Status == ApprovalTaskStatus.InProcess.ToString()).FirstOrDefault();
-                    if (reviewedData != null)
-                    {
-                        reviewedData.Status = ApprovalTaskStatus.Allow.ToString();
-                        reviewedData.Comment = comment;
-                        res.Message = Enums.TroubleAllow;
+                    var raiser = _context.TroubleReports.Where(x => x.TroubleReportId == troubleReportId && x.IsDeleted == false).Select(x => x.CreatedBy).FirstOrDefault();
 
-                        await _context.SaveChangesAsync();
+                    var workdoneLead = _context.WorkDoneDetails.Where(x => x.TroubleReportId == troubleReportId && x.IsDeleted == false && x.Lead == true).Select(x => x.EmployeeId).FirstOrDefault();
+                    
+                    var reportingManager = _context.TroubleReportReviewerTaskMasters.
+                                  Where(x => x.TroubleReportId == troubleReportId && x.IsActive == true && x.IsClsoed == false &&
+                                  x.DisplayName == Enums.ReviewReportingManager).Select(x => x.ReviewerId).FirstOrDefault();
+                    var workDoneManager = _context.TroubleReportReviewerTaskMasters.
+                                 Where(x => x.TroubleReportId == troubleReportId && x.IsActive == true && x.IsClsoed == false &&
+                                 x.DisplayName == Enums.WorkDoneManager).Select(x => x.ReviewerId).FirstOrDefault();
+
+                    if((workdoneLead == raiser) || (reportingManager == workDoneManager))
+                    {
+                        var raiserManager = _context.TroubleReportReviewerTaskMasters.
+                                  Where(x => x.TroubleReportId == troubleReportId && x.IsActive == true && x.IsClsoed == false &&
+                                  x.DisplayName == Enums.ReviewReportingManager).FirstOrDefault();
+
+                        var wlManager = _context.TroubleReportReviewerTaskMasters.
+                                 Where(x => x.TroubleReportId == troubleReportId && x.IsActive == true && x.IsClsoed == false &&
+                                 x.DisplayName == Enums.WorkDoneManager).FirstOrDefault();
+
+                        if(raiserManager != null && wlManager != null)
+                        {
+                            raiserManager.Status = ApprovalTaskStatus.Allow.ToString();
+                            wlManager.Status = ApprovalTaskStatus.Allow.ToString();
+                            raiserManager.Comment = comment;
+                            wlManager.Comment = comment;
+
+                            res.Message = Enums.TroubleAllow;
+
+                            await _context.SaveChangesAsync();
+                        }
+                        
                     }
+                    else
+                    {
+                        var reviewedData = _context.TroubleReportReviewerTaskMasters.Where(x => x.TroubleReportId == troubleReportId && x.ReviewerId == userId && x.IsActive == true && x.IsClsoed == false && x.Status == ApprovalTaskStatus.InProcess.ToString()).FirstOrDefault();
+                        if (reviewedData != null)
+                        {
+                            reviewedData.Status = ApprovalTaskStatus.Allow.ToString();
+                            reviewedData.Comment = comment;
+                            res.Message = Enums.TroubleAllow;
+
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                    
+
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendEmail(troubleReportId, EmailNotificationAction.Allow, comment, userId);
                     InsertHistoryData(troubleReportId, FormType.TroubleReport.ToString(), "Review Manager", comment, ApprovalTaskStatus.Allow.ToString(), userId, HistoryAction.Allow.ToString(), 0);

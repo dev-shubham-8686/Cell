@@ -19,6 +19,11 @@ namespace TDSGCellFormat.Implementation.Service
 
         }
 
+        public Task<GetEquipmentUser> GetUserRole(string email)
+        {
+            return _applicationRepo.GetUserRole(email);
+        }
+
         public IQueryable<EquipmentImprovementApplicationAdd> GetAll()
         {
             return _applicationRepo.GetAll();
@@ -46,10 +51,16 @@ namespace TDSGCellFormat.Implementation.Service
             return await _applicationRepo.GetEqupimentImprovementList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
         }
 
-        public async Task<List<EquipmentImprovementView>> GetEqupimentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        public async Task<List<EquipmentImprovementApproverView>> GetEqupimentImprovementApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
             return await _applicationRepo.GetEqupimentImprovementApproverList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
         }
+
+        public async Task<List<EquipmentImprovementView>> GetEqupimentImprovementMyRequestList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            return await _applicationRepo.GetEqupimentImprovementMyRequestList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+        }
+
         public async Task<AjaxResult> PullBackRequest(EquipmentPullBack data)
         {
            return await _applicationRepo.PullBackRequest(data);
@@ -66,6 +77,31 @@ namespace TDSGCellFormat.Implementation.Service
         public EquipmentApprovalData GetEquipmentTargetDate(int equipmentId, bool toshibaDiscussion)
         {
             return _applicationRepo.GetEquipmentTargetDate(equipmentId, toshibaDiscussion);
+        }
+
+        //public async Task<List<EquipmentApproverTaskMasterAdd>> GetEquipmentWorkFlowData(int equipmentId)
+        //{
+        //    return await _applicationRepo.GetEquipmentWorkFlowData(equipmentId);
+        //}
+
+        public async Task<(List<EquipmentApproverTaskMasterAdd> WorkflowOne, List<EquipmentApproverTaskMasterAdd> WorkflowTwo)> GetEquipmentWorkFlowData(int equipmentId)
+        {
+            return await _applicationRepo.GetEquipmentWorkFlowData(equipmentId);
+        }
+
+        public ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId)
+        {
+            return _applicationRepo.GetCurrentApproverTask(equipmentId, userId);
+        }
+
+        public List<TroubleReportHistoryView> GetHistoryData(int equipmentId)
+        {
+            return _applicationRepo.GetHistoryData(equipmentId);
+        }
+
+        public async Task<AjaxResult> GetEquipmentExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
+        {
+            return await _applicationRepo.GetEquipmentExcel(fromDate, toDate, employeeId,type);
         }
     }
 }

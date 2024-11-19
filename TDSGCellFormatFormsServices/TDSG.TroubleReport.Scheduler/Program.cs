@@ -28,19 +28,20 @@ public class Program
             var context = scope.ServiceProvider.GetRequiredService<AepplNewCloneStageContext>();
             var icaReport = dbContext.TroubleReports
                                    .Where(tr => tr.ImmediateCorrectiveAction == null &&
-                                                EF.Functions.DateDiffHour(tr.When, DateTime.Now) >= 48 && tr.IsDeleted == false)
+                                                EF.Functions.DateDiffHour(tr.When, DateTime.Now) >= 48 && tr.IsDeleted == false && tr.IsReOpen == false)
                                    .ToList();
+
             var reminderEmails = new ReminderEmails(dbContext, context);
+
+
 
             foreach (var report in icaReport)
             {
                 DateTime now = DateTime.Now;
                 DateTime lastEmailSent = (DateTime)(report?.LastEmailSent ?? report?.When); // Use the report creation time if no email was sent
                 TimeSpan hoursSinceLastEmail = now - lastEmailSent;
-                //int hoursSinceLastEmail = (int)hours.TotalHours;
-                //double hoursSinceLastEmail = difference.TotalHours;
-                //var emailFlag = report.RaiserEmailSent;
-                var raiser = dbContext.TroubleReports.Where(x => x.TroubleReportId == report.TroubleReportId).Select(x => x.CreatedBy).FirstOrDefault();
+
+                var raiser = dbContext.TroubleReports.Where(x => x.TroubleReportId == report.TroubleReportId && report.IsDeleted == false).Select(x => x.CreatedBy).FirstOrDefault();
                 var sectionHead = context.EmployeeMasters.Where(x => x.EmployeeID == raiser && x.IsActive == true).Select(x => x.ReportingManagerId).ToList();
 
                 var departMentHead = (from em in context.EmployeeMasters
@@ -48,69 +49,70 @@ public class Program
                                       where em.EmployeeID == raiser && em.IsActive == true
                                       select dm.Head).ToList();
 
-                var divisionHead = (from e in context.EmployeeMasters
-                                    join dm in context.DepartmentMasters on e.DepartmentID equals dm.DepartmentID
-                                    join div in context.DivisionMasters on dm.DivisionID equals div.DivisionID
-                                    where e.EmployeeID == raiser && e.IsActive == true
-                                    select new
-                                    {
-                                        Head = div.Head,
-                                        DeputyDivisionHead = div.DeputyDivisionHead
-                                    }).ToList();
+                var divisionHead = dbContext.CellDivisionRoleMasters.Where(x => x.DivisionId == 1 && x.FormName == "TroubleReport").Select(x => x.DeputyDivisionHead).ToList();
 
-               // var twentyFourHours = TimeSpan.FromHours(24);
-                templateFile = "TroubleReport_ICA.html";
-                emailSubject = $"ICA Reminder for Trouble Report Number: {report.TroubleReportNo}";
-                if (report.RaiserEmailSent < 3 && hoursSinceLastEmail.TotalHours >= 24)
+                var workDoneData = dbContext.WorkDoneDetails.Where(x => x.TroubleReportId == report.TroubleReportId && x.IsDeleted == false).ToList();
+              
+                if (workDoneData.Count > 0 || workDoneData != null)
                 {
-                    //send an email to workdone people for 3 days
-                    var workDonePeople = dbContext.WorkDoneDetails.Where(x => x.TroubleReportId == report.TroubleReportId && x.IsDeleted == false).Select(x => x.EmployeeId).ToList();
+                    
+                    // var twentyFourHours = TimeSpan.FromHours(24);
+                    templateFile = "TroubleReport_ICA.html";
+                    emailSubject = $"ICA Reminder for Trouble Report Number: {report.TroubleReportNo}";
 
-                    reminderEmails.SendEmailReminder(report.TroubleReportId, templateFile, emailSubject,workDonePeople);
-                    report.RaiserEmailSent += 1;
-                    report.LastEmailSent = now;
+                    if (report.RaiserEmailSent < 3 && hoursSinceLastEmail.TotalHours >= 24)
+                    {
+                        //send an email to workdone people for 3 days
+                        var workDonePeople = dbContext.WorkDoneDetails.Where(x => x.TroubleReportId == report.TroubleReportId && x.IsDeleted == false).Select(x => x.EmployeeId).ToList();
+
+                        reminderEmails.SendEmailReminder(report.TroubleReportId, templateFile, emailSubject, workDonePeople);
+                        report.RaiserEmailSent += 1;
+                        report.LastEmailSent = now;
+                    }
+                    else if (report.RaiserEmailSent == 3 && report.ManagerEmailSent < 3 && hoursSinceLastEmail.TotalHours >= 24)
+                    {
+                        //send an email to manager
+                        //var raiser = dbContext.TroubleReports.Where(x => x.TroubleReportId == report.TroubleReportId).Select(x => x.CreatedBy).FirstOrDefault();
+                        reminderEmails.SendEmailReminder(report.TroubleReportId, templateFile, emailSubject, sectionHead);
+                        report.ManagerEmailSent += 1;
+                        report.LastEmailSent = now;
+                    }
+                    else if (report.ManagerEmailSent == 3 && report.DepartMentHeadEmailSent < 3 && hoursSinceLastEmail.TotalHours >= 24)
+                    {
+                        //email to department head
+
+                        reminderEmails.SendEmailReminder(report.TroubleReportId, templateFile, emailSubject, departMentHead);
+                        report.DepartMentHeadEmailSent += 1;
+                        report.LastEmailSent = now;
+                    }
+                    else if (report.DepartMentHeadEmailSent == 3 && report.DivisionHeadEmailSent < 3 && hoursSinceLastEmail.TotalHours >= 24)
+                    {
+
+                        //var combinedList = divisionHead.SelectMany(d => new List<int?> { d.Head, d.DeputyDivisionHead })
+                        //                 .Where(id => id.HasValue) // Optional: filter out nulls if needed
+                        //                 .ToList();
+                        //send an email to division Head
+                        reminderEmails.SendEmailReminder(report.TroubleReportId, templateFile, emailSubject, divisionHead); // If RaiserEmailSent is 3 or more, skip sending any more emails
+                        report.DivisionHeadEmailSent += 1;
+                        report.LastEmailSent = now;
+                    }
+
+                    dbContext.SaveChanges(); // Save the changes to the database
+                    
                 }
-                else if (report.RaiserEmailSent == 3 && report.ManagerEmailSent < 3 && hoursSinceLastEmail.TotalHours >= 24)
+                else
                 {
-                    //send an email to manager
-                    //var raiser = dbContext.TroubleReports.Where(x => x.TroubleReportId == report.TroubleReportId).Select(x => x.CreatedBy).FirstOrDefault();
-                    reminderEmails.SendEmailReminder(report.TroubleReportId, templateFile, emailSubject,sectionHead);
-                    report.ManagerEmailSent += 1;
-                    report.LastEmailSent = now;
+                    templateFile = "TroubleReport_Reminder_Action.html";
+                    emailSubject = $"[Action Required] for Trouble Report : {report.TroubleReportNo}";
+                    reminderEmails.SendEmailReminder(report.TroubleReportId, templateFile, emailSubject, sectionHead);
                 }
-                else if (report.ManagerEmailSent == 3 && report.DepartMentHeadEmailSent <3 && hoursSinceLastEmail.TotalHours >= 24)
-                {
-                    //email to department head
-
-
-                    reminderEmails.SendEmailReminder(report.TroubleReportId, templateFile, emailSubject, departMentHead);
-                    report.DepartMentHeadEmailSent += 1;
-                    report.LastEmailSent = now;
-                }
-                else if(report.DepartMentHeadEmailSent == 3 && report.DivisionHeadEmailSent < 3 && hoursSinceLastEmail.TotalHours >= 24)
-                {
-
-                    var combinedList = divisionHead.SelectMany(d => new List<int?> { d.Head, d.DeputyDivisionHead })
-                                     .Where(id => id.HasValue) // Optional: filter out nulls if needed
-                                     .ToList();
-                    //send an email to division Head
-                    reminderEmails.SendEmailReminder(report.TroubleReportId, templateFile, emailSubject,  combinedList); // If RaiserEmailSent is 3 or more, skip sending any more emails
-                    report.DivisionHeadEmailSent += 1;
-                    report.LastEmailSent = now;
-                }
-
-                dbContext.SaveChanges(); // Save the changes to the database
-                Console.WriteLine($"Sending email for Report ID: {report.TroubleReportId}, Email Type: {report.RaiserEmailSent + 1}");
-               // Console.WriteLine(_configuration);
-             
-
             }
 
 
             //change the fields for the RCA count
             var rcaReport = dbContext.TroubleReports
-                                   .Where(tr => tr.ImmediateCorrectiveAction == null &&
-                                                EF.Functions.DateDiffDay(tr.When, DateTime.Now) >= 7 && tr.IsDeleted == false)
+                                   .Where(tr => tr.RootCause == null &&
+                                                EF.Functions.DateDiffDay(tr.When, DateTime.Now) >= 7 && tr.IsDeleted == false && tr.IsReOpen == false)
                                    .ToList();
 
             foreach (var rca in rcaReport)
@@ -126,17 +128,9 @@ public class Program
                                       join dm in context.DepartmentMasters on em.DepartmentID equals dm.DepartmentID
                                       where em.EmployeeID == raiser && em.IsActive == true
                                       select dm.Head).ToList();
+                var divisionHead = dbContext.CellDivisionRoleMasters.Where(x => x.DivisionId == 1 && x.FormName == "TroubleReport").Select(x => x.DeputyDivisionHead).ToList();
 
-                var divisionHead = (from e in context.EmployeeMasters
-                                    join dm in context.DepartmentMasters on e.DepartmentID equals dm.DepartmentID
-                                    join div in context.DivisionMasters on dm.DivisionID equals div.DivisionID
-                                    where e.EmployeeID == raiser && e.IsActive == true
-                                    select new
-                                    {
-                                        Head = div.Head,
-                                        DeputyDivisionHead = div.DeputyDivisionHead
-                                    }).ToList();
-            
+
                 //var emailFlag = report.RaiserEmailSent;
                 templateFile = "TroubleReport_RCA.html";
                 emailSubject = $"RCA Reminder for Trouble Report Number: {rca.TroubleReportNo}";
@@ -167,11 +161,12 @@ public class Program
                 else if (rca.DepartMentHeadEmailRCA == 3 && rca.DivisionHeadRCAEmail < 3 && hoursSinceLastEmail.TotalHours >= 24)
                 {
                     //send an email to division Head
-                    var combinedList = divisionHead.SelectMany(d => new List<int?> { d.Head, d.DeputyDivisionHead })
-                                     .Where(id => id.HasValue) // Optional: filter out nulls if needed
-                                     .ToList();
-                    
-                    reminderEmails.SendEmailReminder(rca.TroubleReportId, templateFile, emailSubject,  combinedList); // If RaiserEmailSent is 3 or more, skip sending any more emails
+                    //var combinedList = divisionHead.SelectMany(d => new List<int?> { d.Head, d.DeputyDivisionHead })
+                    //                 .Where(id => id.HasValue) // Optional: filter out nulls if needed
+                    //                 .ToList();
+                    rca.DivisionHeadRCAEmail += 1; 
+                    rca.LastRCAEmailSent = now;
+                    reminderEmails.SendEmailReminder(rca.TroubleReportId, templateFile, emailSubject, divisionHead); // If RaiserEmailSent is 3 or more, skip sending any more emails
                 }
 
                 dbContext.SaveChanges(); // Save the changes to the database
