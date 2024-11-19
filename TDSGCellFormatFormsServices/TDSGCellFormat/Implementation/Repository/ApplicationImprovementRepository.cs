@@ -752,7 +752,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else
                 {
-                    InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Status as Draft", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
+                    InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
                 }
                 return res;
             }
@@ -814,7 +814,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else
                 {
-                    InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Status as Draft", existingReport.Status, Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
+                    InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
                 }
 
 
@@ -1034,49 +1034,27 @@ namespace TDSGCellFormat.Implementation.Repository
                 var equipmentTask = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.equipmentId && x.IsDeleted == false).FirstOrDefault();
                 if (equipmentTask != null)
                 {
-                    if (equipmentTask.WorkFlowLevel == 1)
+
+                    equipmentTask.IsSubmit = false;
+                    equipmentTask.IsResultSubmit = false;
+                    equipmentTask.Status = ApprovalTaskStatus.Draft.ToString();
+                    equipmentTask.ModifiedBy = data.userId;
+                    equipmentTask.IsPcrnRequired = false;
+                    // mention the WorkFlow status 
+                    await _context.SaveChangesAsync();
+
+                    var approverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.equipmentId && x.IsActive == true).ToList();
+                    approverTask.ForEach(a =>
                     {
-                        equipmentTask.IsSubmit = false;
-                        equipmentTask.IsResultSubmit = false;
-                        equipmentTask.Status = ApprovalTaskStatus.Draft.ToString();
-                        equipmentTask.ModifiedBy = data.userId;
-                        equipmentTask.IsPcrnRequired = false;
-                        // mention the WorkFlow status 
-                        await _context.SaveChangesAsync();
+                        a.IsActive = false;
+                        a.ModifiedBy = data.userId;
+                        a.ModifiedDate = DateTime.Now;
+                    });
+                    await _context.SaveChangesAsync();
 
-                        var approverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.equipmentId && x.IsActive == true && x.WorkFlowlevel == 1).ToList();
-                        approverTask.ForEach(a =>
-                        {
-                            a.IsActive = false;
-                            a.ModifiedBy = data.userId;
-                            a.ModifiedDate = DateTime.Now;
-                        });
-                        await _context.SaveChangesAsync();
+                    InsertHistoryData(equipmentTask.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "PullBack by", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
 
-                        InsertHistoryData(equipmentTask.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "PullBack by", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
 
-                    }
-                    else
-                    {
-                        equipmentTask.IsSubmit = true;
-                        equipmentTask.IsResultSubmit = false;
-                        equipmentTask.Status = ApprovalTaskStatus.ResultMonitoring.ToString();
-                        equipmentTask.ModifiedBy = data.userId;
-                        // mention the WorkFlow status
-                        await _context.SaveChangesAsync();
-
-                        var approverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.equipmentId && x.IsActive == true && x.WorkFlowlevel == 2).ToList();
-                        approverTask.ForEach(a =>
-                        {
-                            a.IsActive = false;
-                            a.ModifiedBy = data.userId;
-                            a.ModifiedDate = DateTime.Now;
-                        });
-                        await _context.SaveChangesAsync();
-
-                        InsertHistoryData(equipmentTask.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "PullBack by", ApprovalTaskStatus.ResultMonitoring.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
-
-                    }
                 }
                 res.Message = Enums.EquipmentPullback;
                 res.StatusCode = Enums.Status.Success;
