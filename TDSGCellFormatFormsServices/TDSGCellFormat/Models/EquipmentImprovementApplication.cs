@@ -40,6 +40,7 @@ public partial class EquipmentImprovementApplication
     public int? ResultMonitoring { get; set; }
     public DateTime? ResultMonitorDate { get; set; }
 
+    public string? PCRNNumber { get; set; }
     public bool? IsResultSubmit { get; set; }
 
     public bool? ToshibaTeamDiscussion { get; set; }

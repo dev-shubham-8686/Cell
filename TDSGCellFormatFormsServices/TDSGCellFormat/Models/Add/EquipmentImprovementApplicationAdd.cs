@@ -80,6 +80,8 @@ namespace TDSGCellFormat.Models.Add
         public string? ResultStatus { get; set; }
        public int? ResultMonitoringId {  get; set; }
         public string? ResultMonitoringDate { get; set; }
+
+        public string? PCRNNumber {  get; set; }
     }
 
     public class EquipmentCurrSituationAttachData
