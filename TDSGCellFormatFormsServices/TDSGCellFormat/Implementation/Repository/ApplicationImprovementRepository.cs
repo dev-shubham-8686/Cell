@@ -10,7 +10,10 @@ using System.Data;
 using System.Data.SqlClient;
 using ClosedXML.Excel;
 using Dapper;
-using Microsoft.AspNetCore.Http.HttpResults;
+using System.Text;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+using iTextSharp.tool.xml;
 
 
 namespace TDSGCellFormat.Implementation.Repository
@@ -171,7 +174,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 ResultStatus = res.ResultStatus,
                 IsResultSubmit = res.IsResultSubmit,
                 ResultMonitoringDate = res.ResultMonitorDate.HasValue ? res.ResultMonitorDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
-                ResultMonitoringId = res.ResultMonitoring
+                ResultMonitoringId = res.ResultMonitoring,
+                PCRNNumber = res.PCRNNumber
             };
 
 
@@ -220,6 +224,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.IsLogicalAmend = false;
                     newReport.ToshibaApprovalRequired = false;
                     newReport.WorkFlowStatus = ApprovalTaskStatus.Draft.ToString();
+
                     // Assign SectionHeadId based on the conditions
                     if (report.SectionId == 1)
                     {
@@ -425,8 +430,8 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 _context.CallEquipmentApproverMaterix(createdBy, equipmentId);
 
-                //var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                //await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Submitted, string.Empty, 0);
+                var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                await notificationHelper.SendEquipmentEmail(equipmentId, EmailNotificationAction.Submitted, string.Empty, 0);
                 res.Message = Enums.EquipmentSubmit;
                 res.StatusCode = Enums.Status.Success;
 
@@ -503,6 +508,27 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.ModifiedDate = DateTime.Now;
                 existingReport.ModifiedBy = report.ModifiedBy;
                 existingReport.IsSubmit = report.IsSubmit;
+
+                // Assign SectionHeadId based on the conditions
+                if (report.SectionId == 1)
+                {
+                    existingReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 1 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
+                }
+                else if (report.SectionId == 2)
+                {
+                    existingReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 2 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); ;
+                }
+                else if (report.SectionId == 3)
+                {
+                    if (report.AreaId != null && report.AreaId.Contains(1))
+                    {
+                        existingReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 3 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); ;
+                    }
+                    else if (report.AreaId != null && (report.AreaId.Contains(2) || report.AreaId.Contains(3)))
+                    {
+                        existingReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 4 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); ;
+                    }
+                }
                 await _context.SaveChangesAsync();
 
                 var existingChangeRisk = _context.ChangeRiskManagement.Where(x => x.EquipmentImprovementId == existingReport.EquipmentImprovementId).ToList();
@@ -781,6 +807,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.IsResultSubmit = data.IsResultSubmit;
                 existingReport.ResultMonitorDate = !string.IsNullOrEmpty(data.ResultMonitoringDate) ? DateTime.Parse(data.ResultMonitoringDate) : (DateTime?)null;
                 existingReport.ResultMonitoring = data.ResultMonitoringId;
+                existingReport.PCRNNumber = data.PCRNNumber;
                 existingReport.WorkFlowLevel = 2;
 
                 if (data.TargetDate != null && data.ActualDate == null)
@@ -1038,6 +1065,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipmentTask.IsSubmit = false;
                     equipmentTask.IsResultSubmit = false;
                     equipmentTask.Status = ApprovalTaskStatus.Draft.ToString();
+                    equipmentTask.WorkFlowStatus = ApprovalTaskStatus.Draft.ToString();
+                    equipmentTask.WorkFlowLevel = 1;
                     equipmentTask.ModifiedBy = data.userId;
                     equipmentTask.IsPcrnRequired = false;
                     // mention the WorkFlow status 
@@ -1357,6 +1386,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.ToshibaDiscussionTargetDate = !string.IsNullOrEmpty(data.TargetDate) ? DateTime.Parse(data.TargetDate) : (DateTime?)null;
                     equipment.Status = ApprovalTaskStatus.ToshibaTechnicalReview.ToString();
                     equipment.ToshibaDicussionComment = data.Comment;
+                    equipment.IsPcrnRequired = data.IsPcrnRequired;
                     await _context.SaveChangesAsync();
 
                     InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Advisor", data.Comment, ApprovalTaskStatus.ToshibaTechnicalReview.ToString(), Convert.ToInt32(data.EmployeeId), HistoryAction.ToshibaDiscussionRequired.ToString(), 0);
@@ -1413,11 +1443,13 @@ namespace TDSGCellFormat.Implementation.Repository
             if (toshibaDiscussion == true)
             {
                 equipmentTargetData.TargetDate = res.ToshibaDiscussionTargetDate.HasValue ? res.ToshibaDiscussionTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty;
+               
             }
             else
             {
                 equipmentTargetData.TargetDate = res.ToshibaApprovalTargetDate.HasValue ? res.ToshibaApprovalTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty;
             }
+            equipmentTargetData.IsPcrnRequired = res.IsPcrnRequired;
             return equipmentTargetData;
         }
 
@@ -1615,6 +1647,18 @@ namespace TDSGCellFormat.Implementation.Repository
             }
         }
 
+
+        public async Task<IEnumerable<EquipmentPdfDTO>> GetEquipmentPdfData(int equipmentId)
+        {
+            var parameters = new { EquipmentId = equipmentId };
+            var query = "EXEC dbo.EquipmentFromPdf @EquipmentId";
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                return await connection.QueryAsync<EquipmentPdfDTO>(query, parameters);
+            }
+        }
+
         private static readonly Dictionary<string, string> ColumnHeaderMapping = new Dictionary<string, string>
 {
 
@@ -1636,6 +1680,86 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 var equipmentData = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == equipmentId && x.IsDeleted == false).FirstOrDefault();
 
+                var data = await GetEquipmentPdfData(equipmentId);
+
+                var approvalData = _context.GetEquipmentWorkFlowData(equipmentId);
+
+
+                StringBuilder sb = new StringBuilder();
+                string? htmlTemplatePath = _configuration["TemplateSettings:PdfTemplate"];
+                string baseDirectory = AppContext.BaseDirectory;
+                DirectoryInfo? directoryInfo = new DirectoryInfo(baseDirectory);
+
+                //enable while work in local 
+                string projectRootDirectory = Path.GetFullPath(Path.Combine(baseDirectory, @"..\..\..\"));
+
+                string templateFile = "EquipmentPDF.html";
+
+                string templateFilePath = Path.Combine(projectRootDirectory, htmlTemplatePath, templateFile);
+
+                string? htmlTemplate = System.IO.File.ReadAllText(templateFilePath);
+                sb.Append(htmlTemplate);
+
+                sb.Replace("#EquipmentNo#", data.FirstOrDefault()?.RequestNo);
+                sb.Replace("#Date#", data.FirstOrDefault()?.IssueDate.ToString("dd-MM-yyyy"));
+                sb.Replace("#MachineName#", data.FirstOrDefault()?.MachineName);
+                sb.Replace("#ApplicantName#", data.FirstOrDefault()?.Applicant);
+                sb.Replace("#Purpose#", data.FirstOrDefault()?.Purpose);
+                sb.Replace("#currentSituations#", data.FirstOrDefault()?.CurrentSituation);
+                sb.Replace("#Improvement#", data.FirstOrDefault()?.Improvement);
+
+
+                StringBuilder tableBuilder = new StringBuilder();
+                int serialNumber = 1;
+                foreach(var item in data)
+                {
+                    tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
+
+                    // Add the serial number to the first column
+                    tableBuilder.Append("<td style=\"width: 3%; border: 0.25px; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
+
+                    // Add the rest of the data to the respective columns
+                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px; border: 0.25px; height: 20px\">" + item.Changes + "</td>");
+                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.FunctionId + "</td>");
+                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.RiskAssociatedWithChanges + "</td>");
+                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.Factor + "</td>");
+                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.CounterMeasures + "</td>");
+                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.DueDate + "</td>");
+                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.PersonInCharge + "</td>");
+                    tableBuilder.Append("<td style=\"width: 20%; border: 0.25px; height: 20px; padding: 5px\">" + item.Results + "</td>");
+
+                    tableBuilder.Append("</tr>");
+                }
+
+                sb.Replace("#ChangeriskTable#", tableBuilder.ToString());
+
+                using (var ms = new MemoryStream())
+                {
+                    Document document = new Document(PageSize.A3, 10f, 10f, 10f, 30f);
+                    PdfWriter writer = PdfWriter.GetInstance(document, ms);
+                    document.Open();
+
+                    // Convert the StringBuilder HTML content to a PDF using iTextSharp
+                    using (var sr = new StringReader(sb.ToString()))
+                    {
+                        XMLWorkerHelper.GetInstance().ParseXHtml(writer, document, sr);
+                    }
+
+                    document.Close();
+
+                    // Convert the PDF to a byte array
+                    byte[] pdfBytes = ms.ToArray();
+
+                    // Encode the PDF as a Base64 string
+                    string base64String = Convert.ToBase64String(pdfBytes);
+
+                    // Set response values
+                    res.StatusCode = Enums.Status.Success;
+                    res.Message = Enums.MaterialPdf;
+                    res.ReturnValue = base64String; // Send the Base64 string to the frontend
+
+                    return res;
+                }
             }
             catch (Exception ex)
             {
