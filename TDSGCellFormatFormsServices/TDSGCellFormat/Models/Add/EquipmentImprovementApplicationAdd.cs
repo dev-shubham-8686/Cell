@@ -4,7 +4,7 @@ namespace TDSGCellFormat.Models.Add
 {
     public class EquipmentImprovementApplicationAdd
     {
-        public int? EquipmentImprovementId { get; set; }
+        public int EquipmentImprovementId { get; set; }
         public string? EquipmentImprovementNo { get; set; }
         public string? When { get; set; }
         public List<int>? AreaId { get; set; }
@@ -161,7 +161,7 @@ namespace TDSGCellFormat.Models.Add
 
     public class EquipmentApproveAsktoAmend
     {
-        public int? ApproverTaskId { get; set; }
+        public int ApproverTaskId { get; set; }
         public int CurrentUserId { get; set; }
         public ApprovalStatus Type { get; set; }
         public string? Comment { get; set; }
