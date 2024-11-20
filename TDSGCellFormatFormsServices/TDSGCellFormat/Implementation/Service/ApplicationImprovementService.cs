@@ -103,5 +103,10 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return await _applicationRepo.GetEquipmentExcel(fromDate, toDate, employeeId,type);
         }
+
+        public async Task<AjaxResult> ExportToPdf(int equipmentId)
+        {
+            return await _applicationRepo.ExportToPdf(equipmentId);
+        }
     }
 }
