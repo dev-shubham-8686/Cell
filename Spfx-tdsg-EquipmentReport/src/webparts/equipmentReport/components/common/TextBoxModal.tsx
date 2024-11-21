@@ -70,13 +70,14 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   const user = useContext(UserContext);
   // const targetDate = useGetTargetDate();
   useEffect(() => {
-    
+    debugger
       if (isQCHead) {
         if(toshibaApprovaltargetDate){
         form.setFieldsValue({
           TargetDate: dayjs(toshibaApprovaltargetDate, DATE_FORMAT),
         });
-        if(IsPCRNRequired){
+        if(IsPCRNRequired!=null){
+          debugger
           form.setFieldsValue({
             pcrnAttachmentsRequired: IsPCRNRequired
           });
@@ -231,10 +232,10 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
                   console.log("File Added");
                 }}
                 onRemoveFile={(documentName: string) => {
-                  const existingAttachments: any = emailAttachments ?? [];
+                  const existingAttachments: IEmailAttachments[] = emailAttachments ?? [];
 
                   const updatedAttachments = existingAttachments?.filter(
-                    (doc) => doc.ImprovementDocName !== documentName
+                    (doc) => doc.EmailDocName !== documentName
                   );
                   setEmailAttachments(updatedAttachments);
                   console.log("File Removed");

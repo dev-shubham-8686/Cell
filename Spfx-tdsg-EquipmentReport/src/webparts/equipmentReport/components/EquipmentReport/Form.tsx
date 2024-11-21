@@ -539,6 +539,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               existingEquipmentReport?.ResultAfterImplementation?.TargetDate,
               DATE_FORMAT
             ) ?? "-",
+          PCRNNumber:existingEquipmentReport?.ResultAfterImplementation?.PCRNNumber,
           ResultMonitoringId:
             existingEquipmentReport?.ResultAfterImplementation
               ?.ResultMonitoringId,
@@ -1378,7 +1379,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     </span>
                   }
                   name="EquipmentCurrSituationAttachmentDetails"
-                  // rules={currSituationAttchments.length==0?validationRules.attachment:null}
+                  rules={currSituationAttchments.length==0?validationRules.attachment:null}
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   {console.log("USERID", user?.employeeId.toString())}
@@ -1483,7 +1484,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     <span className="text-muted">Improvement Attachments</span>
                   }
                   name="EquipmentImprovementAttachmentDetails"
-                  // rules={improvementAttchments.length==0?validationRules.attachment:null}
+                   rules={improvementAttchments.length==0?validationRules.attachment:null}
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload

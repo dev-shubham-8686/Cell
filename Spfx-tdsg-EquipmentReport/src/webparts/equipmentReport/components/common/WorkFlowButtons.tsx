@@ -538,6 +538,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
               onClick={() => {
                 openCommentsPopup("Reject", false, false, false);
                 setapprovedByToshiba(false);
+                setsubmitbuttontext("Reject");
                 handleToshibaReview();
               }}
             >

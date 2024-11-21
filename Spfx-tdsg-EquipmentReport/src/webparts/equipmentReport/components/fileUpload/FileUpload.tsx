@@ -54,29 +54,42 @@ const FileUpload: FC<IFileUpload> = ({
       uploadAcceptTypes: ".jpeg,.pdf,.jpg,.png,.xlsx,.xls,.msg,.eml",
       noOfFiles: `Maximum ${ispcrnRequired?1:10} ${ispcrnRequired?"File is":"Files are"}  allowed! `,
       maxFileCount: ispcrnRequired?1:10,
-      emailAttachment: /\.(eml|msg|oft)(\.[0-9]*)?$/i
+      emailAttachment:  [".eml", ".msg", ".oft"]
     },
   };
   console.log("DISABLEUPLOAD", disabled);
   const webPartContext = React.useContext(WebPartContext);
   const [itemLoading, setItemLoading] = React.useState(false);
+console.log("FILES",files)
 
   const onBeforeUpload = (file: ExtendedUploadFile): boolean | string => {
     const maxSize = VALIDATIONS.attachment.fileSize;
     let description = null;
+    const fileName = file.name.toLowerCase();
+    const fileExtension = fileName.substring(fileName.lastIndexOf("."));
+
+    const isDuplicate = files.some(
+      (uploadedFile) => uploadedFile.name.toLowerCase() === fileName
+    );
+    if (isDuplicate) {
+      description = "This file has already been uploaded.";
+    }
+    
     if (files.length >= VALIDATIONS.attachment.maxFileCount) {
       description = ` ${VALIDATIONS.attachment.noOfFiles}`;
     }
-
+debugger
     if (file.size && file.size > maxSize) {
       description = ` ${VALIDATIONS.attachment.fileSizeErrMsg}`;
     } else if (/[*'",%&#^@]/.test(file.name)) {
       description = `${VALIDATIONS.attachment.fileNamingErrMsg}`;
     }
-    // Check file type
-    // if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.test(file.type)){
-    //   description= "only Email Attachments are allowed. "
-    // }
+   // Check file type
+   debugger
+    if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.includes(fileExtension)){
+      description= "Only Email Attachments are allowed. "
+    }
+    
     else if (
       file.type &&
       VALIDATIONS.attachment.notallowedFileTypes==file.type
@@ -93,9 +106,10 @@ const FileUpload: FC<IFileUpload> = ({
   };
 
   const onDelete = async (file: UploadFile<any>) => {
+    debugger
     const confirm = await DeleteFileModal(file.name);
     if (confirm) {
-      
+      debugger
       const url = `${webPartContext.pageContext.web.absoluteUrl}/_api/web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}/${file.name}')/ListItemAllFields`;
       const response = await webPartContext.spHttpClient.post(
         url,
@@ -108,10 +122,10 @@ const FileUpload: FC<IFileUpload> = ({
           },
         }
       );
-      
+      debugger
       const fileData = await response.json();
       const itemId = fileData.d.Id;
-      
+      debugger
       if (itemId) {
         const deleteResponse = await webPartContext.spHttpClient.post(
           `${webPartContext.pageContext.web.absoluteUrl}/_api/web/lists/getbytitle('${libraryName}')/items(${itemId})`,
@@ -126,15 +140,15 @@ const FileUpload: FC<IFileUpload> = ({
             },
           }
         );
-        
+        debugger
         if (!deleteResponse.ok) {
           console.error(`Error deleting file: ${deleteResponse.statusText}`);
         } else {
           
-          
+          debugger 
           onRemoveFile(file.name);
           
-          // void displayjsx.showSuccess("File deleted successfully ");
+           void displayjsx.showSuccess("File deleted successfully ");
         }
       }
 
