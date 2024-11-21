@@ -231,14 +231,14 @@ const AllRequestTable: React.FC<{}> = ({}) => {
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
          
-          {(row.Status === REQUEST_STATUS.LogicalAmendment ||
+          {(user.isAdmin ||((row.Status === REQUEST_STATUS.LogicalAmendment ||
             row.Status === REQUEST_STATUS.UnderImplementation ||
             (row.Status === REQUEST_STATUS.ResultMonitoring && !row.IsResultSubmit) ||
             row.Status === REQUEST_STATUS.Draft ||
             row.Status === REQUEST_STATUS.UnderAmendment ||
             row.Status === REQUEST_STATUS.PCRNPending ||
             row.Status === REQUEST_STATUS.Approved) &&
-            row.CreatedBy == user?.employeeId && (
+            row.CreatedBy == user?.employeeId ))&& (
               <button
                 type="button"
                 style={{ background: "none", border: "none" }}
@@ -262,8 +262,9 @@ const AllRequestTable: React.FC<{}> = ({}) => {
               <FontAwesomeIcon title="PDF" icon={faFilePdf} />
             </button>
           )}
-       {row.Status === REQUEST_STATUS.Draft &&
-            row.CreatedBy == user?.employeeId && (
+       {((user.isAdmin && row.Status != REQUEST_STATUS.Completed) ||
+            (row.Status === REQUEST_STATUS.Draft &&
+              row.CreatedBy == user?.employeeId)) && (
               <button
                 type="button"
                 style={{ background: "none", border: "none" }}

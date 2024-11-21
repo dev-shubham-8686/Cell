@@ -425,7 +425,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
               !row.IsResultSubmit) ||
             row.Status === REQUEST_STATUS.Draft ||
             row.Status === REQUEST_STATUS.UnderAmendment ||
-            row.Status === REQUEST_STATUS.PCRNPending ||
+            // row.Status === REQUEST_STATUS.PCRNPending ||
             row.Status === REQUEST_STATUS.Approved) &&
             row.CreatedBy == user?.employeeId && (
               <button

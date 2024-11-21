@@ -545,12 +545,14 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
               Rejected by Toshiba
             </button>
           )}
-        {((user.employeeId == eqReport?.AdvisorId &&
+        {(
+          (user?.isAdmin && (eqReport?.ToshibaDiscussionTargetDate || eqReport?.ToshibaApprovalTargetDate)) ||
+        ((user.employeeId == eqReport?.AdvisorId &&
           eqReport?.ToshibaDiscussionTargetDate &&
           eqReport?.WorkflowLevel !== 2) ||
           (user.isQcTeamHead && eqReport?.ToshibaApprovalTargetDate)) &&
           showWorkflowBtns &&
-          approverRequest && (
+          approverRequest) && (
             <button
               className="btn btn-primary"
               type="button"

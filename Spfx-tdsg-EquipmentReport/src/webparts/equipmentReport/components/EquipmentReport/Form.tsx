@@ -94,6 +94,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const [selectedMachine, setselectedMachine] = useState<number | 0>(0);
   const [showSubmitModal, setshowSubmitModal] = useState<boolean>(false);
   const [submitted, setsubmitted] = useState(false);
+  const [isAdmin, setisAdmin] = useState(false);
   const [resultsubmitted, setresultsubmitted] = useState(false);
   const [showOtherSubMachine, setshowOtherSubMachine] =
     useState<boolean>(false);
@@ -157,7 +158,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       }
       values.ResultAfterImplementation = {
         ...values.ResultAfterImplementation,
-        PCRNNumber:  form.getFieldValue("PCRNNumber"),
+        PCRNNumber: form.getFieldValue("PCRNNumber"),
         ActualDate: form.getFieldValue("ActualDate"),
         TargetDate: form.getFieldValue("TargetDate"),
         ResultStatus: form.getFieldValue("ResultStatus"),
@@ -199,7 +200,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           "ResultMonitoring",
           "ResultMonitoringDate",
           "ResultStatus",
-          "PCRNNumber"
+          "PCRNNumber",
         ]);
       }
       Modal.confirm({
@@ -246,7 +247,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       }
       values.ResultAfterImplementation = {
         ...values.ResultAfterImplementation,
-        PCRNNumber:  form.getFieldValue("PCRNNumber"),
+        PCRNNumber: form.getFieldValue("PCRNNumber"),
         ActualDate: form.getFieldValue("ActualDate"),
         TargetDate: form.getFieldValue("TargetDate"),
         ResultStatus: form.getFieldValue("ResultStatus"),
@@ -331,12 +332,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       } else {
         resultDate = form.getFieldValue("ResultMonitoringDate");
       }
-      if(existingEquipmentReport?.IsPcrnRequired){
-
+      if (existingEquipmentReport?.IsPcrnRequired) {
       }
       values.ResultAfterImplementation = {
         ...values.ResultAfterImplementation,
-        PCRNNumber:  form.getFieldValue("PCRNNumber"),
+        PCRNNumber: form.getFieldValue("PCRNNumber"),
         ActualDate: form.getFieldValue("ActualDate"),
         TargetDate: form.getFieldValue("TargetDate"),
         ResultStatus: form.getFieldValue("ResultStatus"),
@@ -350,12 +350,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     if (id) {
       values.EquipmentImprovementId = parseInt(id);
     }
-    if(underLogicalAmmendment || underLogicalAmmendment){
-      values.IsSubmit=true;
-      
+    if (underLogicalAmmendment || underLogicalAmmendment) {
+      values.IsSubmit = true;
     }
     console.log("values", values);
-
+  if(!isAdmin){
     if (existingEquipmentReport?.WorkflowLevel == 2) {
       const fieldsToExclude = [
         "TargetDate",
@@ -363,7 +362,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         "ResultMonitoring",
         "ResultMonitoringDate",
         "ResultStatus",
-        "PCRNNumber"
+        "PCRNNumber",
       ];
 
       const allFields = Object.keys(form.getFieldsValue());
@@ -375,6 +374,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     } else {
       await form.validateFields();
     }
+  }
     eqReportSave.mutate(
       { ...values },
       {
@@ -470,7 +470,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     // form.setFieldsValue({
     //   ChangeRiskManagementDetails: existingEquipmentReport?.ChangeRiskManagementDetails??ChangeRiskManagementDetails,
     // });
-
+    if (user) {
+      setisAdmin(user?.isAdmin);
+    }
     if (existingEquipmentReport) {
       console.log("sk..........", existingEquipmentReport);
       const changeRiskData =
@@ -539,7 +541,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               existingEquipmentReport?.ResultAfterImplementation?.TargetDate,
               DATE_FORMAT
             ) ?? "-",
-          PCRNNumber:existingEquipmentReport?.ResultAfterImplementation?.PCRNNumber,
+          PCRNNumber:
+            existingEquipmentReport?.ResultAfterImplementation?.PCRNNumber,
           ResultMonitoringId:
             existingEquipmentReport?.ResultAfterImplementation
               ?.ResultMonitoringId,
@@ -571,13 +574,15 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       handleSubMachineChange(existingEquipmentReport?.SubMachineName);
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment &&
-        existingEquipmentReport.CreatedBy == user.employeeId && existingEquipmentReport?.WorkflowLevel==1
+        existingEquipmentReport.CreatedBy == user.employeeId &&
+        existingEquipmentReport?.WorkflowLevel == 1
       ) {
         setunderAmmendment(true);
       }
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment &&
-        existingEquipmentReport.CreatedBy == user.employeeId && existingEquipmentReport?.WorkflowLevel==2
+        existingEquipmentReport.CreatedBy == user.employeeId &&
+        existingEquipmentReport?.WorkflowLevel == 2
       ) {
         setresultUnderAmmendment(true);
       }
@@ -721,7 +726,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               maxLength={100}
               disabled={
                 isModeView ||
-                (submitted &&
+                (!isAdmin &&
+                  submitted &&
                   !underAmmendment &&
                   (resultsubmitted ? !underLogicalAmmendment : true))
               }
@@ -759,9 +765,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               maxLength={1000}
               disabled={
                 isModeView ||
-                (submitted &&
-                  !underAmmendment &&
-                  (resultsubmitted ? !underLogicalAmmendment : true))
+                      (!isAdmin &&
+                        submitted &&
+                        !underAmmendment &&
+                        (resultsubmitted ? !underLogicalAmmendment : true))
               }
               style={{ width: "100%" }}
               placeholder="Select function"
@@ -797,9 +804,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             <TextArea
               disabled={
                 isModeView ||
-                (submitted &&
-                  !underAmmendment &&
-                  (resultsubmitted ? !underLogicalAmmendment : true))
+                      (!isAdmin &&
+                        submitted &&
+                        !underAmmendment &&
+                        (resultsubmitted ? !underLogicalAmmendment : true))
               }
               maxLength={1000}
               placeholder="Enter risks"
@@ -835,9 +843,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             <TextArea
               disabled={
                 isModeView ||
-                (submitted &&
-                  !underAmmendment &&
-                  (resultsubmitted ? !underLogicalAmmendment : true))
+                      (!isAdmin &&
+                        submitted &&
+                        !underAmmendment &&
+                        (resultsubmitted ? !underLogicalAmmendment : true))
               }
               maxLength={1000}
               placeholder="Add Factor"
@@ -877,9 +886,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             <TextArea
               disabled={
                 isModeView ||
-                (submitted &&
-                  !underAmmendment &&
-                  (resultsubmitted ? !underLogicalAmmendment : true))
+                      (!isAdmin &&
+                        submitted &&
+                        !underAmmendment &&
+                        (resultsubmitted ? !underLogicalAmmendment : true))
               }
               maxLength={1000}
               placeholder="Add Counter Measures"
@@ -925,7 +935,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               format="DD-MM-YYYY"
               disabled={
                 isModeView ||
-                (submitted &&
+                (!isAdmin &&
+                  submitted &&
                   !underAmmendment &&
                   (resultsubmitted ? !underLogicalAmmendment : true))
               }
@@ -963,9 +974,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             <Select
               disabled={
                 isModeView ||
-                (submitted &&
-                  !underAmmendment &&
-                  (resultsubmitted ? !underLogicalAmmendment : true))
+                      (!isAdmin &&
+                        submitted &&
+                        !underAmmendment &&
+                        (resultsubmitted ? !underLogicalAmmendment : true))
               }
               showSearch
               optionFilterProp="children"
@@ -1013,7 +1025,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             <TextArea
               disabled={
                 isModeView ||
-                (submitted &&
+                (!isAdmin &&
+                  submitted &&
                   !underAmmendment &&
                   (resultsubmitted ? !underLogicalAmmendment : true))
               }
@@ -1044,11 +1057,13 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               }}
               disabled={
                 isModeView ||
-                (submitted &&
-                  !underAmmendment &&
-                  (resultsubmitted ? !underLogicalAmmendment : true)) ||
-                (existingEquipmentReport?.CreatedBy !== user?.employeeId &&
-                  existingEquipmentReport?.Status == REQUEST_STATUS.Draft)
+                (!isAdmin &&
+                  ((submitted &&
+                    !underAmmendment &&
+                    (resultsubmitted ? !underLogicalAmmendment : true)) ||
+                    (existingEquipmentReport?.CreatedBy !== user?.employeeId &&
+                      existingEquipmentReport?.Status ===
+                        REQUEST_STATUS.Draft)))
               }
             >
               <span>
@@ -1069,6 +1084,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         <>
           <div className="d-flex gap-3">
             {(mode == "add" ||
+            (isAdmin && !isModeView)||
               (!isModeView &&
                 (!submitted ||
                   underAmmendment ||
@@ -1088,10 +1104,13 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             )}
 
             {(mode == "add" ||
+            (isAdmin && !isModeView)||
               (!isModeView &&
-                ((!submitted && (existingEquipmentReport?.Status !=
-                  REQUEST_STATUS.LogicalAmendment && existingEquipmentReport?.Status !=
-                  REQUEST_STATUS.UnderAmendment))  ||
+                ((!submitted &&
+                  existingEquipmentReport?.Status !=
+                    REQUEST_STATUS.LogicalAmendment &&
+                  existingEquipmentReport?.Status !=
+                    REQUEST_STATUS.UnderAmendment) ||
                   (existingEquipmentReport?.WorkflowStatus ==
                     REQUEST_STATUS.W1Completed &&
                     existingEquipmentReport?.Status !=
@@ -1191,7 +1210,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 >
                   <Select
                     disabled={
-                      isModeView || (submitted)
+                      isModeView || submitted
                       //  ||
                       // (pcrnSubmission &&
                       //   existingEquipmentReport?.Status !=
@@ -1234,7 +1253,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   <Select
                     allowClear
                     mode="multiple"
-                    disabled={isModeView || (submitted )}
+                    disabled={isModeView || submitted}
                     showSearch
                     onChange={handleAreaChange}
                     filterOption={(input, option) =>
@@ -1258,7 +1277,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Machine}
                 >
                   <Select
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView || (!isAdmin && submitted && !underAmmendment)
+                    }
                     showSearch
                     filterOption={(input, option) =>
                       (option?.label ?? "")
@@ -1291,7 +1312,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 >
                   <Select
                     allowClear
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView || (!isAdmin && submitted && !underAmmendment)
+                    }
                     showSearch
                     onChange={handleSubMachineChange}
                     filterOption={(input, option) =>
@@ -1333,7 +1356,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       }
                     >
                       <Input
-                        disabled={isModeView || (submitted && !underAmmendment)}
+                        disabled={
+                          isModeView ||
+                          (!isAdmin && submitted && !underAmmendment)
+                        }
                         className="w-100"
                         allowClear
                       />
@@ -1351,7 +1377,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.ImpName}
                 >
                   <TextArea
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView || (!isAdmin && submitted && !underAmmendment)
+                    }
                     maxLength={100}
                     rows={3}
                   />
@@ -1364,7 +1392,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Purpose}
                 >
                   <TextArea
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView || (!isAdmin && submitted && !underAmmendment)
+                    }
                     maxLength={1000}
                     rows={3}
                   />
@@ -1379,12 +1409,18 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     </span>
                   }
                   name="EquipmentCurrSituationAttachmentDetails"
-                  rules={currSituationAttchments.length==0?validationRules.attachment:null}
+                  rules={
+                    currSituationAttchments.length == 0
+                      ? validationRules.attachment
+                      : null
+                  }
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   {console.log("USERID", user?.employeeId.toString())}
                   <FileUpload
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView || (!isAdmin && submitted && !underAmmendment)
+                    }
                     key={`file-upload-current-situation`}
                     folderName={
                       form.getFieldValue("EquipmentImprovementNo") !== "-"
@@ -1445,7 +1481,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.CurrSituation}
                 >
                   <TextArea
-                    disabled={isModeView || (submitted && !underAmmendment)}
+                    disabled={
+                      isModeView || (!isAdmin && submitted && !underAmmendment)
+                    }
                     maxLength={1000}
                     rows={3}
                   />
@@ -1463,7 +1501,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   <TextArea
                     disabled={
                       isModeView ||
-                      (submitted &&
+                      (!isAdmin &&
+                        submitted &&
                         !underAmmendment &&
                         (resultsubmitted ? !underLogicalAmmendment : true))
                     }
@@ -1484,14 +1523,20 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     <span className="text-muted">Improvement Attachments</span>
                   }
                   name="EquipmentImprovementAttachmentDetails"
-                   rules={improvementAttchments.length==0?validationRules.attachment:null}
+                  rules={
+                    improvementAttchments.length == 0
+                      ? validationRules.attachment
+                      : null
+                  }
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
                     disabled={
-                      isModeView ||
+                      // isModeView ||
                       // !(existingEquipmentReport?.Status==REQUEST_STATUS.LogicalAmendmentInReview)||
-                      (submitted &&
+                      isModeView ||
+                      (!isAdmin &&
+                        submitted &&
                         !underAmmendment &&
                         (resultsubmitted ? !underLogicalAmmendment : true))
                     }
@@ -1558,6 +1603,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 </p>
                 {console.log("Mode", mode)}
                 {(mode == "add" ||
+                  (isAdmin && !isModeView) ||
                   (!isModeView &&
                     (!submitted ||
                       underAmmendment ||
@@ -1677,30 +1723,34 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     Result Section
                   </p>
                   <div className="row mt-3">
-
-                 { existingEquipmentReport?.IsPcrnRequired ?<div className="col">
-                      <Form.Item
-                        label={
-                          <label className="text-muted mb-0">
-                            PCRN Number
-                          </label>
-                        }
-                        name="PCRNNumber"
-                        rules={
-                          existingEquipmentReport?.WorkflowLevel === 2
-                            ? validationRules["ResultStatus"]
-                            : null
-                        }
-                      >
-                        <Input
-                          disabled={
-                            isModeView || (resultsubmitted && !resultUnderAmmendment)
+                    {existingEquipmentReport?.IsPcrnRequired ? (
+                      <div className="col">
+                        <Form.Item
+                          label={
+                            <label className="text-muted mb-0">
+                              PCRN Number
+                            </label>
                           }
-                          className="w-100"
-                          maxLength={100}
-                        />
-                      </Form.Item>
-                    </div>:<></>}
+                          name="PCRNNumber"
+                          rules={
+                            existingEquipmentReport?.WorkflowLevel === 2
+                              ? validationRules["ResultStatus"]
+                              : null
+                          }
+                        >
+                          <Input
+                            disabled={
+                              isModeView ||
+                              (!isAdmin && (resultsubmitted && !resultUnderAmmendment))
+                            }
+                            className="w-100"
+                            maxLength={100}
+                          />
+                        </Form.Item>
+                      </div>
+                    ) : (
+                      <></>
+                    )}
 
                     <div className="col">
                       <Form.Item
@@ -1720,7 +1770,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                             // future dates only
                             return current && current < dayjs().startOf("day");
                           }}
-                          disabled={isModeView || (resultsubmitted && !resultUnderAmmendment)}
+                          disabled={
+                            isModeView ||
+                            (!isAdmin && (resultsubmitted && !resultUnderAmmendment))
+                          }
                           onChange={handleTargetDateChange}
                           className="w-100"
                         />
@@ -1742,7 +1795,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         <DatePicker
                           format={DATE_FORMAT}
                           disabled={
-                            isModeView || !enableActualDate || (resultsubmitted && !resultUnderAmmendment)
+                            isModeView ||
+                           (!isAdmin && ( !enableActualDate ||
+                            (resultsubmitted && !resultUnderAmmendment)))
                           }
                           className="w-100"
                         />
@@ -1765,7 +1820,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         }
                       >
                         <Select
-                          disabled={isModeView || (resultsubmitted && !resultUnderAmmendment)}
+                          disabled={
+                            isModeView ||
+                            (!isAdmin && (resultsubmitted && !resultUnderAmmendment))
+                          }
                           showSearch
                           filterOption={(input, option) =>
                             (option?.label ?? "")
@@ -1800,7 +1858,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         >
                           <DatePicker
                             format={DATE_FORMAT}
-                            disabled={isModeView || (resultsubmitted && !resultUnderAmmendment)}
+                            disabled={
+                              isModeView ||
+                              (resultsubmitted && !resultUnderAmmendment)
+                            }
                             disabledDate={disablePastAndNext7Days}
                             className="w-100"
                           />
@@ -1824,7 +1885,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       >
                         <TextArea
                           disabled={
-                            isModeView || !enableResultStatus || (resultsubmitted && !resultUnderAmmendment)
+                            isModeView ||
+                           (!isAdmin &&( !enableResultStatus ||
+                            (resultsubmitted && !resultUnderAmmendment)))
                           }
                           className="w-100"
                           rows={1}
@@ -1832,7 +1895,6 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         />
                       </Form.Item>
                     </div>
-
                   </div>
                 </div>
               )}
