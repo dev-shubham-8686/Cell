@@ -12,7 +12,6 @@ import { useAddUpdateReport } from "../../../hooks/useAddUpdateReport";
 import Workflow from "./WorkflowTab";
 import { useUserContext } from "../../../context/UserContext";
 import { IAdjustmentReportPhoto } from "../../../interface";
-import WorkFlowButtons from "../../common/WorkFlowButtons";
 import { useUpdateApproveAskToAmend } from "../../../hooks/useUpdateApproveAskToAmend";
 import { IAdditionalDepartmentHeads, IApproveAskToAmendPayload } from "../../../api/UpdateApproveAskToAmend.api";
 import { IPullBack } from "../../../api/PullBack.api";
@@ -22,6 +21,7 @@ import { useGetCurrentApprover } from "../../../hooks/useGetCurrentApprover";
 import { useGetApprorverFlowData } from "../../../hooks/useGetApprorverFlowData";
 import { useGetSectionHead } from "../../../hooks/useGetSectionHead";
 import { useGetDepartmentHead } from "../../../hooks/useGetDepartmentHead";
+import WorkFlowButtons from "../../common/workFlowButtons";
 // import { useEffect } from "react";
 // import { useGetApprorverFlowData } from "../../../hooks/useGetApprorverFlowData";
 
