@@ -38,15 +38,22 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             var result = new AjaxResult();
 
-            result.ReturnValue = await _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAllAdjustMentReportData]")
-                 .WithSqlParams(
-                        ("@CreatedBy", createdBy),
-                        ("@PageIndex", pageIndex),
-                        ("@PageSize", pageSize),
-                        ("@SortColumn", sortColumn),
-                        ("@Order", orderBy),
-                        ("@Where", searchValue)
-                ).ExecuteStoredProcedureAsync<AdjustmentReportView>();
+            try
+            {
+                result.ReturnValue = _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAllAdjustMentReportData]")
+                     .WithSqlParams(
+                            ("@CreatedBy", createdBy),
+                            ("@PageIndex", pageIndex),
+                            ("@PageSize", pageSize),
+                            ("@SortColumn", sortColumn),
+                            ("@Order", orderBy),
+                            ("@Where", searchValue)
+                    ).ExecuteStoredProcedureAsync<AdjustmentReportView>().Result;
+            }
+            catch (Exception ex)
+            {
+
+            }
 
             return result;
         }

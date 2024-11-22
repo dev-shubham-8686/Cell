@@ -30,6 +30,7 @@ const AdjustmentReportApprovals = () => {
   const [approvals, setApprovals] = useState<IAdjustmentReportInfo[]>(
     []
   );
+  const [searchValue, setSearchValue] = React.useState("");
 
   const { user } = useUserContext();
 
@@ -77,8 +78,20 @@ const AdjustmentReportApprovals = () => {
     setOrderBy(order);
   }, []);
 
-  const onSearchChange = () => {
-    console.log("Clicked Search");
+  const handleInputChange = (e: any) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    if (value === "") {
+      setPageIndex(1);
+      setSearchValue("");
+      setSearchQuery("");
+    }
+  };
+
+  const onSearchClick = () => {
+    setPageIndex(1);
+    setOrderBy("desc");
+    setSearchQuery(searchValue);
   };
 
   const columns: ColumnsType<IAdjustmentReportInfo> = [
@@ -219,34 +232,24 @@ const AdjustmentReportApprovals = () => {
   return (
     <div className="p-4 custom-table">
       <div className="flex justify-between items-center mb-3">
-        <div className="flex gap-3">
+      <div className="flex gap-3 mb-3">
           <Input
             type="text"
             placeholder="Search Here"
-            value={searchQuery}
-            onChange={(e: any) => {
-              setSearchQuery(e.target.value);
+            value={searchValue}
+            onChange={handleInputChange}
+            allowClear
+            onKeyDown={(e: any) => {
+              if (e.key === "Enter") {
+                onSearchClick();
+              }
             }}
           />
           <div className="position-relative">
-            {searchQuery && (
-              <i
-                className="fa-solid fa-times position-absolute text-gray font-18"
-                style={{
-                  left: "-2.25rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                }}
-                onClick={() => {
-                  setSearchQuery("");
-                }}
-              />
-            )}
             <Button
               type="primary"
               icon={<SearchOutlined />}
-              onClick={() => onSearchChange()}
+              onClick={onSearchClick}
             >
               <i className="fa-solid fa-magnifying-glass me-1" /> Search
             </Button>
