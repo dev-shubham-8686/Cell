@@ -77,16 +77,6 @@
 
     public class EquipmentPdfDTO
     {
-        public string? RequestNo { get; set; }
-        public DateTime IssueDate  { get; set; }
-        public string? MachineName { get; set; }
-        public string? Purpose { get; set; }
-        public string? Applicant { get; set; }
-        public string? CurrentSituation { get; set; }
-        public string? Improvement { get; set; }
-        public string? ResultStatus  { get; set; }
-        public DateTime? TargetDate { get; set; }
-        public DateTime? ActualDate { get; set; }
         public string? Changes { get; set; }
         public string? FunctionId { get; set; }
         public string? RiskAssociatedWithChanges { get; set; }

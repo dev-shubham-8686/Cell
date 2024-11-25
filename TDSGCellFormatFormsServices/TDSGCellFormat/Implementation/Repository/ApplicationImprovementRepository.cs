@@ -503,6 +503,9 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 var existingReport = await _context.EquipmentImprovementApplication.FindAsync(report.EquipmentImprovementId);
                 existingReport.MachineId = report.MachineName;
+                existingReport.OtherMachineName = report.MachineName != null && report.MachineName == -1
+                      ? report.OtherMachineName
+                      : "";
                 existingReport.SubMachineId = report.SubMachineName != null ? string.Join(",", report.SubMachineName) : string.Empty;
                 existingReport.OtherSubMachine = report.SubMachineName != null && report.SubMachineName.Contains(-2)
                            ? report.otherSubMachine
@@ -1108,6 +1111,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     // mention the WorkFlow status 
                     await _context.SaveChangesAsync();
 
+                    InsertHistoryData(equipmentTask.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "PullBack by", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.SendEquipmentEmail(data.equipmentId, EmailNotificationAction.PullBack, string.Empty, 0);
+
                     var approverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.equipmentId && x.IsActive == true).ToList();
                     approverTask.ForEach(a =>
                     {
@@ -1116,10 +1123,6 @@ namespace TDSGCellFormat.Implementation.Repository
                         a.ModifiedDate = DateTime.Now;
                     });
                     await _context.SaveChangesAsync();
-
-                    InsertHistoryData(equipmentTask.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "PullBack by", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
-                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.SendEquipmentEmail(data.equipmentId, EmailNotificationAction.PullBack, string.Empty, 0);
 
 
                 }
@@ -1788,52 +1791,79 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 string templateFile = "EquipmentPDF.html";
 
-                string templateFilePath = Path.Combine(baseDirectory, htmlTemplatePath, templateFile);
-
+                string templateFilePath = Path.Combine(projectRootDirectory, htmlTemplatePath, templateFile);
+               
                 string? htmlTemplate = System.IO.File.ReadAllText(templateFilePath);
                 sb.Append(htmlTemplate);
 
-                sb.Replace("#EquipmentNo#", data.FirstOrDefault()?.RequestNo);
-                sb.Replace("#Date#", data.FirstOrDefault()?.IssueDate.ToString("dd-MM-yyyy"));
-                sb.Replace("#MachineName#", data.FirstOrDefault()?.MachineName);
-                sb.Replace("#ApplicantName#", data.FirstOrDefault()?.Applicant);
-                sb.Replace("#Purpose#", data.FirstOrDefault()?.Purpose);
-                sb.Replace("#currentSituations#", data.FirstOrDefault()?.CurrentSituation);
-                sb.Replace("#Improvement#", data.FirstOrDefault()?.Improvement);
+                sb.Replace("#EquipmentNo#", equipmentData?.EquipmentImprovementNo);
+                sb.Replace("#Date#", equipmentData?.When?.ToString("dd-MM-yyyy") ?? "N/A");
+                if (equipmentData != null)
+                {
+                    var machineName = _context.Machines.Where(x => x.MachineId == equipmentData.MachineId).Select(x => x.MachineName).FirstOrDefault();
+                    var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == equipmentData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
+                    sb.Replace("#MachineName#", machineName);
+                    sb.Replace("#ApplicantName#", applicant);
+                }
+                sb.Replace("#Purpose#", equipmentData?.Purpose);
+                sb.Replace("#currentSituations#", equipmentData?.CurrentSituation);
+                sb.Replace("#Improvement#", equipmentData?.Imrovement);
+
+                // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
+                if (equipmentData?.ToshibaApprovalRequired == true)
+                {
+                    sb.Replace("#ToshibaApprovalRequiredChecked#", "checked");
+                    sb.Replace("#NoToshibaApprovalRequiredChecked#", "");
+                }
+                else
+                {
+                    sb.Replace("#ToshibaApprovalRequiredChecked#", "");
+                    sb.Replace("#NoToshibaApprovalRequiredChecked#", "checked");
+                }
 
 
                 StringBuilder tableBuilder = new StringBuilder();
                 int serialNumber = 1;
-                foreach(var item in data)
+
+                if(data != null && data.Any())
                 {
-                    tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
+                    foreach (var item in data)
+                    {
+                        tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
 
-                    // Add the serial number to the first column
-                    tableBuilder.Append("<td style=\"width: 3%; border: 0.25px; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
+                        // Add the serial number to the first column
+                        tableBuilder.Append("<td style=\"width: 3%; border: 0.25px; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
 
-                    // Add the rest of the data to the respective columns
-                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px; border: 0.25px; height: 20px\">" + item.Changes + "</td>");
-                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.FunctionId + "</td>");
-                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.RiskAssociatedWithChanges + "</td>");
-                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.Factor + "</td>");
-                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.CounterMeasures + "</td>");
-                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.DueDate + "</td>");
-                    tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.PersonInCharge + "</td>");
-                    tableBuilder.Append("<td style=\"width: 20%; border: 0.25px; height: 20px; padding: 5px\">" + item.Results + "</td>");
+                        // Add the rest of the data to the respective columns
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px; border: 0.25px; height: 20px\">" + item.Changes + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.FunctionId + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.RiskAssociatedWithChanges + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.Factor + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.CounterMeasures + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.DueDate + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.PersonInCharge + "</td>");
+                        tableBuilder.Append("<td style=\"width: 20%; border: 0.25px; height: 20px; padding: 5px\">" + item.Results + "</td>");
 
-                    tableBuilder.Append("</tr>");
+                        tableBuilder.Append("</tr>");
+                    }
                 }
+                
 
                 sb.Replace("#ChangeriskTable#", tableBuilder.ToString());
 
                 string approveSectioneHead = approvalData.FirstOrDefault(a => a.SequenceNo == 1)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDepHead = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 3)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByDepHead = approvalData.FirstOrDefault(a => a.SequenceNo == 3)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 4)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByAdvisor = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.employeeNameWithoutCode ?? "N/A";
+                string advisorComment = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.Comments ?? "N/A";
+                string advisorDate = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? "N/A";
 
                 sb.Replace("#SectionHeadName#", approveSectioneHead);
                 sb.Replace("#DepartmentHeadName#", approvedByDepHead);
                 sb.Replace("#DivisionHeadName#", approvedByDivHead);
-
+                sb.Replace("#AdvisorName#", approvedByAdvisor);
+                sb.Replace("#AdvisorComment#", advisorComment);
+                sb.Replace("#AdvisorDate#", advisorDate);
 
                 sb.Replace("#ResultStatus#", equipmentData?.ResultStatus);
                 sb.Replace("#TargetDate#", equipmentData?.TargetDate?.ToString("dd-MM-yyyy") ?? "N/A");
