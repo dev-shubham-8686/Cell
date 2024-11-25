@@ -208,7 +208,7 @@ namespace TDSGCellFormat.Helper
                 //string? templateFilePath = null;
 
                 //prod link
-               // string? documentLink = _configuration["SPSiteUrl"] +
+                // string? documentLink = _configuration["SPSiteUrl"] +
                 // "/SitePages/Trouble-Report.aspx#/";
 
                 //stage link
@@ -776,12 +776,12 @@ namespace TDSGCellFormat.Helper
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
 
                 //stage link
-                 string? documentLink = _configuration["SPSiteUrl"] +
-                 "/SitePages/MaterialConsumptionSlip.aspx#/form/";
+                string? documentLink = _configuration["SPSiteUrl"] +
+                "/SitePages/MaterialConsumptionSlip.aspx#/form/";
 
                 //prod link
-               // string? documentLink = _configuration["SPSiteUrl"] +
-               //"/SitePages/MaterialConsumptionSlip.aspx#/form/";
+                // string? documentLink = _configuration["SPSiteUrl"] +
+                //"/SitePages/MaterialConsumptionSlip.aspx#/form/";
 
                 if (requestId > 0)
                 {
@@ -1054,14 +1054,15 @@ namespace TDSGCellFormat.Helper
                 bool approvelink = false;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? Role = null;
+                bool isEditable = false;
 
                 //stage link
-                // string? documentLink = _configuration["SPSiteUrl"] +
-                // "/SitePages/MaterialConsumptionSlip.aspx#/material-consumption-slip/";
+                string? documentLink = _configuration["SPSiteUrl"] +
+                 "/SitePages/EquipmentReport.aspx#/form/";
 
                 //prod link
                 //string? documentLink = _configuration["SPSiteUrl"] +
-               //"/SitePages/MaterialConsumptionSlip.aspx#/form/";
+                //"/SitePages/MaterialConsumptionSlip.aspx#/form/";
 
                 if (requestId > 0)
                 {
@@ -1105,8 +1106,8 @@ namespace TDSGCellFormat.Helper
                                 break;
 
                             case EmailNotificationAction.ReSubmitted:
-                                templateFile = "MaterialConsumption_ReSubmitted.html";
-                                emailSubject = string.Format("[Action required!] MCS_{0} has been Resubmitted for Approval", equipmentNo);
+                                templateFile = "Equipment_Resubmitted.html";
+                                emailSubject = string.Format("[Action required!] Equipment Improvement_{0} has been Resubmitted for Approval", equipmentNo);
                                 isInReviewTask = true;
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
@@ -1125,6 +1126,7 @@ namespace TDSGCellFormat.Helper
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Asked for Amendment", equipmentNo);
                                 isRequestorinToEmail = true;
                                 isIsAmendTask = true;
+                                isEditable = true;
                                 break;
 
                             case EmailNotificationAction.LogicalAmend:
@@ -1132,6 +1134,7 @@ namespace TDSGCellFormat.Helper
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Asked for Logical Amendment", equipmentNo);
                                 isRequestorinToEmail = true;
                                 isLogicalAmend = true;
+                                isEditable = true;
                                 break;
 
                             case EmailNotificationAction.Rejected:
@@ -1160,6 +1163,7 @@ namespace TDSGCellFormat.Helper
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Approved", equipmentNo);
                                 isSectionHeadIncc = true;
                                 isRequestorinToEmail = true;
+                                isEditable = true;
                                 break;
 
                             case EmailNotificationAction.UnderImplementation:
@@ -1195,9 +1199,17 @@ namespace TDSGCellFormat.Helper
                                 break;
 
                             case EmailNotificationAction.ToshibaTeamApproval:
-                                templateFile = "Equipment_ToshibaTeamDiscussion.html";
+                                templateFile = "Equipment_ToshibaTeamApproval.html";
                                 emailSubject = string.Format("[Action taken!]  Equipment Improvement_{0} Toshiba Team Approval Required", equipmentNo);
                                 isRequestorinCCEmail = true;
+                                break;
+
+                            case EmailNotificationAction.PcrnRequired:
+                                templateFile = "Equipment_PcrnRequired.html";
+                                emailSubject = string.Format("[Action required!]  Equipment Improvement_{0} PCRN Required", equipmentNo);
+                                isRequestorinToEmail = true;
+                                isEditable = true;
+
                                 break;
                             default:
                                 break;
@@ -1216,25 +1228,25 @@ namespace TDSGCellFormat.Helper
                                     {
                                         if (task.SequenceNo == 3)
                                         {
-                                            var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true).Select(x => x.Head).ToList();
+                                            var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1).Select(x => x.Head).ToList();
                                             foreach (var dept in userOtherDepId)
                                             {
                                                 var deptEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == dept && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
 
                                                 emailCCAddressList.Add(deptEmail);
                                             }
-                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId != equipmentData.SectionHeadId).Select(x => x.EmployeeId).ToList();
-                                            foreach (var section in sectionHeadId)
-                                            {
-                                                var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == section && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId == equipmentData.SectionHeadId).Select(x => x.EmployeeId).FirstOrDefault();
 
-                                                emailCCAddressList.Add(sectionEmail);
-                                            }
-                                            emailToAddressList.Add(item.email);
+
+                                            var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == sectionHeadId && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                            emailCCAddressList.Add(sectionEmail);
+
+                                            emailToAddressList.Add(task.email);
                                         }
                                         else if (item.SequenceNo == 2)
                                         {
-                                            emailToAddressList.Add(item.email);
+                                            emailToAddressList.Add(task.email);
                                         }
                                         else
                                         {
@@ -1245,7 +1257,7 @@ namespace TDSGCellFormat.Helper
 
                                                 emailCCAddressList.Add(sectionEmail);
                                             }
-                                            emailToAddressList.Add(item.email);
+                                            emailToAddressList.Add(task.email);
                                         }
                                     }
 
@@ -1269,6 +1281,22 @@ namespace TDSGCellFormat.Helper
 
                                                 emailCCAddressList.Add(deptEmail);
                                             }
+
+                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId == equipmentData.SectionHeadId).Select(x => x.EmployeeId).FirstOrDefault();
+
+
+                                            var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == sectionHeadId && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                            emailCCAddressList.Add(sectionEmail);
+
+                                            emailToAddressList.Add(task.email);
+                                        }
+                                        else if (task.SequenceNo == 2)
+                                        {
+                                            emailToAddressList.Add(task.email);
+                                        }
+                                        else if(task.SequenceNo == 1)
+                                        {
                                             var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId != equipmentData.SectionHeadId).Select(x => x.EmployeeId).ToList();
                                             foreach (var section in sectionHeadId)
                                             {
@@ -1276,22 +1304,16 @@ namespace TDSGCellFormat.Helper
 
                                                 emailCCAddressList.Add(sectionEmail);
                                             }
-                                            emailToAddressList.Add(item.email);
-                                        }
-                                        else if (item.SequenceNo == 2)
-                                        {
-                                            emailToAddressList.Add(item.email);
+                                            emailToAddressList.Add(task.email);
                                         }
                                         else
                                         {
-                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId != equipmentData.SectionHeadId).Select(x => x.EmployeeId).ToList();
-                                            foreach (var section in sectionHeadId)
-                                            {
-                                                var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == section && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId == equipmentData.SectionHeadId).Select(x => x.EmployeeId).FirstOrDefault();
 
-                                                emailCCAddressList.Add(sectionEmail);
-                                            }
-                                            emailToAddressList.Add(item.email);
+                                            var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == sectionHeadId && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                            emailCCAddressList.Add(sectionEmail);
+                                            emailToAddressList.Add(task.email);
                                         }
                                     }
                                 }
@@ -1326,11 +1348,11 @@ namespace TDSGCellFormat.Helper
                         {
                             emailCCAddressList.Add(requesterUserEmail);
 
-                            if(emailNotification == EmailNotificationAction.ToshibaTeamApproval || emailNotification == EmailNotificationAction.ToshibaTeamDiscussion)
+                            if (emailNotification == EmailNotificationAction.ToshibaTeamApproval || emailNotification == EmailNotificationAction.ToshibaTeamDiscussion)
                             {
-                                foreach(var item in approverData)
+                                foreach (var item in approverData)
                                 {
-                                    if((item.SequenceNo == 2 || item.SequenceNo == 5) && item.WorkFlowlevel == 1)
+                                    if ((item.SequenceNo == 2 || item.SequenceNo == 5) && item.WorkFlowlevel == 1)
                                     {
                                         emailToAddressList.Add(item.email);
                                     }
@@ -1345,7 +1367,7 @@ namespace TDSGCellFormat.Helper
 
                         if (isSectionHeadIncc)
                         {
-                            foreach(var item in approverData)
+                            foreach (var item in approverData)
                             {
                                 if (item.SequenceNo == 1 && item.WorkFlowlevel == 1)
                                 {
@@ -1363,7 +1385,7 @@ namespace TDSGCellFormat.Helper
                                     emailToAddressList.Add(item.email);
                                 }
                             }
-                            if(emailNotification == EmailNotificationAction.ResultSubmit)
+                            if (emailNotification == EmailNotificationAction.ResultSubmit)
                             {
                                 var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId != equipmentData.SectionHeadId).Select(x => x.EmployeeId).ToList();
                                 foreach (var section in sectionHeadId)
@@ -1400,9 +1422,9 @@ namespace TDSGCellFormat.Helper
                                         emailCCAddressList.Add(item.email);
                                     }
                                 }
-                                foreach(var i in approverData)
+                                foreach (var i in approverData)
                                 {
-                                    if(i.SequenceNo == 2 && i.WorkFlowlevel == 1)
+                                    if (i.SequenceNo == 2 && i.WorkFlowlevel == 1)
                                     {
                                         emailToAddressList.Add(i.email);
                                     }
@@ -1418,9 +1440,11 @@ namespace TDSGCellFormat.Helper
                             }
                         }
 
-                        if (nextApproverTaskId > 0) 
+                        if (nextApproverTaskId > 0)
                         {
-                            var approvalData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == requestId && x.ApproverTaskId == nextApproverTaskId && x.IsActive == true).FirstOrDefault();
+                            var approvalData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == requestId && x.Status == ApprovalTaskStatus.Approved.ToString() && x.IsActive == true)
+                                .OrderByDescending(x => x.ApproverTaskId)
+                                .FirstOrDefault();
                             Role = approvalData?.Role;
                         }
 
@@ -1441,7 +1465,15 @@ namespace TDSGCellFormat.Helper
                                 }
                                 else
                                 {
-                                    docLink = documentLink + "view/" + requestId;
+                                    if (isEditable)
+                                    {
+                                        docLink = documentLink + "edit/" + requestId;
+                                    }
+                                    else
+                                    {
+                                        docLink = documentLink + "view/" + requestId;
+                                    }
+                                   
                                 }
 
                                 emailBody = emailBody.Replace("#EquipmentLink#", docLink);

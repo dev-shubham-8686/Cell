@@ -9,6 +9,8 @@ namespace TDSGCellFormat.Models.Add
         public string? When { get; set; }
         public List<int>? AreaId { get; set; }
         public int? MachineName { get; set; }
+        public string? OtherMachineName { get; set; }
+
         public List<int>? SubMachineName { get; set; }
 
         public string? otherSubMachine { get; set; }
@@ -154,7 +156,7 @@ namespace TDSGCellFormat.Models.Add
 
     public class EquipmentPullBack
     {
-        public int? equipmentId { get; set; }
+        public int equipmentId { get; set; }
         public int? userId { get; set; }
         public string? comment { get; set; }
     }

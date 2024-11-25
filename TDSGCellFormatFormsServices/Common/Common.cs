@@ -115,7 +115,9 @@ namespace TDSGCellFormat.Common
             ResultApprove = 30,
             ResultReject = 31,
             ToshibaTeamDiscussion = 32,
-            ToshibaTeamApproval = 33
+            ToshibaTeamApproval = 33,
+            PcrnRequired = 34
+
 
         }
         public enum ApprovalTaskStatus
