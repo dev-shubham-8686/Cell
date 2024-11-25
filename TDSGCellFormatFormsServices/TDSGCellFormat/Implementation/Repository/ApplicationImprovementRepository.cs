@@ -1829,20 +1829,20 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     foreach (var item in data)
                     {
-                        tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
+                        tableBuilder.Append("<tr style=\"padding:10px; height: 20px; border: 0.25px solid black;\">");
 
                         // Add the serial number to the first column
-                        tableBuilder.Append("<td style=\"width: 3%; border: 0.25px; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
+                        tableBuilder.Append("<td style=\"width: 3%; border: 0.25px solid black; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
 
                         // Add the rest of the data to the respective columns
-                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px; border: 0.25px; height: 20px\">" + item.Changes + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.FunctionId + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.RiskAssociatedWithChanges + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.Factor + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.CounterMeasures + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.DueDate + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px; height: 20px; padding: 5px\">" + item.PersonInCharge + "</td>");
-                        tableBuilder.Append("<td style=\"width: 20%; border: 0.25px; height: 20px; padding: 5px\">" + item.Results + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px solid black; height: 20px; padding: 5px; border: 0.25px; height: 20px\">" + item.Changes + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px solid black; height: 20px; padding: 5px\">" + item.FunctionId + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px solid black; height: 20px; padding: 5px\">" + item.RiskAssociatedWithChanges + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px solid black; height: 20px; padding: 5px\">" + item.Factor + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px solid black; height: 20px; padding: 5px\">" + item.CounterMeasures + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px solid black; height: 20px; padding: 5px\">" + item.DueDate + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 0.25px solid black; height: 20px; padding: 5px\">" + item.PersonInCharge + "</td>");
+                        tableBuilder.Append("<td style=\"width: 20%; border: 0.25px solid black; height: 20px; padding: 5px\">" + item.Results + "</td>");
 
                         tableBuilder.Append("</tr>");
                     }
@@ -1869,33 +1869,50 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#TargetDate#", equipmentData?.TargetDate?.ToString("dd-MM-yyyy") ?? "N/A");
                 sb.Replace("#ActualDate#", equipmentData?.ActualDate?.ToString("dd-MM-yyyy") ?? "N/A");
 
-                using (var ms = new MemoryStream())
-                {
-                    Document document = new Document(PageSize.A3, 10f, 10f, 10f, 30f);
-                    PdfWriter writer = PdfWriter.GetInstance(document, ms);
-                    document.Open();
+                // Create PDF using SelectPDF
+                var converter = new SelectPdf.HtmlToPdf();
+                SelectPdf.PdfDocument pdfDoc = converter.ConvertHtmlString(sb.ToString());
 
-                    // Convert the StringBuilder HTML content to a PDF using iTextSharp
-                    using (var sr = new StringReader(sb.ToString()))
-                    {
-                        XMLWorkerHelper.GetInstance().ParseXHtml(writer, document, sr);
-                    }
+                // Convert the PDF to a byte array
+                byte[] pdfBytes = pdfDoc.Save();
 
-                    document.Close();
+                // Encode the PDF as a Base64 string
+                string base64String = Convert.ToBase64String(pdfBytes);
 
-                    // Convert the PDF to a byte array
-                    byte[] pdfBytes = ms.ToArray();
+                // Set response values
+                res.StatusCode = Enums.Status.Success;
+                res.Message = Enums.MaterialPdf;
+                res.ReturnValue = base64String; // Send the Base64 string to the frontend
 
-                    // Encode the PDF as a Base64 string
-                    string base64String = Convert.ToBase64String(pdfBytes);
+                return res;
 
-                    // Set response values
-                    res.StatusCode = Enums.Status.Success;
-                    res.Message = Enums.MaterialPdf;
-                    res.ReturnValue = base64String; // Send the Base64 string to the frontend
+                //using (var ms = new MemoryStream())
+                //{
+                //    Document document = new Document(PageSize.A3, 10f, 10f, 10f, 30f);
+                //    PdfWriter writer = PdfWriter.GetInstance(document, ms);
+                //    document.Open();
 
-                    return res;
-                }
+                //    // Convert the StringBuilder HTML content to a PDF using iTextSharp
+                //    using (var sr = new StringReader(sb.ToString()))
+                //    {
+                //        XMLWorkerHelper.GetInstance().ParseXHtml(writer, document, sr);
+                //    }
+
+                //    document.Close();
+
+                //    // Convert the PDF to a byte array
+                //    byte[] pdfBytes = ms.ToArray();
+
+                //    // Encode the PDF as a Base64 string
+                //    string base64String = Convert.ToBase64String(pdfBytes);
+
+                //    // Set response values
+                //    res.StatusCode = Enums.Status.Success;
+                //    res.Message = Enums.MaterialPdf;
+                //    res.ReturnValue = base64String; // Send the Base64 string to the frontend
+
+                //    return res;
+                //}
             }
             catch (Exception ex)
             {
