@@ -224,7 +224,9 @@ const AllRequestTable: React.FC<{}> = ({}) => {
             style={{ background: "none", border: "none" }}
             onClick={() =>
               navigate(
-                `/form/view/${row.EquipmentImprovementId}`
+                `/form/view/${row.EquipmentImprovementId}`,{
+                  state: { allReq: true },
+                }
               )
             }
           >

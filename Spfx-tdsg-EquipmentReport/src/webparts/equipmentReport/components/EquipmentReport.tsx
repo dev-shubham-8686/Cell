@@ -1,5 +1,4 @@
 import * as React from "react";
-import styles from "./EquipmentReport.module.scss";
 import type { IEquipmentReportProps } from "./IEquipmentReportProps";
 import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import EquipmentReportLayout from "./pages/EquipmentReportLayout";

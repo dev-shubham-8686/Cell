@@ -24,12 +24,12 @@ const EquipmentReportLayout: React.FC<EquipmentReportLayoutProps> = ({}) => {
   const { id, mode } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isApproverRequest, currentTabState, fromReviewTab } =
+  const { isApproverRequest, currentTabState, fromReviewTab ,allReq } =
     location.state || {};
   const [currentTab, setCurrentTab] = useState<TabName>("form");
   const equipmentReport = useEquipmentReportByID(id ? parseInt(id) : undefined);
 
-console.log("EQ Report data",equipmentReport?.data)
+console.log("allReq",equipmentReport?.data,location.state)
 const {data:approverFlowData} = useGetApproverFlowData(
   id ? parseInt(id) : undefined
 );
@@ -39,10 +39,10 @@ const currentApprover = useGetCurrentApproverData(
 );
 
   const onBackClick = (): void => {
-    console.log("CURRENTSTATE", currentTabState, fromReviewTab);
+    console.log("CURRENTSTATE", currentTabState, fromReviewTab ,allReq);
     navigate("/", {
       state: {
-        currentTabState: isApproverRequest ? "myapproval-tab" : "myrequest-tab",
+        currentTabState: isApproverRequest ? "myapproval-tab": allReq? "allrequest-tab": "myrequest-tab",
       },
     });
   };

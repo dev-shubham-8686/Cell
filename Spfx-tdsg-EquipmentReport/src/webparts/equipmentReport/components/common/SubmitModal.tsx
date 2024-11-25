@@ -57,9 +57,10 @@ const SubmitModal: React.FC<SubmitModalProps> = ({
             >
               Cancel
             </Button>
-            <Button
+            <div className="mb-3">
+              <Button
               key="confirm"
-              className="btn btn-primary"
+              className="btn btn-primary "
               type="primary"
               htmlType="submit"
               style={{ marginBottom: "6px" }}
@@ -68,7 +69,8 @@ const SubmitModal: React.FC<SubmitModalProps> = ({
               }}
             >
               Submit
-            </Button>
+            </Button></div>
+            
           </>
         )}
       >

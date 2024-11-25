@@ -70,14 +70,14 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   const user = useContext(UserContext);
   // const targetDate = useGetTargetDate();
   useEffect(() => {
-    debugger
+    
       if (isQCHead || user?.isAdmin) {
         if(toshibaApprovaltargetDate){
         form.setFieldsValue({
           TargetDate: dayjs(toshibaApprovaltargetDate, DATE_FORMAT),
         });
         if(IsPCRNRequired!=null){
-          debugger
+          
           form.setFieldsValue({
             pcrnAttachmentsRequired: IsPCRNRequired
           });

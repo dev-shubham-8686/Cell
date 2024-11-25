@@ -22,16 +22,16 @@ const TroubleReport: React.FC = () => {
     name: string;
   }[] = [
     {
-      id: "allrequest-tab",
-      name: "Requests",
-    },
-    {
       id: "myrequest-tab",
       name: "My Requests",
     },
     {
       id: "myapproval-tab",
-      name: "Approvals",
+      name: "My Approvals",
+    },
+    {
+      id: "allrequest-tab",
+      name: "All Requests",
     },
   ];
 
@@ -71,6 +71,7 @@ const TroubleReport: React.FC = () => {
                     navigate("/", {
                       state: {
                         currentTabState: tab.id,
+                        allReq:(tab.id == "allrequest-tab") ? true : false,
                       },
                     });
                   }}
