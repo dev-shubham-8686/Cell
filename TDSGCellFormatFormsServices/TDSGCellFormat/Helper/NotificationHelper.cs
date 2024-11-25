@@ -1054,7 +1054,7 @@ namespace TDSGCellFormat.Helper
                 bool approvelink = false;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? Role = null;
-                bool isEditable = false;
+                bool isEditable = false, isPullBacked = false;
 
                 //stage link
                 string? documentLink = _configuration["SPSiteUrl"] +
@@ -1150,6 +1150,7 @@ namespace TDSGCellFormat.Helper
                                 isApprovedtask = true;
                                 isInReviewTask = true;
                                 isRequestorinCCEmail = true;
+                                isPullBacked = true;
                                 break;
 
                             case EmailNotificationAction.Completed:
@@ -1213,6 +1214,17 @@ namespace TDSGCellFormat.Helper
                                 break;
                             default:
                                 break;
+                        }
+
+                        if (isPullBacked)
+                        {
+                            foreach(var item in approverData)
+                            {
+                                if(item.Status != ApprovalTaskStatus.Pending.ToString())
+                                {
+                                    emailToAddressList.Add(item.email);
+                                }
+                            }
                         }
 
                         if (isInReviewTask)
