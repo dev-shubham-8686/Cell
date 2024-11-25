@@ -356,12 +356,12 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         Database.ExecuteSqlRaw("EXECUTE dbo.SPP_MaterialConsuptionApproverMatrix @UserId, @MaterialConsumptionId", userIdParam, materialConsumptionIdParam);
     }
 
-    public void CallEquipmentApproverMaterix(int? userId, int equipmentId)
+    public async Task CallEquipmentApproverMaterix(int? userId, int equipmentId)
     {
         var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@UserId", userId);
         var equipmentIdParams = new Microsoft.Data.SqlClient.SqlParameter("@EquipmentId", equipmentId);
 
-        Database.ExecuteSqlRaw("EXECUTE dbo.SPP_EquipmentApproverMatrix @UserId, @EquipmentId", userIdParam, equipmentIdParams);
+        await Database.ExecuteSqlRawAsync("EXECUTE dbo.SPP_EquipmentApproverMatrix @UserId, @EquipmentId", userIdParam, equipmentIdParams);
     }
 
 
