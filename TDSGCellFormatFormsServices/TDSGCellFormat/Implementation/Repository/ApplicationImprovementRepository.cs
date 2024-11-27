@@ -1200,8 +1200,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     res.Message = Enums.EquipmentReject;
 
                     var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false).FirstOrDefault();
-                    equipment.Status = ApprovalTaskStatus.Reject.ToString();
-                    equipment.WorkFlowStatus = ApprovalTaskStatus.Reject.ToString();
+                    equipment.Status = ApprovalTaskStatus.Rejected.ToString();
+                    equipment.WorkFlowStatus = ApprovalTaskStatus.Rejected.ToString();
                     await _context.SaveChangesAsync();
 
                     InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, ApprovalTaskStatus.Rejected.ToString(), Convert.ToInt32(data.CurrentUserId), HistoryAction.Rejected.ToString(), 0);
