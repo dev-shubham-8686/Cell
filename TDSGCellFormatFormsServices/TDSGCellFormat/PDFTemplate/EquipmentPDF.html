@@ -3,6 +3,7 @@
 
 <head>
     <style>
+       
         input[type="checkbox"] {
             -webkit-appearance: none; /* Remove default browser appearance */
             -moz-appearance: none;
@@ -54,7 +55,7 @@
     </div>
 
     <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
-        <table style="border-color: black; border-collapse: collapse; font-size: 10px; border: 0.25px; text-align: left; margin-top: 10px; width: 100%;">
+        <table style="border-collapse: collapse; font-size: 10px; border: 0.25px; text-align: left; margin-top: 10px; width: 100%;">
             <tr style="padding: 10px; border: 0px;">
                 <td style="border: 0px; height: 20px; text-align: right; width: 60%; margin-left: 20px;">
                     <div style="font-size: 12px; font-weight: 600; margin-left: 10px; text-align: left;"> 設備変更実施伺い Application for Equipment Improvement</div>
@@ -66,29 +67,57 @@
         </table>
     </div>
 
-    <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
-        <table style="border-color: black; border-collapse: collapse; font-size: 10px; border: 0.25px; text-align: left; margin-top: 10px; width: 100%;">
-            <tr style="padding: 10px; border: 0px;">
-                <td style="border: 0px; height: 20px; padding: 5px; padding-right: 20px;">
+    <div style="margin-top: 5px; border: 1px solid black; padding: 10px; display: flex; justify-content: space-between;">
+
+        <!-- First Table for Machine Name and Purpose -->
+        <table style="border-collapse: collapse; font-size: 10px; text-align: left; width: 48%; margin-right: 10px;">
+            <!-- Machine Name Row -->
+            <tr style="padding: 10px;">
+                <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
                     <b>Machine Name :</b>
+                </td>
+                <td style="border: 1px solid black; height: 20px; padding: 5px;">
                     #MachineName#
                 </td>
-                <td style="border: 0px; height: 20px; padding: 5px; padding-right: 40px;">
-                    <b>Applicant</b>
-                </td>
             </tr>
-            <tr style="padding: 10px; border: 0px;">
-                <td style="border: 0px; height: 20px; padding: 5px; padding-right: 20px;">
+
+            <!-- Purpose Row -->
+            <tr style="padding: 10px;">
+                <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
                     <b>Purpose :</b>
-                    #Purpose#
                 </td>
-                <td style="border: 0px; height: 20px; padding: 5px; padding-right: 20px;">
-                    <b>Name :</b>
-                    #ApplicantName#
+                <td style="border: 1px solid black; height: 20px; padding: 5px;">
+                    #Purpose#
                 </td>
             </tr>
         </table>
+
+        <!-- Second Table for Applicant Name -->
+        <table style="border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 48%;">
+
+            <!-- First Row with Applicant Heading -->
+            <tr style="padding: 10px;">
+                <td colspan="2" style="border: 1px solid black; height: 20px; padding: 5px; text-align: center;">
+                    <b>Applicant</b>
+                </td>
+            </tr>
+
+            <!-- Second Row with Applicant Name and Data -->
+            <tr style="padding: 10px;">
+                <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
+                    <b>Applicant Name :</b>
+                </td>
+                <td style="border: 1px solid black; height: 20px; padding: 5px;">
+                    #ApplicantName#
+                </td>
+            </tr>
+
+        </table>
+
     </div>
+
+
+
 
     <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
         <table style="border-color: black; border-collapse: collapse; font-size: 10px; border: 0.25px; text-align: left; margin-top: 10px; width: 100%;">
@@ -96,6 +125,7 @@
                 <td style="border: 0px; height: 20px; padding: 5px; padding-right: 20px;">
                     <b>Current Situations (issues):</b>
                     #currentSituations#
+                    <div>#CurrentSituationAttachments#</div>
                 </td>
             </tr>
             <!--  add image code here-->
@@ -108,6 +138,7 @@
                 <td style="border: 0px; height: 20px; padding: 5px; padding-right: 20px;">
                     <b>Improvement (change):</b>
                     #Improvement#
+                    <div>#ImprovementAttachments#</div>
                 </td>
             </tr>
             <!--  add image code here-->
@@ -116,7 +147,7 @@
 
 
     <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
-        <table style="border-color: black; border-collapse: collapse; font-size: 10px; border: 0.25px; text-align: left; width: 100%;" align='center'>
+        <table style="border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%;" align='center'>
 
             <!-- Title Row -->
             <tr>
@@ -125,16 +156,16 @@
                 </th>
             </tr>
 
-            <tr style='padding: 10px; height: 20px; border: 0.25px solid black'>
-                <td style='width: 3%; border: 0.25px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Sr. No</b></td>
-                <td style='width: 11%; border: 0.25px solid black; height: 20px; background-color: #d8e6f3; padding: 5px; border: 0.25px; height: 20px'><b>Changes</b></td>
-                <td style='width: 11%; border: 0.25px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Functions</b></td>
-                <td style='width: 11%; border: 0.25px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Risk associated with changes</b></td>
-                <td style='width: 11%; border: 0.25px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Factors/ Causes</b></td>
-                <td style='width: 11%; border: 0.25px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Countermeasures</b></td>
-                <td style='width: 11%; border: 0.25px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Due Date</b></td>
-                <td style='width: 11%; border: 0.25px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Person in charge</b></td>
-                <td style='width: 20%; border: 0.25px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Results</b></td>
+            <tr style='padding: 10px; height: 20px;'>
+                <td style='width: 3%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Sr. No</b></td>
+                <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Changes</b></td>
+                <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Functions</b></td>
+                <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Risk associated with changes</b></td>
+                <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Factors/ Causes</b></td>
+                <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Countermeasures</b></td>
+                <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Due Date</b></td>
+                <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Person in charge</b></td>
+                <td style='width: 20%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Results</b></td>
             </tr>
             #ChangeriskTable#
 
@@ -149,55 +180,83 @@
     </div>
 
     <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
-        <table style="border-color: black; border-collapse: collapse; font-size: 10px; border: 0.25px; text-align: left; width: 100%;" align='center'>
+        <div style="margin-top: 10px;">
 
-            <!-- Title Row -->
-            <tr>
-                <th colspan="9" style="border: 1px; padding: 5px; text-align: left; font-weight: bold; font-size: 15px;">
-                    TDSG Advisor san's Review'
-                </th>
-            </tr>
+            <!-- Heading -->
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                <tr>
+                    <th colspan="2" style="text-align: left; font-weight: bold; font-size: 15px;">
+                        TDSG Advisor san's Review
+                    </th>
+                </tr>
+            </table>
 
-            <tr style="padding: 10px; border: 0px">
-                <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
-                    <b>Date:</b>
-                    #AdvisorDate#
-                </td>
-                <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
-                    <b>Name:</b>
-                    #AdvisorName#
-                </td>
-            </tr>
-            <tr style="padding: 10px; border: 0px">
-                <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
-                    <b>Comments:</b>
-                    #AdvisorComment#
-                </td>
-            </tr>
+            <!-- Tables Container -->
+            <div style="display: flex; justify-content: space-between;">
 
-            <tr>
-                <th colspan="9" style="padding: 5px; text-align: center;">
-                    *Advisor san will co-ordinate with Toshiba technical team if required and update
-                    the status in comment
-                </th>
-            </tr>
-        </table>
+                <!-- First Table: Date and Comments -->
+                <table style="border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 48%;">
+                    <!-- Row 1: Date -->
+                    <tr style="padding: 10px;">
+                        <td style="border: 1px solid black; height: 20px; padding: 5px; width: 50%;">
+                            <b>Date:</b>
+                        </td>
+                        <td style="border: 1px solid black; height: 20px; padding: 5px; width: 50%;">
+                            #AdvisorDate#
+                        </td>
+                    </tr>
+
+                    <!-- Row 2: Comments -->
+                    <tr style="padding: 10px;">
+                        <td style="border: 1px solid black; height: 20px; padding: 5px; width: 50%;">
+                            <b>Comments:</b>
+                        </td>
+                        <td style="border: 1px solid black; height: 20px; padding: 5px; width: 50%;">
+                            #AdvisorComment#
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Second Table: Name -->
+                <table style="border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 48%;">
+                    <!-- Row 1: Name -->
+                    <tr style="padding: 10px;">
+                        <td style="border: 1px solid black; height: 20px; padding: 5px; width: 50%;">
+                            <b>Name:</b>
+                        </td>
+                        <td style="border: 1px solid black; height: 20px; padding: 5px; width: 50%;">
+                            #AdvisorName#
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+
+            <!-- Footer Note -->
+            <div style="margin-top: 10px; text-align: center;">
+                <p style="font-size: 10px;">
+                    *Advisor san will co-ordinate with Toshiba technical team if required and update the status in the comment.
+                </p>
+            </div>
+
+        </div>
+
     </div>
 
-    <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
-        <table style="border-color: black; border-collapse: collapse; font-size: 10px; border: 0.25px; text-align: left; width: 100%;">
-            <tr style="padding: 10px; border: 0.25px solid black;">
-                <th rowspan="2" style="border: 0.25px ; padding: 5px; text-align: center; font-size: 14px; font-weight: bold;">Approved By : </th>
-                <th style="border: 0.25px solid black; padding: 5px; text-align: center;">Section Head</th>
-                <th style="border: 0.25px solid black; padding: 5px; text-align: center;">Department Head</th>
-                <th style="border: 0.25px solid black; padding: 5px; text-align: center;">Division Head</th>
+    <div style="margin-top: 5px; padding: 10px; border: 1px solid black;">
+        <table style="border-color: black; border-collapse: collapse; font-size: 10px;  text-align: left; width: 100%;">
+            <tr style="padding: 10px;">
+                <th rowspan="2" style="border: 1px solid black; padding: 5px; text-align: center; font-size: 14px; font-weight: bold;">Approved By : </th>
+                <th style="border: 1px solid black; padding: 5px; text-align: center;">Section Head</th>
+                <th style="border: 1px solid black; padding: 5px; text-align: center;">Department Head</th>
+                <th style="border: 1px solid black; padding: 5px; text-align: center;">Division Head</th>
                 <!--<th style="border: 0.25px; padding: 5px; text-align: center;">Remarks</th>-->
             </tr>
-            <tr style="padding: 10px; border: 0.25px solid black;">
+            <tr style="padding: 10px; ">
                 <!--<td style="border: 0.25px; height: 20px; padding: 5px; text-align: center;"></td>--> <!-- Empty cell for Approved By -->
-                <td style="border: 0.25px solid black ; height: 20px; padding: 5px; text-align: center;">#SectionHeadName#</td>
-                <td style="border: 0.25px solid black; height: 20px; padding: 5px; text-align: center;">#DepartmentHeadName#</td>
-                <td style="border: 0.25px solid black; height: 20px; padding: 5px; text-align: center;">#DivisionHeadName#</td>
+                <td style="border: 1px solid black ; height: 20px; padding: 5px; text-align: center;">#SectionHeadName#</td>
+                <td style="border: 1px solid black; height: 20px; padding: 5px; text-align: center;">#DepartmentHeadName#</td>
+                <td style="border: 1px solid black; height: 20px; padding: 5px; text-align: center;">#DivisionHeadName#</td>
                 <!--<td style="border: 0.25px; height: 20px; padding: 5px; text-align: center;">#Remarks#</td>-->
             </tr>
         </table>
@@ -205,40 +264,16 @@
 
 
     <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
-        <table style="border-color: black; border-collapse: collapse; font-size: 10px; border: 0.25px; text-align: left; width: 100%;" align='center'>
-
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
             <!-- Title Row -->
             <tr>
-                <th colspan="9" style="border: 0.25px; padding: 5px; text-align: left; font-weight: bold; font-size: 15px;">
-                    <b>TDSG Quality Control ReView 1</b> 
+                <th style="font-weight: bold; font-size: 15px; text-align: left;">
+                    TDSG Quality Control Review 1
                 </th>
-            </tr>
-
-            <tr style="padding: 10px; border: 0px">
-                <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
-                    <b>Date:</b>
-                    #QTOneDate#
-                </td>
-                <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
-                    <b>QC manager:</b>
-                    #QCmanagername#
-                </td>
-            </tr>
-            <tr style="padding: 10px; border: 0px">
-                <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
-                    <b>Comments:</b>
-                    #QTOneComment#
-                </td>
-            </tr>
-
-            <tr style="padding: 10px; border: 0px">
-                <td colspan="9" style=" padding: 5px; text-align: center;">
-                    If Toshiba's approval is required, apply to Toshiba through TDSG Quality Control Review 2.
-                </td>
             </tr>
         </table>
 
-
+        <!-- Checkboxes Section -->
         <div>
             <input type='checkbox' id='noApproval' #NoToshibaApprovalRequiredChecked# disabled />
             <label for='noApproval'>No Toshiba approval required</label>
@@ -248,65 +283,104 @@
             <label for='approvalRequired'>Toshiba approval required</label>
         </div>
 
+        <!-- Tables Section -->
+        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+            <!-- First Table -->
+            <table style="border-collapse: collapse; width: 48%; font-size: 10px;">
+                <tr>
+                    <td style="border: 1px solid black; padding: 5px;"><b>Date:</b></td>
+                    <td style="border: 1px solid black; padding: 5px;">#QTOneDate#</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid black; padding: 5px;"><b>Comments:</b></td>
+                    <td style="border: 1px solid black; padding: 5px;">#QTOneComment#</td>
+                </tr>
+            </table>
 
+            <!-- Second Table -->
+            <table style="border: 1px solid black; border-collapse: collapse; width: 48%; font-size: 10px;">
+                <tr>
+                    <td style="border: 1px solid black; padding: 5px;"><b>QC Manager:</b></td>
+                    <td style="border: 1px solid black; padding: 5px;">#QCmanagername#</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Footer Note -->
+        <div style="margin-top: 10px; text-align: center; font-size: 10px;">
+            If Toshiba's approval is required, apply to Toshiba through TDSG Quality Control Review 2.
+        </div>
     </div>
 
-    <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
-        <table style="border-color: black; border-collapse: collapse; font-size: 10px; border: 0.25px; text-align: left; width: 100%;" align='center'>
 
+    <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
             <!-- Title Row -->
             <tr>
-                <th colspan="9" style="border: 0.25px solid black; padding: 5px; text-align: left; font-weight: bold; font-size: 15px;">
-                    <b>(株）東芝 様 回答欄　Toshiba Co., Ltd. Answer column (Quality)</b> 
+                <th style="font-weight: bold; font-size: 15px; text-align: left;">
+                    (株）東芝 様 回答欄　Toshiba Co., Ltd. Answer column (Quality)
                 </th>
             </tr>
-
-            <tr style="padding: 10px; border: 0px">
-                <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
-                    <b>Date:</b>
-                    #ToshibaDate#
-                </td>
-                <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
-                    <b>Judged By:</b>
-                    #JudgedBy#
-                </td>
-            </tr>
-            <tr style="padding: 10px; border: 0px">
-                <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
-                    <b>Comments:</b>
-                    #ToshibaComments#
-                </td>
-            </tr>
         </table>
+
+        <!-- Tables Section -->
+        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+            <!-- First Table -->
+            <table style=" border-collapse: collapse; width: 48%; font-size: 10px;">
+                <tr>
+                    <td style="border: 1px solid black; padding: 5px;"><b>Date:</b></td>
+                    <td style="border: 1px solid black; padding: 5px;">#ToshibaDate#</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid black; padding: 5px;"><b>Comments:</b></td>
+                    <td style="border: 1px solid black; padding: 5px;">#ToshibaComments#</td>
+                </tr>
+            </table>
+
+            <!-- Second Table -->
+            <table style=" border-collapse: collapse; width: 48%; font-size: 10px;">
+                <tr>
+                    <td style="border: 1px solid black; padding: 5px;"><b>Judged By:</b></td>
+                    <td style="border: 1px solid black; padding: 5px;">#JudgedBy#</td>
+                </tr>
+            </table>
+        </div>
     </div>
 
     <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
-        <table style="border-color: black; border-collapse: collapse; font-size: 10px; border: 0.25px; text-align: left; width: 100%;" align='center'>
-
-            <!-- Title Row -->
+        <!-- Title Row -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
             <tr>
-                <th colspan="9" style="border: 0.25px; padding: 5px; text-align: center; font-weight: bold; font-size: 15px;">
+                <th style="font-weight: bold; font-size: 15px; text-align: center;">
                     Result after implementation
                 </th>
             </tr>
-            <tr style="padding: 10px; border: 0px">
-                <td style="border: 0.25px solid black; height: 20px; padding: 5px; padding-right: 20px;">
-                    <b>Result Status:</b>
-                    #ResultStatus#
-                </td>
-            </tr>
-            <tr style="padding: 10px; border: 0px">
-                <td style="border: 0.25px solid black; height: 20px; padding: 5px; padding-right: 20px;">
-                    <b>Target Date:</b>
-                    #TargetDate#
-                </td>
-                <td style="border: 0.25px solid black; height: 20px; padding: 5px; padding-right: 40px;">
-                    <b>Actual Date:</b>
-                    #ActualDate#
-                </td>
-            </tr>
+        </table>
 
+        <!-- Result Status -->
+        <div style="font-size: 10px; margin-bottom: 10px;">
+            <b>Result Status:</b> #ResultStatus#
+        </div>
+
+        <!-- Combined Table -->
+        <table style="border-collapse: collapse; width: 48%; font-size: 10px; margin-left: 0;">
+            <tr>
+                <!-- Target Date Column -->
+                <td style="border: 1px solid black; padding: 5px; text-align: center; width: 50%;">
+                    <b>Target Date:</b>
+                </td>
+                <td style="border: 1px solid black; padding: 5px; text-align: center; width: 50%;">
+                    <b>Actual Date:</b>
+                </td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid black; padding: 5px; text-align: center;">#TargetDate#</td>
+                <td style="border: 1px solid black; padding: 5px; text-align: center;">#ActualDate#</td>
+            </tr>
         </table>
     </div>
+
+
+
 </body>
 </html>
