@@ -456,7 +456,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         var employeeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@EmployeeId", employeeId);
         var typeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@Type", type);
 
-        if (type == 1)
+        if (type == 1 || type == 3)
         {
             return await this.Set<EquipmentExcelViewForType1>()
                 .FromSqlRaw("EXEC GetEquipmentListExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
