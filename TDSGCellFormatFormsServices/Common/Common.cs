@@ -106,7 +106,18 @@ namespace TDSGCellFormat.Common
             NotifyReviewManager = 21,
             Allow = 22,
             Decline = 23,
-            AllowBoth =24
+            AllowBoth =24,
+            LogicalAmend = 25,
+            W1Completed = 26,
+            UnderImplementation = 27,
+            ResultMonitoring = 28,
+            ResultSubmit = 29,
+            ResultApprove = 30,
+            ResultReject = 31,
+            ToshibaTeamDiscussion = 32,
+            ToshibaTeamApproval = 33,
+            PcrnRequired = 34
+
 
         }
         public enum ApprovalTaskStatus
@@ -145,6 +156,7 @@ namespace TDSGCellFormat.Common
             UnderImplementation = 32,
             ResultMonitoring = 33,
             LogicalAmendmentInReview = 34
+            
 
         }
         public enum FormType

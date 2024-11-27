@@ -102,6 +102,14 @@
         public string? sectionName { get; set; }
     }
 
+    public class SectionHeadView
+    {
+        public int sectionHeadMasterId { get; set; }
+        public int? sectionId { get; set; }
+
+        public string? sectionHeadName { get; set; }
+    }
+
 
     public class FunctionView
     {
@@ -110,15 +118,7 @@
         public string? functionName { get; set; }
     }
 
-    public class SectionHeadView
-    {
-        
-        public int sectionHeadId { get; set; }
-        public int? head {  get; set; }
-        public string? headName { get; set; }
-        public string? sectionName { get; set; }
-    }
-
+  
     public class ResultMonitorView
     {
         public int resultMonitorId { get; set; }

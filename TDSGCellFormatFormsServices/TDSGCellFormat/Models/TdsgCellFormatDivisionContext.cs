@@ -28,6 +28,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
     //EquipmentEmailAttachment
     public virtual DbSet<EquipmentEmailAttachment> EquipmentEmailAttachments { get; set; }
 
+    public virtual DbSet<SectionHeadEmpMaster> SectionHeadEmpMasters { get; set; }
     public virtual DbSet<TroubleReportReviewerTaskMaster> TroubleReportReviewerTaskMasters { get; set; }
 
     public virtual DbSet<AdjustmentReport> AdjustmentReports { get; set; }
@@ -355,12 +356,12 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         Database.ExecuteSqlRaw("EXECUTE dbo.SPP_MaterialConsuptionApproverMatrix @UserId, @MaterialConsumptionId", userIdParam, materialConsumptionIdParam);
     }
 
-    public void CallEquipmentApproverMaterix(int? userId, int equipmentId)
+    public async Task CallEquipmentApproverMaterix(int? userId, int equipmentId)
     {
         var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@UserId", userId);
         var equipmentIdParams = new Microsoft.Data.SqlClient.SqlParameter("@EquipmentId", equipmentId);
 
-        Database.ExecuteSqlRaw("EXECUTE dbo.SPP_EquipmentApproverMatrix @UserId, @EquipmentId", userIdParam, equipmentIdParams);
+        await Database.ExecuteSqlRawAsync("EXECUTE dbo.SPP_EquipmentApproverMatrix @UserId, @EquipmentId", userIdParam, equipmentIdParams);
     }
 
 
