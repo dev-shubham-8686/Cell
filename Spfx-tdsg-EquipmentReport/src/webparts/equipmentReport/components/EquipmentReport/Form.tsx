@@ -111,15 +111,28 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const handleMachineChange = (values: any) => {
     debugger;
     setselectedMachine(values);
+    // form.setFieldsValue({
+    //   SubMachineName: [],    
+    // });
+    setshowOtherSubMachine(false);
+   
+    if (values == -1) {
+      debugger
+      setshowOtherMachine(true);
+      // form.setFieldsValue({
+      //   OtherMachineName:existingEquipmentReport?.OtherMachineName ??""
+      // });
+    } else {
+      debugger
+      setshowOtherMachine(false);
+      form.setFieldsValue({
+        OtherMachineName:""    
+      });
+    }
     form.setFieldsValue({
       SubMachineName: [],
+      otherSubMachine:""    
     });
-    setshowOtherSubMachine(false);
-    if (values == -1) {
-      setshowOtherMachine(true);
-    } else {
-      setshowOtherMachine(false);
-    }
   };
   const handleSubMachineChange = (values: any) => {
     debugger;
@@ -128,13 +141,15 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       setshowOtherSubMachine(false);
     } else if (values.includes(-2)) {
       setshowOtherSubMachine(true);
-      form.setFieldsValue({
-        SubMachineName: values,
-      });
+      // form.setFieldsValue({
+      //   SubMachineName: values,
+      //   otherSubMachine:existingEquipmentReport?.otherSubMachine ??""
+      // });
     } else {
       setshowOtherSubMachine(false);
       form.setFieldsValue({
         SubMachineName: values,
+        otherSubMachine: ""
       });
     }
     console.log("OtherSub", showOtherSubMachine, showOtherMachine);
@@ -171,7 +186,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     values.CreatedBy = id
       ? existingEquipmentReport?.CreatedBy
       : user.employeeId;
-    values.ModifiedBy = user.employeeId;
+    values.ModifiedBy = user?.employeeId;
     if (existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed) {
       let resultDate;
       if (form.getFieldValue("ResultMonitoringId") == 3) {
@@ -227,6 +242,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           "ResultStatus",
           "PCRNNumber",
         ]);
+      }
+      else{
+        debugger
+        await form.validateFields();
       }
       Modal.confirm({
         title: "Are you sure you want to submit the form?",
@@ -383,6 +402,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     console.log("values", values);
     if (!isAdmin) {
       if (existingEquipmentReport?.WorkflowLevel == 2) {
+        debugger
         const fieldsToExclude = [
           "TargetDate",
           "ActualDate",
@@ -391,7 +411,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           "ResultStatus",
           "PCRNNumber",
         ];
-
+debugger
         const allFields = Object.keys(form.getFieldsValue());
         console.log("ALL FIELDS", allFields);
         const fieldsToValidate = allFields.filter(
@@ -399,6 +419,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         );
         await form.validateFields(fieldsToValidate); //: TODO Need to update
       } else {
+        debugger
+
+        console.log("CURRENT ATTACHMENT",currSituationAttchments,form.getFieldValue("EquipmentCurrSituationAttachmentDetails"));
         await form.validateFields();
       }
     }
@@ -588,15 +611,17 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           ),
         });
       }
+      debugger
       // form.setFieldValue([""])
       setImprovementAttchments(
         existingEquipmentReport?.EquipmentImprovementAttachmentDetails ?? []
       );
+      debugger
       // setpcrnAttachments(existingEquipmentReport?.PcrnAttachments ?? null);
       setcurrSituationAttchments(
         existingEquipmentReport?.EquipmentCurrSituationAttachmentDetails ?? []
       );
-
+      debugger
       setselectedMachine(parseInt(existingEquipmentReport?.MachineName ?? "0"));
       setChangeRiskManagementDetails(changeRiskData);
       console.log(
@@ -604,11 +629,15 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         existingEquipmentReport?.ChangeRiskManagementDetails,
         changeRiskData
       );
-      handleMachineChange(existingEquipmentReport?.MachineName);
-      handleSubMachineChange(existingEquipmentReport?.SubMachineName);
-      // if(existingEquipmentReport?.MachineName=="-1"){
-      //   setshowOtherMachine(true)
-      // }
+      if(existingEquipmentReport?.MachineName=="-1"){
+        setshowOtherMachine(true)
+      }
+      if(existingEquipmentReport?.SubMachineName.includes(-2)){
+        setshowOtherSubMachine(true)
+      }
+      // handleMachineChange(existingEquipmentReport?.MachineName);
+      // handleSubMachineChange(existingEquipmentReport?.SubMachineName);
+      
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment &&
         existingEquipmentReport.CreatedBy == user.employeeId &&
@@ -977,10 +1006,6 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   !underAmmendment &&
                   (resultsubmitted ? !underLogicalAmmendment : true))
               }
-              disabledDate={(current) => {
-                // future dates only
-                return current && current < dayjs().startOf("day");
-              }}
               onChange={(date, dateString) => {
                 onChangeTableData(record.key, "DueDate", dateString);
               }}
@@ -1349,9 +1374,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       label="Other Machine Name"
                       name="OtherMachineName"
                       initialValue={""}
-                      rules={
-                        showOtherSubMachine ? validationRules.SubMachine : null
-                      }
+                      // rules={
+                      //   showOtherSubMachine ? validationRules.SubMachine : null
+                      // }
                     >
                       <Input
                         maxLength={500}
@@ -1416,9 +1441,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       label="Other Sub Machine Name"
                       name="otherSubMachine"
                       initialValue={""}
-                      rules={
-                        showOtherSubMachine ? validationRules.SubMachine : null
-                      }
+                      // rules={
+                      //   showOtherSubMachine ? validationRules.SubMachine : null
+                      // }
                     >
                       <Input
                         maxLength={500}
@@ -1500,7 +1525,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       uid:
                         a.EquipmentCurrSituationAttachmentId?.toString() ?? "",
                       name: a.CurrSituationDocName,
-                      url: `${a.CurrSituationDocFilePath}`,
+                      url: `${WEB_URL}/${a.CurrSituationDocFilePath}`,
                     }))}
                     setIsLoading={(loading: boolean) => {
                       // setIsLoading(loading);
@@ -1514,26 +1539,54 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         EquipmentImprovementId: parseInt(id),
                         CurrSituationDocName: name,
                         CurrSituationDocFilePath: url,
-                        CreatedBy: 76,
-                        ModifiedBy: 76,
+                        CreatedBy: user?.employeeId,
+                        ModifiedBy: user?.employeeId,
                       };
 
                       const updatedAttachments: ICurrentSituationAttachments[] =
                         [...existingAttachments, newAttachment];
 
+                        void form.validateFields(["EquipmentCurrSituationAttachmentDetails"]);
                       setcurrSituationAttchments(updatedAttachments);
+
+                      console.log("HOJAAAAA")
+                      console.log("HOJAAAAA")
 
                       console.log("File Added");
                     }}
-                    onRemoveFile={(documentName: string) => {
-                      const existingAttachments = currSituationAttchments ?? [];
+                    // onRemoveFile={(documentName: string) => {
+                    //   debugger
+                    //   const existingAttachments = currSituationAttchments ?? [];
 
+                    //   const updatedAttachments = existingAttachments?.filter(
+                    //     (doc) => doc.CurrSituationDocName !== documentName
+                    //   );
+                    //   setcurrSituationAttchments(updatedAttachments);
+                    //   void form.validateFields(["EquipmentCurrSituationAttachmentDetails"]);
+
+                    //   console.log("File Removed");
+                    // }}
+                    onRemoveFile={async (documentName: string) => {
+                      debugger;
+                      const existingAttachments = currSituationAttchments ?? [];
+                    
                       const updatedAttachments = existingAttachments?.filter(
                         (doc) => doc.CurrSituationDocName !== documentName
                       );
+                    
                       setcurrSituationAttchments(updatedAttachments);
+                    
+                     
+                      console.log("Validation successful after file removal");
+                      if (updatedAttachments?.length == 0) {
+                        debugger
+                        form.setFieldValue("EquipmentCurrSituationAttachmentDetails", []);
+                      }
+                      await form.validateFields(["EquipmentCurrSituationAttachmentDetails"]); 
+                    
                       console.log("File Removed");
                     }}
+                    
                   />
                 </Form.Item>
               </div>
@@ -1618,7 +1671,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       ...a,
                       uid: a.EquipmentImprovementAttachmentId?.toString() ?? "",
                       name: a.ImprovementDocName,
-                      url: `${a.ImprovementDocFilePath}`,
+                      url: `${WEB_URL}/${a.ImprovementDocFilePath}`,
                     }))}
                     setIsLoading={(loading: boolean) => {
                       // setIsLoading(loading);
@@ -1632,26 +1685,37 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         EquipmentImprovementId: parseInt(id),
                         ImprovementDocName: name,
                         ImprovementDocFilePath: url,
-                        CreatedBy: 76,
-                        ModifiedBy: 76,
+                        CreatedBy:  user?.employeeId,
+                        ModifiedBy:  user?.employeeId,
                       };
 
                       const updatedAttachments: IImprovementAttachments[] = [
                         ...existingAttachments,
                         newAttachment,
                       ];
-
+                      
+                      void form.validateFields(["EquipmentImprovementAttachmentDetails"]);
                       setImprovementAttchments(updatedAttachments);
 
                       console.log("File Added");
                     }}
-                    onRemoveFile={(documentName: string) => {
+                    onRemoveFile={async (documentName: string) => {
                       const existingAttachments = improvementAttchments ?? [];
-
+                    
                       const updatedAttachments = existingAttachments?.filter(
                         (doc) => doc.ImprovementDocName !== documentName
                       );
+                    
                       setImprovementAttchments(updatedAttachments);
+                    
+                      
+                      console.log("Validation successful after file removal");
+                      if (updatedAttachments?.length == 0) {
+                        debugger
+                        form.setFieldValue("EquipmentImprovementAttachmentDetails", []);
+                      }
+                      await form.validateFields(["EquipmentImprovementAttachmentDetails"]); 
+                    
                       console.log("File Removed");
                     }}
                   />
@@ -1786,7 +1850,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     className="mt-3"
                     style={{ fontSize: "20px", color: "#C50017" }}
                   >
-                    Result Section
+                    Result after Implementation
                   </p>
                   <div className="row mt-3">
                     {existingEquipmentReport?.IsPcrnRequired ? (

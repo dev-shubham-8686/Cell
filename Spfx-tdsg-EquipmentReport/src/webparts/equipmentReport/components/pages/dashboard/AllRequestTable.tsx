@@ -280,6 +280,8 @@ const AllRequestTable: React.FC<{}> = ({}) => {
         </div>
       ),
       sorter: false,
+      width: 150,
+
     },
   ];
   

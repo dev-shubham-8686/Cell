@@ -104,13 +104,13 @@ export  const create_UUID = (): string => {
         statusText = "Approved";
         break;
       case REQUEST_STATUS.LogicalAmendmentInReview:
-        statusText = "Logical Ammendment InReview";
+        statusText = "Logical Amendment InReview";
         break;
       case REQUEST_STATUS.ToshibaTechnicalReview:
         statusText = "Toshiba Technical Review";
         break;
       case REQUEST_STATUS.LogicalAmendment:
-        statusText = "Logical Ammendment";
+        statusText = "Logical Amendment";
         break;
       case REQUEST_STATUS.ResultMonitoring:
         statusText = "Result Monitoring";

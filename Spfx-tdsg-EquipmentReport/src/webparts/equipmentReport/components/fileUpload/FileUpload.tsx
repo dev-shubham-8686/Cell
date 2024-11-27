@@ -170,12 +170,15 @@ debugger
   };
 
   const onPreviewFile = async (file: UploadFile): Promise<void> => {
+    debugger
     if (file.url) {
+      debugger
       const sharePointUrl = file.url.startsWith(WEB_URL)
         ? file.url
         : `${WEB_URL}/${file.url}`;
       window.open(sharePointUrl, "_blank");
     } else {
+      debugger
       const fileName = encodeURIComponent(file.name);
       const sharePointUrl = `${WEB_URL}/${libraryName}/${folderName}/${subFolderName}/${fileName}`;
 
@@ -326,7 +329,7 @@ debugger
       setIsLoading(false);
     }
   };
-
+console.log("FILESSS",files)
   return (
     < >
       {itemLoading && <Spin />}

@@ -213,7 +213,7 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
         </div>
       ),
       sorter: false,
-      width: "10%",
+      width: 150,
     },
   ];
 

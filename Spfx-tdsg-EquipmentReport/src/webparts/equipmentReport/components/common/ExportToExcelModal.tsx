@@ -19,9 +19,9 @@ import React, {
   import { useForm } from "antd/es/form/Form";
 import { DATE_FORMAT, EXCEL_DATE_FORMAT } from "../../GLOBAL_CONSTANT";
 import dayjs from "dayjs";
-import { UserContext } from "../../context/userContext";
 import { useLocation } from "react-router-dom";
 import useExportToExcelListing from "../../apis/exportToExcel/useExportToExcelListing";
+import { IUser, UserContext } from "../../context/userContext";
   
   const { Option } = Select;
   
@@ -45,7 +45,7 @@ import useExportToExcelListing from "../../apis/exportToExcel/useExportToExcelLi
       const location = useLocation();
       const { isApproverRequest,currentTabState } = location.state || {};
       const {mutate:exportToExcelListing,isLoading:excelLoading}=useExportToExcelListing()
-      const user = useContext(UserContext);
+      const user:IUser = useContext(UserContext);
       const handleClose = () => {
         setVisible(false);
         setStatus(null); 
@@ -75,8 +75,8 @@ import useExportToExcelListing from "../../apis/exportToExcel/useExportToExcelLi
         exportToExcelListing({
           fromdate: formattedFromDate,
           toDate: formattedToDate,
-          id: user.employeeId,
-          tab: currentTabState === "myapproval-tab" ? 2 : 1,
+          id: user?.employeeId,
+          tab: currentTabState === "myapproval-tab" ? 2 :currentTabState === "allrequest-tab"? 3:1,
         });     
         handleClose()
       }else {

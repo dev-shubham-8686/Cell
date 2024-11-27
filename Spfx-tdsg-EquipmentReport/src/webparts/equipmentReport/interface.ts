@@ -9,6 +9,7 @@ export  interface IEquipmentImprovementReport {
   AreaId:number[],
   When: string;
   MachineName: string;
+  OtherMachineName?:string;
   SubMachineName:number[]
   otherSubMachine?:string;
   Purpose: string;

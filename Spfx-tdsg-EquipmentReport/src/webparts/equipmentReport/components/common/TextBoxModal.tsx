@@ -7,6 +7,7 @@ import useGetTargetDate from "../../apis/workflow/useGetTargetDate";
 import { useParams } from "react-router-dom";
 import { DATE_FORMAT, DocumentLibraries } from "../../GLOBAL_CONSTANT";
 import FileUpload from "../fileUpload/FileUpload";
+import { IUser } from "../../apis/user/useUser";
 import { UserContext } from "../../context/userContext";
 
 export interface ITextBoxModal {
@@ -67,7 +68,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   const [emailAttachments, setEmailAttachments] = useState<
     IEmailAttachments[] 
   >([]);
-  const user = useContext(UserContext);
+  const user:IUser = useContext(UserContext);
   // const targetDate = useGetTargetDate();
   useEffect(() => {
     
@@ -83,7 +84,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
           });
         }
       }
-      else if (toshibadiscussiontargetDate) {
+      else if (toshibadiscussiontargetDate && user?.isAdmin) {
         form.setFieldsValue({
           TargetDate: dayjs(toshibadiscussiontargetDate, DATE_FORMAT),
         });
@@ -156,7 +157,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
             <></>
           )}
 
-          {isQCHead && toshibaApproval  ? (
+          {(isQCHead || user?.isAdmin) && toshibaApproval  ? (
             <>
               <Form.Item
                 label="PCRN  Required"
@@ -202,7 +203,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
               <FileUpload
                 isEmailAttachments={true}
                 key={`email-Attachments`}
-                folderName={EQReportNo ?? user?.employeeId}
+                folderName={EQReportNo ?? user?.employeeId.toString()}
                 subFolderName={"Email Attachments"}
                 libraryName={DocumentLibraries.EQ_Report}
                 files={emailAttachments?.map((a) => ({
