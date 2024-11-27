@@ -1147,8 +1147,6 @@ namespace TDSGCellFormat.Helper
                             case EmailNotificationAction.PullBack:
                                 templateFile = "Equipment_PullBack.html";
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Pull Backed", equipmentNo);
-                                isApprovedtask = true;
-                                isInReviewTask = true;
                                 isRequestorinCCEmail = true;
                                 isPullBacked = true;
                                 break;
