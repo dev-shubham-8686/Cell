@@ -894,7 +894,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == equipmentId && x.IsDeleted == false).FirstOrDefault();
                 if (equipment != null)
                 {
-                    equipment.Status = ApprovalTaskStatus.ResultMonitoring.ToString();
+                    equipment.Status = ApprovalTaskStatus.InReview.ToString();
                     //equipment.WorkFlowStatus = ApprovalTaskStatus.ResultMonitoring.ToString();
                     equipment.WorkFlowLevel = 2;
                     equipment.IsResultSubmit = true;
