@@ -29,5 +29,7 @@ namespace TDSGCellFormat.Interface.Service
         Task<AjaxResult> GetEquipmentExcel(DateTime fromDate, DateTime toDate, int employeeId, int type);
 
         Task<GetEquipmentUser> GetUserRole(string email);
+
+        Task<AjaxResult> ExportToPdf(int equipmentId);
     }
 }

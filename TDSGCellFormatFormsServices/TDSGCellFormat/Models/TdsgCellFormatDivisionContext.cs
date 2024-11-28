@@ -28,6 +28,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
     //EquipmentEmailAttachment
     public virtual DbSet<EquipmentEmailAttachment> EquipmentEmailAttachments { get; set; }
 
+    public virtual DbSet<SectionHeadEmpMaster> SectionHeadEmpMasters { get; set; }
     public virtual DbSet<TroubleReportReviewerTaskMaster> TroubleReportReviewerTaskMasters { get; set; }
 
     public virtual DbSet<AdjustmentReport> AdjustmentReports { get; set; }
@@ -154,6 +155,9 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
         modelBuilder.Entity<EquipmentExcelViewForType1>().HasNoKey();
         modelBuilder.Entity<EquipmentExcelViewForType2>().HasNoKey();
+
+        modelBuilder.Entity<AdjustmentReportView>().HasNoKey();
+        modelBuilder.Entity<AdjustmentReportApproverView>().HasNoKey();
         modelBuilder.Ignore<Property>();
         //modelBuilder.Entity<AdjustmentReport>(entity =>
         //{
@@ -361,12 +365,12 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         Database.ExecuteSqlRaw("EXECUTE dbo.SPP_MaterialConsuptionApproverMatrix @UserId, @MaterialConsumptionId", userIdParam, materialConsumptionIdParam);
     }
 
-    public void CallEquipmentApproverMaterix(int? userId, int equipmentId)
+    public async Task CallEquipmentApproverMaterix(int? userId, int equipmentId)
     {
         var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@UserId", userId);
         var equipmentIdParams = new Microsoft.Data.SqlClient.SqlParameter("@EquipmentId", equipmentId);
 
-        Database.ExecuteSqlRaw("EXECUTE dbo.SPP_EquipmentApproverMatrix @UserId, @EquipmentId", userIdParam, equipmentIdParams);
+        await Database.ExecuteSqlRawAsync("EXECUTE dbo.SPP_EquipmentApproverMatrix @UserId, @EquipmentId", userIdParam, equipmentIdParams);
     }
 
     public void CallAdjustmentReportApproverMaterix(int? userId, int adjustmentReportId)
@@ -537,6 +541,52 @@ public partial class TdsgCellFormatDivisionContext : DbContext
             .FromSqlRaw("EXEC GetEquipmentImprovementApplicationApproverList @createdOne,@skip,@take,@order,@orderBy,@searchColumn,@searchValue", createdParam, skipParam, takeParam, orderParam, orderByParam, columnParam, valueParam)
             .ToListAsync();
     }
+
+    public async Task<List<AdjustmentReportView>> GetAdjustmentReportList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+    {
+        var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@createdOne", createdBy);
+        var skipParam = new Microsoft.Data.SqlClient.SqlParameter("@skip", skip);
+        var takeParam = new Microsoft.Data.SqlClient.SqlParameter("@take", take);
+        var orderParam = new Microsoft.Data.SqlClient.SqlParameter("@order", order ?? string.Empty);
+        var orderByParam = new Microsoft.Data.SqlClient.SqlParameter("@orderBy", orderBy ?? string.Empty);
+        var columnParam = new Microsoft.Data.SqlClient.SqlParameter("@searchColumn", searchColumn ?? string.Empty);
+        var valueParam = new Microsoft.Data.SqlClient.SqlParameter("@searchValue", searchValue ?? string.Empty);
+
+        return await this.Set<AdjustmentReportView>()
+            .FromSqlRaw("EXEC SPP_GetAllAdjustMentReportData @createdOne,@skip,@take,@order,@orderBy,@searchColumn,@searchValue", createdParam, skipParam, takeParam, orderParam, orderByParam, columnParam, valueParam)
+            .ToListAsync();
+    }
+
+    public async Task<List<AdjustmentReportView>> GetAdjustmentReportMyReqList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+    {
+        var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@createdOne", createdBy);
+        var skipParam = new Microsoft.Data.SqlClient.SqlParameter("@skip", skip);
+        var takeParam = new Microsoft.Data.SqlClient.SqlParameter("@take", take);
+        var orderParam = new Microsoft.Data.SqlClient.SqlParameter("@order", order ?? string.Empty);
+        var orderByParam = new Microsoft.Data.SqlClient.SqlParameter("@orderBy", orderBy ?? string.Empty);
+        var columnParam = new Microsoft.Data.SqlClient.SqlParameter("@searchColumn", searchColumn ?? string.Empty);
+        var valueParam = new Microsoft.Data.SqlClient.SqlParameter("@searchValue", searchValue ?? string.Empty);
+
+        return await this.Set<AdjustmentReportView>()
+            .FromSqlRaw("EXEC SPP_GetAllAdjustMentReportData_MyReq @createdOne,@skip,@take,@order,@orderBy,@searchColumn,@searchValue", createdParam, skipParam, takeParam, orderParam, orderByParam, columnParam, valueParam)
+            .ToListAsync();
+    }
+
+    public async Task<List<AdjustmentReportApproverView>> GetAdjustmentReportApproverList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+    {
+        var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@createdOne", createdBy);
+        var skipParam = new Microsoft.Data.SqlClient.SqlParameter("@skip", skip);
+        var takeParam = new Microsoft.Data.SqlClient.SqlParameter("@take", take);
+        var orderParam = new Microsoft.Data.SqlClient.SqlParameter("@order", order ?? string.Empty);
+        var orderByParam = new Microsoft.Data.SqlClient.SqlParameter("@orderBy", orderBy ?? string.Empty);
+        var columnParam = new Microsoft.Data.SqlClient.SqlParameter("@searchColumn", searchColumn ?? string.Empty);
+        var valueParam = new Microsoft.Data.SqlClient.SqlParameter("@searchValue", searchValue ?? string.Empty);
+
+        return await this.Set<AdjustmentReportApproverView>()
+            .FromSqlRaw("EXEC GetAdjustmentReportApproverList @createdOne,@skip,@take,@order,@orderBy,@searchColumn,@searchValue", createdParam, skipParam, takeParam, orderParam, orderByParam, columnParam, valueParam)
+            .ToListAsync();
+    }
+
 
     public async Task<List<MaterialConsumptionListView>> GetMaterialConsumptionList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
     {

@@ -33,30 +33,48 @@ namespace TDSGCellFormat.Implementation.Repository
             _configuration = configuration;
         }
 
-        public async Task<AjaxResult> GetAllAdjustmentData(
-         int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "", string searchValue = "")
+        #region Listing screen 
+
+        public async Task<List<AdjustmentReportView>> GetAllAdjustmentData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
-            var result = new AjaxResult();
-
-            try
+            //var admin = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+            var listData = await _context.GetAdjustmentReportList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            var adjustmentData = new List<AdjustmentReportView>();
+            foreach (var item in listData)
             {
-                result.ReturnValue = _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAllAdjustMentReportData]")
-                     .WithSqlParams(
-                            ("@CreatedBy", createdBy),
-                            ("@PageIndex", pageIndex),
-                            ("@PageSize", pageSize),
-                            ("@SortColumn", sortColumn),
-                            ("@Order", orderBy),
-                            ("@Where", searchValue)
-                    ).ExecuteStoredProcedureAsync<AdjustmentReportView>().Result;
+                //  if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
+                adjustmentData.Add(item);
             }
-            catch (Exception ex)
-            {
-
-            }
-
-            return result;
+            return adjustmentData;
         }
+
+        public async Task<List<AdjustmentReportView>> GetAllAdjustmentDataMyReq(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            //var admin = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+            var listData = await _context.GetAdjustmentReportMyReqList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            var adjustmentData = new List<AdjustmentReportView>();
+            foreach (var item in listData)
+            {
+                //  if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
+                adjustmentData.Add(item);
+            }
+            return adjustmentData;
+        }
+
+        public async Task<List<AdjustmentReportApproverView>> GetAllAdjustmentApproverData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            //var admin = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+            var listData = await _context.GetAdjustmentReportApproverList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            var adjustmentData = new List<AdjustmentReportApproverView>();
+            foreach (var item in listData)
+            {
+                //  if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
+                adjustmentData.Add(item);
+            }
+            return adjustmentData;
+        }
+
+        #endregion
 
         public IQueryable<AdjustMentReportRequest> GetAll()
         {
