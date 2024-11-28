@@ -12,6 +12,7 @@ using ClosedXML.Excel;
 using Dapper;
 using System.Text;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 
 namespace TDSGCellFormat.Implementation.Repository
@@ -893,7 +894,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == equipmentId && x.IsDeleted == false).FirstOrDefault();
                 if (equipment != null)
                 {
-                    equipment.Status = ApprovalTaskStatus.ResultMonitoring.ToString();
+                    equipment.Status = ApprovalTaskStatus.InReview.ToString();
                     //equipment.WorkFlowStatus = ApprovalTaskStatus.ResultMonitoring.ToString();
                     equipment.WorkFlowLevel = 2;
                     equipment.IsResultSubmit = true;
@@ -1721,6 +1722,13 @@ namespace TDSGCellFormat.Implementation.Repository
                                 var value = property.GetValue(item, null);
                                 string stringValue = value != null ? value.ToString() : string.Empty;
 
+                                // Apply the FormatStatus function to format status fields
+                                if (property.Name == "Status" && value != null)
+                                {
+                                    stringValue = FormatStatus(stringValue);
+                                }
+
+
                                 worksheet.Cell(i + 2, columnIndex).Value = stringValue;
                                 columnIndex++;
                             }
@@ -1761,6 +1769,29 @@ namespace TDSGCellFormat.Implementation.Repository
                 return res;
             }
         }
+
+        private string FormatStatus(string status)
+        {
+            if (string.IsNullOrEmpty(status)) return status;
+
+            // Replace underscores with spaces and add spaces before uppercase letters
+            var formattedStatus = Regex.Replace(status, "([a-z])([A-Z])", "$1 $2");
+
+            // Add a comma before "InReview" or similar keywords
+            // Add a comma before "In Review" only for "Logical Amendment In Review"
+            if (formattedStatus.Contains("Logical Amendment In Review"))
+            {
+                formattedStatus = formattedStatus.Replace("In Review", ", In Review");
+            }
+            else
+            {
+                formattedStatus = formattedStatus.Replace("InReview", "In Review"); // Adjust this to any similar terms
+
+            }
+
+            return formattedStatus;
+        }
+
 
         public async Task<IEnumerable<EquipmentPdfDTO>> GetEquipmentPdfData(int equipmentId)
         {
