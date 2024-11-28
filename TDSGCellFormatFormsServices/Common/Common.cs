@@ -290,6 +290,18 @@ namespace TDSGCellFormat.Common
         public const string MaterialExcel = "Excel file downloaded successfully";
         public const string MaterialPdf = "PDF file downloaded successfully";
         public const string MaterialExcelNotFound = "Please complete the approval process to download the excel";
+
+        public const string TechnicalSave = "Technical Instruction form saved successfully";
+        public const string TechnicalSubmit = "Technical Instruction form submitted successfully";
+        public const string TechnicalApprove = "Technical Instruction form has been approved";
+        public const string TechnicalAsktoAmend = "Amendment Asked successfully";
+        public const string TechnicalResubmit = "Technical Instruction form Resubmitted successfully";
+        public const string TechnicalPullback = "Technical Instruction form has been pulled back successfully";
+        public const string TechnicalClose = "Technical Instruction form closed successfully";
+        public const string TechnicalExcel = "Excel file downloaded successfully";
+        public const string TechnicalPdf = "PDF file downloaded successfully";
+        public const string TechnicalExcelNotFound = "Please complete the approval process to download the excel";
+        public const string TechnicalReOpen = "Technical Instruction reopened";
         #endregion
     }
 }

@@ -1,0 +1,733 @@
+:root {
+  --color-primary-light: #3a383869;
+  --color-primary: #b6ccd469;
+  --color-primary-dark: #1e88e5;
+
+  --color-secondary-light: #ffb74d;
+  --color-secondary: #ff9800;
+  --color-secondary-dark: #f57c00;
+
+  --color-success-light: #81c784;
+  --color-success: #4caf50;
+  --color-success-dark: #388e3c;
+
+  --color-danger-light: #e57373;
+  --color-danger: #f44336;
+  --color-danger-dark: #d32f2f;
+
+  --color-antd-disabled-bg: #e5e4e2;
+  --color-antd-disabled-border: #d3d3d3;
+  --color-disabled-text: #948989; //  rgba(0, 0, 0, 0.75)
+
+  /*worflow table colors*/
+  /* Blue shades */
+  --color-wf-primary-blue: #3762ea;
+  --color-wf-light-blue: #e1e7fc;
+
+  /* Red shades */
+  --color-wf-light-red: #ffe9e9;
+  --color-wf-primary-red: #ff2e2e;
+  --color-wf-secondary-red: #c50017;
+
+  /* Yellow shades */
+  --color-wf-light-yellow: #f9e9cd;
+  --color-wf-primary-yellow: #e9a121;
+  --color-wf-highlight-yellow: #fff11e;
+
+  /* Green shades */
+  --color-wf-light-green: #e0f7ea;
+  --color-wf-primary-green: #1ab55f;
+}
+
+// color variable overrides
+$body-bg: white;
+$body-color: #000000; //old origiinal #212529;
+$primary: #c50017;
+$secondary: #3ea7ab;
+$success: #1ab55f;
+$danger: #cf1919;
+$warning: #ab4400;
+$info: #69d3d6;
+$light: #f1f5f9;
+$dark: #6f6f6f;
+
+//blue-shades
+$blue-1: #3762ea;
+$blue-bg: #e1e7fc;
+$blue-2: #16aaee;
+$blue-2-bg: #d0d6d8;
+
+// red shades
+$red-bg: #ffe9e9;
+$red-1: #ff2e2e;
+
+// yelllow shades
+$yellow-bg: #f9e9cd;
+$yellow-1: #e9a121;
+$yellow-highlight: #fff11e;
+
+// green shades
+$green-bg: #e0f7ea;
+$green-1: #1ab55f;
+
+$white: #ffffff;
+$black: #000000;
+$darkgrey: #333333;
+$grey-1: #d9d9d9;
+
+// font style start
+$font-family: "Segoe UI", "Segoe UI Web (West European)", -apple-system,
+  BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+// font style end
+
+.ant-table-thead .ant-table-cell {
+  background-color: var(--color-primary) !important;
+}
+
+// antd scrollbar color width change START
+.ant-table-body {
+  scrollbar-width: auto;
+  scrollbar-color: auto;
+}
+
+// custom scrollbar
+.ant-table-body::-webkit-scrollbar {
+  width: 6px;
+  background-color: #888;
+  border-radius: 10px;
+  border: 3px solid #f1f1f1;
+}
+
+.ant-table-body::-webkit-scrollbar-track {
+  background-color: #e1e6e6;
+}
+
+.ant-table-body::-webkit-scrollbar-thumb {
+  border-radius: 6px;
+  // background-color: rgb(41, 80, 219);
+}
+
+// antd scrollbar color width change ENDS
+
+//workflow table styling
+.workflow-table {
+  width: 100%;
+  border-collapse: collapse;
+  // font-family: $lato;
+
+  th,
+  td {
+    min-width: 12rem;
+    max-width: 20rem;
+    text-wrap: wrap;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+    line-height: 1rem;
+    color: #333;
+    font-weight: 400;
+    font-size: 16px;
+    text-transform: capitalize;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  th {
+    background-color: #d7dce4;
+    color: #333333;
+    font-weight: 500;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    line-height: 1.5rem;
+  }
+
+  th::before {
+    position: absolute;
+    top: 50%;
+    inset-inline-end: 0;
+    width: 1px;
+    height: 1.6em;
+    background-color: #f0f0f0;
+    transform: translateY(-50%);
+    transition: background-color 0.2s;
+    content: "";
+  }
+
+  td::before {
+    position: absolute;
+    top: 50%;
+    inset-inline-end: 0;
+    width: 1px;
+    height: 1.6em;
+    background-color: #d7dce4;
+    transform: translateY(-50%);
+    transition: background-color 0.2s;
+    content: "";
+  }
+
+  td:first-child,
+  th:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #d7dce4;
+    z-index: 3;
+    min-width: 12rem;
+    max-width: 12rem;
+    width: 12rem;
+  }
+
+  td.status-cell-rejected {
+    color: var(--color-wf-primary-red);
+    background-color: var(--color-wf-light-red);
+  }
+
+  td.status-cell-inreview {
+    color: var(--color-wf-primary-yellow);
+    background-color: var(--color-wf-light-yellow);
+  }
+
+  td.status-cell-pending {
+    color: var(--color-wf-primary-blue);
+    background-color: var(--color-wf-light-blue);
+  }
+
+  td.status-cell-approved {
+    color: var(--color-wf-primary-green);
+    background-color: var(--color-wf-light-green);
+  }
+
+  td.status-cell-underamendment {
+    color: orange;
+    /* No variable defined for orange */
+    background-color: rgba(255, 165, 0, 0.1);
+    /* Using rgba with hex code for light orange */
+  }
+
+  td.active-approver,
+  th.active-approver {
+    border: 3px solid var(--color-wf-highlight-yellow);
+  }
+}
+
+.custom-customer-part-no .ant-select-selector .ant-select-selection-overflow {
+  display: block !important;
+  /* Override display: flex with display: block */
+}
+
+// .custom-customer-part-no .ant-select-selector .ant-select-selection-item {
+//   /* Override display: flex with display: block */
+// }
+
+.custom-customer-part-no
+  .ant-select-selector
+  .ant-select-selection-overflow-item {
+  display: block !important;
+  /* Override display: flex with display: block */
+}
+
+/* For WebKit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
+  border: 3px solid #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+/* For Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+/* overriding SPFX default styles  */
+
+.CanvasComponent.LCS {
+  &.row {
+    margin-top: calc(-1 * var(--bs-gutter-y)) !important;
+    margin-right: calc(-0.5 * var(--bs-gutter-x)) !important;
+    margin-left: calc(-0.5 * var(--bs-gutter-x)) !important;
+  }
+}
+
+#workbenchPageContent {
+  max-width: 100%;
+  // font-family: $lato, serif;
+
+  .CanvasComponent {
+    &.LCS {
+      .CanvasZone {
+        padding: 0;
+        max-width: 100%;
+
+        &.row {
+          .CanvasSection {
+            // padding: 0px !important;
+            // margin: 0px !important;
+            .ControlZone {
+              margin: 0px;
+              padding: 0px;
+            }
+          }
+        }
+      }
+
+      .CanvasSection-col {
+        padding: 0;
+      }
+    }
+  }
+}
+
+.CanvasZone.row.CanvasZone--alignment.CanvasZone--noMargin.CanvasZone--read,
+.CanvasZone.row.CanvasZone--alignment.CanvasZone--noMargin.CanvasZone--read
+  > div:first-child {
+  padding: 0px !important;
+  margin: 0px !important;
+  width: 100%;
+  max-width: 100%;
+  // height: 100%;
+}
+
+[data-automation-id="CanvasSection"] {
+  padding: 0 !important;
+  // height: 80vh;
+}
+
+.CanvasZone.row.CanvasZone--alignment.CanvasZone--noMargin.CanvasZone--read
+  > div:first-child
+  .ControlZone.ControlZone--clean {
+  padding: 0px !important;
+  margin: 0px !important;
+  width: 100%;
+  max-width: 100%;
+}
+
+#workbenchPageContent,
+.CanvasComponent.LCS .CanvasZone {
+  max-width: 100%;
+}
+
+.gw_ar_9f38462c {
+  display: none;
+}
+
+.ControlZone.ControlZone--clean.ControlZone--emphasis.root-54 {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+//--- * app css * ---//
+
+.request-button {
+  color: #ffff;
+  background: #c50017;
+}
+
+.export-excel {
+  color: #000000;
+  background: #ffff;
+  border: 1px solid black;
+}
+
+.status-badge {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: capitalize;
+  font-weight: 500;
+
+  &.status-badge-reviewed,
+  &.status-badge-pending,
+  &.status-badge-draft,
+  &.status-badge-in-process {
+    color: $blue-1;
+    background-color: $blue-bg;
+  }
+
+  &.status-badge-rejected {
+    color: $red-1;
+    background-color: $red-bg;
+  }
+
+  &.status-badge-under-approval,
+  &.status-badge-in-review {
+    color: $yellow-1;
+    background-color: $yellow-bg;
+  }
+
+  &.status-badge-completed,
+  &.status-badge-submitted,
+  &.status-badge-approved {
+    color: $green-1;
+    background-color: $green-bg;
+  }
+
+  &.status-badge-review-declined,
+  &.status-badge-under-review,
+  &.status-badge-under-amendment {
+    color: $warning;
+    background-color: rgba($color: $warning, $alpha: 0.1);
+  }
+}
+
+
+
+// .custom-column-bg {
+//   background-color: #d7dce4;
+// }
+
+// .custom-column-bg:hover {
+//   background-color: #d7dce4 !important; /* Same background color on hover */
+// }
+
+
+.workflow-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: $font-family;
+
+  th,
+  td {
+    min-width: 12rem;
+    max-width: 20rem;
+    text-wrap: wrap;
+    padding: 10px 12px;
+    font-size: 0.875rem;
+    line-height: 1rem;
+    color: #333;
+    font-weight: 400;
+    text-transform: capitalize;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  th {
+    background-color: #d7dce4;
+    color: #333333;
+    font-weight: 500;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    line-height: 1.5rem;
+  }
+
+  th::before {
+    position: absolute;
+    top: 50%;
+    inset-inline-end: 0;
+    width: 1px;
+    height: 1.6em;
+    background-color: #f0f0f0;
+    transform: translateY(-50%);
+    transition: background-color 0.2s;
+    content: "";
+  }
+
+  td:first-child,
+  th:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #d7dce4;
+    z-index: 3;
+    min-width: 12rem;
+    max-width: 12rem;
+    width: 12rem;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: #f4f6f9;
+  }
+
+  td.status-cell-rejected {
+    color: $red-1;
+    background-color: $red-bg;
+  }
+
+  td.status-cell-underapproval {
+    color: $yellow-1;
+    background-color: $yellow-bg;
+  }
+
+  td.status-cell-pending {
+    color: $blue-1;
+    background-color: $blue-bg;
+  }
+
+  td.status-cell-approved {
+    color: $green-1;
+    background-color: $green-bg;
+  }
+
+  td.status-cell-underamendment {
+    color: $warning;
+    background-color: rgba($warning, 0.1);
+  }
+
+  td.active-approver,
+  th.active-approver {
+    border: 3px solid $yellow-1;
+  }
+}
+
+/* END */
+/* CustomTable.css */
+.no-radius-table .ant-table,
+.no-radius-table .ant-table-container,
+.no-radius-table .ant-table-wrapper,
+.no-radius-table .ant-table-thead > tr > th,
+.no-radius-table .ant-table-tbody > tr > td {
+  border-radius: 0 !important;
+}
+
+.loader-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent background */
+  z-index: 1000;
+}
+
+// .ant-table-row-expand-icon-cell {
+//   width: 17px !important;
+//   height: 22px !important;
+//   padding: 16px !important;
+// }
+
+// .dashboard-table {
+//   & {
+//     td,
+//     th {
+//       min-width: 12rem;
+//       max-width: 12rem;
+
+//       &:nth-child(1) {
+//         min-width: 2rem;
+//         max-width: 2rem;
+//       }
+
+//       &:nth-child(3) {
+//         min-width: 16rem;
+//         max-width: 16rem;
+//       }
+
+//       &:last-child {
+//         min-width: 8rem;
+//         max-width: 8rem;
+//       }
+//     }
+//   }
+// }
+
+
+// .dashboard-nested-table {
+//   & {
+//     td,
+//     th {
+//       min-width: 12rem;
+//       max-width: 12rem;
+
+//       &:nth-child(1){
+//         min-width: 14.2rem;
+//         max-width: 2.75rem;
+//       }
+ 
+//       &:nth-child(2) {
+//         min-width: 11.2rem;
+//         max-width: 2.75rem;
+//       }
+ 
+//       &:nth-child(3) {
+//         min-width: 11.122rem;
+//         max-width: 2.75rem;
+//       }
+
+//       &:nth-child(4) {
+//         min-width: 11.12rem;
+//         max-width: 2.75rem;
+//       }
+
+//       &:nth-child(5) {
+//         min-width: 11.12rem;
+//         max-width: 2.75rem;
+//       }
+
+//       &:last-child {
+//         min-width: 12.92rem;
+//         max-width: 2.75rem;
+//       }
+//     }
+//   }
+// }
+
+// .custom-nested-table {
+//   margin-right: 200px !important;
+// }
+
+.custom-nested-table .ant-table {
+  margin-top: -11px !important;
+  margin-bottom: 0px !important;
+  margin-right: 0px !important;
+  margin-left: 34px !important;
+}
+
+
+
+.custom-nested-table .ant-table-tbody > tr > td {
+  background-color: #f5f5f5; /* Light grey shade */
+}
+
+.custom-nested-table .ant-table-tbody > tr:hover > td {
+  background-color: #e0e0e0; /* Slightly darker grey on hover */
+}
+
+
+p.text-cell {
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 400;
+  font-family: $font-family;
+  color: $darkgrey;
+  text-transform: capitalize;
+}
+
+.ant-table
+  > .ant-table-container
+  > .ant-table-content
+  > table
+  > thead.ant-table-thead
+  > .ant-table-cell {
+  background-color: green;
+}
+
+.custom-nested-table .ant-table-tbody > tr > td {
+  background-color: #f5f5f5; /* Light grey shade */
+}
+
+.custom-nested-table .ant-table-tbody > tr:hover > td {
+  background-color: #e0e0e0; /* Slightly darker grey on hover */
+}
+
+.ant-table-wrapper {
+  .ant-table-container {
+    table {
+      > thead {
+        > tr {
+          &:first-child {
+            > *:first-child {
+              border-start-start-radius: 0;
+            }
+
+            > *:last-child {
+              border-start-end-radius: 0;
+            }
+          }
+
+          th {
+            background-color: #d7dce4;
+            padding: 10px 12px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+          }
+        }
+      }
+    }
+  }
+
+  .ant-table-tbody {
+    > tr {
+      > td {
+        padding: 10px 12px;
+        font-size: 14px;
+        font-weight: 400;
+        color: #333;
+
+        p {
+          margin-bottom: 0;
+        }
+
+        .action-cell {
+          display: flex;
+          justify-content: center;
+
+          i {
+            font-size: 14px;
+            color: #16aaee;
+          }
+        }
+
+        .ant-form-item {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+
+.ant-space {
+  width: 100%;
+}
+
+
+
+.action-btn {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.ant-upload-list-item-container {
+  cursor: pointer !important;
+}
+
+/* Apply red color and pointer cursor only when isViewMode is true */
+.upload-red-only .ant-upload-list-item-name,
+.upload-red-only .ant-upload-list-item .anticon {
+  color: #c50017 !important;
+  //cursor: pointer !important;
+}
+
+.ant-tabs-tab {
+  margin: 0 !important;
+}
+
+.back-button{
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.ant-btn{
+  border-radius: 4px !important;
+  //padding: 6px 14px 6px 14px !important;
+}
+
+.primary-color{
+  color: #c50017;
+}
+
+.text-center {
+  text-align: center !important;
+}
