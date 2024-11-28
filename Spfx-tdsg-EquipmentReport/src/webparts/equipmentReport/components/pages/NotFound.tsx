@@ -1,5 +1,6 @@
 import { FrownOutlined } from "@ant-design/icons";
 import React from "react";
+import { Link } from "react-router-dom";
 
 const NotFound: React.FC = () => {
   return (
@@ -10,6 +11,9 @@ const NotFound: React.FC = () => {
       <div>
         <strong>Not Found</strong>
       </div>
+      <p>
+          <Link to="/">Click here to go back to homepage.</Link>
+        </p>
     </div>
   );
 };

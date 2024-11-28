@@ -12,6 +12,7 @@ export const GET_FUNCTION_MASTER = "GetAllFunction";
 export const GET_SECTION_MASTER = "GetAllSection";
 export const GET_ADVISOR_MASTER = "GetAllAdvisor";
 export const GET_SECTION_HEAD_DETAILS = "GetAllSections";
+export const GET_RESULT_MONITOR_DETAILS = "GetResultMonitor";
 export const GET_EMPLOYEE_MASTER= "GetAllEmployees";
 export const GET_APPROVE_ASK_TO_AMMEND =
   "/api/EquipmentImprovement/UpdateApproveAskToAmend";

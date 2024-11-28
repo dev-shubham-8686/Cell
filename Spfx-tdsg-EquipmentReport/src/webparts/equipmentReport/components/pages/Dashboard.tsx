@@ -3,9 +3,12 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Page from "../page/page";
 import EquipmentReportTable from "./dashboard/EquipmentReportTable";
 import EquipmentReportApprovalTable from "./dashboard/EquipmentReportApprovalTable";
+import AllRequestTable from "./dashboard/AllRequestTable";
+import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
-type TabName = "myrequest-tab" | "myapproval-tab" | "myreview-tab";
+type TabName = "myrequest-tab" | "myapproval-tab" | "allrequest-tab";
 
 const TroubleReport: React.FC = () => {
   const navigate = useNavigate();
@@ -20,11 +23,15 @@ const TroubleReport: React.FC = () => {
   }[] = [
     {
       id: "myrequest-tab",
-      name: "Requests",
+      name: "My Requests",
     },
     {
       id: "myapproval-tab",
-      name: "Approvals",
+      name: "My Approvals",
+    },
+    {
+      id: "allrequest-tab",
+      name: "All Requests",
     },
   ];
 
@@ -34,10 +41,10 @@ const TroubleReport: React.FC = () => {
         <div className="text-end px-4 position-relative">
           <div className="request-btn">
       
-            <Link to={"/equipment-improvement-report/form/add"}>
+            <Link to={"/form/add"}>
               {currentTab == "myrequest-tab" && (
                 <button className="btn btn-primary font-16 ">
-                  <i className="fa-solid fa-circle-plus me-1" /> Request
+                  <FontAwesomeIcon className="me-1 mt-50" icon={faCirclePlus} /> New Request
                 </button>
               )}
             </Link>
@@ -61,9 +68,10 @@ const TroubleReport: React.FC = () => {
                   aria-selected="true"
                   onClick={() => {
                     setCurrentTab(tab.id);
-                    navigate("/equipment-improvement-report", {
+                    navigate("/", {
                       state: {
                         currentTabState: tab.id,
+                        allReq:(tab.id == "allrequest-tab") ? true : false,
                       },
                     });
                   }}
@@ -81,7 +89,11 @@ const TroubleReport: React.FC = () => {
             <>
               <EquipmentReportApprovalTable />
             </>
-          ) : (
+          ) : currentTab === "allrequest-tab" ? (
+            <>
+              <AllRequestTable />
+            </>
+          ): (
             <></>
           )}
         </div>

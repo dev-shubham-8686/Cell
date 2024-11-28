@@ -20,7 +20,7 @@ const getEmployeeMaster = async () => {
       return tabledata;
     }
   } catch (error) {
-    console.error("Error fetching Device master", error);
+    console.error("Error fetching Employee master", error);
     return null;
   }
 };

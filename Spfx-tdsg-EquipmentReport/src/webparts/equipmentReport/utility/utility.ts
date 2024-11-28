@@ -52,7 +52,7 @@ export  const create_UUID = (): string => {
       const base64String = value;
       const byteCharacters = atob(base64String);
       const byteNumbers = new Array(byteCharacters.length);
-                
+             
       for (let i = 0; i < byteCharacters.length; i++) {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
@@ -104,13 +104,13 @@ export  const create_UUID = (): string => {
         statusText = "Approved";
         break;
       case REQUEST_STATUS.LogicalAmendmentInReview:
-        statusText = "Logical Ammendment InReview";
+        statusText = "Logical Amendment InReview";
         break;
       case REQUEST_STATUS.ToshibaTechnicalReview:
         statusText = "Toshiba Technical Review";
         break;
       case REQUEST_STATUS.LogicalAmendment:
-        statusText = "Logical Ammendment";
+        statusText = "Logical Amendment";
         break;
       case REQUEST_STATUS.ResultMonitoring:
         statusText = "Result Monitoring";
