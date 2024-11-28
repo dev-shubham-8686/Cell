@@ -28,7 +28,7 @@ public class Program
             var context = scope.ServiceProvider.GetRequiredService<AepplNewCloneStageContext>();
             var icaReport = dbContext.TroubleReports
                                    .Where(tr => tr.ImmediateCorrectiveAction == null &&
-                                                EF.Functions.DateDiffHour(tr.When, DateTime.Now) >= 48 && tr.IsDeleted == false && tr.IsReOpen == false)
+                                                EF.Functions.DateDiffHour(tr.When, DateTime.Now) >= 48 && tr.IsDeleted == false && tr.IsReOpen == false && tr.IsActive == true)
                                    .ToList();
 
             var reminderEmails = new ReminderEmails(dbContext, context);
@@ -40,7 +40,7 @@ public class Program
                 DateTime now = DateTime.Now;
                 DateTime lastEmailSent = (DateTime)(report?.LastEmailSent ?? report?.When); // Use the report creation time if no email was sent
                 TimeSpan hoursSinceLastEmail = now - lastEmailSent;
-
+                 
                 var raiser = dbContext.TroubleReports.Where(x => x.TroubleReportId == report.TroubleReportId && report.IsDeleted == false).Select(x => x.CreatedBy).FirstOrDefault();
                 var sectionHead = context.EmployeeMasters.Where(x => x.EmployeeID == raiser && x.IsActive == true).Select(x => x.ReportingManagerId).ToList();
 
@@ -112,7 +112,7 @@ public class Program
             //change the fields for the RCA count
             var rcaReport = dbContext.TroubleReports
                                    .Where(tr => tr.RootCause == null &&
-                                                EF.Functions.DateDiffDay(tr.When, DateTime.Now) >= 7 && tr.IsDeleted == false && tr.IsReOpen == false)
+                                                EF.Functions.DateDiffDay(tr.When, DateTime.Now) >= 7 && tr.IsDeleted == false && tr.IsReOpen == false && tr.IsActive == true)
                                    .ToList();
 
             foreach (var rca in rcaReport)
