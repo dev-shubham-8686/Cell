@@ -530,7 +530,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
         <Row gutter={48}>
           <Col span={6}>
             <Row gutter={16}>
-              <Col span={24}>
+              
                 <Form.Item
                   label="Area"
                   name="area"
@@ -565,10 +565,10 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                       ))}
                   </Select>
                 </Form.Item>
-              </Col>
+              
             </Row>
             <Row gutter={16}>
-              <Col span={24}>
+              
                 {/* Observation */}
                 <Form.Item
                   label="Observation"
@@ -581,7 +581,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                     placeholder="Enter your observation"
                   />
                 </Form.Item>
-              </Col>
+              
             </Row>
             <Row gutter={16}>
               <Col span={12}>

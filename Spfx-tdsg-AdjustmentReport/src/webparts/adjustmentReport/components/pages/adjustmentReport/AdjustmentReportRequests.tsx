@@ -227,7 +227,7 @@ const AdjustmentReportRequests: React.FC = () => {
       title: "Sub-Machine Name",
       dataIndex: "SubMachineName",
       key: "SubMachineName",
-      width: 140,
+      width: 180,
       sorter: true,
       //   filterDropdown: ColumnFilter,
       //   filterIcon: (filtered: boolean) => (
@@ -335,7 +335,7 @@ const AdjustmentReportRequests: React.FC = () => {
   ];
 
   return (
-    <div>
+    <div className="p-4 custom-table">
       <div className="flex justify-between mb-5">
         <div className="flex gap-3 mb-3">
           <Input
@@ -383,7 +383,9 @@ const AdjustmentReportRequests: React.FC = () => {
         setSortColumn={setSortingColumn}
         setOrderBy={setOrderColumn}
         loading={isLoading}
-        style={{ borderRadius: 0 }}
+        style={{ borderRadius: 5 }}
+        scroll={{ x: "max-content" }}
+
       />
       {/* <Table columns={columns} dataSource={dataSource} /> */}
     </div>

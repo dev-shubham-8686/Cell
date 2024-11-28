@@ -148,7 +148,7 @@ const AdjustmentReportApprovals = () => {
       title: "Sub-Machine Name",
       dataIndex: "SubMachineName",
       key: "SubMachineName",
-      width: 140,
+      width: 180,
       sorter: true,
       //   filterDropdown: ColumnFilter,
       //   filterIcon: (filtered: boolean) => (
@@ -231,7 +231,7 @@ const AdjustmentReportApprovals = () => {
 
   return (
     <div className="p-4 custom-table">
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex justify-between mb-5">
       <div className="flex gap-3 mb-3">
           <Input
             type="text"
@@ -284,6 +284,8 @@ const AdjustmentReportApprovals = () => {
         setOrderBy={setOrderColumn}
         loading={isLoading}
         style={{ borderRadius: 0 }}
+        scroll={{ x: "max-content" }}
+
       />
     </div>
   );
