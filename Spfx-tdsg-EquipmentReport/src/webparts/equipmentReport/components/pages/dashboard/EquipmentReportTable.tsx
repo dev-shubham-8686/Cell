@@ -327,14 +327,8 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
-      render: (text, row) => {
-        if (text === "Other") {
-          debugger
-          return (
-            <p className="text-cell">{row.OtherMachineName?.trim() || text}</p>
-          );
-        }
-        else{ return <p className="text-cell">{text}</p>;}
+      render: (text) => {
+         return <p className="text-cell">{text}</p>;
       },
     },
     {
@@ -347,16 +341,9 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
-      render: (text, row) => {
-        if (text == "Other") {
-          debugger
-          console.log("ABBBCD",row?.SubMachineName)
-          return (
-            <p className="text-cell">{row.OtherSubMachine?.trim() || text}</p>
-          );
-        }
-        else{ return <p className="text-cell">{text}</p>;}
-      },
+      render: (text) => {
+        return <p className="text-cell">{text}</p>;
+     },
     },
     {
       title: "Section Name",

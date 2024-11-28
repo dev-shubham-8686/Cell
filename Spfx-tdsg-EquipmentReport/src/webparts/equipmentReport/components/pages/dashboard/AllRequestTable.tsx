@@ -133,6 +133,9 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
+      render: (text) => {
+        return <p className="text-cell">{text}</p>;
+     },
     },
     {
       title: "Sub Machine Name",
@@ -144,8 +147,9 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
-      render: (text) => <p className="text-cell">{text ?? "All"}</p>,
-
+      render: (text) => {
+        return <p className="text-cell">{text}</p>;
+     },
     },
     {
       title: "Section Name",
