@@ -1,0 +1,65 @@
+export const toolbarButtons = {
+  moreText: {
+    buttons: [
+      "bold",
+      "italic",
+      "underline",
+      "strikeThrough",
+      "subscript",
+      "superscript",
+      "fontFamily",
+      "fontSize",
+      "textColor",
+      "backgroundColor",
+
+      "clearFormatting",
+    ],
+  },
+  moreParagraph: {
+    buttons: [
+      "alignLeft",
+      "alignCenter",
+      "formatOLSimple",
+      "alignRight",
+      "alignJustify",
+      "formatOL",
+      "formatUL",
+      "paragraphFormat",
+      "paragraphStyle",
+      "lineHeight",
+      "outdent",
+      "indent",
+      "quote",
+    ],
+  },
+  moreRich: {
+    buttons: [
+      "insertLink",
+      "emoticons",
+      "insertImage",
+      //"insertVideo",
+      "insertTable",
+      "fontAwesome",
+      "specialCharacters",
+      "embedly",
+      //"insertFile",
+      "insertHR",
+      //"getPDF"
+    ],
+  },
+  moreMisc: {
+    buttons: [
+      "undo",
+      "redo",
+      "fullscreen",
+      "print",
+      "getPDF",
+      "spellChecker",
+      "selectAll",
+      "html",
+      "help",
+    ],
+    align: "right",
+    buttonsVisible: 2,
+  },
+};

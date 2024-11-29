@@ -1523,5 +1523,284 @@ namespace TDSGCellFormat.Helper
             emailSent = true;
             return emailSent;
         }
+
+        public async Task<bool> SendTechanicalInstructionEmail(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0)
+        {
+            bool emailSent = false;
+            try
+            {
+                StringBuilder emailBody = new StringBuilder();
+
+                string? templateDirectory = _configuration["TemplateSettings:Normal_Mail"];
+
+                //TroubleReports troubleReports = new TroubleReports();
+                List<string?> emailToAddressList = new List<string?>();
+                List<string?> emailCCAddressList = new List<string?>();
+                string? emailSubject = null;
+                string? templateFile = null, templateFilePath = null;
+                bool isApprovedtask = false;
+                bool isInReviewTask = false;
+                bool isRequestorinToEmail = false;
+                bool isRequestorinCCEmail = false;
+                bool isDepartMentHead = false;
+                bool isIsAmendTask = false;
+                string? requesterUserName = null, requesterUserEmail = null;
+                string? departmentHeadName = null, departmentHeadEmail = null;
+                bool approvelink = false;
+                bool cpcDeptPeople = false;
+                string? AdminEmailNotification = _configuration["AdminEmailNotification"];
+                string? documentLink = _configuration["SPSiteUrl"] +
+                "/SitePages/TechInstructionSheet.aspx#/";
+
+                if (requestId > 0)
+                {
+                    var materialData = _context.TechnicalInstructionSheets.Where(x => x.TechnicalId == requestId && x.IsDeleted == false).FirstOrDefault();
+                    var materialNum = _context.TechnicalInstructionSheets.Where(x => x.TechnicalId == requestId && x.IsDeleted == false).Select(x => x.CTINumber).FirstOrDefault();
+                    if (materialData != null)
+                    {
+                        if (materialData.CreatedBy > 0)
+                        {
+                            EmployeeMaster? requestorUserDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == materialData.CreatedBy && x.IsActive == true).FirstOrDefault();
+                            requesterUserName = requestorUserDetails?.EmployeeName;
+                            requesterUserEmail = requestorUserDetails?.Email;
+
+                            ///requestorUserDetails.DepartMentId in DepartmentMaster 
+                            var departMentHead = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID == requestorUserDetails.DepartmentID && x.IsActive == true).Select(x => x.Head).FirstOrDefault();
+                            EmployeeMaster? departMentHeadDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == departMentHead && x.IsActive == true).FirstOrDefault();
+                            departmentHeadName = departMentHeadDetails?.EmployeeName;
+                            departmentHeadEmail = departMentHeadDetails?.Email;
+                        }
+                        var approverData = await _context.GetTechnicalWorkFlowData(requestId);
+
+                        switch (emailNotification)
+                        {
+                            case EmailNotificationAction.Submitted:
+                                templateFile = "TechnicalInstruction_Submitted.html";
+                                emailSubject = string.Format("[Action required!] MCS_{0} has been Submitted for Approval", materialData.CTINumber);
+                                isInReviewTask = true;
+                                approvelink = true;
+                                isRequestorinCCEmail = true;
+                                break;
+
+                            case EmailNotificationAction.ReSubmitted:
+                                templateFile = "TechnicalInstruction_ReSubmitted.html";
+                                emailSubject = string.Format("[Action required!] MCS_{0} has been amended", materialData.CTINumber);
+                                isInReviewTask = true;
+                                approvelink = true;
+                                isRequestorinCCEmail = true;
+                                break;
+
+                            case EmailNotificationAction.Approved:
+                                templateFile = "TechnicalInstruction_Approved.html";
+                                emailSubject = string.Format("[Action required!] MCS_{0} has been Submitted for Approval", materialData.CTINumber);
+                                isInReviewTask = true;
+                                isApprovedtask = true;
+                                approvelink = true;
+                                isRequestorinCCEmail = true;
+                                break;
+
+                            case EmailNotificationAction.ApproveInformed:
+                                templateFile = "TechnicalInstruction_ApprovedInfo.html";
+                                emailSubject = string.Format("[Action taken!] MCS_{0} has been Approved", materialData.CTINumber);
+                                isRequestorinToEmail = true;
+                                break;
+
+                            case EmailNotificationAction.Amended:
+                                templateFile = "TechnicalInstruction_AskForAmendment .html";
+                                emailSubject = string.Format("[Action taken!] MCS_{0} has been Asked for Amendment", materialData.CTINumber);
+                                isRequestorinToEmail = true;
+                                approvelink = true;
+                                break;
+
+                            case EmailNotificationAction.PullBack:
+                                templateFile = "TechnicalInstruction_PullBack.html";
+                                emailSubject = string.Format("[Action taken!] MCS_{0} has been Pull Backed", materialData.CTINumber);
+                                isApprovedtask = true;
+                                isInReviewTask = true;
+                                isRequestorinCCEmail = true;
+                                break;
+
+                            case EmailNotificationAction.Completed:
+                                templateFile = "TechnicalInstruction_Completed.html";
+                                emailSubject = string.Format("[Action required!]  MCS_{0} has been Approved and Submitted for close request", materialData.CTINumber);
+                                isRequestorinToEmail = true;
+                                cpcDeptPeople = true;
+                                break;
+
+                            case EmailNotificationAction.Closed:
+                                templateFile = "TechnicalInstruction_Closed.html";
+                                emailSubject = string.Format("[Action Taken] MCS_{0} has been Closed", materialData.CTINumber);
+                                isDepartMentHead = true;
+                                break;
+
+                            default:
+                                break;
+                        }
+
+                        if (isRequestorinToEmail)
+                        {
+                            emailToAddressList.Add(requesterUserEmail);
+                            emailCCAddressList.Remove(requesterUserEmail);
+                        }
+                        if (isRequestorinCCEmail)
+                        {
+                            emailCCAddressList.Add(requesterUserEmail);
+                        }
+
+                        //if (cpcDeptPeople)
+                        //{
+                        //    var cpcDeptPeopleList = _context.CPCGroupMasters.Where(x => x.IsActive == true).Select(x => x.Email).ToList();
+
+                        //    foreach (var cepDept in cpcDeptPeopleList)
+                        //    {
+                        //        emailCCAddressList.Add(cepDept);
+                        //    }
+
+                        //}
+
+                        //if (isDepartMentHead)
+                        //{
+                        //    var cpcDeptPeopleList = _context.CPCGroupMasters.Where(x => x.IsActive == true).Select(x => x.Email).ToList();
+
+                        //    if (nextApproverTaskId == materialData.CreatedBy)
+                        //    {
+                        //        foreach (var cepDept in cpcDeptPeopleList)
+                        //        {
+                        //            emailToAddressList.Add(cepDept);
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        // all cpc people will be in to and req in cc
+                        //        emailCCAddressList.Add(requesterUserEmail);
+                        //        foreach (var cepDept in cpcDeptPeopleList)
+                        //        {
+                        //            emailToAddressList.Add(cepDept);
+                        //        }
+                        //    }
+                        //}
+
+                        if (isInReviewTask)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.InReview.ToString() && item.ApproverTaskId == nextApproverTaskId)
+                                    {
+                                        emailToAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.InReview.ToString())
+                                    {
+                                        emailToAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (isApprovedtask)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.Approved.ToString() && item.ApproverTaskId == nextApproverTaskId)
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.Approved.ToString())
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (isIsAmendTask)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.UnderAmendment.ToString() && item.ApproverTaskId == nextApproverTaskId)
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(templateFile))
+                        {
+                            string baseDirectory = AppContext.BaseDirectory;
+                            string docLink = documentLink + "form/view/" + requestId;
+                            templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
+                            if (!string.IsNullOrEmpty(templateFilePath))
+                            {
+                                emailBody.Append(System.IO.File.ReadAllText(templateFilePath));
+                            }
+                            if (emailBody?.Length > 0)
+                            {
+                                if (approvelink)
+                                {
+                                    docLink = documentLink.Replace("#", "?action=approval#") + "form/edit/" + requestId;
+                                }
+                                else
+                                {
+                                    docLink = documentLink + "form/view/" + requestId;
+                                }
+
+                                emailBody = emailBody.Replace("#TechnicalLink#", docLink);
+                                emailBody = emailBody.Replace("#CTINumber#", materialNum);
+                                emailBody = emailBody.Replace("#Requestor#", requesterUserName);
+                                emailBody = emailBody.Replace("#Comment#", comment);
+                                emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
+                                emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
+                                var requestData = new EmailLogMaster()
+                                {
+                                    FormId = requestId,
+                                    EmailBody = emailBody.ToString(),
+                                    EmailCC = string.Join(",", emailCCAddressList.Distinct().ToList()),
+                                    EmailTo = string.Join(",", emailToAddressList.Distinct().ToList()),
+                                    EmailSubject = emailSubject.ToString(),
+                                    EmailSentTime = DateTime.Now,
+                                    isDelete = false,
+                                    IsEmailSent = emailSent,
+                                };
+                                _context.EmailLogMasters.Add(requestData);
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "SendTechnicalInstructionEmail");
+                return false;
+            }
+            emailSent = true;
+            return emailSent;
+        }
+
+        public async Task<bool> SendTechanicalInstructionEmailToCellDevision(int requestId, List<string?> emailToAddressList, List<string?> emailCCAddressList, string emailBody)
+        {
+            return false;
+        }
     }
 }
