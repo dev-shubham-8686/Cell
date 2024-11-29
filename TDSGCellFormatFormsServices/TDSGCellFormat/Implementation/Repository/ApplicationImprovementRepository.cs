@@ -870,7 +870,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else
                 {
-                    InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
+                    InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Result after Implementation in Form", existingReport.Status, Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
                 }
 
 
@@ -917,7 +917,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
                 }
 
-                InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "Submit the form", ApprovalTaskStatus.ResultMonitoring.ToString(), Convert.ToInt32(userId), HistoryAction.Submit.ToString(), 0);
+                InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "Submit the form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.Submit.ToString(), 0);
 
                  await _context.CallEquipmentApproverMaterix(userId, equipmentId);
 
@@ -1109,7 +1109,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         // mention the WorkFlow status 
                         await _context.SaveChangesAsync();
 
-                        InsertHistoryData(equipmentTask.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "PullBack by", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
+                        InsertHistoryData(equipmentTask.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
                         var notificationHelper = new NotificationHelper(_context, _cloneContext);
                         await notificationHelper.SendEquipmentEmail(data.equipmentId, EmailNotificationAction.PullBack, string.Empty, 0);
 
@@ -1121,7 +1121,6 @@ namespace TDSGCellFormat.Implementation.Repository
                             a.ModifiedDate = DateTime.Now;
                         });
                         await _context.SaveChangesAsync();
-
 
                     }
                     else
@@ -1136,7 +1135,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         // mention the WorkFlow status 
                         await _context.SaveChangesAsync();
 
-                        InsertHistoryData(equipmentTask.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "PullBack by", ApprovalTaskStatus.ResultMonitoring.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
+                        InsertHistoryData(equipmentTask.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", data.comment, ApprovalTaskStatus.ResultMonitoring.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
                         var notificationHelper = new NotificationHelper(_context, _cloneContext);
                         await notificationHelper.SendEquipmentEmail(data.equipmentId, EmailNotificationAction.PullBack, string.Empty, 0);
 
@@ -1149,10 +1148,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         });
                         await _context.SaveChangesAsync();
 
-
                     }
-
-
                 }
                 res.Message = Enums.EquipmentPullback;
                 res.StatusCode = Enums.Status.Success;
@@ -1340,12 +1336,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             var notificationHelper = new NotificationHelper(_context, _cloneContext);
                             await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.ToshibaTeamApproval, data.Comment, 0);
                            
-
-                            if(approvalData.IsPcrnRequired == true)
-                            {
-                                //var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                                await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.PcrnRequired, string.Empty, 0);
-                            }
+                           
                             /*  //if pcrnpending then changes the status accordingly 
                               if (approvalData.IsPcrnRequired == true)
                               {
@@ -1429,6 +1420,12 @@ namespace TDSGCellFormat.Implementation.Repository
 
                                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                                     await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.W1Completed, data.Comment, data.ApproverTaskId);
+
+                                    if (equipmentForm.IsPcrnRequired == true)
+                                    {
+                                        //var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                                        await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.PcrnRequired, string.Empty, 0);
+                                    }
                                 }
                                 else
                                 {

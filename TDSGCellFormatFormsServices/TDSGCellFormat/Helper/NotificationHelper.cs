@@ -1155,6 +1155,7 @@ namespace TDSGCellFormat.Helper
                                 templateFile = "Equipment_Completed.html";
                                 emailSubject = string.Format("[Action taken!]  Equipment Improvement_{0} has been Completed", equipmentNo);
                                 isRequestorinToEmail = true;
+                                allApprover = true;
                                 break;
 
                             case EmailNotificationAction.W1Completed:
@@ -1238,7 +1239,7 @@ namespace TDSGCellFormat.Helper
                                     {
                                         if (task.SequenceNo == 3)
                                         {
-                                            var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1).Select(x => x.Head).ToList();
+                                            var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1 && (x.HRMSDeptName == "CP01-DP-1003" || x.HRMSDeptName == "CP01-DP-1004" || x.HRMSDeptName == "CP01-DP-1002")).Select(x => x.Head).ToList();
                                             foreach (var dept in userOtherDepId)
                                             {
                                                 var deptEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == dept && x.IsActive == true).Select(x => x.Email).FirstOrDefault();

@@ -45,6 +45,7 @@ namespace TDSGCellFormat.Common
             MaterialConsumption = 4, //MATERIALCONSUMPTION
             TechnicalInstruction = 5
         }
+       
         public enum HistoryAction
         {
             Submit = 1,
