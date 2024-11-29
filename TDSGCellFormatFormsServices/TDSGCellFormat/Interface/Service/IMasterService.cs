@@ -23,9 +23,8 @@ namespace TDSGCellFormat.Interface.Service
         IQueryable<DeviceView> GetAllDevice();
         IQueryable<SubDeviceView> GetAllSubDevice();
         IQueryable<SectionView> GetAllSection();
+        IQueryable<SectionHeadView> GetSectionHead();
         IQueryable<FunctionView> GetAllFunction();
-        IQueryable<SectionHeadView> GetAllSections(int departmentId);
-
         IQueryable<AdvisorMasterView> GetAllAdvisorEmp();
 
         IQueryable<ResultMonitorView> GetAllResultMonitor();

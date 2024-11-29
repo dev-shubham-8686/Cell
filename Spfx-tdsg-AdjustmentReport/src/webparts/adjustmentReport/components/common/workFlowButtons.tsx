@@ -296,7 +296,6 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
                           </Col>
                           <Col span={8} style={{ display: "flex", alignItems: "center" }}>
                             <Button
-                              type="danger"
                               onClick={() => remove(name)}
                               style={{ width: "100%" }}
                             >

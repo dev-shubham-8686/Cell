@@ -32,19 +32,8 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
   const user: IUser = useContext(UserContext);
   const { mutate: deleteEquipment } = useDeleteEQReport();
   const { mutate: pdfDownload, isLoading: pdfLoading } = usePDFViewer();
-  const [deleted , setDelete]=useState<string>("");
-  // const handleExportToExcel = (id: any) => {
-  //   try {
-  //     console.log("MATERIALID",id)
-  //     exportToExcel.mutate(id)
-  //     console.log("Export to Excel ")
-  //   } catch (error) {
-  //     console.error("Export error:", error);
-  //   }
-  // };
-useEffect(()=>{
-console.log("Deleted",deleted)
-},[deleted])
+  const [refetchKey, setrefetchKey] = useState<number>(0);
+
   const handlePDF = (id: any, EQReportNo: any) => {
     try {
       console.log("MATERIALID", id);
@@ -88,6 +77,7 @@ console.log("Deleted",deleted)
         deleteEquipment(id, {
           onSuccess: (Response) => {
             console.log("ATA Response: ", Response);
+            setrefetchKey((prevKey) => prevKey + 1);
             // window.location.reload();
           },
 
@@ -226,7 +216,7 @@ console.log("Deleted",deleted)
   //           style={{ background: "none", border: "none" }}
   //           onClick={() =>
   //             navigate(
-  //               `/equipment-improvement-report/form/view/${row.EquipmentImprovementId}`
+  //               `/form/view/${row.EquipmentImprovementId}`
   //             )
   //           }
   //         >
@@ -246,13 +236,13 @@ console.log("Deleted",deleted)
   //           row.Status == REQUEST_STATUS.UnderAmendment ||
   //           row.Status == REQUEST_STATUS.PCRNPending ||
   //           row.Status == REQUEST_STATUS.Approved) &&
-  //           row.Requestor == user?.employeeName && (
+  //           row.CreatedBy == user?.employeeId && (
   //             <button
   //               type="button"
   //               style={{ background: "none", border: "none" }}
   //               onClick={() =>
   //                 navigate(
-  //                   `/equipment-improvement-report/form/edit/${row.EquipmentImprovementId}`
+  //                   `/form/edit/${row.EquipmentImprovementId}`
   //                 )
   //               }
   //             >
@@ -260,7 +250,7 @@ console.log("Deleted",deleted)
   //             </button>
   //           )}
 
-  //         {row.Status==REQUEST_STATUS.Completed && (
+  //         {(row.Status==REQUEST_STATUS.Completed ||( row.IsSubmit && row.CurrentApproverId==user?.employeeId && user?.isQcTeamHead)) && (
   //           <button
   //             type="button"
   //             style={{ background: "none", border: "none" }}
@@ -275,15 +265,8 @@ console.log("Deleted",deleted)
   //           </button>
   //         )}
 
-  //         {console.log(
-  //           "DElete",
-  //           row.Status,
-  //           REQUEST_STATUS.Draft,
-  //           row.Requestor,
-  //           user.employeeName
-  //         )}
   //         {row.Status == REQUEST_STATUS.Draft &&
-  //           row.Requestor == user.employeeName && (
+  //           row.CreatedBy == user?.employeeId && (
   //             <button
   //               type="button"
   //               style={{ background: "none", border: "none" }}
@@ -306,7 +289,7 @@ console.log("Deleted",deleted)
       title: "Application No",
       dataIndex: "EquipmentImprovementNo",
       key: "EquipmentImprovementNo",
-      width: 100, // width in pixels
+      width: 150,
       sorter: true,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
@@ -316,7 +299,18 @@ console.log("Deleted",deleted)
       title: "Issue Date",
       dataIndex: "IssueDate",
       key: "IssueDate",
-      width: 100,
+       width: 150,
+      sorter: true,
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
+    },
+    {
+      title: "Area",
+      dataIndex: "Area",
+      key: "Area",
+       width: 150,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -327,29 +321,35 @@ console.log("Deleted",deleted)
       title: "Machine Name",
       dataIndex: "MachineName",
       key: "MachineName",
-      width: 150,
+       width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
+      render: (text) => {
+         return <p className="text-cell">{text}</p>;
+      },
     },
     {
       title: "Sub Machine Name",
       dataIndex: "SubMachineName",
       key: "SubMachineName",
-      width: 150,
+       width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
+      render: (text) => {
+        return <p className="text-cell">{text}</p>;
+     },
     },
     {
       title: "Section Name",
       dataIndex: "SectionName",
       key: "SectionName",
-      width: 150,
+       width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -360,7 +360,7 @@ console.log("Deleted",deleted)
       title: "Improvement Name",
       dataIndex: "ImprovementName",
       key: "ImprovementName",
-      width: 150,
+       width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -371,7 +371,7 @@ console.log("Deleted",deleted)
       title: "Requestor",
       dataIndex: "Requestor",
       key: "Requestor",
-      width: 100,
+       width: 120,
       sorter: true,
       render: (text) => <p className="text-cell">{text ?? "-"}</p>,
       filterDropdown: ColumnFilter,
@@ -380,10 +380,10 @@ console.log("Deleted",deleted)
       ),
     },
     {
-      title: "CurrentApprover",
+      title: "Current Approver",
       dataIndex: "CurrentApprover",
       key: "CurrentApprover",
-      width: 100,
+       width: 200,
       sorter: true,
       render: (text) => <p className="text-cell">{text ?? "-"}</p>,
       filterDropdown: ColumnFilter,
@@ -395,7 +395,7 @@ console.log("Deleted",deleted)
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      width: 170,
+       width: 170,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -414,35 +414,30 @@ console.log("Deleted",deleted)
     {
       title: <p className="text-center p-0 m-0">Actions</p>,
       key: "action",
-      width: 120,
+      width: 150,
       render: (row) => (
         <div className="action-cell">
           <button
             type="button"
             style={{ background: "none", border: "none" }}
-            onClick={() =>
-              navigate(
-                `/equipment-improvement-report/form/view/${row.EquipmentImprovementId}`
-              )
-            }
+            onClick={() => navigate(`/form/view/${row.EquipmentImprovementId}`)}
           >
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
           {(row.Status === REQUEST_STATUS.LogicalAmendment ||
             row.Status === REQUEST_STATUS.UnderImplementation ||
-            (row.Status === REQUEST_STATUS.ResultMonitoring && !row.IsResultSubmit) ||
+            (row.Status === REQUEST_STATUS.ResultMonitoring &&
+              !row.IsResultSubmit) ||
             row.Status === REQUEST_STATUS.Draft ||
             row.Status === REQUEST_STATUS.UnderAmendment ||
-            row.Status === REQUEST_STATUS.PCRNPending ||
+            // row.Status === REQUEST_STATUS.PCRNPending ||
             row.Status === REQUEST_STATUS.Approved) &&
-            row.Requestor === user?.employeeName && (
+            row.CreatedBy == user?.employeeId && (
               <button
                 type="button"
                 style={{ background: "none", border: "none" }}
                 onClick={() =>
-                  navigate(
-                    `/equipment-improvement-report/form/edit/${row.EquipmentImprovementId}`
-                  )
+                  navigate(`/form/edit/${row.EquipmentImprovementId}`)
                 }
               >
                 <FontAwesomeIcon title="Edit" icon={faEdit} />
@@ -453,14 +448,17 @@ console.log("Deleted",deleted)
               type="button"
               style={{ background: "none", border: "none" }}
               onClick={() => {
-                handlePDF(row.EquipmentImprovementId, row.EquipmentImprovementNo);
+                handlePDF(
+                  row.EquipmentImprovementId,
+                  row.EquipmentImprovementNo
+                );
               }}
             >
               <FontAwesomeIcon title="PDF" icon={faFilePdf} />
             </button>
           )}
           {row.Status === REQUEST_STATUS.Draft &&
-            row.Requestor === user.employeeName && (
+            row.CreatedBy == user?.employeeId && (
               <button
                 type="button"
                 style={{ background: "none", border: "none" }}
@@ -476,13 +474,18 @@ console.log("Deleted",deleted)
       sorter: false,
     },
   ];
-  
+
   return (
-    <Table
-      columns={columns}
-      paginationRequired={true}
-      url="/api/EquipmentImprovement/EqupimentList"
-    />
+    <>
+      <div>
+        <Table
+          columns={columns}
+          paginationRequired={true}
+          url="/api/EquipmentImprovement/MyEquipmentRequest"
+          refetchKey={refetchKey}
+        />
+      </div>
+    </>
   );
 };
 

@@ -9,6 +9,8 @@ namespace TDSGCellFormat.Models.Add
         public string? When { get; set; }
         public List<int>? AreaId { get; set; }
         public int? MachineName { get; set; }
+        public string? OtherMachineName { get; set; }
+
         public List<int>? SubMachineName { get; set; }
 
         public string? otherSubMachine { get; set; }
@@ -80,6 +82,8 @@ namespace TDSGCellFormat.Models.Add
         public string? ResultStatus { get; set; }
        public int? ResultMonitoringId {  get; set; }
         public string? ResultMonitoringDate { get; set; }
+
+        public string? PCRNNumber {  get; set; }
     }
 
     public class EquipmentCurrSituationAttachData
@@ -152,14 +156,14 @@ namespace TDSGCellFormat.Models.Add
 
     public class EquipmentPullBack
     {
-        public int? equipmentId { get; set; }
+        public int equipmentId { get; set; }
         public int? userId { get; set; }
         public string? comment { get; set; }
     }
 
     public class EquipmentApproveAsktoAmend
     {
-        public int? ApproverTaskId { get; set; }
+        public int ApproverTaskId { get; set; }
         public int CurrentUserId { get; set; }
         public ApprovalStatus Type { get; set; }
         public string? Comment { get; set; }

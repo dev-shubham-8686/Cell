@@ -4,7 +4,6 @@ import { Modal, Spin } from "antd";
 import { IUser, UserContext } from "../../context/userContext";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { IEquipmentImprovementReport } from "../../interface";
-import ToshibaApprovalModal from "./ToshibaApproval";
 import TextBoxModal, { IEmailAttachments } from "./TextBoxModal";
 import useApproveAskToAmmend, {
   IApproveAskToAmendPayload,
@@ -31,11 +30,13 @@ export interface IWorkFlowProps {
   currentApproverTask: IApproverTask;
   eqReport?: IEquipmentImprovementReport;
   isTargetDateSet?: boolean;
+  ResultMonitoring?: number;
 }
 const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   currentApproverTask,
   eqReport,
   isTargetDateSet,
+  ResultMonitoring,
 }) => {
   const user: IUser = useContext(UserContext);
   const { id, mode } = useParams();
@@ -55,7 +56,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const [advisorRequired, setadvisorRequired] = useState(false);
   const { mutate: approveAskToAmmend, isLoading: approving } =
     useApproveAskToAmmend(id ? parseInt(id) : undefined, user.employeeId);
-  const { mutate: addOrUpdateTargetDate,isLoading:updatingTargetDate } = useAddOrUpdateTargetDate();
+  const { mutate: addOrUpdateTargetDate, isLoading: updatingTargetDate } =
+    useAddOrUpdateTargetDate();
   const { mutate: pullBack, isLoading: pullbacking } = usePullBack(
     id ? parseInt(id) : undefined,
     user.employeeId
@@ -73,7 +75,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const handleToshibaReview = () => {
     setIsModalVisible(true);
   };
-
+  console.log("CURRENTDATA",currentApproverTask)
   const onRejectHandler = async (
     actionType: 2,
     comment: string
@@ -148,7 +150,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
       approveAskToAmmend(payload, {
         onSuccess: (Response) => {
           console.log("ask to ammend / approve  Response: ", Response);
-          navigate("/equipment-improvement-report", {
+          navigate("/", {
             state: {
               currentTabState: "myapproval-tab",
             },
@@ -169,15 +171,17 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const onAddUpdateTargetDate = async (
     IsToshibaDiscussion: boolean,
     targetDate: Date,
+    pcrnAttachmentsRequired?: boolean,
     comment?: string
   ): Promise<void> => {
     try {
       const payload: ITargetData = {
         EquipmentId: parseInt(id),
-        IsToshibaDiscussion: eqReport?.ToshibaApprovalRequired ? false : true,
+        IsToshibaDiscussion: (eqReport?.ToshibaApprovalRequired )? false : true,
         TargetDate: dayjs(targetDate).format(DATE_FORMAT) ?? null,
         Comment: comment,
         AdvisorId: 0,
+        IsPcrnRequired: pcrnAttachmentsRequired,
         EmployeeId: user?.employeeId,
         EmailAttachments: [],
       };
@@ -185,7 +189,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
       addOrUpdateTargetDate(payload, {
         onSuccess: (Response) => {
           console.log("add or update target date ", Response);
-          navigate("/equipment-improvement-report", {
+          navigate("/", {
             state: {
               currentTabState: "myapproval-tab",
             },
@@ -212,7 +216,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
       pullBack(payload, {
         onSuccess: (Response) => {
           console.log("pullback Response: ", Response);
-          navigate(`/equipment-improvement-report`);
+          navigate(`/`);
         },
 
         onError: (error) => {
@@ -299,8 +303,16 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     AddUpdateTargetDate: (
       comment: string,
       targetDate: Date,
+      advisorId,
+      pcrnAttachmentsRequired: boolean,
       isToshibaDiscussion
-    ) => onAddUpdateTargetDate(isToshibaDiscussion, targetDate, comment),
+    ) =>
+      onAddUpdateTargetDate(
+        isToshibaDiscussion,
+        targetDate,
+        pcrnAttachmentsRequired,
+        comment
+      ),
   };
   console.log("Buttons", currentApproverTask ?? [], isApproverRequest ?? null);
   return (
@@ -323,11 +335,15 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           <>
             <button
               disabled={
-                eqReport?.WorkflowLevel !== 2
+                (eqReport?.WorkflowLevel !== 2
                   ? eqReport?.AdvisorId == user?.employeeId &&
                     isTargetDateSet &&
                     !isToshibaDiscussionTargetDatePast
-                  : false
+                  : false) ||
+                (eqReport?.WorkflowLevel == 2 &&
+                  eqReport?.Status != REQUEST_STATUS.LogicalAmendmentInReview &&
+                  user?.employeeId == eqReport?.SectionHeadId &&
+                  eqReport?.ResultAfterImplementation?.ResultMonitoringId == 3)
               }
               className="btn btn-primary"
               onClick={() => {
@@ -340,25 +356,29 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                       />
                     ),
                     okText: "Yes",
-                    okButtonProps: { className: "btn btn-primary" },
+                    okButtonProps: { className: "btn btn-primary mb-1" },
                     cancelButtonProps: { className: "btn-outline-primary" },
                     cancelText: "No",
                     onOk() {
                       openCommentsPopup("Approve", false, true, false);
+                      setsubmitbuttontext("Proceed");
                     },
                     onCancel() {
                       openCommentsPopup("Approve", false, false, false);
+                      setsubmitbuttontext("Approve");
                     },
                   });
                 } else if (
                   user?.employeeId == eqReport?.SectionHeadId &&
+                  currentApproverTask?.seqNumber == 1 &&
                   eqReport?.WorkflowStatus != REQUEST_STATUS.W1Completed
                 ) {
                   openCommentsPopup("Approve", false, false, true);
+                  setsubmitbuttontext("Approve");
                 } else {
                   openCommentsPopup("Approve", false, false, false);
+                  setsubmitbuttontext("Approve");
                 }
-                setsubmitbuttontext("Approve");
               }}
             >
               Approve
@@ -374,7 +394,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
 
         {showWorkflowBtns &&
-        eqReport?.WorkflowLevel !== 2 &&
+        eqReport?.Status != REQUEST_STATUS.LogicalAmendmentInReview &&
+        eqReport?.ResultAfterImplementation?.ResultMonitoringId != 3 &&
+        // eqReport?.WorkflowLevel !== 2 &&
         // (eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval &&
         //   user?.isQcTeamHead) &&
         approverRequest ? (
@@ -401,6 +423,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
         {showWorkflowBtns &&
         eqReport?.ResultAfterImplementation?.IsResultSubmit &&
+        user?.employeeId == eqReport?.SectionHeadId &&
         approverRequest ? (
           <>
             <button
@@ -419,13 +442,18 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
         {showWorkflowBtns &&
         eqReport?.Status !== REQUEST_STATUS.UnderToshibaApproval &&
-        eqReport?.WorkflowLevel !== 2 &&
         approverRequest ? (
           <button
             disabled={
-              eqReport?.AdvisorId == user?.employeeId &&
-              isTargetDateSet &&
-              !isToshibaDiscussionTargetDatePast
+              (eqReport?.WorkflowLevel !== 2
+                ? eqReport?.AdvisorId == user?.employeeId &&
+                  isTargetDateSet &&
+                  !isToshibaDiscussionTargetDatePast
+                : false) ||
+              (eqReport?.WorkflowLevel == 2 &&
+                eqReport?.Status != REQUEST_STATUS.LogicalAmendmentInReview &&
+                user?.employeeId == eqReport?.SectionHeadId &&
+                eqReport?.ResultAfterImplementation?.ResultMonitoringId == 3)
             }
             className="btn btn-primary"
             onClick={() => {
@@ -445,16 +473,20 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           (eqReport?.WorkflowStatus == REQUEST_STATUS.W1Completed &&
             eqReport?.ResultAfterImplementation?.IsResultAmendSubmit)) &&
         eqReport?.CreatedBy == user?.employeeId ? ( */}
-       
-        {(eqReport?.WorkflowLevel === 1 && eqReport?.IsSubmit &&  
+
+        {(eqReport?.WorkflowLevel === 1 &&
+          eqReport?.IsSubmit &&
           eqReport?.CreatedBy === user?.employeeId &&
           ![
             REQUEST_STATUS.Approved,
             REQUEST_STATUS.UnderAmendment,
-            REQUEST_STATUS.PCRNPending,
+            REQUEST_STATUS.Rejected
+            // REQUEST_STATUS.PCRNPending,
           ].includes(eqReport?.Status)) ||
         (eqReport?.WorkflowStatus === REQUEST_STATUS.W1Completed &&
-          eqReport?.Status!==REQUEST_STATUS.LogicalAmendment&&
+          eqReport?.Status !== REQUEST_STATUS.LogicalAmendment &&
+          eqReport?.Status !== REQUEST_STATUS.UnderAmendment &&
+          eqReport?.Status !== REQUEST_STATUS.Rejected &&
           eqReport?.CreatedBy === user?.employeeId &&
           eqReport?.ResultAfterImplementation?.IsResultSubmit) ? (
           <button
@@ -471,6 +503,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
         {user.employeeId == eqReport?.AdvisorId &&
           !isTargetDateSet &&
+          !eqReport?.ResultAfterImplementation?.IsResultSubmit &&
           showWorkflowBtns &&
           approverRequest && (
             <button
@@ -500,7 +533,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                 handleToshibaReview();
               }}
             >
-              Toshiba Approved
+              Approved by Toshiba
             </button>
           )}
         {eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval &&
@@ -514,30 +547,34 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
               onClick={() => {
                 openCommentsPopup("Reject", false, false, false);
                 setapprovedByToshiba(false);
+                setsubmitbuttontext("Reject");
                 handleToshibaReview();
               }}
             >
-              Toshiba Rejected
+              Rejected by Toshiba
             </button>
           )}
-        {((user.employeeId == eqReport?.AdvisorId &&
-          eqReport?.ToshibaDiscussionTargetDate &&
-          eqReport?.WorkflowLevel !== 2) ||
-          (user.isQcTeamHead && eqReport?.ToshibaApprovalTargetDate)) &&
-          showWorkflowBtns &&
-          approverRequest && (
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={() => {
-                openCommentsPopup("AddUpdateTargetDate", null, true);
-                setapprovedByToshiba(false);
-                handleToshibaReview();
-              }}
-            >
-              Update target Date
-            </button>
-          )}
+        {((user?.isAdmin &&
+          (eqReport?.ToshibaDiscussionTargetDate ||
+            eqReport?.ToshibaApprovalTargetDate)) ||
+          (((user.employeeId == eqReport?.AdvisorId &&
+            eqReport?.ToshibaDiscussionTargetDate &&
+            eqReport?.WorkflowLevel !== 2) ||
+            (user.isQcTeamHead && eqReport?.ToshibaApprovalTargetDate)) &&
+            showWorkflowBtns &&
+            approverRequest)) && (
+          <button
+            className="btn btn-primary"
+            type="button"
+            onClick={() => {
+              openCommentsPopup("AddUpdateTargetDate", null, true);
+              setapprovedByToshiba(false);
+              handleToshibaReview();
+            }}
+          >
+            Update target Date
+          </button>
+        )}
         <TextBoxModal
           EQReportNo={eqReport?.EquipmentImprovementNo}
           label={"Comments"}
@@ -554,6 +591,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           toshibaApprovaltargetDate={
             eqReport?.ToshibaApprovalTargetDate ?? null
           }
+          IsPCRNRequired={eqReport?.IsPcrnRequired}
           isVisible={showModal}
           submitBtnText={submitbuttontext}
           onCancel={() => {
@@ -591,7 +629,10 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           isRequiredField={true}
         />
       </div>
-      <Spin spinning={approving || pullbacking || updatingTargetDate} fullscreen />
+      <Spin
+        spinning={approving || pullbacking || updatingTargetDate}
+        fullscreen
+      />
     </>
   );
 };

@@ -1,13 +1,4 @@
-import {
-  Button,
-  Col,
-  DatePicker,
-  Form,
-  Input,
-  Radio,
-  Row,
-  Select
-} from "antd";
+import { Button, Col, DatePicker, Form, Input, Radio, Row, Select } from "antd";
 import * as React from "react";
 import { disabledDate } from "../../../utils/helper";
 import * as dayjs from "dayjs";
@@ -46,40 +37,55 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
 
   const location = useLocation();
   const { isApproverRequest } = location.state || {};
-  console.log({ isApproverRequest })
+  console.log({ isApproverRequest });
 
-  const [beforeAdjustmentReportPhotos, setbeforeAdjustmentReportPhotos] = useState<IAdjustmentReportPhoto[]>([]);
-  const [afterAdjustmentReportPhotos, setafterAdjustmentReportPhotos] = useState<IAdjustmentReportPhoto[]>([]);
-  const [showRemarksforSubMachine, setShowRemarksforSubMachine] = useState(false);
-  const [hideOptionsforSubMachine, setHideOptionsforSubMachine] = useState(false);
+  const [beforeAdjustmentReportPhotos, setbeforeAdjustmentReportPhotos] =
+    useState<IAdjustmentReportPhoto[]>([]);
+  const [afterAdjustmentReportPhotos, setafterAdjustmentReportPhotos] =
+    useState<IAdjustmentReportPhoto[]>([]);
+  const [showRemarksforSubMachine, setShowRemarksforSubMachine] =
+    useState(false);
+  const [hideOptionsforSubMachine, setHideOptionsforSubMachine] =
+    useState(false);
   const [showRemarks, setShowRemarks] = useState(false);
   const [hideOptions, setHideOptions] = useState(false);
   const [cRMRequired, setCRMRequired] = React.useState<boolean | null>(null);
   const [formSections, setFormSections] = React.useState<number[]>([0]); // Initially, one form section
-  const [selectedMachineId, setSelectedMachineId] = useState<number | null>(null);
-  const [filteredSubMachines, setFilteredSubMachines] = useState<ISubMachine[]>([]);
+  const [selectedMachineId, setSelectedMachineId] = useState<number | null>(
+    null
+  );
+  const [filteredSubMachines, setFilteredSubMachines] = useState<ISubMachine[]>(
+    []
+  );
   const [reportNo, setreportNo] = React.useState<string>("");
   const [cRM, setCRM] = React.useState<ChangeRiskManagement[]>([]);
   //const [isApprovalModalVisible, setApprovalModalVisible] = useState(false);
-  const { data: machinesResult, isLoading: machineloading } = useGetAllMachines();
-  const { data: subMachinesResult, isLoading: submachineloading } = useGetAllSubMachines();
+  const { data: machinesResult, isLoading: machineloading } =
+    useGetAllMachines();
+  const { data: subMachinesResult, isLoading: submachineloading } =
+    useGetAllSubMachines();
   const { data: areasResult, isLoading: arealoading } = useGetAllAreas();
-  const { data: checkedByResult, isLoading: checkedloading } = useGetCheckedBy();
+  const { data: checkedByResult, isLoading: checkedloading } =
+    useGetCheckedBy();
   const { mode, id } = useParams();
-  console.log({ id })
+  console.log({ id });
   const isViewMode = mode === "view";
   const isEditMode = mode === "edit";
   const initialData = {
     dateTime: currentDateTime,
     reportNo: reportNo === undefined ? "" : reportNo,
   };
-  const { data: reportData } = useGetAdjustmentReportById(id ? parseInt(id, 10) : 0);
+  const { data: reportData } = useGetAdjustmentReportById(
+    id ? parseInt(id, 10) : 0
+  );
 
   // Use effect to sync files with form field value
   useEffect(() => {
     // Update the beforeImages field with the latest files count
     form.setFieldsValue({
-      beforeImages: beforeAdjustmentReportPhotos?.length ? beforeAdjustmentReportPhotos : undefined,
+      beforeImages: beforeAdjustmentReportPhotos?.length
+        ? beforeAdjustmentReportPhotos
+        : undefined,
     });
     console.log(form.getFieldValue("beforeImages"));
   }, [beforeAdjustmentReportPhotos]);
@@ -87,13 +93,14 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   useEffect(() => {
     // Update the beforeImages field with the latest files count
     form.setFieldsValue({
-      afterImages: afterAdjustmentReportPhotos?.length ? afterAdjustmentReportPhotos : undefined,
+      afterImages: afterAdjustmentReportPhotos?.length
+        ? afterAdjustmentReportPhotos
+        : undefined,
     });
   }, [afterAdjustmentReportPhotos]);
 
   // Handlers for Before Images
   const handleAddBeforeImage = (name: string, url: string) => {
-
     const newAttachment: IAdjustmentReportPhoto = {
       AdjustmentReportPhotoId: 0,
       AdjustmentReportId: id ? parseInt(id, 10) : 0,
@@ -115,7 +122,6 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   };
 
   const handleRemoveBeforeImage = (documentName: string) => {
-
     const updatedAttachments = beforeAdjustmentReportPhotos
       .filter((doc) => doc.DocumentName !== documentName) // Remove the document by name
       .map((doc, index) => ({
@@ -130,7 +136,6 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
 
   // Handlers for After Images
   const handleAddAfterImage = (name: string, url: string) => {
-
     const newAttachment: IAdjustmentReportPhoto = {
       AdjustmentReportPhotoId: 0,
       AdjustmentReportId: id ? parseInt(id, 10) : 0,
@@ -152,7 +157,6 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   };
 
   const handleRemoveAfterImage = (documentName: string) => {
-
     const updatedAttachments = afterAdjustmentReportPhotos
       .filter((doc) => doc.DocumentName !== documentName) // Remove the document by name
       .map((doc, index) => ({
@@ -177,45 +181,52 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     }
 
     // Handle "Select All" if "Other" is not selected
-    const allSubMachineIds = filteredSubMachines?.map(
-      (subMachine) => subMachine.SubMachineId
-    ) || [];
+    const allSubMachineIds =
+      filteredSubMachines?.map((subMachine) => subMachine.SubMachineId) || [];
     if (!selected.includes("other") && selected.includes("all")) {
       const newSelected =
-        selected.length === allSubMachineIds.length + 2 ? [] : allSubMachineIds.concat("other");
+        selected.length === allSubMachineIds.length + 2
+          ? []
+          : allSubMachineIds.concat("other");
       form.setFieldValue("subMachineName", newSelected);
     }
   };
 
   // Use effect to set report data when it becomes available
   const loadData = async () => {
-
-    if ((isEditMode || isViewMode)) {
+    if (isEditMode || isViewMode) {
       // Populate initial form values
       setreportNo(reportData?.ReturnValue.ReportNo);
-      setCRMRequired(reportData?.ReturnValue.ChangeRiskManagementRequired)
-      setCRM(reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport)
+      setCRMRequired(reportData?.ReturnValue.ChangeRiskManagementRequired);
+      setCRM(reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport);
 
       // if (reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport) {
       //   setFormSections(
       //     Array.from({ length: reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport.length }, (_: any, i: any) => i)
       //   );
       // }
-      const crmSectionCount = reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport.length;
+      const crmSectionCount =
+        reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport.length;
       const sections = [];
       for (let i = 0; i < crmSectionCount; i++) {
         sections.push(i);
       }
       setFormSections(sections);
 
-      console.log({ cRM })
-      console.log({ formSections })
-      console.log(reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport)
+      console.log({ cRM });
+      console.log({ formSections });
+      console.log(
+        reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport
+      );
       setSelectedMachineId(reportData?.ReturnValue.MachineName); // Set machine initially
-      setbeforeAdjustmentReportPhotos(reportData?.ReturnValue?.Photos.BeforeImages);
-      form.setFieldsValue({ beforeImages: beforeAdjustmentReportPhotos })
-      setafterAdjustmentReportPhotos(reportData?.ReturnValue?.Photos.AfterImages);
-      form.setFieldsValue({ afterImages: beforeAdjustmentReportPhotos })
+      setbeforeAdjustmentReportPhotos(
+        reportData?.ReturnValue?.Photos.BeforeImages
+      );
+      form.setFieldsValue({ beforeImages: beforeAdjustmentReportPhotos });
+      setafterAdjustmentReportPhotos(
+        reportData?.ReturnValue?.Photos.AfterImages
+      );
+      form.setFieldsValue({ afterImages: beforeAdjustmentReportPhotos });
       form.setFieldsValue({
         reportNo: reportData?.ReturnValue.ReportNo,
         area: reportData?.ReturnValue.Area,
@@ -223,18 +234,25 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
         subMachineName: reportData?.ReturnValue.SubMachineName,
         requestedBy: reportData?.ReturnValue.RequestBy,
         checkedBy: reportData?.ReturnValue.CheckedBy,
-        dateTime: reportData ? dayjs(reportData?.ReturnValue.CreatedDate) : currentDateTime,
+        dateTime: reportData
+          ? dayjs(reportData?.ReturnValue.CreatedDate)
+          : currentDateTime,
         observation: reportData?.ReturnValue.Observation,
         rootCause: reportData?.ReturnValue.RootCause,
         adjustmentDescription: reportData?.ReturnValue.AdjustmentDescription,
-        conditionAfterAdjustment: reportData?.ReturnValue.ConditionAfterAdjustment,
+        conditionAfterAdjustment:
+          reportData?.ReturnValue.ConditionAfterAdjustment,
         describeProblem: reportData?.ReturnValue.DescribeProblem,
       });
 
       // Pre-filter sub-machines based on the machine from reportData?
-      if (reportData?.ReturnValue.MachineName && subMachinesResult?.ReturnValue) {
+      if (
+        reportData?.ReturnValue.MachineName &&
+        subMachinesResult?.ReturnValue
+      ) {
         const initialFiltered = subMachinesResult.ReturnValue.filter(
-          (subMachine: any) => subMachine.MachineId === reportData.ReturnValue.MachineName
+          (subMachine: any) =>
+            subMachine.MachineId === reportData.ReturnValue.MachineName
         );
         setFilteredSubMachines(initialFiltered);
       }
@@ -251,8 +269,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       setShowRemarks(true);
       setHideOptions(true); // Hide all other options
       form.setFieldValue("machineName", "other"); // Keep only "Other" selected
-    }
-    else {
+    } else {
       setShowRemarks(false);
       setHideOptions(false); // Show all options
       setSelectedMachineId(value); // Update selected machine ID
@@ -273,7 +290,6 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   //   // Here, integrate logic to add department heads to the workflow.
   // };
 
-
   // Watch selectedMachineId for updates and filter sub-machines accordingly
   useEffect(() => {
     if (selectedMachineId && subMachinesResult?.ReturnValue) {
@@ -287,14 +303,13 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   }, [selectedMachineId, subMachinesResult]);
 
   const addFormSection = () => {
-    setFormSections((prevSections) =>
-      [...prevSections, prevSections.length]);
-    console.log({ formSections })
+    setFormSections((prevSections) => [...prevSections, prevSections.length]);
+    console.log({ formSections });
   };
 
   const onFinish = (values: any) => {
     values.ChangeRiskManagementRequired = cRMRequired;
-    values.ChangeRiskManagementList = []
+    values.ChangeRiskManagementList = [];
 
     const numberOfSections = formSections.length;
 
@@ -473,7 +488,10 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   }));
 
   return (
-    <div className="py-3 adj-form">
+    <>
+ 
+
+
       <Form
         layout="vertical"
         form={form}
@@ -502,7 +520,10 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               <Select placeholder="Select Checked By" loading={checkedloading}>
                 {checkedByResult?.ReturnValue &&
                   checkedByResult.ReturnValue.map((checkedBy) => (
-                    <Option key={checkedBy.employeeId} value={checkedBy.employeeId}>
+                    <Option
+                      key={checkedBy.employeeId}
+                      value={checkedBy.employeeId}
+                    >
                       {checkedBy.employeeName}
                     </Option>
                   ))}
@@ -529,305 +550,297 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
 
         <Row gutter={48}>
           <Col span={6}>
-            <Row gutter={16}>
-              
-                <Form.Item
-                  label="Area"
-                  name="area"
-                  rules={[{ required: true, message: "Please select at least one area" }]}
-                >
-                  <Select
-                    mode="multiple"
-                    placeholder="Select Area"
-                    showSearch={false}
-                    loading={arealoading}
-                    onChange={(selected) => {
-                      if (selected.includes("all")) {
-                        const allAreaIds = areasResult?.ReturnValue.map((area: IArea) => area.AreaId) || [];
-                        // If "Select All" is checked, select all items. Otherwise, clear selection.
-                        form.setFieldValue(
-                          "area",
-                          selected.length === allAreaIds.length + 1 ? [] : allAreaIds
-                        );
-                      }
-                    }}
-                  >
-                    {/* "Select All" Option */}
-                    <Option key="all" value="all">
-                      Select All
+            <Form.Item
+              label="Area"
+              name="area"
+              rules={[
+                { required: true, message: "Please select at least one area" },
+              ]}
+            >
+              <Select
+                mode="multiple"
+                placeholder="Select Area"
+                showSearch={false}
+                loading={arealoading}
+                onChange={(selected) => {
+                  if (selected.includes("all")) {
+                    const allAreaIds =
+                      areasResult?.ReturnValue.map(
+                        (area: IArea) => area.AreaId
+                      ) || [];
+                    // If "Select All" is checked, select all items. Otherwise, clear selection.
+                    form.setFieldValue(
+                      "area",
+                      selected.length === allAreaIds.length + 1
+                        ? []
+                        : allAreaIds
+                    );
+                  }
+                }}
+              >
+                {/* "Select All" Option */}
+                <Option key="all" value="all">
+                  Select All
+                </Option>
+                {/* Other Options */}
+                {areasResult?.ReturnValue &&
+                  areasResult.ReturnValue.map((area: IArea) => (
+                    <Option key={area.AreaId} value={area.AreaId}>
+                      {area.AreaName}
                     </Option>
-                    {/* Other Options */}
-                    {areasResult?.ReturnValue &&
-                      areasResult.ReturnValue.map((area: IArea) => (
-                        <Option key={area.AreaId} value={area.AreaId}>
-                          {area.AreaName}
-                        </Option>
-                      ))}
-                  </Select>
-                </Form.Item>
-              
-            </Row>
-            <Row gutter={16}>
-              
-                {/* Observation */}
-                <Form.Item
-                  label="Observation"
-                  name="observation"
-                  rules={[{ required: true }]}
-                >
-                  <TextArea
-                    rows={4}
-                    maxLength={2000}
-                    placeholder="Enter your observation"
-                  />
-                </Form.Item>
-              
-            </Row>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  label="Before Images"
-                  name="beforeImages"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please upload before images!",
-                    },
-                  ]}
-                >
-                  <FileUpload
-                    disabled={false
-                      // isModeView ||
-                      // (submitted && !underAmmendment) ||
-                      // ((pcrnSubmission && existingEquipmentReport?.Status!=REQUEST_STATUS.Draft) && !underAmmendment)
-                    }
-                    key={`file-upload-before-images`}
-                    folderName={
-                      form.getFieldValue("reportNo") ??
-                      user?.EmployeeId.toString()
-                    }
-                    subFolderName={"BeforeImages"}
-                    libraryName={DocumentLibraries.Adjustment_Attachments}
-                    files={beforeAdjustmentReportPhotos?.map((a) => ({
-                      ...a,
-                      uid:
-                        a.AdjustmentReportPhotoId?.toString() ?? "",
-                      name: a.DocumentName,
-                      url: `${a.DocumentFilePath}`,
-                    }))}
-                    setIsLoading={(loading: boolean) => {
-                      // setIsLoading(loading);
-                    }}
-                    isLoading={false}
-                    onAddFile={handleAddBeforeImage}
-                    onRemoveFile={handleRemoveBeforeImage}
-                    uploadType="before"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
+                  ))}
+              </Select>
+            </Form.Item>
           </Col>
-
-          {/* Machine Name */}
           <Col span={6}>
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item
-                  label="Machine Name"
-                  name="machineName"
-                  rules={[{ required: true, message: "Please select a machine name" }]}
-                >
-                  <Select
-                    placeholder="Select Machine Name"
-                    onChange={handleMachineChange}
-                    value={hideOptions ? "other" : undefined}
-                    loading={machineloading}
-                  >
-                    {/* Dynamically loaded machine options */}
-                    {!hideOptions &&
-                      machinesResult?.ReturnValue?.map((machine: any) => (
-                        <Option key={machine.MachineId} value={machine.MachineId}>
-                          {machine.MachineName}
-                        </Option>
-                      ))}
-
-                    {/* "Other" Option */}
-                    <Option key="other" value="other">
-                      Other
+            <Form.Item
+              label="Machine Name"
+              name="machineName"
+              rules={[
+                { required: true, message: "Please select a machine name" },
+              ]}
+            >
+              <Select
+                placeholder="Select Machine Name"
+                onChange={handleMachineChange}
+                value={hideOptions ? "other" : undefined}
+                loading={machineloading}
+              >
+                {/* Dynamically loaded machine options */}
+                {!hideOptions &&
+                  machinesResult?.ReturnValue?.map((machine: any) => (
+                    <Option key={machine.MachineId} value={machine.MachineId}>
+                      {machine.MachineName}
                     </Option>
-                  </Select>
-                </Form.Item>
+                  ))}
 
-                {/* Remarks Field */}
-                {showRemarks && (
-                  <Form.Item label="Remarks" name="remarks">
-                    <TextArea
-                      rows={4}
-                      maxLength={500}
-                      placeholder="Provide additional details (optional)"
-                    />
-                  </Form.Item>
+                {/* "Other" Option */}
+                <Option key="other" value="other">
+                  Other
+                </Option>
+              </Select>
+            </Form.Item>
+
+            {showRemarks && (
+              <Form.Item label="Remarks" name="remarks">
+                <TextArea
+                  rows={1}
+                  maxLength={500}
+                  placeholder="Provide additional details (optional)"
+                />
+              </Form.Item>
+            )}
+          </Col>
+          <Col span={6}>
+            <Form.Item
+              label="Sub-Machine Name"
+              name="subMachineName"
+              rules={[
+                {
+                  required: true,
+                  message: "Please select at least one sub-machine name",
+                },
+              ]}
+            >
+              <Select
+                mode="multiple"
+                placeholder="Select Sub-Machine Name"
+                onChange={handleSubMachineChange}
+                value={hideOptionsforSubMachine ? ["other"] : undefined}
+                loading={submachineloading}
+              >
+                {/* "Select All" Option (hidden if "Other" is selected) */}
+                {!hideOptionsforSubMachine && (
+                  <Option key="all" value="all">
+                    Select All
+                  </Option>
                 )}
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item
-                  label="Root Cause"
-                  name="rootCause"
-                  rules={[{ required: true }]}
-                >
-                  <TextArea
-                    rows={4}
-                    maxLength={2000}
-                    placeholder="Describe the root cause"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  label="After Images"
-                  name="afterImages"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please upload after images!",
-                    },
-                  ]}
-                >
-                  <FileUpload
-                    disabled={false
-                      // isModeView ||
-                      // (submitted && !underAmmendment) ||
-                      // ((pcrnSubmission && existingEquipmentReport?.Status!=REQUEST_STATUS.Draft) && !underAmmendment)
-                    }
-                    key={`file-upload-after-images`}
-                    folderName={
-                      form.getFieldValue("reportNo") ??
-                      user?.EmployeeId.toString()
-                    }
-                    subFolderName={"AfterImages"}
-                    libraryName={DocumentLibraries.Adjustment_Attachments}
-                    files={afterAdjustmentReportPhotos?.map((a) => ({
-                      ...a,
-                      uid:
-                        a.AdjustmentReportPhotoId?.toString() ?? "",
-                      name: a.DocumentName,
-                      url: `${a.DocumentFilePath}`,
-                    }))}
-                    setIsLoading={(loading: boolean) => {
-                      // setIsLoading(loading);
-                    }}
-                    isLoading={false}
-                    onAddFile={handleAddAfterImage}
-                    onRemoveFile={handleRemoveAfterImage}
-                    uploadType="after"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          </Col>
 
-          <Col span={6}>
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item
-                  label="Sub-Machine Name"
-                  name="subMachineName"
-                  rules={[{ required: true, message: "Please select at least one sub-machine name" }]}
-                >
-                  <Select
-                    mode="multiple"
-                    placeholder="Select Sub-Machine Name"
-                    onChange={handleSubMachineChange}
-                    value={hideOptionsforSubMachine ? ["other"] : undefined}
-                    loading={submachineloading}
-                  >
-                    {/* "Select All" Option (hidden if "Other" is selected) */}
-                    {!hideOptionsforSubMachine && (
-                      <Option key="all" value="all">
-                        Select All
-                      </Option>
-                    )}
-
-                    {/* Sub-Machine Options */}
-                    {!hideOptionsforSubMachine &&
-                      filteredSubMachines?.map((subMachine) => (
-                        <Option key={subMachine.SubMachineId} value={subMachine.SubMachineId}>
-                          {subMachine.SubMachineName}
-                        </Option>
-                      ))}
-
-                    {/* "Other" Option */}
-                    <Option key="other" value="other">
-                      Other
+                {/* Sub-Machine Options */}
+                {!hideOptionsforSubMachine &&
+                  filteredSubMachines?.map((subMachine) => (
+                    <Option
+                      key={subMachine.SubMachineId}
+                      value={subMachine.SubMachineId}
+                    >
+                      {subMachine.SubMachineName}
                     </Option>
-                  </Select>
-                </Form.Item>
+                  ))}
 
-                {/* Remarks Field */}
-                {showRemarksforSubMachine && (
-                  <Form.Item label="Remarks" name="remarks">
-                    <TextArea
-                      rows={4}
-                      maxLength={500}
-                      placeholder="Provide additional details (optional)"
-                    />
-                  </Form.Item>
-                )}
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item
-                  label="Adjustment Description"
-                  name="adjustmentDescription"
-                  rules={[{ required: true }]}
-                >
-                  <TextArea
-                    rows={4}
-                    maxLength={2000}
-                    placeholder="Describe the adjustment made"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
+                {/* "Other" Option */}
+                <Option key="other" value="other">
+                  Other
+                </Option>
+              </Select>
+            </Form.Item>
+
+            {showRemarksforSubMachine && (
+              <Form.Item label="Remarks" name="remarks">
+                <TextArea
+                  rows={1}
+                  maxLength={500}
+                  placeholder="Provide additional details (optional)"
+                />
+              </Form.Item>
+            )}
           </Col>
-
           <Col span={6}>
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item
-                  label="Describe Problem"
-                  name="describeProblem"
-                  rules={[{ required: true }]}
-                >
-                  <TextArea
-                    rows={4}
-                    maxLength={2000}
-                    placeholder="Describe the problem"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={16}>
-              <Col span={24}>
-                <Form.Item
-                  label="Condition After Adjustment"
-                  name="conditionAfterAdjustment"
-                >
-                  <TextArea
-                    rows={5}
-                    maxLength={2000}
-                    placeholder="Describe the condition after adjustment"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
+            <Form.Item
+              label="Describe Problem"
+              name="describeProblem"
+              rules={[{ required: true }]}
+            >
+              <TextArea
+                rows={1}
+                maxLength={2000}
+                placeholder="Describe the problem"
+              />
+            </Form.Item>
           </Col>
         </Row>
+
+        <Row gutter={48}>
+          <Col span={6}>
+            {/* Observation */}
+            <Form.Item
+              label="Observation"
+              name="observation"
+              rules={[{ required: true }]}
+            >
+              <TextArea
+                rows={4}
+                maxLength={2000}
+                placeholder="Enter your observation"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item
+              label="Root Cause"
+              name="rootCause"
+              rules={[{ required: true }]}
+            >
+              <TextArea
+                rows={4}
+                maxLength={2000}
+                placeholder="Describe the root cause"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item
+              label="Adjustment Description"
+              name="adjustmentDescription"
+              rules={[{ required: true }]}
+            >
+              <TextArea
+                rows={4}
+                maxLength={2000}
+                placeholder="Describe the adjustment made"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item
+              label="Condition After Adjustment"
+              name="conditionAfterAdjustment"
+            >
+              <TextArea
+                rows={4}
+                maxLength={2000}
+                placeholder="Describe the condition after adjustment"
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={48}>
+          <Col span={6}>
+            <Form.Item
+              label="Before Images"
+              name="beforeImages"
+              rules={[
+                {
+                  required: true,
+                  message: "Please upload before images!",
+                },
+              ]}
+            >
+              <FileUpload
+                disabled={
+                  false
+                  // isModeView ||
+                  // (submitted && !underAmmendment) ||
+                  // ((pcrnSubmission && existingEquipmentReport?.Status!=REQUEST_STATUS.Draft) && !underAmmendment)
+                }
+                key={`file-upload-before-images`}
+                folderName={
+                  form.getFieldValue("reportNo") ?? user?.EmployeeId.toString()
+                }
+                subFolderName={"BeforeImages"}
+                libraryName={DocumentLibraries.Adjustment_Attachments}
+                files={beforeAdjustmentReportPhotos?.map((a) => ({
+                  ...a,
+                  uid: a.AdjustmentReportPhotoId?.toString() ?? "",
+                  name: a.DocumentName,
+                  url: `${a.DocumentFilePath}`,
+                }))}
+                setIsLoading={(loading: boolean) => {
+                  // setIsLoading(loading);
+                }}
+                isLoading={false}
+                onAddFile={handleAddBeforeImage}
+                onRemoveFile={handleRemoveBeforeImage}
+                uploadType="before"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item
+              label="After Images"
+              name="afterImages"
+              rules={[
+                {
+                  required: true,
+                  message: "Please upload after images!",
+                },
+              ]}
+            >
+              <FileUpload
+                disabled={
+                  false
+                  // isModeView ||
+                  // (submitted && !underAmmendment) ||
+                  // ((pcrnSubmission && existingEquipmentReport?.Status!=REQUEST_STATUS.Draft) && !underAmmendment)
+                }
+                key={`file-upload-after-images`}
+                folderName={
+                  form.getFieldValue("reportNo") ?? user?.EmployeeId.toString()
+                }
+                subFolderName={"AfterImages"}
+                libraryName={DocumentLibraries.Adjustment_Attachments}
+                files={afterAdjustmentReportPhotos?.map((a) => ({
+                  ...a,
+                  uid: a.AdjustmentReportPhotoId?.toString() ?? "",
+                  name: a.DocumentName,
+                  url: `${a.DocumentFilePath}`,
+                }))}
+                setIsLoading={(loading: boolean) => {
+                  // setIsLoading(loading);
+                }}
+                isLoading={false}
+                onAddFile={handleAddAfterImage}
+                onRemoveFile={handleRemoveAfterImage}
+                uploadType="after"
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
+         
+
+    
+
+       
 
         <div>
           <div style={{ display: "flex", alignItems: "center" }}>
@@ -836,7 +849,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             </span>
             <Radio.Group
               onChange={(e: any) => setCRMRequired(e.target.value)}
-              value={cRMRequired} name="cRMRequired"
+              value={cRMRequired}
+              name="cRMRequired"
             >
               <Radio value={true} style={{ marginRight: 16 }}>
                 Yes
@@ -847,24 +861,26 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
         </div>
 
         {/* Render multiple form sections */}
-        {cRMRequired && formSections.map((sectionIndex) => (
-          <ChangeRiskManagementForm
-            key={sectionIndex}
-            index={sectionIndex}
-            form={form}
-            initialData={cRM[sectionIndex]} // Pass each section's data directly
-          />
-        ))}
-        {/* Button to add new form section */}
         {cRMRequired && (
           <div className="flex justify-end items-center my-3">
             <div className="flex items-center gap-x-4">
               <Button type="primary" onClick={addFormSection}>
-                Add Change Risk Management
+                Add 
               </Button>
             </div>
           </div>
         )}
+        {cRMRequired &&
+          formSections.map((sectionIndex) => (
+            <ChangeRiskManagementForm
+              key={sectionIndex}
+              index={sectionIndex}
+              form={form}
+              initialData={cRM[sectionIndex]} // Pass each section's data directly
+            />
+          ))}
+        {/* Button to add new form section */}
+        
         {/* 
         <Button
           onClick={handleAdditionalApprovalClick}
@@ -879,7 +895,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
           onProceed={handleProceed}
         /> */}
       </Form>
-    </div>
+   
+    </>
   );
 });
 
