@@ -391,7 +391,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         IsResultSubmit: false,
       };
     }
-
+    debugger
     console.log("form saved as draft data", values);
     if (id) {
       values.EquipmentImprovementId = parseInt(id);
@@ -399,12 +399,12 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     if (underLogicalAmmendment || underLogicalAmmendment) {
       values.IsSubmit = true;
     }
+    debugger
     console.log("values", values);
     if (!isAdmin) {
       if (existingEquipmentReport?.WorkflowLevel == 2) {
         debugger
         const fieldsToExclude = [
-          "TargetDate",
           "ActualDate",
           "ResultMonitoring",
           "ResultMonitoringDate",
@@ -479,16 +479,17 @@ debugger
     Person: [{ required: true, message: "Please select Person In Charge" }],
     Results: [{ required: true, message: "Please enter Results " }],
     TargetDate: [{ required: true, message: "Please select Target Date" }],
-    ActualDate: [{ required: true, message: "Please select Actual Date" }],
+    ActualDate: [{ required: enableResultStatus, message: "Please select Actual Date" }],
     ResultMonitoring: [
-      { required: true, message: "Please select Result Monitoring" },
+      { required: enableResultStatus, message: "Please select Result Monitoring" },
     ],
-    ResultStatus: [{ required: true, message: "Please enter Result Status" }],
+    ResultStatus: [{ required: enableResultStatus, message: "Please enter Result Status" }],
     ResultMonitoringDate: [
-      { required: true, message: "Please select Result Monitoring Date" },
+      { required: enableResultStatus, message: "Please select Result Monitoring Date" },
     ],
 
     attachment: [{ required: true, message: "Please upload attachment" }],
+    PCRNNumber: [{ required: enableResultStatus, message: "Please enter PCRN Number" }],
   };
 
   // const handleSubMachines = async () => {
@@ -692,8 +693,15 @@ debugger
     );
   };
 
+  const handleResultMonitoringDateChange=()=>{
+    form.setFieldValue("ResultStatus","");
+    setenableResultStatus(false);
+  }
+
   const handleResultMonitoringChange = (value) => {
     debugger;
+    // form.setFieldValue("ResultStatus","");
+    // setenableResultStatus(false)
     if (value == 2) {
       form.setFieldValue("ResultMonitoringDate", null);
       setshowResultMonitoringDate(true);
@@ -709,6 +717,7 @@ debugger
       setshowResultMonitoringDate(false);
       setenableResultStatus(false);
     }
+    form.setFieldValue("ResultStatus","");
   };
   const handleAdd = (): void => {
     const newData: IChangeRiskData[] = [
@@ -1549,8 +1558,8 @@ debugger
                         void form.validateFields(["EquipmentCurrSituationAttachmentDetails"]);
                       setcurrSituationAttchments(updatedAttachments);
 
-                      console.log("HOJAAAAA")
-                      console.log("HOJAAAAA")
+                    
+                  
 
                       console.log("File Added");
                     }}
@@ -1864,9 +1873,10 @@ debugger
                           name="PCRNNumber"
                           rules={
                             existingEquipmentReport?.WorkflowLevel === 2
-                              ? validationRules["ResultStatus"]
+                              ? validationRules["PCRNNumber"]
                               : null
                           }
+                          
                         >
                           <Input
                             disabled={
@@ -1994,6 +2004,7 @@ debugger
                           }
                         >
                           <DatePicker
+                            onChange={handleResultMonitoringDateChange}
                             format={DATE_FORMAT}
                             disabled={
                               isModeView ||

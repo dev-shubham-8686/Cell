@@ -150,6 +150,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
                     // future dates only
                     return current && current < dayjs().startOf("day");
                   }}
+                  format={DATE_FORMAT}
                 />
               </Form.Item>
             </>
@@ -224,26 +225,31 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
                     EmailAttachmentId: parseInt(id),
                     EmailDocName: name,
                     EmailDocFilePath: url,
-                    CreatedBy: 76,
-                    ModifiedBy: 76,
+                    CreatedBy: user?.employeeId,
+                    ModifiedBy: user?.employeeId,
                   };
 
                   const updatedAttachments: IEmailAttachments[] = [
                     ...existingAttachments,
                     newAttachment,
                   ];
-
+                  void form.validateFields(["emailAttachments"]);
                   setEmailAttachments(updatedAttachments);
 
                   console.log("File Added");
                 }}
-                onRemoveFile={(documentName: string) => {
+                onRemoveFile={async (documentName: string) => {
                   const existingAttachments: IEmailAttachments[] = emailAttachments ?? [];
 
                   const updatedAttachments = existingAttachments?.filter(
                     (doc) => doc.EmailDocName !== documentName
                   );
                   setEmailAttachments(updatedAttachments);
+                  if (updatedAttachments?.length == 0) {
+                    debugger
+                    form.setFieldValue("emailAttachments", []);
+                  }
+                  await form.validateFields(["emailAttachments"]); 
                   console.log("File Removed");
                 }}
               />
