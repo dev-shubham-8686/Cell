@@ -7,14 +7,18 @@ namespace TDSGCellFormat.Models.Add
     public class AdjustMentReportRequest
     {
         public int AdjustMentReportId { get; set; }
-
+        public string? ReportNo { get; set; }
         public List<int>? Area { get; set; }
+
+        public int? SectionId { get; set; }
 
         public int? MachineName { get; set; }
 
+        public string? OtherMachineName { get; set; }
+
         public List<int>? SubMachineName { get; set; }
 
-        public string? ReportNo { get; set; }
+        public string? OtherSubMachineName { get; set; }
 
         public string? RequestBy { get; set; }
 
@@ -36,7 +40,6 @@ namespace TDSGCellFormat.Models.Add
 
         public List<ChangeRiskManagement_AdjustmentReports>? ChangeRiskManagement_AdjustmentReport { get; set; }
 
-        public string? ConditionAfterAdjustment { get; set; }
 
         public string? WorkFlowStatus { get; set; }
 

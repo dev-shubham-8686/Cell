@@ -25,8 +25,6 @@ namespace TDSGCellFormat.Interface.Service
 
         Task<AjaxResult> GetEmployeeDetailsById(int id, string email);
 
-        Task<AjaxResult> GetAdjustmentReportApproverList(int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "DESC", string searchValue = "");
-
         Task<AjaxResult> UpdateApproveAskToAmend(ApproveAsktoAmend asktoAmend);
 
         Task<AjaxResult> PullBackRequest(int Id, int userId, string comment);
