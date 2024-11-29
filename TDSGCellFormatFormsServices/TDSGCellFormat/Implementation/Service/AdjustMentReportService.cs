@@ -6,6 +6,7 @@ using TDSGCellFormat.Interface.Repository;
 using TDSGCellFormat.Interface.Service;
 using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
+using TDSGCellFormat.Models.View;
 using static TDSGCellFormat.Common.Enums;
 
 namespace TDSGCellFormat.Implementation.Service
@@ -20,10 +21,20 @@ namespace TDSGCellFormat.Implementation.Service
             this._adjustMentRepository = tdsgRepository;
         }
 
-        public Task<AjaxResult> GetAllAdjustmentData(
-         int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "", string searchValue = "")
+
+        public async Task<List<AdjustmentReportView>> GetAllAdjustmentData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
-            return _adjustMentRepository.GetAllAdjustmentData(pageIndex, pageSize, createdBy, sortColumn, orderBy, searchValue);
+            return await _adjustMentRepository.GetAllAdjustmentData(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+        }
+
+        public async Task<List<AdjustmentReportView>> GetAllAdjustmentDataMyReq(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            return await _adjustMentRepository.GetAllAdjustmentDataMyReq(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+        }
+
+        public async Task<List<AdjustmentReportApproverView>> GetAllAdjustmentApproverData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            return await _adjustMentRepository.GetAllAdjustmentApproverData(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
         }
 
         public IQueryable<AdjustMentReportRequest> GetAll()
@@ -58,10 +69,6 @@ namespace TDSGCellFormat.Implementation.Service
             return await _adjustMentRepository.GetEmployeeDetailsById(id, email);
         }
 
-        public async Task<AjaxResult> GetAdjustmentReportApproverList(int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "DESC", string searchValue = "")
-        {
-            return await _adjustMentRepository.GetAdjustmentReportApproverList(pageIndex, pageSize, createdBy, sortColumn , orderBy , searchValue );
-        }
 
         public async Task<AjaxResult> UpdateApproveAskToAmend(ApproveAsktoAmend asktoAmend)
         {

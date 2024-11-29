@@ -33,31 +33,51 @@ namespace TDSGCellFormat.Implementation.Repository
             _configuration = configuration;
         }
 
-        public async Task<AjaxResult> GetAllAdjustmentData(
-         int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "", string searchValue = "")
+        #region Listing screen 
+
+        public async Task<List<AdjustmentReportView>> GetAllAdjustmentData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
-            var result = new AjaxResult();
-
-            try
+            //var admin = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+            var listData = await _context.GetAdjustmentReportList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            var adjustmentData = new List<AdjustmentReportView>();
+            foreach (var item in listData)
             {
-                result.ReturnValue = _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAllAdjustMentReportData]")
-                     .WithSqlParams(
-                            ("@CreatedBy", createdBy),
-                            ("@PageIndex", pageIndex),
-                            ("@PageSize", pageSize),
-                            ("@SortColumn", sortColumn),
-                            ("@Order", orderBy),
-                            ("@Where", searchValue)
-                    ).ExecuteStoredProcedureAsync<AdjustmentReportView>().Result;
+                //  if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
+                adjustmentData.Add(item);
             }
-            catch (Exception ex)
-            {
-
-            }
-
-            return result;
+            return adjustmentData;
         }
 
+        public async Task<List<AdjustmentReportView>> GetAllAdjustmentDataMyReq(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            //var admin = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+            var listData = await _context.GetAdjustmentReportMyReqList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            var adjustmentData = new List<AdjustmentReportView>();
+            foreach (var item in listData)
+            {
+                //  if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
+                adjustmentData.Add(item);
+            }
+            return adjustmentData;
+        }
+
+        public async Task<List<AdjustmentReportApproverView>> GetAllAdjustmentApproverData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            //var admin = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+            var listData = await _context.GetAdjustmentReportApproverList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            var adjustmentData = new List<AdjustmentReportApproverView>();
+            foreach (var item in listData)
+            {
+                //  if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
+                adjustmentData.Add(item);
+            }
+            return adjustmentData;
+        }
+
+        #endregion
+
+
+        #region CRUD
         public IQueryable<AdjustMentReportRequest> GetAll()
         {
             IQueryable<AdjustMentReportRequest> res = _context.AdjustmentReports
@@ -77,7 +97,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     RootCause = n.ar.RootCause,
                     AdjustmentDescription = n.ar.AdjustmentDescription,
                     //Photos = n.arp.DocumentFilePath
-                    ConditionAfterAdjustment = n.ar.ConditionAfterAdjustment,
+                    //ConditionAfterAdjustment = n.ar.ConditionAfterAdjustment,
                     Status = n.ar.Status,
                     IsSubmit = n.ar.IsSubmit,
                     CreatedDate = n.ar.CreatedDate,
@@ -144,10 +164,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 AdjustmentDescription = res.AdjustmentDescription,
                 Photos = GetAdjustmentReportPhotos(Id),
                 ChangeRiskManagementRequired = res.ChangeRiskManagementRequired,
-                ConditionAfterAdjustment = res.ConditionAfterAdjustment,
+                //ConditionAfterAdjustment = res.ConditionAfterAdjustment,
                 Status = res.Status,
                 IsSubmit = res.IsSubmit,
-                EmployeeId = res.EmployeeId,
+                //EmployeeId = res.EmployeeId,
                 CreatedBy = res.CreatedBy,
                 CreatedDate = res.CreatedDate,
             };
@@ -176,150 +196,48 @@ namespace TDSGCellFormat.Implementation.Repository
         public async Task<AjaxResult> AddOrUpdateReport(AdjustMentReportRequest request)
         {
             var res = new AjaxResult();
-            int adjustMentReportId = 0;
-            var existingReport = await _context.AdjustmentReports.FindAsync(request.AdjustMentReportId);
-            if (existingReport == null)
+            try
             {
-                var adjustmentReportNo = await GenerateAdjustmentReportNumberAsync();
-                var newReport = new AdjustmentReport()
+                int adjustMentReportId = 0;
+                var existingReport = await _context.AdjustmentReports.FindAsync(request.AdjustMentReportId);
+                if (existingReport == null)
                 {
-                    Area = request.Area != null && request.Area.Count > 0 ? string.Join(",", request.Area) : "",
-                    MachineName = request.MachineName,
-                    SubMachineName = request.SubMachineName != null && request.SubMachineName.Count > 0 ? string.Join(",", request.SubMachineName) : "",
-                    ReportNo = adjustmentReportNo.ToString(),
-                    RequestBy = request.RequestBy,
-                    CheckedBy = request.CheckedBy,
-                    EmployeeId = request.EmployeeId,
-                    DescribeProblem = request.DescribeProblem,
-                    Observation = request.Observation,
-                    RootCause = request.RootCause,
-                    AdjustmentDescription = request.AdjustmentDescription,
-                    ConditionAfterAdjustment = request.ConditionAfterAdjustment,
-                    ChangeRiskManagementRequired = request.ChangeRiskManagementRequired,
-                    Status = ApprovalTaskStatus.Draft.ToString(),
-                    IsSubmit = request.IsSubmit,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = request.CreatedBy,
-                    IsDeleted = false
-                };
-
-                _context.AdjustmentReports.Add(newReport);
-                await _context.SaveChangesAsync();
-
-                // Get ID of newly added record
-                adjustMentReportId = newReport.AdjustMentReportId;
-
-                if (request.ChangeRiskManagement_AdjustmentReport != null)
-                {
-                    foreach (var changeReport in request.ChangeRiskManagement_AdjustmentReport)
+                    var adjustmentReportNo = await GenerateAdjustmentReportNumberAsync();
+                    var newReport = new AdjustmentReport()
                     {
-                        var changeRiskData = new ChangeRiskManagement_AdjustmentReport()
-                        {
-                            AdjustMentReportId = adjustMentReportId,
-                            Changes = changeReport.Changes,
-                            FunctionId = changeReport.FunctionId,
-                            RisksWithChanges = changeReport.RiskAssociated,
-                            Factors = changeReport.Factor,
-                            CounterMeasures = changeReport.CounterMeasures,
-                            DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null,
-                            PersonInCharge = changeReport.PersonInCharge,
-                            Results = changeReport.Results,
-                            CreatedBy = changeReport.CreatedBy,
-                            CreatedDate = DateTime.Now,
-                            IsDeleted = false,
-                        };
-                        _context.ChangeRiskManagement_AdjustmentReport.Add(changeRiskData);
-                    }
+                        Area = request.Area != null && request.Area.Count > 0 ? string.Join(",", request.Area) : "",
+                        MachineName = request.MachineName,
+                        SubMachineName = request.SubMachineName != null && request.SubMachineName.Count > 0 ? string.Join(",", request.SubMachineName) : "",
+                        ReportNo = adjustmentReportNo.ToString(),
+                        RequestBy = request.RequestBy,
+                        CheckedBy = request.CheckedBy,
+                        //  EmployeeId = request.EmployeeId,
+                        DescribeProblem = request.DescribeProblem,
+                        Observation = request.Observation,
+                        RootCause = request.RootCause,
+                        AdjustmentDescription = request.AdjustmentDescription,
+                        // ConditionAfterAdjustment = request.ConditionAfterAdjustment,
+                        ChangeRiskManagementRequired = request.ChangeRiskManagementRequired,
+                        Status = ApprovalTaskStatus.Draft.ToString(),
+                        IsSubmit = request.IsSubmit,
+                        CreatedDate = DateTime.Now,
+                        CreatedBy = request.CreatedBy,
+                        IsDeleted = false
+                    };
+
+                    _context.AdjustmentReports.Add(newReport);
                     await _context.SaveChangesAsync();
-                }
 
-                if (request.Photos != null)
-                {
-                    if (request.Photos.BeforeImages != null && request.Photos.AfterImages != null)
+                    // Get ID of newly added record
+                    adjustMentReportId = newReport.AdjustMentReportId;
+
+                    if (request.ChangeRiskManagement_AdjustmentReport != null)
                     {
-                        var totalRecordsToInsert = request.Photos.BeforeImages.Concat(request.Photos.AfterImages).ToList();
-                        totalRecordsToInsert.ForEach(x => x.AdjustmentReportId = adjustMentReportId);
-
-                        _context.Photos.AddRange(totalRecordsToInsert);
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-
-                if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
-                {
-                    var data = await SubmitRequest(adjustMentReportId, request.EmployeeId);
-                    if (data.StatusCode == Enums.Status.Success)
-                    {
-                        res.Message = Enums.AdjustMentSubmit;
-                    }
-
-                }
-                else if (request.IsSubmit == true && request.IsAmendReSubmitTask == true)
-                {
-                    var data = await Resubmit(adjustMentReportId, request.EmployeeId);
-                    if (data.StatusCode == Enums.Status.Success)
-                    {
-                        res.Message = Enums.AdjustMentSubmit;
-                    }
-                }
-
-                res.ReturnValue = new
-                {
-                    AdjustmentReportId = adjustMentReportId,
-                    AdjustmentReportNo = adjustmentReportNo
-                };
-                res.StatusCode = Status.Success;
-                res.Message = Enums.AdjustMentSave;
-            }
-            else
-            {
-                existingReport.Area = request.Area != null && request.Area.Count > 0 ? string.Join(",", request.Area) : ""; ;
-                existingReport.MachineName = request.MachineName;
-                existingReport.SubMachineName = request.SubMachineName != null && request.SubMachineName.Count > 0 ? string.Join(",", request.SubMachineName) : "";
-                existingReport.EmployeeId = request.EmployeeId;
-                existingReport.RequestBy = request.RequestBy;
-                existingReport.CheckedBy = request.CheckedBy;
-                existingReport.DescribeProblem = request.DescribeProblem;
-                existingReport.Observation = request.Observation;
-                existingReport.RootCause = request.RootCause;
-                existingReport.AdjustmentDescription = request.AdjustmentDescription;
-                existingReport.ConditionAfterAdjustment = request.ConditionAfterAdjustment;
-                existingReport.ChangeRiskManagementRequired = request.ChangeRiskManagementRequired;
-                existingReport.Status = request.Status ?? ApprovalTaskStatus.Draft.ToString();
-                existingReport.IsSubmit = request.IsSubmit;
-                existingReport.ModifiedDate = DateTime.Now;
-                existingReport.ModifiedBy = request.ModifiedBy;
-                await _context.SaveChangesAsync();
-
-                var existingChangeRiskManagement = _context.ChangeRiskManagement_AdjustmentReport.Where(x => x.AdjustMentReportId == existingReport.AdjustMentReportId && x.IsDeleted == false).ToList();
-                existingChangeRiskManagement.ForEach(x => x.IsDeleted = true);
-                _context.SaveChanges();
-
-                if (request.ChangeRiskManagement_AdjustmentReport != null)
-                {
-                    foreach (var changeReport in request.ChangeRiskManagement_AdjustmentReport)
-                    {
-                        var existingChange = _context.ChangeRiskManagement_AdjustmentReport.Where(x => x.AdjustMentReportId == changeReport.AdjustMentReportId && x.ChangeRiskManagementId == changeReport.ChangeRiskManagementId).FirstOrDefault();
-                        if (existingChange != null)
-                        {
-                            existingChange.Changes = changeReport.Changes;
-                            existingChange.FunctionId = changeReport.FunctionId;
-                            existingChange.RisksWithChanges = changeReport.RiskAssociated;
-                            existingChange.Factors = changeReport.Factor;
-                            existingChange.CounterMeasures = changeReport.CounterMeasures;
-                            existingChange.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null;
-                            existingChange.PersonInCharge = changeReport.PersonInCharge;
-                            existingChange.Results = changeReport.Results;
-                            existingChange.ModifiedBy = changeReport.ModifiedBy;
-                            existingChange.ModifiedDate = DateTime.Now;
-                            existingChange.IsDeleted = false;
-                        }
-                        else
+                        foreach (var changeReport in request.ChangeRiskManagement_AdjustmentReport)
                         {
                             var changeRiskData = new ChangeRiskManagement_AdjustmentReport()
                             {
-                                AdjustMentReportId = existingReport.AdjustMentReportId,
+                                AdjustMentReportId = adjustMentReportId,
                                 Changes = changeReport.Changes,
                                 FunctionId = changeReport.FunctionId,
                                 RisksWithChanges = changeReport.RiskAssociated,
@@ -336,113 +254,291 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                         await _context.SaveChangesAsync();
                     }
-                }
 
-                var existingPhotos = _context.Photos.Where(x => x.AdjustmentReportId == existingReport.AdjustMentReportId).ToList();
-                existingPhotos.ForEach(x => x.IsDeleted = true);
-                _context.SaveChanges();
-
-                if (request.Photos != null && request.Photos.BeforeImages != null && request.Photos.AfterImages != null)
-                {
-                    var beforeImages = request.Photos.BeforeImages;
-                    var afterImages = request.Photos.AfterImages;
-
-                    foreach (var attach in beforeImages)
+                    if (request.Photos != null)
                     {
-                        var updatedUrl = attach.DocumentFilePath.Replace($"/{request.EmployeeId}/", $"/{existingReport.ReportNo}/");
-                        var existingAttachData = _context.Photos.Where(x => x.AdjustmentReportId == attach.AdjustmentReportId && x.AdjustmentReportPhotoId == attach.AdjustmentReportPhotoId).FirstOrDefault();
-                        if (existingAttachData != null)
+                        if (request.Photos.BeforeImages != null && request.Photos.AfterImages != null)
                         {
-                            existingAttachData.DocumentName = attach.DocumentName;
-                            existingAttachData.DocumentFilePath = attach.DocumentFilePath;
-                            existingAttachData.SequenceId = attach.SequenceId;
-                            existingAttachData.IsDeleted = false;
-                            existingAttachData.ModifiedBy = attach.ModifiedBy;
-                            existingAttachData.ModifiedDate = DateTime.Now;
-                        }
-                        else
-                        {
+                            var totalRecordsToInsert = request.Photos.BeforeImages.Concat(request.Photos.AfterImages).ToList();
+                            totalRecordsToInsert.ForEach(x => x.AdjustmentReportId = adjustMentReportId);
 
-                            var attachment = new AdjustmentReportPhoto()
+                            _context.Photos.AddRange(totalRecordsToInsert);
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                    if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
+                    {
+                        var data = await SubmitRequest(adjustMentReportId, request.EmployeeId);
+                        if (data.StatusCode == Enums.Status.Success)
+                        {
+                            res.Message = Enums.AdjustMentSubmit;
+                        }
+
+                    }
+                    else if (request.IsSubmit == true && request.IsAmendReSubmitTask == true)
+                    {
+                        var data = await Resubmit(adjustMentReportId, request.EmployeeId);
+                        if (data.StatusCode == Enums.Status.Success)
+                        {
+                            res.Message = Enums.AdjustMentSubmit;
+                        }
+                    }
+
+                    res.ReturnValue = new
+                    {
+                        AdjustmentReportId = adjustMentReportId,
+                        AdjustmentReportNo = adjustmentReportNo
+                    };
+                    res.StatusCode = Status.Success;
+                    res.Message = Enums.AdjustMentSave;
+                }
+                else
+                {
+                    existingReport.Area = request.Area != null && request.Area.Count > 0 ? string.Join(",", request.Area) : ""; ;
+                    existingReport.MachineName = request.MachineName;
+                    existingReport.SubMachineName = request.SubMachineName != null && request.SubMachineName.Count > 0 ? string.Join(",", request.SubMachineName) : "";
+                    //existingReport.EmployeeId = request.EmployeeId;
+                    existingReport.RequestBy = request.RequestBy;
+                    existingReport.CheckedBy = request.CheckedBy;
+                    existingReport.DescribeProblem = request.DescribeProblem;
+                    existingReport.Observation = request.Observation;
+                    existingReport.RootCause = request.RootCause;
+                    existingReport.AdjustmentDescription = request.AdjustmentDescription;
+                    //existingReport.ConditionAfterAdjustment = request.ConditionAfterAdjustment;
+                    existingReport.ChangeRiskManagementRequired = request.ChangeRiskManagementRequired;
+                    existingReport.Status = request.Status ?? ApprovalTaskStatus.Draft.ToString();
+                    existingReport.IsSubmit = request.IsSubmit;
+                    existingReport.ModifiedDate = DateTime.Now;
+                    existingReport.ModifiedBy = request.ModifiedBy;
+                    await _context.SaveChangesAsync();
+
+                    var existingChangeRiskManagement = _context.ChangeRiskManagement_AdjustmentReport.Where(x => x.AdjustMentReportId == existingReport.AdjustMentReportId && x.IsDeleted == false).ToList();
+                    existingChangeRiskManagement.ForEach(x => x.IsDeleted = true);
+                    _context.SaveChanges();
+
+                    if (request.ChangeRiskManagement_AdjustmentReport != null)
+                    {
+                        foreach (var changeReport in request.ChangeRiskManagement_AdjustmentReport)
+                        {
+                            var existingChange = _context.ChangeRiskManagement_AdjustmentReport.Where(x => x.AdjustMentReportId == changeReport.AdjustMentReportId && x.ChangeRiskManagementId == changeReport.ChangeRiskManagementId).FirstOrDefault();
+                            if (existingChange != null)
                             {
-                                AdjustmentReportId = existingReport.AdjustMentReportId,
-                                DocumentName = attach.DocumentName,
-                                DocumentFilePath = updatedUrl,
-                                SequenceId = attach.SequenceId,
-                                IsOldPhoto = attach.IsOldPhoto,
-                                IsDeleted = false,
-                                CreatedBy = attach.CreatedBy,
-                                CreatedDate = DateTime.Now,
-                            };
-                            _context.Photos.Add(attachment);
-                        }
-                        await _context.SaveChangesAsync();
-                    }
-
-                    foreach (var attach in afterImages)
-                    {
-                        var updatedUrl = attach.DocumentFilePath.Replace($"/{request.EmployeeId}/", $"/{existingReport.ReportNo}/");
-                        var existingAttachData = _context.Photos.Where(x => x.AdjustmentReportId == attach.AdjustmentReportId && x.AdjustmentReportPhotoId == attach.AdjustmentReportPhotoId).FirstOrDefault();
-                        if (existingAttachData != null)
-                        {
-                            existingAttachData.DocumentName = attach.DocumentName;
-                            existingAttachData.DocumentFilePath = attach.DocumentFilePath;
-                            existingAttachData.SequenceId = attach.SequenceId;
-                            existingAttachData.IsDeleted = false;
-                            existingAttachData.ModifiedBy = attach.ModifiedBy;
-                            existingAttachData.ModifiedDate = DateTime.Now;
-                        }
-                        else
-                        {
-
-                            var attachment = new AdjustmentReportPhoto()
+                                existingChange.Changes = changeReport.Changes;
+                                existingChange.FunctionId = changeReport.FunctionId;
+                                existingChange.RisksWithChanges = changeReport.RiskAssociated;
+                                existingChange.Factors = changeReport.Factor;
+                                existingChange.CounterMeasures = changeReport.CounterMeasures;
+                                existingChange.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null;
+                                existingChange.PersonInCharge = changeReport.PersonInCharge;
+                                existingChange.Results = changeReport.Results;
+                                existingChange.ModifiedBy = changeReport.ModifiedBy;
+                                existingChange.ModifiedDate = DateTime.Now;
+                                existingChange.IsDeleted = false;
+                            }
+                            else
                             {
-                                AdjustmentReportId = existingReport.AdjustMentReportId,
-                                DocumentName = attach.DocumentName,
-                                DocumentFilePath = updatedUrl,
-                                SequenceId = attach.SequenceId,
-                                IsOldPhoto = attach.IsOldPhoto,
-                                IsDeleted = false,
-                                CreatedBy = attach.CreatedBy,
-                                CreatedDate = DateTime.Now,
-                            };
-                            _context.Photos.Add(attachment);
+                                var changeRiskData = new ChangeRiskManagement_AdjustmentReport()
+                                {
+                                    AdjustMentReportId = existingReport.AdjustMentReportId,
+                                    Changes = changeReport.Changes,
+                                    FunctionId = changeReport.FunctionId,
+                                    RisksWithChanges = changeReport.RiskAssociated,
+                                    Factors = changeReport.Factor,
+                                    CounterMeasures = changeReport.CounterMeasures,
+                                    DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null,
+                                    PersonInCharge = changeReport.PersonInCharge,
+                                    Results = changeReport.Results,
+                                    CreatedBy = changeReport.CreatedBy,
+                                    CreatedDate = DateTime.Now,
+                                    IsDeleted = false,
+                                };
+                                _context.ChangeRiskManagement_AdjustmentReport.Add(changeRiskData);
+                            }
+                            await _context.SaveChangesAsync();
                         }
-                        await _context.SaveChangesAsync();
                     }
-                }
 
-                await _context.SaveChangesAsync();
+                    var existingPhotos = _context.Photos.Where(x => x.AdjustmentReportId == existingReport.AdjustMentReportId).ToList();
+                    existingPhotos.ForEach(x => x.IsDeleted = true);
+                    _context.SaveChanges();
 
-                if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
-                {
-                    var data = await SubmitRequest(existingReport.AdjustMentReportId, existingReport.EmployeeId);
-                    if (data.StatusCode == Enums.Status.Success)
+                    if (request.Photos != null && request.Photos.BeforeImages != null && request.Photos.AfterImages != null)
                     {
-                        res.Message = Enums.AdjustMentSubmit;
+                        var beforeImages = request.Photos.BeforeImages;
+                        var afterImages = request.Photos.AfterImages;
+
+                        foreach (var attach in beforeImages)
+                        {
+                            var updatedUrl = attach.DocumentFilePath.Replace($"/{request.EmployeeId}/", $"/{existingReport.ReportNo}/");
+                            var existingAttachData = _context.Photos.Where(x => x.AdjustmentReportId == attach.AdjustmentReportId && x.AdjustmentReportPhotoId == attach.AdjustmentReportPhotoId).FirstOrDefault();
+                            if (existingAttachData != null)
+                            {
+                                existingAttachData.DocumentName = attach.DocumentName;
+                                existingAttachData.DocumentFilePath = attach.DocumentFilePath;
+                                existingAttachData.SequenceId = attach.SequenceId;
+                                existingAttachData.IsDeleted = false;
+                                existingAttachData.ModifiedBy = attach.ModifiedBy;
+                                existingAttachData.ModifiedDate = DateTime.Now;
+                            }
+                            else
+                            {
+
+                                var attachment = new AdjustmentReportPhoto()
+                                {
+                                    AdjustmentReportId = existingReport.AdjustMentReportId,
+                                    DocumentName = attach.DocumentName,
+                                    DocumentFilePath = updatedUrl,
+                                    SequenceId = attach.SequenceId,
+                                    IsOldPhoto = attach.IsOldPhoto,
+                                    IsDeleted = false,
+                                    CreatedBy = attach.CreatedBy,
+                                    CreatedDate = DateTime.Now,
+                                };
+                                _context.Photos.Add(attachment);
+                            }
+                            await _context.SaveChangesAsync();
+                        }
+
+                        foreach (var attach in afterImages)
+                        {
+                            var updatedUrl = attach.DocumentFilePath.Replace($"/{request.EmployeeId}/", $"/{existingReport.ReportNo}/");
+                            var existingAttachData = _context.Photos.Where(x => x.AdjustmentReportId == attach.AdjustmentReportId && x.AdjustmentReportPhotoId == attach.AdjustmentReportPhotoId).FirstOrDefault();
+                            if (existingAttachData != null)
+                            {
+                                existingAttachData.DocumentName = attach.DocumentName;
+                                existingAttachData.DocumentFilePath = attach.DocumentFilePath;
+                                existingAttachData.SequenceId = attach.SequenceId;
+                                existingAttachData.IsDeleted = false;
+                                existingAttachData.ModifiedBy = attach.ModifiedBy;
+                                existingAttachData.ModifiedDate = DateTime.Now;
+                            }
+                            else
+                            {
+
+                                var attachment = new AdjustmentReportPhoto()
+                                {
+                                    AdjustmentReportId = existingReport.AdjustMentReportId,
+                                    DocumentName = attach.DocumentName,
+                                    DocumentFilePath = updatedUrl,
+                                    SequenceId = attach.SequenceId,
+                                    IsOldPhoto = attach.IsOldPhoto,
+                                    IsDeleted = false,
+                                    CreatedBy = attach.CreatedBy,
+                                    CreatedDate = DateTime.Now,
+                                };
+                                _context.Photos.Add(attachment);
+                            }
+                            await _context.SaveChangesAsync();
+                        }
                     }
 
-                }
-                else if (request.IsSubmit == true && request.IsAmendReSubmitTask == true)
-                {
-                    var data = await Resubmit(existingReport.AdjustMentReportId, existingReport.EmployeeId);
-                    if (data.StatusCode == Enums.Status.Success)
+                    await _context.SaveChangesAsync();
+
+                    if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
                     {
-                        res.Message = Enums.AdjustMentSubmit;
-                    }
-                }
+                        var data = await SubmitRequest(existingReport.AdjustMentReportId, existingReport.CreatedBy);
+                        if (data.StatusCode == Enums.Status.Success)
+                        {
+                            res.Message = Enums.AdjustMentSubmit;
+                        }
 
-                res.ReturnValue = new
-                {
-                    AdjustmentReportId = existingReport.AdjustMentReportId,
-                    AdjustmentReportNo = existingReport.ReportNo
-                };
-                res.StatusCode = Status.Success;
-                res.Message = Enums.AdjustMentSave;
+                    }
+                    else if (request.IsSubmit == true && request.IsAmendReSubmitTask == true)
+                    {
+                        var data = await Resubmit(existingReport.AdjustMentReportId, existingReport.CreatedBy);
+                        if (data.StatusCode == Enums.Status.Success)
+                        {
+                            res.Message = Enums.AdjustMentSubmit;
+                        }
+                    }
+
+                    res.ReturnValue = new
+                    {
+                        AdjustmentReportId = existingReport.AdjustMentReportId,
+                        AdjustmentReportNo = existingReport.ReportNo
+                    };
+                    res.StatusCode = Status.Success;
+                    res.Message = Enums.AdjustMentSave;
+                }
             }
 
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "Adjustment AddOrUpdate");
+
+            }
             return res;
         }
+
+
+        public async Task<AjaxResult> SubmitRequest(int adjustmentReportId, int? createdBy)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var adjustment = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == adjustmentReportId && x.IsDeleted == false).FirstOrDefault();
+                if (adjustment != null)
+                {
+                    adjustment.Status = ApprovalTaskStatus.InReview.ToString();
+                    adjustment.IsSubmit = true;
+                    await _context.SaveChangesAsync();
+                }
+
+                _context.CallAdjustmentReportApproverMaterix(createdBy, adjustmentReportId);
+
+                res.Message = Enums.AdjustMentSubmit;
+                res.StatusCode = Enums.Status.Success;
+
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "Adjustment SubmitRequest");
+                //return res;
+            }
+            return res;
+        }
+
+        public async Task<AjaxResult> Resubmit(int adjustmentReportId, int? createdBy)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var adjustmentApproverTask = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsActive == true).ToList();
+                // equipmentApproverTask.Status = ApprovalTaskStatus.InReview.ToString();
+                // await _context.SaveChangesAsync();
+
+                var adjustment = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == adjustmentReportId && x.IsDeleted == false).FirstOrDefault();
+
+                adjustmentApproverTask.ForEach(x => x.IsActive = false);
+
+                _context.CallAdjustmentReportApproverMaterix(createdBy, adjustmentReportId);
+
+                adjustment.Status = ApprovalTaskStatus.InReview.ToString();
+                adjustment.IsSubmit = true;
+                await _context.SaveChangesAsync();
+
+                res.Message = Enums.AdjustMentReSubmit;
+                res.StatusCode = Enums.Status.Success;
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "Adjustment Resubmit");
+                //return res;
+            }
+            return res;
+        }
+
 
         public async Task<string> GenerateAdjustmentReportNumberAsync()
         {
@@ -577,28 +673,9 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public async Task<AjaxResult> GetAdjustmentReportApproverList(int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "DESC", string searchValue = "")
-        {
-            var result = new AjaxResult();
-            try
-            {
+        #endregion
 
-                result.ReturnValue = await _sprocRepository.GetStoredProcedure("[dbo].[GetAdjustmentReportApproverList]")
-                    .WithSqlParams(
-                            ("@CreatedBy", createdBy),
-                            ("@PageIndex", pageIndex),
-                            ("@PageSize", pageSize),
-                            ("@SortColumn", sortColumn),
-                            ("@Order", orderBy),
-                            ("@Where", searchValue)
-                    ).ExecuteStoredProcedureAsync<AdjustmentReportView>();
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            return result;
-        }
+        #region Approval Flow 
 
         public async Task<AjaxResult> UpdateApproveAskToAmend(ApproveAsktoAmend asktoAmend)
         {
@@ -787,68 +864,9 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public async Task<AjaxResult> SubmitRequest(int adjustmentReportId, int? createdBy)
-        {
-            var res = new AjaxResult();
-            try
-            {
-                var adjustment = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == adjustmentReportId && x.IsDeleted == false).FirstOrDefault();
-                if (adjustment != null)
-                {
-                    adjustment.Status = ApprovalTaskStatus.InReview.ToString();
-                    adjustment.IsSubmit = true;
-                    await _context.SaveChangesAsync();
-                }
+        #endregion
 
-                _context.CallAdjustmentReportApproverMaterix(createdBy, adjustmentReportId);
-
-                res.Message = Enums.AdjustMentSubmit;
-                res.StatusCode = Enums.Status.Success;
-
-            }
-            catch (Exception ex)
-            {
-                res.Message = "Fail " + ex;
-                res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
-                commonHelper.LogException(ex, "Adjustment SubmitRequest");
-                //return res;
-            }
-            return res;
-        }
-
-        public async Task<AjaxResult> Resubmit(int adjustmentReportId, int? createdBy)
-        {
-            var res = new AjaxResult();
-            try
-            {
-                var adjustmentApproverTask = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsActive == true).ToList();
-                // equipmentApproverTask.Status = ApprovalTaskStatus.InReview.ToString();
-                // await _context.SaveChangesAsync();
-
-                var adjustment = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == adjustmentReportId && x.IsDeleted == false).FirstOrDefault();
-
-                adjustmentApproverTask.ForEach(x => x.IsActive = false);
-
-                _context.CallAdjustmentReportApproverMaterix(createdBy, adjustmentReportId);
-
-                adjustment.Status = ApprovalTaskStatus.InReview.ToString();
-                adjustment.IsSubmit = true;
-                await _context.SaveChangesAsync();
-
-                res.Message = Enums.AdjustMentReSubmit;
-                res.StatusCode = Enums.Status.Success;
-            }
-            catch (Exception ex)
-            {
-                res.Message = "Fail " + ex;
-                res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
-                commonHelper.LogException(ex, "Adjustment Resubmit");
-                //return res;
-            }
-            return res;
-        }
+        #region Excel and Pdf
 
         public async Task<AjaxResult> GetAdjustmentReportExcel(DateTime fromDate, DateTime todate, int employeeId, int type)
         {
@@ -1193,5 +1211,7 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             return res;
         }
+
+        #endregion
     }
 }

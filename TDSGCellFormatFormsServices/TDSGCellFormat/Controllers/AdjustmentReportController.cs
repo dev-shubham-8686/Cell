@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DocumentFormat.OpenXml.Drawing.Charts;
+using Microsoft.AspNetCore.Mvc;
 using TDSGCellFormat.Common;
 using TDSGCellFormat.Helper;
 using TDSGCellFormat.Interface.Service;
@@ -22,18 +23,52 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpGet("GetAllAdjustmentData")]
-        public async Task<IActionResult> GetAllAdjustmentData(
-         int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "DESC", string searchValue = "")
+        public async Task<IActionResult> GetAllAdjustmentData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
-            var result = await _tdsgService.GetAllAdjustmentData(pageIndex, pageSize, createdBy, sortColumn, orderBy, searchValue);
-            if (result != null)
-            {
-                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
-            }
+
+            //var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            //// Call the IsValidAuthentication method
+            //AjaxResult authResult;
+            //bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+            //
+            //if (!isValidAuth)
+            //{
+            //    // Return unauthorized response if authentication fails
+            //    Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+            //    return Unauthorized(Ajaxresponse);
+            //}
+
+            var res = await _tdsgService.GetAllAdjustmentData(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
             else
-            {
-                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
-            }
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("MyAdjustmentReq")]
+        public async Task<IActionResult> GetAllAdjustmentMyReqData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            var res = await _tdsgService.GetAllAdjustmentDataMyReq(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+
+        [HttpGet("AdjustmentApprovalList")]
+        public async Task<IActionResult> GetApprovalList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            var res = await _tdsgService.GetAllAdjustmentApproverData(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
             return Ok(Ajaxresponse);
         }
 
@@ -123,21 +158,6 @@ namespace TDSGCellFormat.Controllers
             return Ok(Ajaxresponse);
         }
 
-        [HttpGet("GetApprovalList")]
-        public async Task<IActionResult> GetApprovalList(int pageIndex, int pageSize, int createdBy = 0, string sortColumn = "", string orderBy = "DESC", string searchValue = "")
-        {
-            var result = await _tdsgService.GetAdjustmentReportApproverList(pageIndex, pageSize, createdBy, sortColumn, orderBy, searchValue);
-            if (result != null)
-            {
-                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
-            }
-            else
-            {
-                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
-                //return Ok(Ajaxresponse);
-            }
-            return Ok(Ajaxresponse);
-        }
 
         [HttpPost("UpdateApproveAskToAmend")]
         public async Task<IActionResult> UpdateApproveAskToAmend(ApproveAsktoAmend asktoAmend)
