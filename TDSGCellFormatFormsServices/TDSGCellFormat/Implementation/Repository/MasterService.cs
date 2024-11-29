@@ -263,6 +263,19 @@ namespace TDSGCellFormat.Implementation.Repository
 
             return res;
         }
+        public IQueryable<SectionHeadView> GetSectionHead()
+        {
+            IQueryable<SectionHeadView> res = _context.SectionHeadEmpMasters.Where(x => x.IsActive == true)
+                                            .Select(x => new SectionHeadView
+                                            {
+                                                sectionHeadMasterId = x.SectionHeadMasterId,
+                                                sectionId = x.SectionId,
+                                                sectionHeadName = x.SectionHeadName
+                                            });
+
+            return res;
+        }
+
 
         public IQueryable<SubDeviceView> GetAllSubDevice()
         {
@@ -315,30 +328,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
         }
 
-        public IQueryable<SectionHeadView> GetAllSections(int departmentId)
-        {
-            //int HeadId = _cloneContext.SectionHeadMasters.Where(x => ).
-            IQueryable<SectionHeadView> res = _cloneContext.SectionHeadMasters.Where(x => x.IsActive == true && x.DepartmentId == departmentId)
-
-                                           .Select(x => new SectionHeadView
-
-                                           {
-
-                                               sectionHeadId = x.Sectionid,
-
-                                               head = x.Head,
-                                              headName =  _cloneContext.EmployeeMasters
-                                                         .Where(emp => emp.EmployeeID == x.Head)
-                                                         .Select(emp => emp.EmployeeName)
-                                                         .FirstOrDefault(),
-                                               sectionName = x.SectionName
-
-                                           });
-
-
-
-            return res;
-        }
 
         public IQueryable<EmployeeMasterView> GetCheckedBy()
         {

@@ -18,6 +18,7 @@ public partial class EquipmentImprovementApplication
     public int? SectionHeadId { get; set; }
     public int? MachineId { get; set; }
 
+    public string? OtherMachineName { get; set; }
     public string? SubMachineId  { get; set; }
 
     public string? OtherSubMachine { get; set; }
@@ -40,6 +41,7 @@ public partial class EquipmentImprovementApplication
     public int? ResultMonitoring { get; set; }
     public DateTime? ResultMonitorDate { get; set; }
 
+    public string? PCRNNumber { get; set; }
     public bool? IsResultSubmit { get; set; }
 
     public bool? ToshibaTeamDiscussion { get; set; }
@@ -72,8 +74,7 @@ public partial class EquipmentImprovementApplication
 
     public virtual ICollection<EquipmentAdvisorMaster> EquipmentAdvisorMaster { get; set; } = new List<EquipmentAdvisorMaster>();
 
-    [ForeignKey("MachineId")]
-    public virtual Machine? Machine { get; set; }
+    
 
     [ForeignKey("SectionId")]
     public virtual SectionMaster? SectionMaster { get; set; }

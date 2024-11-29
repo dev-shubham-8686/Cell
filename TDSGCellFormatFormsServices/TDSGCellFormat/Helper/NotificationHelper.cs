@@ -208,12 +208,12 @@ namespace TDSGCellFormat.Helper
                 //string? templateFilePath = null;
 
                 //prod link
-                string? documentLink = _configuration["SPSiteUrl"] +
-                 "/SitePages/Trouble-Report.aspx#/";
+                // string? documentLink = _configuration["SPSiteUrl"] +
+                // "/SitePages/Trouble-Report.aspx#/";
 
                 //stage link
-                //string? documentLink = _configuration["SPSiteUrl"] +
-               // "/SitePages/CellFormatStage.aspx#/";
+                string? documentLink = _configuration["SPSiteUrl"] +
+                 "/SitePages/CellFormatStage.aspx#/";
 
                 StringBuilder emailBody = new StringBuilder();
                 if (requestId > 0)
@@ -718,7 +718,7 @@ namespace TDSGCellFormat.Helper
                                 // Call SendEmailNotification with filtered lists
                                 emailSent = SendEmailNotification(distinctToAddresses, distinctCCAddresses, emailBody, emailSubject);
 
-                               // emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
+                                // emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
                                 // InsertHistoryData(troubleReportId, FormType.TroubleReport.ToString(), "Raiser", "Form Send to Manager", ApprovalTaskStatus.InProcess.ToString(), userId, HistoryAction.SendToManager.ToString(), 0);
 
                                 var requestData = new EmailLogMaster()
@@ -776,12 +776,12 @@ namespace TDSGCellFormat.Helper
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
 
                 //stage link
-                 // string? documentLink = _configuration["SPSiteUrl"] +
-               // "/SitePages/MaterialConsumptionSlip.aspx#/form/";
+                string? documentLink = _configuration["SPSiteUrl"] +
+                "/SitePages/MaterialConsumptionSlip.aspx#/form/";
 
                 //prod link
-                  string? documentLink = _configuration["SPSiteUrl"] +
-                 "/SitePages/MaterialConsumptionSlip.aspx#/form/";
+                // string? documentLink = _configuration["SPSiteUrl"] +
+                //"/SitePages/MaterialConsumptionSlip.aspx#/form/";
 
                 if (requestId > 0)
                 {
@@ -1047,34 +1047,470 @@ namespace TDSGCellFormat.Helper
                 bool isInReviewTask = false;
                 bool isRequestorinToEmail = false;
                 bool isRequestorinCCEmail = false;
-                bool isIsAmendTask = false;
+                bool isSectionHeadIncc = false, isSectionHeadInTo = false;
+                bool isIsAmendTask = false, allApprover = false, isLogicalAmend = false;
                 string? requesterUserName = null, requesterUserEmail = null;
+                int reqDeptId = 0;
                 bool approvelink = false;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
+                string? Role = null;
+                bool isEditable = false, isPullBacked = false;
 
                 //stage link
-                // string? documentLink = _configuration["SPSiteUrl"] +
-                // "/SitePages/MaterialConsumptionSlip.aspx#/material-consumption-slip/";
+                string? documentLink = _configuration["SPSiteUrl"] +
+                 "/SitePages/EquipmentReport.aspx#/form/";
 
                 //prod link
-                string? documentLink = _configuration["SPSiteUrl"] +
-               "/SitePages/MaterialConsumptionSlip.aspx#/form/";
+                //string? documentLink = _configuration["SPSiteUrl"] +
+                //"/SitePages/MaterialConsumptionSlip.aspx#/form/";
 
-                if(requestId > 0)
+                if (requestId > 0)
                 {
                     var equipmentData = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == requestId && x.IsDeleted == false).FirstOrDefault();
                     var equipmentNo = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == requestId && x.IsDeleted == false).Select(x => x.EquipmentImprovementNo).FirstOrDefault();
+                    var sectionName = _context.SectionMasters.Where(x => x.SectionId == equipmentData.SectionId && x.IsActive == true).Select(x => x.SectionName).FirstOrDefault();
+                    var areaIds = equipmentData.AreaId.Split(',').Select(id => int.Parse(id)).ToList();
+                    var areaNames = new List<string>();
+                    foreach (var id in areaIds)
+                    {
+                        // Query database or use a dictionary/cache to get the name
+                        var areaName = _context.Areas.Where(x => x.AreaId == id && x.IsActive == true).Select(x => x.AreaName).FirstOrDefault(); // Replace this with your actual DB logic
+                        if (!string.IsNullOrEmpty(areaName))
+                        {
+                            areaNames.Add(areaName);
+                        }
+                    }
 
-                    if(equipmentData != null)
+                    var areaNamesString = string.Join(", ", areaNames);
+
+                    if (equipmentData != null)
                     {
                         if (equipmentData.CreatedBy > 0)
                         {
                             EmployeeMaster? requestorUserDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == equipmentData.CreatedBy && x.IsActive == true).FirstOrDefault();
                             requesterUserName = requestorUserDetails?.EmployeeName;
                             requesterUserEmail = requestorUserDetails?.Email;
+                            reqDeptId = requestorUserDetails.DepartmentID;
                         }
 
-                        var approverData = _context.GetEquipmentWorkFlowData(requestId);
+                        var approverData = await _context.GetEquipmentWorkFlowData(requestId);
+
+
+                        switch (emailNotification)
+                        {
+                            case EmailNotificationAction.Submitted:
+                                templateFile = "Equipment_Submitted.html";
+                                emailSubject = string.Format("[Action required!] Equipment Improvement_{0} has been Submitted for Approval", equipmentNo);
+                                isInReviewTask = true;
+                                approvelink = true;
+                                break;
+
+                            case EmailNotificationAction.ReSubmitted:
+                                templateFile = "Equipment_Resubmitted.html";
+                                emailSubject = string.Format("[Action required!] Equipment Improvement_{0} has been Resubmitted for Approval", equipmentNo);
+                                isInReviewTask = true;
+                                approvelink = true;
+                                isRequestorinCCEmail = true;
+                                break;
+
+                            case EmailNotificationAction.Approved:
+                                templateFile = "Equipment_Approved.html";
+                                emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Approved", equipmentNo);
+                                isInReviewTask = true;
+                                approvelink = true;
+                                isRequestorinCCEmail = true;
+                                break;
+
+                            case EmailNotificationAction.Amended:
+                                templateFile = "Equipment_Amend.html";
+                                emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Asked for Amendment", equipmentNo);
+                                isRequestorinToEmail = true;
+                                isIsAmendTask = true;
+                                isEditable = true;
+                                break;
+
+                            case EmailNotificationAction.LogicalAmend:
+                                templateFile = "Equipment_LogicalAmend.html";
+                                emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Asked for Logical Amendment", equipmentNo);
+                                isRequestorinToEmail = true;
+                                isLogicalAmend = true;
+                                isEditable = true;
+                                break;
+
+                            case EmailNotificationAction.Rejected:
+                                templateFile = "Equipment_Rejected.html";
+                                emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Rejected", equipmentNo);
+                                isRequestorinToEmail = true;
+                                allApprover = true;
+                                break;
+
+                            case EmailNotificationAction.PullBack:
+                                templateFile = "Equipment_PullBack.html";
+                                emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Pull Backed", equipmentNo);
+                                isRequestorinCCEmail = true;
+                                isPullBacked = true;
+                                break;
+
+                            case EmailNotificationAction.Completed:
+                                templateFile = "Equipment_Completed.html";
+                                emailSubject = string.Format("[Action taken!]  Equipment Improvement_{0} has been Completed", equipmentNo);
+                                isRequestorinToEmail = true;
+                                break;
+
+                            case EmailNotificationAction.W1Completed:
+                                templateFile = "Equipment_W1Completed.html";
+                                emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Approved", equipmentNo);
+                                isSectionHeadIncc = true;
+                                isRequestorinToEmail = true;
+                                isEditable = true;
+                                break;
+
+                            case EmailNotificationAction.UnderImplementation:
+                                templateFile = "Equipment_UnderImplementation.html";
+                                emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} Target Date Entered", equipmentNo);
+                                isSectionHeadInTo = true;
+                                break;
+
+                            case EmailNotificationAction.ResultMonitoring:
+                                templateFile = "Equipment_ResultSubmit.html";
+                                emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} Actual Date Entered", equipmentNo);
+                                isSectionHeadInTo = true;
+                                break;
+
+                            case EmailNotificationAction.ResultSubmit:
+                                templateFile = "Equipment_ResultSubmit.html";
+                                emailSubject = string.Format("[Action required!] Equipment Improvement_{0} Result Section has been Submitted for Approval", equipmentNo);
+                                isSectionHeadInTo = true;
+                                approvelink = true;
+                                break;
+
+                            case EmailNotificationAction.ResultApprove:
+                                templateFile = "Equipment_ResultSubmit.html";
+                                emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} Result Section has been Approved", equipmentNo);
+                                isRequestorinToEmail = true;
+                                allApprover = true;
+                                break;
+
+                            case EmailNotificationAction.ToshibaTeamDiscussion:
+                                templateFile = "Equipment_ToshibaTeamDiscussion.html";
+                                emailSubject = string.Format("[Action taken!]  Equipment Improvement_{0} Toshiba Team Discussion Required", equipmentNo);
+                                isRequestorinCCEmail = true;
+                                break;
+
+                            case EmailNotificationAction.ToshibaTeamApproval:
+                                templateFile = "Equipment_ToshibaTeamApproval.html";
+                                emailSubject = string.Format("[Action taken!]  Equipment Improvement_{0} Toshiba Team Approval Required", equipmentNo);
+                                isRequestorinCCEmail = true;
+                                break;
+
+                            case EmailNotificationAction.PcrnRequired:
+                                templateFile = "Equipment_PcrnRequired.html";
+                                emailSubject = string.Format("[Action required!]  Equipment Improvement_{0} PCRN Required", equipmentNo);
+                                isRequestorinToEmail = true;
+                                isEditable = true;
+
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (isPullBacked)
+                        {
+                            foreach(var item in approverData)
+                            {
+                                if(item.Status != ApprovalTaskStatus.Pending.ToString())
+                                {
+                                    emailToAddressList.Add(item.email);
+                                }
+                            }
+                        }
+
+                        if (isInReviewTask)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    var task = approverData.FirstOrDefault(item =>
+                                                       item.Status == ApprovalTaskStatus.InReview.ToString()
+                                                       && item.ApproverTaskId == nextApproverTaskId);
+                                    if (task != null)
+                                    {
+                                        if (task.SequenceNo == 3)
+                                        {
+                                            var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1).Select(x => x.Head).ToList();
+                                            foreach (var dept in userOtherDepId)
+                                            {
+                                                var deptEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == dept && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                                emailCCAddressList.Add(deptEmail);
+                                            }
+                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId == equipmentData.SectionHeadId).Select(x => x.EmployeeId).FirstOrDefault();
+
+
+                                            var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == sectionHeadId && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                            emailCCAddressList.Add(sectionEmail);
+
+                                            emailToAddressList.Add(task.email);
+                                        }
+                                        else if (item.SequenceNo == 2)
+                                        {
+                                            emailToAddressList.Add(task.email);
+                                        }
+                                        else
+                                        {
+                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId != equipmentData.SectionHeadId).Select(x => x.EmployeeId).ToList();
+                                            foreach (var section in sectionHeadId)
+                                            {
+                                                var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == section && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                                emailCCAddressList.Add(sectionEmail);
+                                            }
+                                            emailToAddressList.Add(task.email);
+                                        }
+                                    }
+
+                                }
+                            }
+                            else
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    var task = approverData.FirstOrDefault(item =>
+                                                       item.Status == ApprovalTaskStatus.InReview.ToString()
+                                                       );
+                                    if (task != null)
+                                    {
+                                        if (task.SequenceNo == 3)
+                                        {
+                                            var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true).Select(x => x.Head).ToList();
+                                            foreach (var dept in userOtherDepId)
+                                            {
+                                                var deptEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == dept && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                                emailCCAddressList.Add(deptEmail);
+                                            }
+
+                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId == equipmentData.SectionHeadId).Select(x => x.EmployeeId).FirstOrDefault();
+
+
+                                            var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == sectionHeadId && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                            emailCCAddressList.Add(sectionEmail);
+
+                                            emailToAddressList.Add(task.email);
+                                        }
+                                        else if (task.SequenceNo == 2)
+                                        {
+                                            emailToAddressList.Add(task.email);
+                                        }
+                                        else if(task.SequenceNo == 1)
+                                        {
+                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId != equipmentData.SectionHeadId).Select(x => x.EmployeeId).ToList();
+                                            foreach (var section in sectionHeadId)
+                                            {
+                                                var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == section && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                                emailCCAddressList.Add(sectionEmail);
+                                            }
+                                            emailToAddressList.Add(task.email);
+                                        }
+                                        else
+                                        {
+                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId == equipmentData.SectionHeadId).Select(x => x.EmployeeId).FirstOrDefault();
+
+                                            var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == sectionHeadId && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                            emailCCAddressList.Add(sectionEmail);
+                                            emailToAddressList.Add(task.email);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (isApprovedtask)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.Approved.ToString() && item.ApproverTaskId == nextApproverTaskId)
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.Approved.ToString())
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (isRequestorinCCEmail)
+                        {
+                            emailCCAddressList.Add(requesterUserEmail);
+
+                            if (emailNotification == EmailNotificationAction.ToshibaTeamApproval || emailNotification == EmailNotificationAction.ToshibaTeamDiscussion)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if ((item.SequenceNo == 2 || item.SequenceNo == 5) && item.WorkFlowlevel == 1)
+                                    {
+                                        emailToAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (isRequestorinToEmail)
+                        {
+                            emailToAddressList.Add(requesterUserEmail);
+                        }
+
+                        if (isSectionHeadIncc)
+                        {
+                            foreach (var item in approverData)
+                            {
+                                if (item.SequenceNo == 1 && item.WorkFlowlevel == 1)
+                                {
+                                    emailCCAddressList.Add(item.email);
+                                }
+                            }
+                        }
+
+                        if (isSectionHeadInTo)
+                        {
+                            foreach (var item in approverData)
+                            {
+                                if (item.SequenceNo == 1 && item.WorkFlowlevel == 1)
+                                {
+                                    emailToAddressList.Add(item.email);
+                                }
+                            }
+                            if (emailNotification == EmailNotificationAction.ResultSubmit)
+                            {
+                                var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId != equipmentData.SectionHeadId).Select(x => x.EmployeeId).ToList();
+                                foreach (var section in sectionHeadId)
+                                {
+                                    var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == section && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                    emailCCAddressList.Add(sectionEmail);
+                                }
+                            }
+                        }
+
+                        if (isIsAmendTask)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.UnderAmendment.ToString() && item.ApproverTaskId == nextApproverTaskId)
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (isLogicalAmend)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.LogicalAmendment.ToString() && item.ApproverTaskId == nextApproverTaskId)
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+                                foreach (var i in approverData)
+                                {
+                                    if (i.SequenceNo == 2 && i.WorkFlowlevel == 1)
+                                    {
+                                        emailToAddressList.Add(i.email);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (allApprover)
+                        {
+                            foreach (var item in approverData)
+                            {
+                                emailCCAddressList.Add(item.email);
+                            }
+                        }
+
+                        if (nextApproverTaskId > 0)
+                        {
+                            var approvalData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == requestId && x.Status == ApprovalTaskStatus.Approved.ToString() && x.IsActive == true)
+                                .OrderByDescending(x => x.ApproverTaskId)
+                                .FirstOrDefault();
+                            Role = approvalData?.Role;
+                        }
+
+                        if (!string.IsNullOrEmpty(templateFile))
+                        {
+                            string baseDirectory = AppContext.BaseDirectory;
+                            string docLink = documentLink + "view/" + requestId;
+                            templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
+                            if (!string.IsNullOrEmpty(templateFilePath))
+                            {
+                                emailBody.Append(System.IO.File.ReadAllText(templateFilePath));
+                            }
+                            if (emailBody?.Length > 0)
+                            {
+                                if (approvelink)
+                                {
+                                    docLink = documentLink.Replace("#", "?action=approval#") + "edit/" + requestId;
+                                }
+                                else
+                                {
+                                    if (isEditable)
+                                    {
+                                        docLink = documentLink + "edit/" + requestId;
+                                    }
+                                    else
+                                    {
+                                        docLink = documentLink + "view/" + requestId;
+                                    }
+                                   
+                                }
+
+                                emailBody = emailBody.Replace("#EquipmentLink#", docLink);
+                                emailBody = emailBody.Replace("#ApplicationNo#", equipmentNo);
+                                emailBody = emailBody.Replace("#Improvement#", equipmentData.ImprovementName);
+                                emailBody = emailBody.Replace("#Area#", areaNamesString);
+                                emailBody = emailBody.Replace("#Section#", sectionName);
+                                emailBody = emailBody.Replace("#Requestor#", requesterUserName);
+                                emailBody = emailBody.Replace("#Comment#", comment);
+                                emailBody = emailBody.Replace("#Role#", Role);
+                                emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
+                                emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
+                                var requestData = new EmailLogMaster()
+                                {
+                                    FormId = requestId,
+                                    EmailBody = emailBody.ToString(),
+                                    EmailCC = string.Join(",", emailCCAddressList.Distinct().ToList()),
+                                    EmailTo = string.Join(",", emailToAddressList.Distinct().ToList()),
+                                    EmailSubject = emailSubject.ToString(),
+                                    EmailSentTime = DateTime.Now,
+                                    isDelete = false,
+                                    IsEmailSent = emailSent,
+                                };
+                                _context.EmailLogMasters.Add(requestData);
+                                await _context.SaveChangesAsync();
+                            }
+                        }
                     }
                 }
             }
