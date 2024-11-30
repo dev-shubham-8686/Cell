@@ -12,6 +12,8 @@ import useEquipmentReportByID from "../../apis/equipmentReport/useEquipmentRepor
 import WorkFlowButtons from "../common/WorkFlowButtons";
 import useGetApproverFlowData from "../../apis/workflow/useGetApprovalFlowData";
 import useGetCurrentApproverData from "../../apis/workflow/useGetCurrentApprover";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
 type TabName = "form" | "history" | "workflow";
 
@@ -22,12 +24,12 @@ const EquipmentReportLayout: React.FC<EquipmentReportLayoutProps> = ({}) => {
   const { id, mode } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isApproverRequest, currentTabState, fromReviewTab } =
+  const { isApproverRequest, currentTabState, fromReviewTab ,allReq } =
     location.state || {};
   const [currentTab, setCurrentTab] = useState<TabName>("form");
   const equipmentReport = useEquipmentReportByID(id ? parseInt(id) : undefined);
 
-console.log("EQ Report data",equipmentReport?.data)
+console.log("allReq",equipmentReport?.data,location.state)
 const {data:approverFlowData} = useGetApproverFlowData(
   id ? parseInt(id) : undefined
 );
@@ -37,10 +39,10 @@ const currentApprover = useGetCurrentApproverData(
 );
 
   const onBackClick = (): void => {
-    console.log("CURRENTSTATE", currentTabState, fromReviewTab);
-    navigate("/equipment-improvement-report", {
+    console.log("CURRENTSTATE", currentTabState, fromReviewTab ,allReq);
+    navigate("/", {
       state: {
-        currentTabState: isApproverRequest ? "myapproval-tab" : "myrequest-tab",
+        currentTabState: isApproverRequest ? "myapproval-tab": allReq? "allrequest-tab": "myrequest-tab",
       },
     });
   };
@@ -64,7 +66,7 @@ const currentApprover = useGetCurrentApproverData(
   ];
 
   return (
-    <Page title="Equipment Report Form">
+    <Page title="Equipment Improvement Form">
       <div
         className="content w-100 d-flex flex-column"
         style={{
@@ -77,7 +79,7 @@ const currentApprover = useGetCurrentApproverData(
             type="button"
             onClick={onBackClick}
           >
-            <i className="fa-solid fa-circle-chevron-left" />
+            <FontAwesomeIcon style={{marginRight:"5px"}} icon={faCircleChevronLeft} />
             Back
           </button>
           <div className=" justify-content-right mr-50">

@@ -17,6 +17,7 @@ interface ITable {
   url: string;
   columns: ColumnsType<AnyObject>;
   paginationRequired: boolean;
+  refetchKey?: number;
 }
 
 interface IColumnFilter {
@@ -32,7 +33,7 @@ export const pageSizeOptions: DefaultOptionType[] = [
   { label: "100 / page", value: 100 },
 ];
 
-const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
+const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey}) => {
   const user = useContext(UserContext);
   const { isLoading, data, mutate } = useTable();
   const [currentPage, setCurrentPage] = useState(1);
@@ -159,7 +160,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
       
       console.log("data",data,columns)
     }
-  }, [url, currentPage, pageSize, order, orderBy, columnFilter,id,user.employeeId]);
+  }, [url, currentPage, pageSize, order, orderBy, columnFilter,id,user.employeeId,refetchKey]);
   console.log("DATA",data)
   return (
     <>
@@ -227,11 +228,11 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
             buttonText=""
             onCancel={undefined}
           />
-          
+         {/* <div className="table"> */}
       <AntdTable
         columns={columns}
         dataSource={data}
-        scroll={{ x: "max-content" }}
+        scroll={{ x: "max-content", y:"300px" }}
         loading={isLoading}
         onChange={onChange}
         pagination={{
@@ -255,6 +256,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
           ),
         }}
       />
+      {/* </div>  */}
     </>
   );
 };

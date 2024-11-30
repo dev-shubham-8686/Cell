@@ -78,11 +78,12 @@ const CommonTable = <T extends object>({
       dataSource={dataSource}
       columns={columns}
       rowKey={rowKey}
+      
       pagination={paginationConfig}
       onChange={handleTableChange}
       expandable={expandable}
       scroll={scroll}
-      rowClassName={"bg-white-200"}
+      // rowClassName={"bg-white-200"}
       expandedRowRender={expandedRowRender} // Added this line
     />
   );

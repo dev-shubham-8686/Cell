@@ -202,5 +202,9 @@
   @extend .request-section;
   border: 1px solid #e5eaee !important;
 }
+.form{
+  max-height: 500px;
+  overflow-y: auto;
+}
 
 // Form Layout ends

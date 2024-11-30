@@ -7,6 +7,7 @@ import useGetTargetDate from "../../apis/workflow/useGetTargetDate";
 import { useParams } from "react-router-dom";
 import { DATE_FORMAT, DocumentLibraries } from "../../GLOBAL_CONSTANT";
 import FileUpload from "../fileUpload/FileUpload";
+import { IUser } from "../../apis/user/useUser";
 import { UserContext } from "../../context/userContext";
 
 export interface ITextBoxModal {
@@ -29,6 +30,7 @@ export interface ITextBoxModal {
   isQCHead?: boolean;
   approvedByToshiba?: boolean;
   EQReportNo?: string;
+  IsPCRNRequired?:boolean;
 }
 export interface IEmailAttachments {
   EquipmentId: number;
@@ -57,6 +59,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   onSubmit,
   approvedByToshiba,
   EQReportNo,
+  IsPCRNRequired
 }) => {
   const { id } = useParams();
   const [form] = Form.useForm();
@@ -65,14 +68,25 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   const [emailAttachments, setEmailAttachments] = useState<
     IEmailAttachments[] 
   >([]);
-  const user = useContext(UserContext);
+  const user:IUser = useContext(UserContext);
   // const targetDate = useGetTargetDate();
   useEffect(() => {
     
-      if (isQCHead) {
+      if (isQCHead || user?.isAdmin) {
         if(toshibaApprovaltargetDate){
         form.setFieldsValue({
           TargetDate: dayjs(toshibaApprovaltargetDate, DATE_FORMAT),
+        });
+        if(IsPCRNRequired!=null){
+          
+          form.setFieldsValue({
+            pcrnAttachmentsRequired: IsPCRNRequired
+          });
+        }
+      }
+      else if (toshibadiscussiontargetDate && user?.isAdmin) {
+        form.setFieldsValue({
+          TargetDate: dayjs(toshibadiscussiontargetDate, DATE_FORMAT),
         });
       }
       } else if (toshibadiscussiontargetDate) {
@@ -143,10 +157,10 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
             <></>
           )}
 
-          {isQCHead && toshibaApproval && !toshibaApprovaltargetDate ? (
+          {(isQCHead || user?.isAdmin) && toshibaApproval  ? (
             <>
               <Form.Item
-                label="PCRN Attachments Required"
+                label="PCRN  Required"
                 name="pcrnAttachmentsRequired"
                 rules={[{ required: true, message: "Please select" }]}
               >
@@ -189,7 +203,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
               <FileUpload
                 isEmailAttachments={true}
                 key={`email-Attachments`}
-                folderName={EQReportNo ?? user?.employeeId}
+                folderName={EQReportNo ?? user?.employeeId.toString()}
                 subFolderName={"Email Attachments"}
                 libraryName={DocumentLibraries.EQ_Report}
                 files={emailAttachments?.map((a) => ({
@@ -224,10 +238,10 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
                   console.log("File Added");
                 }}
                 onRemoveFile={(documentName: string) => {
-                  const existingAttachments: any = emailAttachments ?? [];
+                  const existingAttachments: IEmailAttachments[] = emailAttachments ?? [];
 
                   const updatedAttachments = existingAttachments?.filter(
-                    (doc) => doc.ImprovementDocName !== documentName
+                    (doc) => doc.EmailDocName !== documentName
                   );
                   setEmailAttachments(updatedAttachments);
                   console.log("File Removed");

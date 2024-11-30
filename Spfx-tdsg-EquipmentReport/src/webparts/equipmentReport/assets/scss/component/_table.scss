@@ -126,6 +126,10 @@ p.text-cell {
 //   -webkit-overflow-scrolling: touch;
 // }
 
+.table{
+  max-height: 400px;
+  // overflow-y: auto;
+}
 .workflow-table {
   width: 100%;
   border-collapse: collapse;

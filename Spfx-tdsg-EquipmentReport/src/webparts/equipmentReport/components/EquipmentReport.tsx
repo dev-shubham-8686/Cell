@@ -1,5 +1,4 @@
 import * as React from "react";
-import styles from "./EquipmentReport.module.scss";
 import type { IEquipmentReportProps } from "./IEquipmentReportProps";
 import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import EquipmentReportLayout from "./pages/EquipmentReportLayout";
@@ -7,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import { UserProvider } from "../context/userContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WebPartContext } from "../context/webpartContext";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
@@ -23,19 +23,20 @@ export default class EquipmentReport extends React.Component<IEquipmentReportPro
             <HashRouter>
               <Routes>
                 <Route
-                  path="/"
+                  path="/equipment-improvement-report"
                   element={
-                    <Navigate to="/equipment-improvement-report" replace />
+                    <Navigate to="/" replace />
                   }
                 />
                 <Route
-                  path="/equipment-improvement-report"
+                  path="/"
                   element={<Dashboard />}
                 />
                 <Route
-                  path="/equipment-improvement-report/form/:mode/:id?"
+                  path="/form/:mode?/:id?"
                   element={<EquipmentReportLayout />}
                 />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </HashRouter>
           </UserProvider>
