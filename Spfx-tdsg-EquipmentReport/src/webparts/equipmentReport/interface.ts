@@ -6,10 +6,12 @@ import dayjs from "dayjs";
 export  interface IEquipmentImprovementReport {
   EquipmentImprovementId?:number;
   EquipmentImprovementNo?: string,
-  AreaId:number,
+  AreaId:number[],
   When: string;
   MachineName: string;
+  OtherMachineName?:string;
   SubMachineName:number[]
+  otherSubMachine?:string;
   Purpose: string;
   CurrentSituation: string;
   ImprovementName:string;
@@ -44,9 +46,10 @@ export  interface IEquipmentImprovementReport {
 export interface IResultAfterImplementation {
   IsResultSubmit: boolean;
   ActualDate: string;
+  PCRNNumber?:string;
   TargetDate: string;
   ResultStatus:string;
-  ResultMonitoring:string;
+  ResultMonitoringId:number;
   ResultMonitoringDate:string;
   IsResultAmendSubmit?:boolean
 }

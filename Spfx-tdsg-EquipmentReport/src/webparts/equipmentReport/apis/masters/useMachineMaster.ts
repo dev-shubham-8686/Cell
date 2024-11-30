@@ -8,7 +8,7 @@ export interface IMachineMaster {
   MachineName: string;
 }
 
-const getDeviceMaster = async () => {
+const getMachineMaster = async () => {
   try {
     const response = await http.get<{ReturnValue: IMachineMaster[]}>(GET_MACHINE_MASTER);
      
@@ -18,15 +18,15 @@ const getDeviceMaster = async () => {
       return tabledata;
     }
   } catch (error) {
-    console.error("Error fetching Device master", error);
+    console.error("Error fetching Machine master", error);
     return null;
   }
 };
 
-const useDeviceMaster = () =>
+const useMachineMaster = () =>
   useQuery<IMachineMaster[]>({
     queryKey: ["device-master"],
-    queryFn: () => getDeviceMaster(),
+    queryFn: () => getMachineMaster(),
   });
 
-export default useDeviceMaster;
+export default useMachineMaster;

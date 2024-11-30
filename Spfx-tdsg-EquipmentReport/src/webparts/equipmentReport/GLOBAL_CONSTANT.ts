@@ -33,15 +33,14 @@ export const Message = {
 
 
 export const SERVICE_URL =
-  "https://localhost:44353/"; //dev    TODO: update before deployment
+  // "https://localhost:44353"; //dev    TODO: update before deployment
+  "https://cellformservice-stage.tdsgj.co.in"; //stage
 
 
 
 export const WEB_URL =
-  // "https://synopsandbox.sharepoint.com/sites/e-app-stage"; //dev   TODO: update before deployment
-  "https://synopsandbox.sharepoint.com/sites/Training2024"; //dev   TODO: update before deployment
-// "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA";   //QA
-// "https://tdsgj.sharepoint.com/sites/e-app-stage"; //stage
+  // "https://synopsandbox.sharepoint.com/sites/Training2024"; //dev   TODO: update before deployment
+"https://tdsgj.sharepoint.com/sites/e-app-stage"; //stage
 
 export const DATE_TIME_FORMAT = "DD-MM-YYYY HH:mm:ss";
 export const DATE_FORMAT = "DD-MM-YYYY";
