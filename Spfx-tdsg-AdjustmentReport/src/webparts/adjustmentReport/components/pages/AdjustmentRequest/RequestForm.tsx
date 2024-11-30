@@ -10,19 +10,20 @@ import { IArea } from "../../../api/GetAllAreas.api";
 import { useEffect, useState } from "react";
 import { useGetCheckedBy } from "../../../hooks/useGetCheckedBy";
 import { useGetAllAreas } from "../../../hooks/useGetAllAreas";
-import { ChangeRiskManagement } from "../../../api/AddUpdateReport.api";
+import {
+  ChangeRiskManagement,
+  IAddUpdateReportPayload,
+} from "../../../api/AddUpdateReport.api";
 import { useUserContext } from "../../../context/UserContext";
 import { useGetAdjustmentReportById } from "../../../hooks/useGetAdjustmentReportById";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import FileUpload from "../fileUpload/FileUpload";
-import { DocumentLibraries } from "../../../GLOBAL_CONSTANT";
+import { DocumentLibraries, OPERATION } from "../../../GLOBAL_CONSTANT";
 import { IAdjustmentReportPhoto } from "../../../interface";
-// import displayjsx from "../../../utils/displayjsx";
-// import { checkAndCreateFolder, uploadFile } from "../../common/fileUploadApi";
-// import { WebPartContext } from "../../../context/WebPartContext";
-// import { ChangeRiskManagement } from "../../../api/AddUpdateReport.api";
+import { useAddUpdateReport } from "../../../hooks/useAddUpdateReport";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
-// const { TextArea } = Input;
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -34,7 +35,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const [form] = Form.useForm();
   const currentDateTime = dayjs();
   const { user } = useUserContext();
-
+  const navigate = useNavigate();
   const location = useLocation();
   const { isApproverRequest } = location.state || {};
   console.log({ isApproverRequest });
@@ -49,7 +50,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     useState(false);
   const [showRemarks, setShowRemarks] = useState(false);
   const [hideOptions, setHideOptions] = useState(false);
-  const [cRMRequired, setCRMRequired] = React.useState<boolean | null>(null);
+  const [cRMRequired, setCRMRequired] = React.useState<boolean>(false);
   const [formSections, setFormSections] = React.useState<number[]>([0]); // Initially, one form section
   const [selectedMachineId, setSelectedMachineId] = useState<number | null>(
     null
@@ -78,7 +79,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const { data: reportData } = useGetAdjustmentReportById(
     id ? parseInt(id, 10) : 0
   );
-
+  console.log("GetByIdData", reportData);
+  const { mutate: addUpdateReport } = useAddUpdateReport();
   // Use effect to sync files with form field value
   useEffect(() => {
     // Update the beforeImages field with the latest files count
@@ -307,29 +309,84 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     console.log({ formSections });
   };
 
-  const onFinish = (values: any) => {
+  const deleteFormSection = (sectionIndex: number) => {
+    setFormSections((prevSections) =>
+      prevSections.filter((_, index) => index !== sectionIndex)
+    );
+    console.log("CR after deleting ",formSections)
+    console.log(`Deleted section at index: ${sectionIndex}`);
+  };
+
+  const CreatePayload = (values: any,operation?:any) => {
+    console.log({ values });
+    const beforeImages: IAdjustmentReportPhoto[] = values.beforeImages;
+    const afterImages: IAdjustmentReportPhoto[] = values.afterImages;
+
+    const payload: IAddUpdateReportPayload = {
+      AdjustmentReportId: id ? parseInt(id, 10) : 0,
+      EmployeeId: user?.EmployeeId,
+      ReportNo: values.reportNo, //done
+      RequestBy: values.requestedBy, //done
+      CheckedBy: values.checkedBy, //done
+      When: values.dateTime, // need to confirm
+      Area: values.area, //done
+      MachineName: values.machineName, //done
+      SubMachineName: values.subMachineName, //done
+      DescribeProblem: values.describeProblem, //done
+      Observation: values.observation, //done
+      RootCause: values.rootCause, //done
+      AdjustmentDescription: values.adjustmentDescription, //done
+      ConditionAfterAdjustment: values.conditionAfterAdjustment, // done
+      ChangeRiskManagementRequired: values.ChangeRiskManagementRequired, // done
+      ChangeRiskManagement_AdjustmentReport: values.ChangeRiskManagementList, // Ensure this is an array of ChangeRiskManagement objects
+       IsSubmit: operation==OPERATION.Submit, //done
+       IsAmendReSubmitTask: operation==OPERATION.Resubmit,
+      Photos: { BeforeImages: beforeImages, AfterImages: afterImages },
+      CreatedBy: user?.EmployeeId, //need to change
+      CreatedDate: dayjs(),
+      ModifiedBy: user?.EmployeeId, // need to change conditionally
+      ModifiedDate: dayjs(), // change conditionally , if modifying then pass only
+    };
+    return payload;
+  };
+  const onSaveFormHandler = (values: any , operation?:any) => {
+    debugger;
+    try {
+      const payload = CreatePayload(values,operation);
+      //const res =
+      addUpdateReport(payload);
+      navigate(-1);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+  };
+
+  const onFinish = (operation?:any) => {
+    debugger;
+    const values = form.getFieldsValue();
     values.ChangeRiskManagementRequired = cRMRequired;
     values.ChangeRiskManagementList = [];
 
     const numberOfSections = formSections.length;
-
+debugger
     for (let i = 0; i < numberOfSections; i++) {
       // Create a ChangeRiskManagement object for each section
       const changeRiskManagement: ChangeRiskManagement = {
-        Changes: values[`changes-${i}`],
-        RisksWithChanges: values[`riskWithChanges-${i}`],
-        Factors: values[`factor-${i}`],
-        CounterMeasures: values[`counterMeasures-${i}`],
-        FunctionId: values[`function-${i}`],
-        DueDate: values[`date-${i}`],
-        PersonInCharge: values[`personInCharge-${i}`],
-        Results: values[`results-${i}`],
+        Changes: values[`changes-${formSections[i]}`],
+        RiskAssociated: values[`riskWithChanges-${formSections[i]}`],
+        Factor: values[`factor-${formSections[i]}`],
+        CounterMeasures: values[`counterMeasures-${formSections[i]}`],
+        FunctionId: values[`function-${formSections[i]}`],
+        DueDate: values[`date-${formSections[i]}`],
+        PersonInCharge: values[`personInCharge-${formSections[i]}`],
+        Results: values[`results-${formSections[i]}`],
       };
-
+      debugger
       values.ChangeRiskManagementList.push(changeRiskManagement);
     }
+    debugger
 
-    props.onFormSubmit(values);
+    onSaveFormHandler(values ,operation);
   };
 
   // const handleUpload = async (file: any) => {
@@ -481,16 +538,43 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   // };
 
   // Forward form instance to parent component
-  React.useImperativeHandle(ref, () => ({
-    submit: () => {
-      form.submit();
-    },
-  }));
+  // React.useImperativeHandle(ref, () => ({
+  //   submit: () => {
+  //     form.submit();
+  //   },
+  // }));
 
   return (
     <>
- 
+      <div style={{ position: "relative", left: "1300px", bottom: "80px" }}>
+        <>
+          <div className="d-flex gap-3">
+            {true && (
+              <button className="btn btn-primary" onClick={()=>onFinish(OPERATION.Save)}>
+                <i className="fa-solid fa-floppy-disk" />
+                Save
+              </button>
+            )}
 
+            {true && (
+              <button className="btn btn-darkgrey " onClick={()=>onFinish(OPERATION.Submit)}>
+                <i className="fa-solid fa-share-from-square" />
+                Submit
+              </button>
+            )}
+
+            {false && (
+              <button
+                className="btn btn-primary"
+                type="button"
+                onClick={onFinish}
+              >
+                Resubmit
+              </button>
+            )}
+          </div>
+        </>
+      </div>
 
       <Form
         layout="vertical"
@@ -507,7 +591,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
 
           <Col span={6}>
             <Form.Item label="Requested By" name="requestedBy">
-              <Input placeholder="Enter Your Name" />
+              <Input placeholder="-" disabled />
             </Form.Item>
           </Col>
 
@@ -517,7 +601,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               name="checkedBy"
               rules={[{ required: true }]}
             >
-              <Select placeholder="Select Checked By" loading={checkedloading}>
+              <Select 
+              disabled ={isViewMode}
+              placeholder="Select Checked By" loading={checkedloading}>
                 {checkedByResult?.ReturnValue &&
                   checkedByResult.ReturnValue.map((checkedBy) => (
                     <Option
@@ -538,6 +624,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               rules={[{ required: true, message: "Please Select Date" }]}
             >
               <DatePicker
+                 disabled ={isViewMode}
                 disabledDate={disabledDate}
                 showTime
                 placeholder="Date & Time"
@@ -558,6 +645,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               ]}
             >
               <Select
+                            disabled ={isViewMode}
+
                 mode="multiple"
                 placeholder="Select Area"
                 showSearch={false}
@@ -601,6 +690,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               ]}
             >
               <Select
+                            disabled ={isViewMode}
+
                 placeholder="Select Machine Name"
                 onChange={handleMachineChange}
                 value={hideOptions ? "other" : undefined}
@@ -643,6 +734,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               ]}
             >
               <Select
+                            disabled ={isViewMode}
+
                 mode="multiple"
                 placeholder="Select Sub-Machine Name"
                 onChange={handleSubMachineChange}
@@ -691,6 +784,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               rules={[{ required: true }]}
             >
               <TextArea
+                            disabled ={isViewMode}
+
                 rows={1}
                 maxLength={2000}
                 placeholder="Describe the problem"
@@ -708,6 +803,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               rules={[{ required: true }]}
             >
               <TextArea
+                            disabled ={isViewMode}
+
                 rows={4}
                 maxLength={2000}
                 placeholder="Enter your observation"
@@ -721,6 +818,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               rules={[{ required: true }]}
             >
               <TextArea
+                            disabled ={isViewMode}
+
                 rows={4}
                 maxLength={2000}
                 placeholder="Describe the root cause"
@@ -734,6 +833,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               rules={[{ required: true }]}
             >
               <TextArea
+                            disabled ={isViewMode}
+
                 rows={4}
                 maxLength={2000}
                 placeholder="Describe the adjustment made"
@@ -746,6 +847,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               name="conditionAfterAdjustment"
             >
               <TextArea
+                            disabled ={isViewMode}
+
                 rows={4}
                 maxLength={2000}
                 placeholder="Describe the condition after adjustment"
@@ -836,12 +939,6 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
           </Col>
         </Row>
 
-         
-
-    
-
-       
-
         <div>
           <div style={{ display: "flex", alignItems: "center" }}>
             <span style={{ marginRight: 16 }}>
@@ -851,8 +948,11 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               onChange={(e: any) => setCRMRequired(e.target.value)}
               value={cRMRequired}
               name="cRMRequired"
+              disabled ={isViewMode}
             >
-              <Radio value={true} style={{ marginRight: 16 }}>
+              <Radio 
+
+              value={true} style={{ marginRight: 16 }}>
                 Yes
               </Radio>
               <Radio value={false}>No</Radio>
@@ -865,22 +965,48 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
           <div className="flex justify-end items-center my-3">
             <div className="flex items-center gap-x-4">
               <Button type="primary" onClick={addFormSection}>
-                Add 
+                Add
               </Button>
             </div>
           </div>
         )}
-        {cRMRequired &&
+        {/* {cRMRequired &&
           formSections.map((sectionIndex) => (
+            <>
             <ChangeRiskManagementForm
               key={sectionIndex}
               index={sectionIndex}
               form={form}
               initialData={cRM[sectionIndex]} // Pass each section's data directly
             />
+            <span>
+                <FontAwesomeIcon icon={faTrash} />
+              </span>
+            </>
+          ))} */}
+        {cRMRequired &&
+          formSections.map((sectionIndex) => (
+            <div
+              key={sectionIndex}
+            
+            >
+              <ChangeRiskManagementForm
+                index={sectionIndex}
+                form={form}
+                initialData={cRM[sectionIndex]}
+                isModeview={isViewMode} // Pass each section's data directly
+              />
+              <span
+                style={{
+                  cursor: "pointer", // Optional: Indicates that the icon is clickable
+                  marginLeft: "10px", // Optional: Adds space between the form and the trash icon
+                }}
+                onClick={() => deleteFormSection(sectionIndex)} // Add your delete handler here
+              >
+                <FontAwesomeIcon icon={faTrash} />
+              </span>
+            </div>
           ))}
-        {/* Button to add new form section */}
-        
         {/* 
         <Button
           onClick={handleAdditionalApprovalClick}
@@ -895,7 +1021,6 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
           onProceed={handleProceed}
         /> */}
       </Form>
-   
     </>
   );
 });

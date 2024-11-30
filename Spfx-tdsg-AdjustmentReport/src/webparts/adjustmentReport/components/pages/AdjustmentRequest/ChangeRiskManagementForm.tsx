@@ -15,12 +15,14 @@ interface ChangeRiskManagementFormProps {
   form: any;
   index: number;
   initialData: ChangeRiskManagement | undefined;
+  isModeview:boolean;
 }
 
 const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
   form,
   index,
-  initialData
+  initialData,
+  isModeview
 }) => {
   const { data: employeesResult } = useGetAllEmployees();
 
@@ -28,8 +30,8 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
     if (initialData) {
       form.setFieldsValue({
         [`changes-${index}`]: initialData?.Changes,
-        [`riskWithChanges-${index}`]: initialData?.RisksWithChanges,
-        [`factor-${index}`]: initialData?.Factors,
+        [`riskWithChanges-${index}`]: initialData?.RiskAssociated,
+        [`factor-${index}`]: initialData?.Factor,
         [`counterMeasures-${index}`]: initialData?.CounterMeasures,
         [`function-${index}`]: initialData?.FunctionId,
         [`date-${index}`]: initialData.DueDate ? dayjs(initialData.DueDate, "DD-MM-YYYY") : null,
@@ -52,7 +54,9 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
                   { required: true, message: "Changes is required" },
                 ]}
               >
-                <TextArea rows={2} maxLength={100} placeholder="Changes" />
+                <TextArea 
+                disabled={isModeview}
+                rows={2} maxLength={100} placeholder="Changes" />
               </Form.Item>
             </Col>
 
@@ -65,6 +69,7 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
                 ]}
               >
                 <TextArea
+                  disabled={isModeview}
                   rows={2}
                   maxLength={1000}
                   placeholder="Risk Associated With Changes"
@@ -80,7 +85,9 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
                   { required: true, message: "Factor/Causes is required" },
                 ]}
               >
-                <TextArea rows={2} maxLength={1000} placeholder="Factor" />
+                <TextArea
+                  disabled={isModeview}
+                rows={2} maxLength={1000} placeholder="Factor" />
               </Form.Item>
             </Col>
 
@@ -93,6 +100,7 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
                 ]}
               >
                 <TextArea
+                  disabled={isModeview}
                   rows={2}
                   maxLength={1000}
                   placeholder="Counter Measures"
@@ -109,7 +117,9 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
                   { required: true, message: "Function is required" },
                 ]}
               >
-                <Input placeholder="Enter Function" />
+                <Input 
+                 disabled={isModeview}
+                placeholder="Enter Function" />
               </Form.Item>
             </Col>
 
@@ -120,6 +130,7 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
                 rules={[{ required: true, message: "Please Select Due Date" }]}
               >
                 <DatePicker
+                   disabled={isModeview}
                   disabledDate={disabledDate}
                   placeholder="Date"
                   format={DATE_FORMAT}
@@ -136,7 +147,9 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
                   { required: true, message: "Person In Charge is required" },
                 ]}
               >
-                <Select placeholder="Select Person in Charge">
+                <Select 
+                 disabled={isModeview}
+                placeholder="Select Person in Charge">
                   {employeesResult?.ReturnValue &&
                     employeesResult.ReturnValue.map((employee) => (
                       <Option key={employee.employeeId} value={employee.employeeId}>
@@ -155,7 +168,9 @@ const ChangeRiskManagementForm: React.FC<ChangeRiskManagementFormProps> = ({
                   { required: true, message: "Results is required" },
                 ]}
               >
-                <TextArea rows={2} maxLength={1000} placeholder="Results" />
+                <TextArea 
+                 disabled={isModeview}
+                rows={2} maxLength={1000} placeholder="Results" />
               </Form.Item>
             </Col>
           </Row>

@@ -281,7 +281,7 @@ const ReportFormPage = () => {
 
   const extraContent = (
     <div>
-      {!isViewMode &&
+      {/* {!isViewMode &&
         activeTabKey === "1" &&
         !submitted && ( //||
           //(currentApproverTask?.userId == user?.employeeId //&& currentApproverTask?.seqNumber != 3)
@@ -299,10 +299,10 @@ const ReportFormPage = () => {
             >
               Save
             </Button>
-          </Form.Item>
-        )}
+          </Form.Item>  
+        )} */}
 
-      {!isViewMode && activeTabKey === "1" && !submitted && (
+      {/* {!isViewMode && activeTabKey === "1" && !submitted && (
         <Form.Item
           style={{
             display: "inline-block", // Inline display for second button as well
@@ -317,7 +317,7 @@ const ReportFormPage = () => {
             Submit
           </Button>
         </Form.Item>
-      )}
+      )} */}
 
       {!isViewMode && activeTabKey === "1" && underAmmendment && (
         <Form.Item

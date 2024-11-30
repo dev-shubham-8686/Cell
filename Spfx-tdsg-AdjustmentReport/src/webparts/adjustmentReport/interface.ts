@@ -63,3 +63,8 @@ export interface IEmployee {
   employeeName?: string;
   Email?: string;
 }
+
+
+export type ObjectType = { [key: string]: string | number | undefined };
+
+

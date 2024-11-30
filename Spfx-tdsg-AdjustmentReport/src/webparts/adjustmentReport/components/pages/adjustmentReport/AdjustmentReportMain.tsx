@@ -5,6 +5,9 @@ import { PlusCircleOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import AdjustmentReportRequests from "./AdjustmentReportRequests";
 import AdjustmentReportApprovals from "./AdjustmentReportApprovals";
+import MyRequest from "./MyRequest";
+import MyApproval from "./MyApproval";
+import AllRequest from "./AllRequest";
 
 const AdjustmentReportMain: React.FC = () => {
   const navigate = useNavigate();
@@ -27,12 +30,23 @@ const AdjustmentReportMain: React.FC = () => {
     {
       key: "1",
       label: "My Requests",
-      children: <AdjustmentReportRequests />,
+      children: <MyRequest/>
+      
+      // <AdjustmentReportRequests />
+      ,
     },
     {
       key: "2",
-      label: "Approvals",
-      children: <AdjustmentReportApprovals />,
+      label: "My Approvals",
+      children: <MyApproval/>
+      // <AdjustmentReportApprovals />
+      ,
+    },
+    {
+      key: "3",
+      label: "All Requests",
+      children: <AllRequest/>
+      ,
     },
   ];
   return (

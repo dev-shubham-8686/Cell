@@ -1,0 +1,71 @@
+.header {
+  border: none !important;
+  // border-bottom: 1px solid #e5eaee !important;
+  padding-left: 0px !important;
+
+  .title {
+    margin: 0px !important;
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: $theme-font-family, sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  .toggler {
+    height: 1.75rem;
+    width: 1.75rem;
+    background-color: #e3e3e3;
+    font-size: 13px;
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+
+    .fa-bars-staggered {
+      display: block;
+    }
+
+    .fa-xmark {
+      display: none;
+    }
+  
+    // .fa-chevron-left {
+    //   display: none;
+    // }
+
+    &.hide {
+      .fa-bars-staggered {
+        display: none;
+      }
+
+      .fa-xmark {
+        display: block;
+      }
+     
+      // .fa-chevron-left {
+      //   display: block;
+      // }
+    }
+  }
+}
+
+.bottom-border-grey-1 {
+  border-bottom: 1px solid #e5eaee !important;
+}
+
+.fsz-15 {
+  font-size: 0.9375rem !important;
+}
+
+.fsz-16 {
+  font-size: 1rem !important;
+}
+.request-btn{
+  width: fit-content;
+  position: absolute;
+   right: 1rem;
+  // top: 83px;
+}
+// .custom-upload > div{
+//   display: block !important;
+  
+// }

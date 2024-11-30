@@ -1,0 +1,96 @@
+@import url("https://fonts.googleapis.com/css2?family=Lato&display=swap");
+
+// sass/scss variables
+
+// font family
+$font-family-sans-serif: "Lato", Helvetica, sans-serif,
+  // Emoji fonts
+  "Apple Color Emoji",
+  "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+$lato: "Lato", serif;
+$theme-font-family: "Segoe UI", "Segoe UI Web (West European)", -apple-system,
+  BlinkMacSystemFont, Roboto, "-apple-system", "BlinkMacSystemFont", "Roboto",
+  "Helvetica Neue", sans-serif;
+
+// colors
+
+// color variable overrides
+$body-bg: white;
+$body-color: #000000; //old origiinal #212529;
+$primary: #c50017;
+$secondary: #3ea7ab;
+$success: #1ab55f;
+$danger: #cf1919;
+$warning: #ab4400;
+$info: #69d3d6;
+$light: #f1f5f9;
+$dark: #6f6f6f;
+$orange: #ff5100;
+
+//blue-shades
+$blue-1: #3762ea;
+$blue-bg: #e1e7fc;
+
+// red shades
+$red-bg: #ffe9e9;
+$red-1: #c50017;
+$red-2: #af0116;
+
+// yelllow shades
+$yellow-bg: #f9e9cd;
+$yellow-1: #e9a121;
+
+// green shades
+$green-bg: #e0f7ea;
+$green-1: #1ab55f;
+
+$white: #ffffff;
+$black: #000000;
+$darkgrey: #333333;
+$light-grey: #99bdd9;
+$text-grey: #273b4a;
+$text-lightgrey: #d5d9e2;
+
+// color map
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark,
+  "darkgrey": $darkgrey,
+);
+
+$menu-link: #56e9ef;
+
+// buttons
+$input-btn-font-size: 0.875rem;
+$input-btn-padding-x: 14px;
+$btn-border-radius: 4px;
+$btn-font-weight: 500;
+
+// navs
+$nav-underline-gap: 0;
+$nav-underline-border-width: 0.1875rem;
+$nav-underline-link-active-color: $primary;
+
+// table
+$table-color: #333;
+$table-bg: $white;
+$table-th-font-weight: 500;
+$table-cell-padding-y: 1.1875rem;
+$table-cell-padding-x: 0.75rem;
+$table-striped-color: #333;
+$table-striped-bg: $white;
+
+//label
+$form-label-margin-bottom: 0.3125rem;
+$form-label-font-size: 14px;
+$form-label-font-style: null;
+$form-label-font-weight: 600;
+$form-label-color: #898989;
+
+$side-bar-width: 13.875rem;
