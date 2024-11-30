@@ -26,12 +26,14 @@ public partial class TdsgCellFormatDivisionContext : DbContext
     {
     }
     //EquipmentEmailAttachment
+
     public virtual DbSet<EquipmentEmailAttachment> EquipmentEmailAttachments { get; set; }
 
     public virtual DbSet<SectionHeadEmpMaster> SectionHeadEmpMasters { get; set; }
     public virtual DbSet<TroubleReportReviewerTaskMaster> TroubleReportReviewerTaskMasters { get; set; }
 
     public virtual DbSet<AdjustmentReport> AdjustmentReports { get; set; }
+    public virtual DbSet<AdjustmentHistoryMaster> AdjustmentHistoryMasters { get; set; }
     public virtual DbSet<AdminApprover> AdminApprovers  { get; set; }
 
     public virtual DbSet<AdjustmentReportApproverTaskMaster> AdjustmentReportApproverTaskMasters { get; set; }
@@ -373,12 +375,12 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         await Database.ExecuteSqlRawAsync("EXECUTE dbo.SPP_EquipmentApproverMatrix @UserId, @EquipmentId", userIdParam, equipmentIdParams);
     }
 
-    public void CallAdjustmentReportApproverMaterix(int? userId, int adjustmentReportId)
+    public async Task CallAdjustmentReportApproverMaterix(int? userId, int adjustmentReportId)
     {
         var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@UserId", userId);
         var adjustmentReportIdParams = new Microsoft.Data.SqlClient.SqlParameter("@AdjustmentReportId", adjustmentReportId);
 
-        Database.ExecuteSqlRaw("EXECUTE dbo.SPP_AdjustmentReportApproverMatrix @UserId, @AdjustmentReportId", userIdParam, adjustmentReportIdParams);
+        await Database.ExecuteSqlRawAsync("EXECUTE dbo.SPP_AdjustmentReportApproverMatrix @UserId, @AdjustmentReportId", userIdParam, adjustmentReportIdParams);
     }
 
 

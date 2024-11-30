@@ -79,7 +79,8 @@ namespace TDSGCellFormat.Common
             Approved = 1,
             Rejected = 2,
             AskToAmend = 3,
-            LogicalAmendment = 4
+            LogicalAmendment = 4,
+            Comment = 5
         }
         public enum EmailNotificationAction
         {

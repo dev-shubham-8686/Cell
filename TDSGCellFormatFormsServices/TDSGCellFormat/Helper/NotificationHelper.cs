@@ -1523,5 +1523,113 @@ namespace TDSGCellFormat.Helper
             emailSent = true;
             return emailSent;
         }
+
+        public async Task<bool> SendAdjustmentEmai(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0)
+        {
+            bool emailSent = false;
+            try
+            {
+                StringBuilder emailBody = new StringBuilder();
+
+                string? templateDirectory = _configuration["TemplateSettings:Normal_Mail"];
+
+                //TroubleReports troubleReports = new TroubleReports();
+                List<string?> emailToAddressList = new List<string?>();
+                List<string?> emailCCAddressList = new List<string?>();
+                string? emailSubject = null;
+                string? templateFile = null, templateFilePath = null;
+                bool isApprovedtask = false;
+                bool isInReviewTask = false;
+                bool isRequestorinToEmail = false;
+                bool isRequestorinCCEmail = false;
+                bool isIsAmendTask = false, allApprover = false;
+                string? requesterUserName = null, requesterUserEmail = null;
+                int reqDeptId = 0;
+                bool approvelink = false;
+                string? AdminEmailNotification = _configuration["AdminEmailNotification"];
+                string? Role = null;
+                bool isEditable = false, isPullBacked = false;
+
+                //stage link
+                string? documentLink = _configuration["SPSiteUrl"] +
+                 "/SitePages/EquipmentReport.aspx#/form/";
+
+                if (requestId > 0)
+                {
+                    var adjustmentData = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == requestId && x.IsDeleted == false).FirstOrDefault();
+                    var adjustmentNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == requestId && x.IsDeleted == false).Select(x => x.ReportNo).FirstOrDefault();
+
+                    if (adjustmentData != null) 
+                    {
+                        if (adjustmentData.CreatedBy > 0)
+                        {
+                            EmployeeMaster? requestorUserDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustmentData.CreatedBy && x.IsActive == true).FirstOrDefault();
+                            requesterUserName = requestorUserDetails?.EmployeeName;
+                            requesterUserEmail = requestorUserDetails?.Email;
+                            reqDeptId = requestorUserDetails.DepartmentID;
+                        }
+
+                        var approverData = await _context.GeAdjustmentReportWorkFlow(requestId);
+
+                        switch (emailNotification)
+                        {
+                            case EmailNotificationAction.Submitted:
+                                templateFile = "Adjustment_Submitted.html";
+                                emailSubject = string.Format("[Action required!] Adjustment_{0} has been Submitted for Approval", adjustmentData.ReportNo);
+                                isInReviewTask = true;
+                                approvelink = true;
+                                break;
+
+                            case EmailNotificationAction.ReSubmitted:
+                                templateFile = "Adjustment_Resubmitted.html";
+                                emailSubject = string.Format("[Action required!] Adjustment_{0}} has been Resubmitted", adjustmentData.ReportNo);
+                                isInReviewTask = true;
+                                approvelink = true;
+                                break;
+
+                            case EmailNotificationAction.Approved:
+                                templateFile = "Adjustment_Approved.html";
+                                emailSubject = string.Format("[Action required!] Adjustment_{0} has been Submitted for Approval", adjustmentData.ReportNo);
+                                isInReviewTask = true;
+                                isApprovedtask = true;
+                                approvelink = true;
+                                isRequestorinCCEmail = true;
+                                break;
+
+                            case EmailNotificationAction.Amended:
+                                templateFile = "Adjustment_Amend.html";
+                                emailSubject = string.Format("[Action taken!] Adjustment_{0} has been Asked for Amendment", adjustmentData.ReportNo);
+                                isRequestorinToEmail = true;
+                                approvelink = true;
+                                break;
+
+                            case EmailNotificationAction.PullBack:
+                                templateFile = "Adjustment_PullBack.html";
+                                emailSubject = string.Format("[Action taken!] Adjustment_{0} has been Pull Backed", adjustmentData.ReportNo);
+                                isPullBacked = true;
+                                isRequestorinCCEmail = true;
+                                break;
+
+                            case EmailNotificationAction.Completed:
+                                templateFile = "Adjustment_Completed.html";
+                                emailSubject = string.Format("[Action required!] Adjustment_{0} has been Approved and completed", adjustmentData.ReportNo);
+                                isRequestorinToEmail = true;
+                                break;
+
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "SendAdjustmentEmai");
+                return false;
+            }
+            emailSent = true;
+            return emailSent;
+        }
     }
 }

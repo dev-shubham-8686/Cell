@@ -2,28 +2,13 @@
 {
     public class AdjustmentReportPdfView
     {
-        public string? ReportNo { get; set; }
-
-        public string WhenDate { get; set; }
-
-        public string? AreaName { get; set; }
-
-        public string? MachineName { get; set; }
-
-        public int MachineId { get; set; }
-
-        public string? DescribeProblem { get; set; }
-
-        public string? Observation { get; set; }
-
-        public string? RootCause { get; set; }
-
-        public string? AdjustmentDescription { get; set; }
-
-        public string? ConditionAfterAdjustment { get; set; }
-
-        public string? Requestor { get; set; }
-
-        public string? CheckedBy { get; set; }
+        public string? Changes { get; set; }
+        public string? FunctionId { get; set; }
+        public string? RiskAssociatedWithChanges { get; set; }
+        public string? Factor { get; set; }
+        public string? CounterMeasures { get; set; }
+        public string? DueDate { get; set; }
+        public string? PersonInCharge { get; set; }
+        public string? Results { get; set; }
     }
 }
