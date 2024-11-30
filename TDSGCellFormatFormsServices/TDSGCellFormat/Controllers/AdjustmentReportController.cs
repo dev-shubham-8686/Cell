@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.AspNetCore.Mvc;
 using TDSGCellFormat.Common;
 using TDSGCellFormat.Helper;
@@ -176,19 +177,17 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpPost("PullBack")]
-        public async Task<IActionResult> PullBackRequest(PullBackRequest pullBackRequest)
+        public async Task<IActionResult> PullBackRequest(PullBackRequest data)
         {
-            var result = await _tdsgService.PullBackRequest(pullBackRequest.AdjustmentReportId, pullBackRequest.userId, pullBackRequest.comment);
-            if (result != null)
-            {
-                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
-            }
+
+            var res = await _tdsgService.PullBackRequest(data);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, res.Message, res.ReturnValue);
             else
-            {
-                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
-                //return Ok(Ajaxresponse);
-            }
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, res.Message, res.ReturnValue);
+
             return Ok(Ajaxresponse);
+
         }
 
         [HttpGet("GetApprorverFlowData")]

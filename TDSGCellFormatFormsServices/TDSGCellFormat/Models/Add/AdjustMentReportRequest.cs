@@ -8,6 +8,8 @@ namespace TDSGCellFormat.Models.Add
     {
         public int AdjustMentReportId { get; set; }
         public string? ReportNo { get; set; }
+
+        public string? When { get; set; }
         public List<int>? Area { get; set; }
 
         public int? SectionId { get; set; }
@@ -37,6 +39,7 @@ namespace TDSGCellFormat.Models.Add
         public Photos? Photos { get; set; }
 
         public bool? ChangeRiskManagementRequired { get; set; }
+        public string? ConditionAfterAdjustment { get; set; }
 
         public List<ChangeRiskManagement_AdjustmentReports>? ChangeRiskManagement_AdjustmentReport { get; set; }
 
@@ -81,7 +84,7 @@ namespace TDSGCellFormat.Models.Add
     {
         public int? ApproverTaskId { get; set; }
 
-        public int CurrentUserId { get; set; }
+        public int? CurrentUserId { get; set; }
 
         public ApprovalStatus Type { get; set; }
 
@@ -91,8 +94,8 @@ namespace TDSGCellFormat.Models.Add
 
         public int? AdvisorId { get; set; }
 
-        [JsonProperty("additionalDepartmentHeads")]
-        public List<AdditionalDepartmentHeads> AdditionalDepartmentHeads { get; set; } = new List<AdditionalDepartmentHeads>();
+        
+        public List<AdditionalDepartmentHeads>? AdditionalDepartmentHeads { get; set; } = new List<AdditionalDepartmentHeads>();
     }
 
     public class PullBackRequest
@@ -106,10 +109,18 @@ namespace TDSGCellFormat.Models.Add
 
     public class AdditionalDepartmentHeads
     {
-        [JsonProperty("departmentHead")]
-        public int DepartmentHead { get; set; }
+        public int? EmployeeId { get; set; }
+        public int? DepartmentId { get; set; }
+        
+        public int? ApprovalSequence { get; set; }
+    }
 
-        [JsonProperty("approvalSequence")]
-        public int ApprovalSequence { get; set; }
+    public class AdvisorComment
+    {
+        public int? AdjustmentAdvisorId { get; set; }
+        public int? AdjustmentReportId { get; set; }
+        public int? userId { get; set; }
+        public int? EmployeeId { get; set; }
+        public string? Comment { get; set; }
     }
 }

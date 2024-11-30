@@ -9,14 +9,10 @@ namespace TDSGCellFormat.Models
         [Key]
         public int AdjustmentAdvisorId { get; set; }
 
-        public int AdvisorId { get; set; }
+        public int? EmployeeId { get; set; }
 
-        public int EmployeeId { get; set; }
+        public int? AdjustmentReportId { get; set; }
 
-        public int AdjustmentReportId { get; set; }
-
-        public int WorkFlowlevel { get; set; }
-
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
     }
 }

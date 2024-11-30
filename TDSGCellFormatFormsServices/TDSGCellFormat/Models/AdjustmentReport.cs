@@ -11,6 +11,8 @@ public partial class AdjustmentReport
 
     public string? ReportNo { get; set; }
 
+    public DateTime? When { get; set; }
+
     public int? SectionId { get; set; }
 
     public string? Area { get; set; }
@@ -35,9 +37,12 @@ public partial class AdjustmentReport
 
     public string? RootCause { get; set; }
 
+
     public string? AdjustmentDescription { get; set; }
 
     public bool? ChangeRiskManagementRequired { get; set; }
+
+    public string? ConditionAfterAdjustment { get; set; }
 
     public string? Status { get; set; }
 

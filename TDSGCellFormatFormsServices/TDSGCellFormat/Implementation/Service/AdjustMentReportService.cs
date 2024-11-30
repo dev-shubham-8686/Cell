@@ -75,9 +75,9 @@ namespace TDSGCellFormat.Implementation.Service
             return await _adjustMentRepository.UpdateApproveAskToAmend(asktoAmend);
         }
 
-        public async Task<AjaxResult> PullBackRequest(int Id, int userId, string comment)
+        public async Task<AjaxResult> PullBackRequest(PullBackRequest data)
         {
-            return await _adjustMentRepository.PullBackRequest(Id, userId, comment);
+            return await _adjustMentRepository.PullBackRequest(data);
         }
 
         public async Task<AjaxResult> GeAdjustmentReportWorkFlow(int Id)

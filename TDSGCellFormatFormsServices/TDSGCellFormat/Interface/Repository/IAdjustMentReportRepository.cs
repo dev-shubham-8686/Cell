@@ -29,7 +29,7 @@ namespace TDSGCellFormat.Interface.Repository
 
         Task<AjaxResult> UpdateApproveAskToAmend(ApproveAsktoAmend asktoAmend);
 
-        Task<AjaxResult> PullBackRequest(int Id, int userId, string comment);
+        Task<AjaxResult> PullBackRequest(PullBackRequest data);
 
         Task<AjaxResult> GeAdjustmentReportWorkFlow(int Id);
 
