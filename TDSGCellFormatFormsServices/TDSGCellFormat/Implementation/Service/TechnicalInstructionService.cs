@@ -164,5 +164,10 @@ namespace TDSGCellFormat.Implementation.Service
             return await _technicalRepository.UpdateOutlineEditor(updateOutlineEditor);
         }
 
+        public async Task<AjaxResult> ExportToPdf_v2(int technicalId)
+        {
+            return await _technicalRepository.ExportToPdf_v2(technicalId);
+        }
+
     }
 }

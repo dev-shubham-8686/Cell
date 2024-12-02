@@ -455,7 +455,7 @@ namespace TDSGCellFormat.Controllers
                 Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
                 return Unauthorized(Ajaxresponse);
             }
-            var result = await _technicalService.ExportToPdf(technicalId);
+            var result = await _technicalService.ExportToPdf_v2(technicalId);
             if (result.StatusCode == Status.Success)
             {
                 Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);

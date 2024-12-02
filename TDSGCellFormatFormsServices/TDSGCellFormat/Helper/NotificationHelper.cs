@@ -1550,7 +1550,10 @@ namespace TDSGCellFormat.Helper
                 bool cpcDeptPeople = false;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? documentLink = _configuration["SPSiteUrl"] +
-                "/SitePages/TechInstructionSheet.aspx#/";
+                "/SitePages/Technical-Instruction-Sheet.aspx#/";
+
+                //string? documentLink = _configuration["SPSiteUrl"] +
+                //"/SitePages/TechInstructionSheet.aspx#/";
 
                 if (requestId > 0)
                 {

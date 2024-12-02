@@ -41,5 +41,7 @@ namespace TDSGCellFormat.Interface.Repository
         Task<AjaxResult> ChangeRequestOwner(int technicalId, int userId);
 
         Task<AjaxResult> UpdateOutlineEditor(UpdateOutlineEditor updateOutlineEditor);
+
+        Task<AjaxResult> ExportToPdf_v2(int technicalId);
     }
 }

@@ -39,16 +39,42 @@ const FormTab: React.FC<any> = ({
 }) => {
   const [model, setModel] = React.useState<string>("");
   const [imageFiles, setImageFiles] = React.useState<any>([]);
+  const isMountedRef = React.useRef(true);
+
+  React.useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false; // Mark as unmounted
+    };
+  }, []);
+
   // Handle image insertion
   const handleImageInsert = function (image: any) {
-    const newImageFile = image[0].currentSrc; // Get the image source (base64 or blob)
-    setImageFiles((prevFiles: any) => [...prevFiles, newImageFile]); // Use the functional update form
-    setoutlineImageFiles((prevFiles: any) => [...prevFiles, newImageFile]);
+    const newImageFile = image[0].currentSrc;
+    if (isMountedRef.current) {
+      setImageFiles((prevFiles: any) => [...prevFiles, newImageFile]);
+      setoutlineImageFiles((prevFiles: any) => [...prevFiles, newImageFile]);
+    }
+  };
+
+  // Handle image removal
+  const handleImageRemoved = (image: any) => {
+    const newImageFile = image[0].currentSrc;
+    if (isMountedRef.current) {
+      setImageFiles((prevFiles: any) =>
+        prevFiles.filter((f: any) => f !== newImageFile)
+      );
+      setoutlineImageFiles((prevFiles: any) =>
+        prevFiles.filter((f: any) => f !== newImageFile)
+      );
+    }
   };
 
   // Log updated imageFiles after state change
   React.useEffect(() => {
-    console.log("Updated image files:", imageFiles);
+    if (isMountedRef.current) {
+      console.log("Updated image files:", imageFiles);
+    }
   }, [imageFiles]); // Run when imageFiles changes
 
   const myconfig = {
@@ -57,6 +83,7 @@ const FormTab: React.FC<any> = ({
     toolbarButtons: isViewMode == true ? [] : toolbarButtons,
     events: {
       "image.inserted": handleImageInsert,
+      "image.removed": handleImageRemoved,
       initialized: function () {
         if (isViewMode) {
           this.edit.off(); // Turn off all editing features
@@ -69,12 +96,16 @@ const FormTab: React.FC<any> = ({
   };
 
   const handleModelChange = (value: any) => {
-    setModel(value);
-    setEditorModel(value); // Use the same `value` that was passed to `setModel`
+    if (isMountedRef.current) {
+      setModel(value);
+      setEditorModel(value);
+    }
   };
 
   React.useEffect(() => {
-    setModel(editorModel);
+    if (isMountedRef.current) {
+      setModel(editorModel);
+    }
   }, [editorModel]);
 
   return (
@@ -87,7 +118,7 @@ const FormTab: React.FC<any> = ({
         initialValues={initialData}
       >
         <Row gutter={1}>
-          <Col span={8}>
+          <Col span={6}>
             <Form.Item
               label="Issue Date"
               name="issueDate"
@@ -102,7 +133,7 @@ const FormTab: React.FC<any> = ({
               />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col span={6}>
             <Form.Item
               label="Issued By"
               name="issuedBy"
@@ -116,7 +147,7 @@ const FormTab: React.FC<any> = ({
             </Form.Item>
           </Col>
 
-          <Col span={8}>
+          <Col span={6}>
             <Form.Item
               label="CTI Number"
               name="ctiNumber"
@@ -127,6 +158,12 @@ const FormTab: React.FC<any> = ({
                 //value={`CTI-${dayjs().year()}-001`}
                 disabled
               />
+            </Form.Item>
+          </Col>
+
+          <Col span={6}>
+            <Form.Item label="Revision No." name="revisionNo">
+              <Input style={{ width: "95%" }} disabled={true} />
             </Form.Item>
           </Col>
         </Row>
@@ -166,12 +203,7 @@ const FormTab: React.FC<any> = ({
         </Row>
 
         <Row gutter={1}>
-          <Col span={8}>
-            <Form.Item label="Revision No." name="revisionNo">
-              <Input style={{ width: "95%" }} disabled={true} />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
+          <Col span={12}>
             <Form.Item
               label="Product Type"
               name="productType"
@@ -185,7 +217,7 @@ const FormTab: React.FC<any> = ({
               />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col span={12}>
             <Form.Item
               label="Quantity"
               name="quantity"
@@ -217,12 +249,14 @@ const FormTab: React.FC<any> = ({
 
               //rules={[{ required: true, max: 1000 }]}
             >
-              <FroalaEditor
-                tag="textarea"
-                config={myconfig}
-                model={model}
-                onModelChange={handleModelChange}
-              />
+              <div className="editor-container" style={{width:"100%"}}>
+                <FroalaEditor
+                  tag="textarea"
+                  config={myconfig}
+                  model={model}
+                  onModelChange={handleModelChange}
+                />
+              </div>
               {/* <Input.TextArea
                 style={{ width: "95%" }}
                 maxLength={1000}
@@ -375,13 +409,13 @@ const FormTab: React.FC<any> = ({
           </Col>
           <Col span={8}>
             <Form.Item
-              label="Lot.No"
+              label="Lot No."
               name="applicationLotNo"
               //rules={[{ required: true }]}
             >
               <Input
                 style={{ width: "95%" }}
-                placeholder="Enter Lot.No"
+                placeholder="Enter Lot No."
                 disabled={isViewMode}
               />
             </Form.Item>
