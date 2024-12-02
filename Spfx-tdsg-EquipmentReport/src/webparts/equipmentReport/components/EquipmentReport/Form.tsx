@@ -112,26 +112,26 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     debugger;
     setselectedMachine(values);
     // form.setFieldsValue({
-    //   SubMachineName: [],    
+    //   SubMachineName: [],
     // });
     setshowOtherSubMachine(false);
-   
+
     if (values == -1) {
-      debugger
+      debugger;
       setshowOtherMachine(true);
       // form.setFieldsValue({
       //   OtherMachineName:existingEquipmentReport?.OtherMachineName ??""
       // });
     } else {
-      debugger
+      debugger;
       setshowOtherMachine(false);
       form.setFieldsValue({
-        OtherMachineName:""    
+        OtherMachineName: "",
       });
     }
     form.setFieldsValue({
       SubMachineName: [],
-      otherSubMachine:""    
+      otherSubMachine: "",
     });
   };
   const handleSubMachineChange = (values: any) => {
@@ -149,7 +149,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       setshowOtherSubMachine(false);
       form.setFieldsValue({
         SubMachineName: values,
-        otherSubMachine: ""
+        otherSubMachine: "",
       });
     }
     console.log("OtherSub", showOtherSubMachine, showOtherMachine);
@@ -175,7 +175,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     values.SectionHeadId = sectionHead
       ? parseInt(sectionHead)
       : existingEquipmentReport?.SectionHeadId;
-      values.EquipmentImprovementAttachmentDetails = improvementAttchments;
+    values.EquipmentImprovementAttachmentDetails = improvementAttchments;
     values.EquipmentCurrSituationAttachmentDetails = currSituationAttchments;
     values.IsSubmit = true;
     values.isAmendReSubmitTask = false; // Set the sectionHead value in the form values
@@ -242,9 +242,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           "ResultStatus",
           "PCRNNumber",
         ]);
-      }
-      else{
-        debugger
+      } else {
+        debugger;
         await form.validateFields();
       }
       Modal.confirm({
@@ -391,7 +390,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         IsResultSubmit: false,
       };
     }
-    debugger
+    debugger;
     console.log("form saved as draft data", values);
     if (id) {
       values.EquipmentImprovementId = parseInt(id);
@@ -399,11 +398,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     if (underLogicalAmmendment || underLogicalAmmendment) {
       values.IsSubmit = true;
     }
-    debugger
+    debugger;
     console.log("values", values);
     if (!isAdmin) {
       if (existingEquipmentReport?.WorkflowLevel == 2) {
-        debugger
+        debugger;
         const fieldsToExclude = [
           "ActualDate",
           "ResultMonitoring",
@@ -411,7 +410,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           "ResultStatus",
           "PCRNNumber",
         ];
-debugger
+        debugger;
         const allFields = Object.keys(form.getFieldsValue());
         console.log("ALL FIELDS", allFields);
         const fieldsToValidate = allFields.filter(
@@ -419,9 +418,13 @@ debugger
         );
         await form.validateFields(fieldsToValidate); //: TODO Need to update
       } else {
-        debugger
+        debugger;
 
-        console.log("CURRENT ATTACHMENT",currSituationAttchments,form.getFieldValue("EquipmentCurrSituationAttachmentDetails"));
+        console.log(
+          "CURRENT ATTACHMENT",
+          currSituationAttchments,
+          form.getFieldValue("EquipmentCurrSituationAttachmentDetails")
+        );
         await form.validateFields();
       }
     }
@@ -479,17 +482,29 @@ debugger
     Person: [{ required: true, message: "Please select Person In Charge" }],
     Results: [{ required: true, message: "Please enter Results " }],
     TargetDate: [{ required: true, message: "Please select Target Date" }],
-    ActualDate: [{ required: enableResultStatus, message: "Please select Actual Date" }],
-    ResultMonitoring: [
-      { required: enableResultStatus, message: "Please select Result Monitoring" },
+    ActualDate: [
+      { required: enableResultStatus, message: "Please select Actual Date" },
     ],
-    ResultStatus: [{ required: enableResultStatus, message: "Please enter Result Status" }],
+    ResultMonitoring: [
+      {
+        required: enableResultStatus,
+        message: "Please select Result Monitoring",
+      },
+    ],
+    ResultStatus: [
+      { required: enableResultStatus, message: "Please enter Result Status" },
+    ],
     ResultMonitoringDate: [
-      { required: enableResultStatus, message: "Please select Result Monitoring Date" },
+      {
+        required: enableResultStatus,
+        message: "Please select Result Monitoring Date",
+      },
     ],
 
     attachment: [{ required: true, message: "Please upload attachment" }],
-    PCRNNumber: [{ required: enableResultStatus, message: "Please enter PCRN Number" }],
+    PCRNNumber: [
+      { required: enableResultStatus, message: "Please enter PCRN Number" },
+    ],
   };
 
   // const handleSubMachines = async () => {
@@ -612,17 +627,17 @@ debugger
           ),
         });
       }
-      debugger
+      debugger;
       // form.setFieldValue([""])
       setImprovementAttchments(
         existingEquipmentReport?.EquipmentImprovementAttachmentDetails ?? []
       );
-      debugger
+      debugger;
       // setpcrnAttachments(existingEquipmentReport?.PcrnAttachments ?? null);
       setcurrSituationAttchments(
         existingEquipmentReport?.EquipmentCurrSituationAttachmentDetails ?? []
       );
-      debugger
+      debugger;
       setselectedMachine(parseInt(existingEquipmentReport?.MachineName ?? "0"));
       setChangeRiskManagementDetails(changeRiskData);
       console.log(
@@ -630,15 +645,15 @@ debugger
         existingEquipmentReport?.ChangeRiskManagementDetails,
         changeRiskData
       );
-      if(existingEquipmentReport?.MachineName=="-1"){
-        setshowOtherMachine(true)
+      if (existingEquipmentReport?.MachineName == "-1") {
+        setshowOtherMachine(true);
       }
-      if(existingEquipmentReport?.SubMachineName.includes(-2)){
-        setshowOtherSubMachine(true)
+      if (existingEquipmentReport?.SubMachineName.includes(-2)) {
+        setshowOtherSubMachine(true);
       }
       // handleMachineChange(existingEquipmentReport?.MachineName);
       // handleSubMachineChange(existingEquipmentReport?.SubMachineName);
-      
+
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment &&
         existingEquipmentReport.CreatedBy == user.employeeId &&
@@ -693,10 +708,10 @@ debugger
     );
   };
 
-  const handleResultMonitoringDateChange=()=>{
-    form.setFieldValue("ResultStatus","");
+  const handleResultMonitoringDateChange = () => {
+    form.setFieldValue("ResultStatus", "");
     setenableResultStatus(false);
-  }
+  };
 
   const handleResultMonitoringChange = (value) => {
     debugger;
@@ -717,7 +732,7 @@ debugger
       setshowResultMonitoringDate(false);
       setenableResultStatus(false);
     }
-    form.setFieldValue("ResultStatus","");
+    form.setFieldValue("ResultStatus", "");
   };
   const handleAdd = (): void => {
     const newData: IChangeRiskData[] = [
@@ -980,7 +995,7 @@ debugger
           </Form.Item>
         );
       },
-      width: "40%",
+      width: 120,
       sorter: false,
     },
     {
@@ -1177,16 +1192,18 @@ debugger
             {(mode == "add" ||
               (isAdmin && !isModeView) ||
               (!isModeView &&
-                (
-                  (!submitted &&
+                ((!submitted &&
                   existingEquipmentReport?.Status !=
                     REQUEST_STATUS.LogicalAmendment &&
                   existingEquipmentReport?.Status !=
                     REQUEST_STATUS.UnderAmendment) ||
                   (existingEquipmentReport?.WorkflowStatus ==
-                    REQUEST_STATUS.W1Completed && enableResultStatus&&
+                    REQUEST_STATUS.W1Completed &&
+                    enableResultStatus &&
                     existingEquipmentReport?.Status !=
-                      REQUEST_STATUS.LogicalAmendment)) &&
+                      REQUEST_STATUS.LogicalAmendment &&
+                    existingEquipmentReport?.Status !=
+                      REQUEST_STATUS.UnderAmendment)) &&
                 existingEquipmentReport?.CreatedBy === user?.employeeId)) && (
               <button
                 className="btn btn-darkgrey "
@@ -1198,6 +1215,7 @@ debugger
             )}
 
             {(underAmmendment ||
+              resultUnderAmmendment ||
               existingEquipmentReport?.Status ==
                 REQUEST_STATUS.LogicalAmendment) &&
               mode != "view" && (
@@ -1555,11 +1573,10 @@ debugger
                       const updatedAttachments: ICurrentSituationAttachments[] =
                         [...existingAttachments, newAttachment];
 
-                        void form.validateFields(["EquipmentCurrSituationAttachmentDetails"]);
+                      void form.validateFields([
+                        "EquipmentCurrSituationAttachmentDetails",
+                      ]);
                       setcurrSituationAttchments(updatedAttachments);
-
-                    
-                  
 
                       console.log("File Added");
                     }}
@@ -1578,24 +1595,27 @@ debugger
                     onRemoveFile={async (documentName: string) => {
                       debugger;
                       const existingAttachments = currSituationAttchments ?? [];
-                    
+
                       const updatedAttachments = existingAttachments?.filter(
                         (doc) => doc.CurrSituationDocName !== documentName
                       );
-                    
+
                       setcurrSituationAttchments(updatedAttachments);
-                    
-                     
+
                       console.log("Validation successful after file removal");
                       if (updatedAttachments?.length == 0) {
-                        debugger
-                        form.setFieldValue("EquipmentCurrSituationAttachmentDetails", []);
+                        debugger;
+                        form.setFieldValue(
+                          "EquipmentCurrSituationAttachmentDetails",
+                          []
+                        );
                       }
-                      await form.validateFields(["EquipmentCurrSituationAttachmentDetails"]); 
-                    
+                      await form.validateFields([
+                        "EquipmentCurrSituationAttachmentDetails",
+                      ]);
+
                       console.log("File Removed");
                     }}
-                    
                   />
                 </Form.Item>
               </div>
@@ -1694,37 +1714,43 @@ debugger
                         EquipmentImprovementId: parseInt(id),
                         ImprovementDocName: name,
                         ImprovementDocFilePath: url,
-                        CreatedBy:  user?.employeeId,
-                        ModifiedBy:  user?.employeeId,
+                        CreatedBy: user?.employeeId,
+                        ModifiedBy: user?.employeeId,
                       };
 
                       const updatedAttachments: IImprovementAttachments[] = [
                         ...existingAttachments,
                         newAttachment,
                       ];
-                      
-                      void form.validateFields(["EquipmentImprovementAttachmentDetails"]);
+
+                      void form.validateFields([
+                        "EquipmentImprovementAttachmentDetails",
+                      ]);
                       setImprovementAttchments(updatedAttachments);
 
                       console.log("File Added");
                     }}
                     onRemoveFile={async (documentName: string) => {
                       const existingAttachments = improvementAttchments ?? [];
-                    
+
                       const updatedAttachments = existingAttachments?.filter(
                         (doc) => doc.ImprovementDocName !== documentName
                       );
-                    
+
                       setImprovementAttchments(updatedAttachments);
-                    
-                      
+
                       console.log("Validation successful after file removal");
                       if (updatedAttachments?.length == 0) {
-                        debugger
-                        form.setFieldValue("EquipmentImprovementAttachmentDetails", []);
+                        debugger;
+                        form.setFieldValue(
+                          "EquipmentImprovementAttachmentDetails",
+                          []
+                        );
                       }
-                      await form.validateFields(["EquipmentImprovementAttachmentDetails"]); 
-                    
+                      await form.validateFields([
+                        "EquipmentImprovementAttachmentDetails",
+                      ]);
+
                       console.log("File Removed");
                     }}
                   />
@@ -1851,8 +1877,10 @@ debugger
             )} */}
             {(existingEquipmentReport?.WorkflowStatus ==
               REQUEST_STATUS.W1Completed ||
-              existingEquipmentReport?.Status == REQUEST_STATUS.Completed ||(existingEquipmentReport?.WorkflowLevel==2 && existingEquipmentReport?.WorkflowStatus ==
-              REQUEST_STATUS.Rejected ) ) &&
+              existingEquipmentReport?.Status == REQUEST_STATUS.Completed ||
+              (existingEquipmentReport?.WorkflowLevel == 2 &&
+                existingEquipmentReport?.WorkflowStatus ==
+                  REQUEST_STATUS.Rejected)) &&
               existingEquipmentReport?.IsSubmit && (
                 // true &&
                 <div>
@@ -1877,7 +1905,6 @@ debugger
                               ? validationRules["PCRNNumber"]
                               : null
                           }
-                          
                         >
                           <Input
                             disabled={
