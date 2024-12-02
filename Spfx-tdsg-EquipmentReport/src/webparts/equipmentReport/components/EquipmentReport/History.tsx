@@ -21,6 +21,13 @@ const History: React.FC = () => {
           width: "15%",
         },
         {
+          title: "Status",
+          dataIndex: "status",
+          key: "status",
+          render: (text:string) => <p className="text-cell">{text}</p>,
+          width: "15%",
+        },
+        {
           title: "Comments",
           dataIndex: "comment",
           key: "comment",
@@ -34,14 +41,14 @@ const History: React.FC = () => {
               {text}
             </p>
           ),
-          width: "40%",
+          width: "30%",
         },
         {
           title: "Action Taken By",
           dataIndex: "actionTakenBy",
           key: "actionTakenBy",
           render: (text:string) => <p className="text-cell">{text}</p>,
-          width: "25%",
+          width: "20%",
         },
         {
           title: "Action Taken Date",

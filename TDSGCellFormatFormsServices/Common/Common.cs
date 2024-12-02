@@ -45,6 +45,7 @@ namespace TDSGCellFormat.Common
             MaterialConsumption = 4, //MATERIALCONSUMPTION
             TechnicalInstruction = 5
         }
+       
         public enum HistoryAction
         {
             Submit = 1,
@@ -79,7 +80,8 @@ namespace TDSGCellFormat.Common
             Approved = 1,
             Rejected = 2,
             AskToAmend = 3,
-            LogicalAmendment = 4
+            LogicalAmendment = 4,
+            Comment = 5
         }
         public enum EmailNotificationAction
         {
@@ -279,6 +281,16 @@ namespace TDSGCellFormat.Common
         public const string EquipmentResubmit = "Equipment Improvement form Resubmitted successfully";
 
         public const string AdjustMentSave = "Adjustment Report saved successfully";
+        public const string AdjustMentSubmit = "AdjustMent form submitted successfully";
+        public const string AdjustMentReSubmit = "AdjustMent form Resubmitted successfully";
+        public const string AdjustMentPullback = "AdjustMent form has been pulled back successfully";
+        public const string AdjustMentAsktoAmend = "Amendment Asked successfully";
+        public const string AdjustMentApprove = "AdjustMent form has been approved";
+        public const string AdjustMentReject = "AdjustMent rejected";
+        public const string AdjustMentDateUpdate = "AdjustMent record updated";
+        public const string AdjustMentExcel = "Excel file downloaded successfully";
+        public const string AdjustMentPdf = "PDF file downloaded successfully";
+        public const string AdjustMentNotFound = "Please complete the approval process to download the excel";
 
         public const string MaterialSave = "Material Consumption form saved successfully";
         public const string MaterialSubmit = "Material Consumption form submitted successfully";
@@ -290,6 +302,18 @@ namespace TDSGCellFormat.Common
         public const string MaterialExcel = "Excel file downloaded successfully";
         public const string MaterialPdf = "PDF file downloaded successfully";
         public const string MaterialExcelNotFound = "Please complete the approval process to download the excel";
+
+        public const string TechnicalSave = "Technical Instruction form saved successfully";
+        public const string TechnicalSubmit = "Technical Instruction form submitted successfully";
+        public const string TechnicalApprove = "Technical Instruction form has been approved";
+        public const string TechnicalAsktoAmend = "Amendment Asked successfully";
+        public const string TechnicalResubmit = "Technical Instruction form Resubmitted successfully";
+        public const string TechnicalPullback = "Technical Instruction form has been pulled back successfully";
+        public const string TechnicalClose = "Technical Instruction form closed successfully";
+        public const string TechnicalExcel = "Excel file downloaded successfully";
+        public const string TechnicalPdf = "PDF file downloaded successfully";
+        public const string TechnicalExcelNotFound = "Please complete the approval process to download the excel";
+        public const string TechnicalReOpen = "Technical Instruction reopened";
         #endregion
     }
 }

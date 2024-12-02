@@ -36,12 +36,14 @@ const getGridData = async (param: IGridParams ) => {
   });
   
   if(param.listingScreen){
+    
     // const tabledata=response.data.ReturnValue?JSON.parse(response.data?.ReturnValue): []
-    const tabledata=response.data.ReturnValue?? []
+    const tabledata=response?.data?.ReturnValue?? []
+    
     return tabledata;
   }
   else {
-    return response.data.ReturnValue;
+    return response?.data?.ReturnValue;
   }}
   catch (error) {
     console.error('Error fetching trouble report listing:', error);
