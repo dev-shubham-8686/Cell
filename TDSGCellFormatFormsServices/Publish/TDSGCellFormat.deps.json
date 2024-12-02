@@ -31,7 +31,8 @@
           "TDSGCellFormat.Common": "1.0.0",
           "iTextSharp": "5.5.13.4",
           "itext7": "8.0.5",
-          "itextsharp.xmlworker": "5.5.13.4"
+          "itextsharp.xmlworker": "5.5.13.4",
+          "IronPdf.Core": "2019.6.5.0"
         },
         "runtime": {
           "TDSGCellFormat.dll": {}
@@ -2294,6 +2295,14 @@
             "fileVersion": "1.0.0.0"
           }
         }
+      },
+      "IronPdf.Core/2019.6.5.0": {
+        "runtime": {
+          "IronPdf.Core.dll": {
+            "assemblyVersion": "2019.6.5.0",
+            "fileVersion": "2019.6.5.0"
+          }
+        }
       }
     }
   },
@@ -3957,6 +3966,11 @@
     },
     "TDSGCellFormat.Common/1.0.0": {
       "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "IronPdf.Core/2019.6.5.0": {
+      "type": "reference",
       "serviceable": false,
       "sha512": ""
     }

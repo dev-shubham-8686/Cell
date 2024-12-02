@@ -1186,7 +1186,7 @@ namespace TDSGCellFormat.Helper
                                 break;
 
                             case EmailNotificationAction.ResultApprove:
-                                templateFile = "Equipment_ResultSubmit.html";
+                                templateFile = "Equipment_ResultApprove.html";
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} Result Section has been Approved", equipmentNo);
                                 isRequestorinToEmail = true;
                                 allApprover = true;
@@ -1433,13 +1433,13 @@ namespace TDSGCellFormat.Helper
                                         emailCCAddressList.Add(item.email);
                                     }
                                 }
-                                foreach (var i in approverData)
-                                {
-                                    if (i.SequenceNo == 2 && i.WorkFlowlevel == 1)
-                                    {
-                                        emailToAddressList.Add(i.email);
-                                    }
-                                }
+                                //foreach (var i in approverData)
+                                //{
+                                //    if (i.SequenceNo == 2 && i.WorkFlowlevel == 1)
+                                //    {
+                                //        emailToAddressList.Add(i.email);
+                                //    }
+                                //}
                             }
                         }
 
@@ -1453,7 +1453,7 @@ namespace TDSGCellFormat.Helper
 
                         if (nextApproverTaskId > 0)
                         {
-                            var approvalData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == requestId && x.Status == ApprovalTaskStatus.Approved.ToString() && x.IsActive == true)
+                            var approvalData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == requestId && (x.Status != ApprovalTaskStatus.InReview.ToString() || x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true)
                                 .OrderByDescending(x => x.ApproverTaskId)
                                 .FirstOrDefault();
                             Role = approvalData?.Role;
