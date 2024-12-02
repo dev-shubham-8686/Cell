@@ -36,8 +36,8 @@ builder.Services.AddControllers()
 builder.Services.AddScoped<CommonHelper>();
 builder.Services.AddScoped<IMasterService, MasterService>();
 
-builder.Services.AddScoped<IAdjustMentReporttService, AdjustMentReporttService>();
-//builder.Services.AddScoped<IAdjustMentReportRepository, AdjustMentReportRepository>();
+builder.Services.AddScoped<IAdjustMentReportService, AdjustMentReporttService>();
+builder.Services.AddScoped<IAdjustMentReportRepository, AdjustMentReportRepository>();
 
 builder.Services.AddScoped<IApplicationImprovementService, ApplicationImprovementService>();
 builder.Services.AddScoped<IApplicationImprovementRepository, ApplicationImprovementRepository>();
@@ -51,6 +51,9 @@ builder.Services.AddScoped<ITechnicalInsurtuctionRepository, TechnicalInstructio
 
 builder.Services.AddScoped<ITroubleReportService, TroubleReportService>();
 builder.Services.AddScoped<ITroubleReportRepository, TroubleReportRepository>();
+
+builder.Services.AddScoped<ISprocRepository, SprocRepository>();
+
 //DefaultConnection //TdsgCellFormatDivisionContext
 builder.Services.AddDbContext<TdsgCellFormatDivisionContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

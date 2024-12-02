@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Spreadsheet;
 using TDSGCellFormat.Interface.Service;
 using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
@@ -44,7 +45,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var newArea = new Area()
             {
                 AreaName = area.areaName,
-                IsActive = true,  
+                IsActive = true,
             };
 
 
@@ -116,7 +117,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 ModifiedBy = unitOfMeasure.createdBy,
                 ModifiedDate = DateTime.Now,
             };
-            
+
             _context.UnitOfMeasures.Add(newUOM);
             await _context.SaveChangesAsync();
 
@@ -138,7 +139,7 @@ namespace TDSGCellFormat.Implementation.Repository
             existingUOM.Name = unitOfMeasure.name.Trim();
             existingUOM.ModifiedBy = unitOfMeasure.modifiedBy;
             existingUOM.ModifiedDate = DateTime.Now;
-            
+
             await _context.SaveChangesAsync();
 
             return new UnitOfMeasureView()
@@ -174,7 +175,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                   .Select(d => d.DivisionID)
                                   .FirstOrDefault();
 
-            IQueryable<EmployeeMasterView> res = _cloneContext.EmployeeMasters.Where(x => x.IsActive == true 
+            IQueryable<EmployeeMasterView> res = _cloneContext.EmployeeMasters.Where(x => x.IsActive == true
                                             && _cloneContext.DepartmentMasters
                                               .Where(d => d.DivisionID == divisionID)
                                             .Select(d => d.DepartmentID)
@@ -224,7 +225,7 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-       
+
         public IQueryable<MachineView> GetAllMachines()
         {
             IQueryable<MachineView> res = _context.Machines
@@ -327,6 +328,51 @@ namespace TDSGCellFormat.Implementation.Repository
 
         }
 
+
+        public IQueryable<EmployeeMasterView> GetCheckedBy()
+        {
+            IQueryable<EmployeeMasterView> res = _cloneContext.EmployeeMasters
+                .Join(_cloneContext.DepartmentMasters, em => em.DepartmentID, dm => dm.DepartmentID, (em, dm) => new { em, dm })
+                .Where(x => x.em.IsActive == true && x.dm.Name == "Cell Production")
+                .Select(x => new EmployeeMasterView
+                {
+                    employeeId = x.em.EmployeeID,
+                    employeeName = x.em.EmployeeName,
+                    Email = x.em.Email,
+                });
+
+            return res;
+        }
+
+        public IQueryable<EmployeeMasterView> GetAllEmployee()
+        {
+            IQueryable<EmployeeMasterView> res = _cloneContext.EmployeeMasters.Where(x => x.IsActive == true)
+                                            .Select(x => new EmployeeMasterView
+                                            {
+                                                employeeId = x.EmployeeID,
+                                                employeeName = x.EmployeeName
+                                            });
+
+            return res;
+        }
+
+        public IQueryable<AdvisorMasterView> GetAllAdvisors()
+        {
+            IQueryable<AdvisorMasterView> res = _cloneContext.EmployeeMasters
+                                      .Where(x => x.IsActive == true
+                                             && x.EmpDesignation.StartsWith("Advisor") // Filter for designation
+                                             && _cloneContext.DepartmentMasters
+                                                .Where(d => d.DivisionID == 1)
+                                                .Select(d => d.DepartmentID)
+                                                .Contains(x.DepartmentID))
+                                      .Select(x => new AdvisorMasterView
+                                      {
+                                          employeeId = x.EmployeeID,
+                                          employeeName = x.EmployeeName,
+                                          Email = x.Email // Assuming you want to return department as well
+                                      });
+            return res;
+        }
 
         public IQueryable<ResultMonitorView> GetAllResultMonitor()
         {
