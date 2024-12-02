@@ -1878,9 +1878,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             {(existingEquipmentReport?.WorkflowStatus ==
               REQUEST_STATUS.W1Completed ||
               existingEquipmentReport?.Status == REQUEST_STATUS.Completed ||
-              (existingEquipmentReport?.WorkflowLevel == 2 &&
-                existingEquipmentReport?.WorkflowStatus ==
-                  REQUEST_STATUS.Rejected)) &&
+              (existingEquipmentReport?.WorkflowLevel == 2)) &&
               existingEquipmentReport?.IsSubmit && (
                 // true &&
                 <div>
