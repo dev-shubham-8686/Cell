@@ -37,7 +37,7 @@ builder.Services.AddScoped<CommonHelper>();
 builder.Services.AddScoped<IMasterService, MasterService>();
 
 builder.Services.AddScoped<IAdjustMentReporttService, AdjustMentReporttService>();
-builder.Services.AddScoped<IAdjustMentReportRepository, AdjustMentReportRepository>();
+//builder.Services.AddScoped<IAdjustMentReportRepository, AdjustMentReportRepository>();
 
 builder.Services.AddScoped<IApplicationImprovementService, ApplicationImprovementService>();
 builder.Services.AddScoped<IApplicationImprovementRepository, ApplicationImprovementRepository>();

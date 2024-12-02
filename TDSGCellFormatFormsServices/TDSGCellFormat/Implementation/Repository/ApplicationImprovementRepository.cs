@@ -345,7 +345,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true)
                     {
-                        var data = await Resubmit(existingReport.EquipmentImprovementId, report.CreatedBy);
+                        var data = await Resubmit(existingReport.EquipmentImprovementId, report.ModifiedBy);
                         if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.EquipmentResubmit;
@@ -754,7 +754,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else if (report.IsSubmit == true && report.IsAmendReSubmitTask == true && existingReport.IsLogicalAmend == false)
                 {
-                    var data = await Resubmit(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
+                    var data = await Resubmit(existingReport.EquipmentImprovementId, report.ModifiedBy);
                     if (data.StatusCode == Enums.Status.Success)
                     {
                         res.Message = Enums.EquipmentResubmit;
