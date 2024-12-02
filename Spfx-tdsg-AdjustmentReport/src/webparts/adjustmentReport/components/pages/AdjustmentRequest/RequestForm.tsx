@@ -1,4 +1,4 @@
-import { Button, Col, DatePicker, Form, Input, Radio, Row, Select } from "antd";
+import { Button, Col, DatePicker, Form, Input, Radio, Row, Select, Table } from "antd";
 import * as React from "react";
 import { disabledDate } from "../../../utils/helper";
 import * as dayjs from "dayjs";
@@ -18,12 +18,14 @@ import { useUserContext } from "../../../context/UserContext";
 import { useGetAdjustmentReportById } from "../../../hooks/useGetAdjustmentReportById";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import FileUpload from "../fileUpload/FileUpload";
-import { DocumentLibraries, OPERATION } from "../../../GLOBAL_CONSTANT";
+import { DATE_FORMAT, DocumentLibraries, OPERATION } from "../../../GLOBAL_CONSTANT";
 import { useAddUpdateReport } from "../../../hooks/useAddUpdateReport";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { IAdjustmentReportPhoto } from "../../../interface";
+import { IAdjustmentReportPhoto, IChangeRiskData } from "../../../interface";
 import { useGetAllSections } from "../../../hooks/useGetAllSections";
+import { ColumnsType } from "antd/es/table";
+import { useGetAllEmployees } from "../../../hooks/useGetAllEmployees";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -40,7 +42,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const location = useLocation();
   const { isApproverRequest } = location.state || {};
   console.log({ isApproverRequest });
-
+  const [ChangeRiskManagementDetails, setChangeRiskManagementDetails] =
+    useState<IChangeRiskData[]>([]);
   const [beforeAdjustmentReportPhotos, setbeforeAdjustmentReportPhotos] =
     useState<IAdjustmentReportPhoto[]>([]);
   const [afterAdjustmentReportPhotos, setafterAdjustmentReportPhotos] =
@@ -55,6 +58,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const [selectedMachineId, setSelectedMachineId] = useState<number | null>(
     null
   );
+  const { data: employeesResult } = useGetAllEmployees();
+
   const [filteredSubMachines, setFilteredSubMachines] = useState<ISubMachine[]>(
     []
   );
@@ -203,6 +208,24 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       setreportNo(reportData?.ReturnValue.ReportNo);
       setCRMRequired(reportData?.ReturnValue.ChangeRiskManagementRequired);
       setCRM(reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport);
+      const changeRiskData =
+      reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport?.map(
+        (obj:any, index:any) => {
+          return {
+            key: index,
+            ...obj,
+          };
+        }
+      );
+      setChangeRiskManagementDetails(changeRiskData)
+      form.setFieldsValue({
+        ...reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport,
+        ChangeRiskManagementDetails:
+        reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport?.map((data:any) => ({
+            ...data,
+            DueDate: dayjs(data.DueDate, DATE_FORMAT) ?? null,
+          })),
+      });
 
       // if (reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport) {
       //   setFormSections(
@@ -281,6 +304,49 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       form.setFieldsValue({ subMachineName: [] }); // Reset sub-machine selection
     }
   };
+  const validationRules = {
+    When: [{ required: true, message: "Please enter When Date" }],
+    Area: [{ required: true, message: "Please select Area" }],
+    Section: [{ required: true, message: "Please select Section Name" }],
+    Machine: [{ required: true, message: "Please select Machine Name" }],
+    OtherMachine: [
+      { required: true, message: "Please enter other Machine Name" },
+    ],
+    SubMachine: [{ required: true, message: "Please select Sub Machine Name" }],
+    OtherSubMachine: [
+      { required: true, message: "Please enter other Machine Name" },
+    ],
+    ImpName: [{ required: true, message: "Please enter Improvement Name" }],
+    ImpDesc: [
+      { required: true, message: "Please enter Improvement Description" },
+    ],
+    Purpose: [{ required: true, message: "Please enter Purpose" }],
+    CurrSituation: [
+      { required: true, message: "Please enter Current Situation" },
+    ],
+    Changes: [{ required: true, message: "Please enter Changes" }],
+    Function: [{ required: true, message: "Please enter Function" }],
+    Risks: [{ required: true, message: "Please enter Risk " }],
+    Factor: [{ required: true, message: "Please enter Factor/causes" }],
+    CounterMeasure: [
+      { required: true, message: "Please enter Counter Measure" },
+    ],
+    DueDate: [{ required: true, message: "Please select Due Date" }],
+    Person: [{ required: true, message: "Please select Person In Charge" }],
+    Results: [{ required: true, message: "Please enter Results " }],
+    TargetDate: [{ required: true, message: "Please select Target Date" }],
+    ActualDate: [{ required: true, message: "Please select Actual Date" }],
+    ResultMonitoring: [
+      { required: true, message: "Please select Result Monitoring" },
+    ],
+    ResultStatus: [{ required: true, message: "Please enter Result Status" }],
+    ResultMonitoringDate: [
+      { required: true, message: "Please select Result Monitoring Date" },
+    ],
+
+    attachment: [{ required: true, message: "Please upload attachment" }],
+  };
+
 
   // const handleAdditionalApprovalClick = () => {
   //   setApprovalModalVisible(true);
@@ -357,7 +423,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       AdjustmentDescription: values.adjustmentDescription, //done
       ConditionAfterAdjustment: values.conditionAfterAdjustment, // done
       ChangeRiskManagementRequired: values.ChangeRiskManagementRequired, // done
-      ChangeRiskManagement_AdjustmentReport: values.ChangeRiskManagementList, // Ensure this is an array of ChangeRiskManagement objects
+      ChangeRiskManagement_AdjustmentReport: ChangeRiskManagementDetails, // Ensure this is an array of ChangeRiskManagement objects
       IsSubmit: operation == OPERATION.Submit, //done
       IsAmendReSubmitTask: operation == OPERATION.Resubmit,
       Photos: { BeforeImages: beforeImages, AfterImages: afterImages },
@@ -408,6 +474,375 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     onSaveFormHandler(values, operation);
   };
 
+  const handleAdd = (): void => {
+    const newData: IChangeRiskData[] = [
+      ...ChangeRiskManagementDetails,
+      {
+        key: ChangeRiskManagementDetails?.length,
+        Changes: "",
+        FunctionId: "",
+        RiskAssociated: "",
+        Factor: "",
+        CounterMeasures: "",
+        DueDate: null,
+        PersonInCharge: null,
+        Results: "",
+      },
+    ];
+    setChangeRiskManagementDetails(newData);
+    console.log(
+      "after adding change req data",
+      ChangeRiskManagementDetails,
+      newData
+    );
+  };
+
+  const handleDelete = (key: React.Key): void => {
+    const newData = ChangeRiskManagementDetails.filter(
+      (item) => item.key !== key
+    ).map((item, index) => {
+      return {
+        ...item,
+        key: index,
+        DueDate: item.DueDate ? dayjs(item.DueDate, DATE_FORMAT) : null,
+      };
+    });
+
+    console.log("after deleting", ChangeRiskManagementDetails, newData);
+    setChangeRiskManagementDetails(newData);
+    // form.resetFields();
+
+    form.setFieldsValue({
+      ["ChangeRiskManagementDetails"]: newData,
+    });
+  };
+
+  const onChangeTableData = (
+    key: number,
+    updateField: string | any,
+    value: string | number | string[] | boolean
+  ): void => {
+    const newData = ChangeRiskManagementDetails.map((item: IChangeRiskData) => {
+      if (item.key == key) {
+        return {
+          ...item, // Spread the existing item
+          [updateField]: value, // Update the specific field
+        };
+      }
+      return item;
+    });
+    setChangeRiskManagementDetails(newData);
+    console.log("Uppdated Change risk", ChangeRiskManagementDetails, newData);
+  };
+  
+  const nestedTableColumns: ColumnsType<any> = [
+    {
+      title: "Changes",
+      dataIndex: "Changes",
+      key: "Changes",
+      render: (_, record, index) => {
+        return (
+          <Form.Item
+            name={["ChangeRiskManagementDetails", record.key, "Changes"]}
+            initialValue={
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "Changes",
+              ]) ?? record.employeeId
+            }
+            rules={validationRules.Changes}
+          >
+            <Input
+              maxLength={100}
+              
+              style={{ width: "100%" }}
+              placeholder="Please enter Changes"
+              onChange={(e) => {
+                onChangeTableData(record.key, "Changes", e.target.value);
+              }}
+              className="custom-disabled-select"
+            />
+          </Form.Item>
+        );
+      },
+      width: "30%",
+      sorter: false,
+    },
+    {
+      title: "Function",
+      dataIndex: "FunctionId",
+      key: "FunctionId",
+      render: (_, record, index) => {
+        return (
+          <Form.Item
+            name={["ChangeRiskManagementDetails", record.key, "FunctionId"]}
+            initialValue={
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "FunctionId",
+              ]) ?? record.employeeId
+            }
+            rules={validationRules.Function}
+          >
+            <TextArea
+              maxLength={1000}
+              
+              style={{ width: "100%" }}
+              placeholder="Select function"
+              onChange={(e) => {
+                onChangeTableData(record.key, "FunctionId", e.target.value);
+              }}
+              className="custom-disabled-select"
+            />
+          </Form.Item>
+        );
+      },
+      width: "30%",
+      sorter: false,
+    },
+    {
+      title: "Risk Associated with Changes",
+      dataIndex: "RiskAssociated ",
+      key: "RiskAssociated ",
+      render: (_, record) => {
+        return (
+          <Form.Item
+            name={["ChangeRiskManagementDetails", record.key, "RiskAssociated"]}
+            initialValue={
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "RiskAssociated",
+              ]) ?? record.comment
+            }
+            style={{ margin: 0 }}
+            rules={validationRules.Risks}
+          >
+            <TextArea
+           
+              maxLength={1000}
+              placeholder="Enter risks"
+              rows={2}
+              onChange={(e) => {
+                onChangeTableData(record.key, "RiskAssociated", e.target.value);
+              }}
+            />
+          </Form.Item>
+        );
+      },
+      width: "40%",
+      sorter: false,
+    },
+    {
+      title: "Factor/Causes",
+      dataIndex: "Factor",
+      key: "Factor",
+      render: (_, record) => {
+        return (
+          <Form.Item
+            name={["ChangeRiskManagementDetails", record.key, "Factor"]}
+            initialValue={
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "factor",
+              ]) ?? record.comment
+            }
+            style={{ margin: 0 }}
+            rules={validationRules.Factor}
+          >
+            <TextArea
+              
+              maxLength={1000}
+              placeholder="Add Factor"
+              rows={2}
+              onChange={(e) => {
+                onChangeTableData(record.key, "Factor", e.target.value);
+              }}
+            />
+          </Form.Item>
+        );
+      },
+      width: "40%",
+      sorter: false,
+    },
+    {
+      title: "Counter Measures",
+      dataIndex: "CounterMeasures",
+      key: "CounterMeasures",
+      render: (_, record) => {
+        return (
+          <Form.Item
+            name={[
+              "ChangeRiskManagementDetails",
+              record.key,
+              "CounterMeasures",
+            ]}
+            initialValue={
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "CounterMeasures",
+              ]) ?? record.comment
+            }
+            style={{ margin: 0 }}
+            rules={validationRules.CounterMeasure}
+          >
+            <TextArea
+             
+              maxLength={1000}
+              placeholder="Add Counter Measures"
+              rows={2}
+              onChange={(e) => {
+                onChangeTableData(
+                  record.key,
+                  "CounterMeasures",
+                  e.target.value
+                );
+              }}
+            />
+          </Form.Item>
+        );
+      },
+      width: "40%",
+      sorter: false,
+    },
+    {
+      title: "Due Date",
+      dataIndex: "DueDate",
+      key: "DueDate",
+      render: (_, record) => {
+        return (
+          <Form.Item
+            name={["ChangeRiskManagementDetails", record.key, "DueDate"]}
+            // initialValue={
+            //   record?.DueDate ? dayjs(record.DueDate, "DD-MM-YYYY") : null
+            // }
+            rules={validationRules.DueDate}
+          >
+          
+            <DatePicker
+              //  value={
+              //   record?.DueDate
+              //     ? dayjs(record?.DueDate).format(DATE_FORMAT) // Pass the date in correct format to dayjs
+              //     : undefined
+              // }
+              format="DD-MM-YYYY"
+             
+              onChange={(date, dateString) => {
+                onChangeTableData(record.key, "DueDate", dateString);
+              }}
+            />
+          </Form.Item>
+        );
+      },
+      width: "40%",
+      sorter: false,
+    },
+    {
+      title: "Person in Charge",
+      dataIndex: "PersonInCharge",
+      key: "PersonInCharge",
+      render: (_, record, index) => {
+        return (
+          <Form.Item
+            name={["ChangeRiskManagementDetails", record.key, "PersonInCharge"]}
+            initialValue={
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "PersonInCharge",
+              ]) ?? record.employeeId
+            }
+            rules={validationRules.Person}
+          >
+            <Select
+             
+              showSearch
+              optionFilterProp="children"
+              style={{ width: "100%" }}
+              placeholder="Select Person in Charge "
+              onChange={(value) => {
+                onChangeTableData(record.key, "PersonInCharge", value);
+              }}
+              filterOption={(input, option) =>
+                option?.label
+                  .toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={employeesResult.ReturnValue?.map((emp) => ({
+                label: emp.employeeName,
+                value: emp.employeeId,
+              }))}
+              className="custom-disabled-select"
+            />
+          </Form.Item>
+        );
+      },
+      width: "40%",
+      sorter: false,
+    },
+    {
+      title: "Results",
+      dataIndex: "Results",
+      key: "Results",
+      render: (_, record) => {
+        return (
+          <Form.Item
+            name={["ChangeRiskManagementDetails", record.key, "Results"]}
+            initialValue={
+              form.getFieldValue([
+                "ChangeRiskManagementDetails",
+                record.key,
+                "Results",
+              ]) ?? record.comment
+            }
+            style={{ margin: 0 }}
+            rules={validationRules.Results}
+          >
+            <TextArea
+              
+              maxLength={1000}
+              placeholder="Enter results"
+              rows={2}
+              onChange={(e) => {
+                onChangeTableData(record.key, "Results", e.target.value);
+              }}
+            />
+          </Form.Item>
+        );
+      },
+      width: "40%",
+      sorter: false,
+    },
+    {
+      title: <p className="text-center p-0 m-0 ">Action</p>,
+      key: "action",
+      render: (_, record) => {
+        return (
+          <div className="action-cell">
+            <button
+              type="button"
+              style={{ background: "none", border: "none" }}
+              onClick={() => {
+                handleDelete(record.key);
+              }}
+             
+            >
+              <span>
+                <FontAwesomeIcon icon={faTrash} />
+              </span>
+            </button>
+          </div>
+        );
+      },
+
+      sorter: false,
+    },
+  ];
   // const handleUpload = async (file: any) => {
   //   const MAX_FILES = 5;
   //   const MAX_FILE_SIZE_MB = 10;
@@ -565,7 +1000,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
 
   return (
     <>
-      <div style={{ position: "relative", left: "1300px", bottom: "80px" }}>
+      <div style={{ position: "relative", left: "1500px", bottom: "80px" }}>
         <>
           <div className="d-flex gap-3">
             {true && (
@@ -1014,7 +1449,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
         </div>
 
         {/* Render multiple form sections */}
-        {cRMRequired && (
+        {/* {cRMRequired && (
           <div className="flex justify-end items-center my-3">
             <div className="flex items-center gap-x-4">
               <Button type="primary" onClick={addFormSection}>
@@ -1022,7 +1457,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               </Button>
             </div>
           </div>
-        )}
+        )} */}
         {/* {cRMRequired &&
           formSections.map((sectionIndex) => (
             <>
@@ -1037,7 +1472,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               </span>
             </>
           ))} */}
-        {cRMRequired &&
+        {/* {cRMRequired &&
           formSections.map((sectionIndex) => (
             <div key={sectionIndex}>
               <ChangeRiskManagementForm
@@ -1056,7 +1491,41 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                 <FontAwesomeIcon icon={faTrash} />
               </span>
             </div>
-          ))}
+          ))} */}
+{          console.log("CHANGE RISK DATA",ChangeRiskManagementDetails)
+}  <div>
+              <div className="d-flex justify-content-between my-3">
+                <p
+                  className="mb-0"
+                  style={{ fontSize: "20px", color: "#C50017" }}
+                >
+                  Change Risk Management
+                </p>
+                {console.log("Mode", mode)}
+                {true && (
+                  <button
+                    className="btn btn-primary mt-3"
+                    type="button"
+                    onClick={handleAdd}
+                  >
+                    <i className="fa-solid fa-circle-plus" /> Add
+                  </button>
+                )}
+              </div>
+              <Table
+                className="change-risk-table"
+                dataSource={ChangeRiskManagementDetails}
+                columns={nestedTableColumns}
+                scroll={{ x: "max-content" }}
+                // locale={{
+                //   emptyText: (
+                //     <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                //       <Empty description="No Data Available" />
+                //     </div>
+                //   ),
+                // }}
+              />
+</div>
         {/* 
         <Button
           onClick={handleAdditionalApprovalClick}

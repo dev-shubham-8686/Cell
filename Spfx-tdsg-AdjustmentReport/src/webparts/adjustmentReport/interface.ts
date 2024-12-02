@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export interface IAdjustmentReportPhoto {
   AdjustmentReportPhotoId: number;
   AdjustmentReportId: number;
@@ -26,6 +28,17 @@ export interface IAdjustmentReportInfo {
   EmployeeId: number;
 }
 
+export interface IChangeRiskData {
+  key:number;
+  Changes: string;
+  FunctionId : string;
+  RiskAssociated : string;
+  Factor : string;
+  CounterMeasures : string;
+  DueDate :  dayjs.Dayjs;
+  PersonInCharge :number;
+  Results :string
+}
 
 export interface IWorkflowDetail {
   ApproverTaskId: number;

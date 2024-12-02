@@ -1,7 +1,7 @@
 import * as dayjs from "dayjs";
 import { basePathwithprefix } from "../GLOBAL_CONSTANT";
 import apiClient from "../utils/axiosInstance";
-import { IAdjustmentReportPhoto } from "../interface";
+import { IAdjustmentReportPhoto, IChangeRiskData } from "../interface";
 
 // interface Image {
 //   DocumentName: string;
@@ -47,7 +47,7 @@ export interface IAddUpdateReportPayload {
   ConditionAfterAdjustment?: string;
   Photos?: Photos;
   ChangeRiskManagementRequired?: boolean;
-  ChangeRiskManagement_AdjustmentReport: ChangeRiskManagement[];
+  ChangeRiskManagement_AdjustmentReport: IChangeRiskData[];
   IsSubmit?: boolean;
   CreatedBy?: number;
   CreatedDate?: dayjs.Dayjs;
