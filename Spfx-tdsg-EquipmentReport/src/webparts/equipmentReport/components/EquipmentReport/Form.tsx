@@ -1851,7 +1851,8 @@ debugger
             )} */}
             {(existingEquipmentReport?.WorkflowStatus ==
               REQUEST_STATUS.W1Completed ||
-              existingEquipmentReport?.Status == REQUEST_STATUS.Completed) &&
+              existingEquipmentReport?.Status == REQUEST_STATUS.Completed ||(existingEquipmentReport?.WorkflowLevel==2 && existingEquipmentReport?.WorkflowStatus ==
+              REQUEST_STATUS.Rejected ) ) &&
               existingEquipmentReport?.IsSubmit && (
                 // true &&
                 <div>

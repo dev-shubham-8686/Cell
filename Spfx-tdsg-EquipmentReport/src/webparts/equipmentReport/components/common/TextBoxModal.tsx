@@ -276,7 +276,8 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
               key="back"
               className="btn-outline-primary"
               onClick={() => {
-                form.resetFields(); // Reset all fields --  for removing comments
+                form.resetFields();
+                setEmailAttachments([]) // Reset all fields --  for removing comments
                 onCancel();
               }}
             >
