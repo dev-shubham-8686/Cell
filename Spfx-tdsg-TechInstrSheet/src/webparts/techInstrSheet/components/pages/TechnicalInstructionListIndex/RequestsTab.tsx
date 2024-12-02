@@ -20,6 +20,7 @@ import {
   faFileExcel,
   faFileExport,
   faFilePdf,
+  faPaperclip,
   //faPlus,
   faRetweet,
   // faRepeat,
@@ -336,19 +337,39 @@ const RequestsTab: React.FC = () => {
 
   const columns: ColumnsType<any> = [
     {
-      title: "CTI Number",
+      title: "Request No",
       dataIndex: "CTINumber",
       key: "CTINumber",
-      width: "20%",
+      width: "10%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
       ...getColumnSearchProps("CTINumber"),
     },
     {
+      //title: "Attachments",
+      dataIndex: "HasAttachments",
+      key: "HasAttachments",
+      width: "1%",
+      sorter: false,
+      render: (text) => (
+        <span>
+          {text === 1 ? (
+            <FontAwesomeIcon
+              title="Attachment Available"
+              icon={faPaperclip}
+              style={{ color: "green" }}
+            />
+          ) : (
+            <span>&nbsp;&nbsp;&nbsp;</span>
+          )}
+        </span>
+      ),
+    },
+    {
       title: "Issue Date",
       dataIndex: "IssueDate",
       key: "IssueDate",
-      width: "15%",
+      width: "10%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
       render: (text) => (
@@ -360,13 +381,22 @@ const RequestsTab: React.FC = () => {
       title: "Title",
       dataIndex: "Title",
       key: "Title",
-      width: "20%",
+      width: "15%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
       ...getColumnSearchProps("Title"),
     },
     {
-      title: "Issued By",
+      title: "Equipment",
+      dataIndex: "EquipmentNames",
+      key: "EquipmentNames",
+      width: "14%",
+      sorter: true,
+      sortDirections: ["ascend", "descend"],
+      ...getColumnSearchProps("EquipmentNames"),
+    },
+    {
+      title: "Requestor",
       dataIndex: "IssuedBy",
       key: "IssuedBy",
       width: "20%",
@@ -375,10 +405,22 @@ const RequestsTab: React.FC = () => {
       ...getColumnSearchProps("IssuedBy"),
     },
     {
+      title: "Closure Date",
+      dataIndex: "TargetClosureDate",
+      key: "TargetClosureDate",
+      width: "10%",
+      sorter: true,
+      sortDirections: ["ascend", "descend"],
+      render: (text) => (
+        <span>{text ? dayjs(text).format("DD-MM-YYYY") : ""}</span>
+      ),
+      ...getColumnSearchProps("TargetClosureDate"),
+    },
+    {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      width: "15%",
+      width: "10%",
       sorter: true,
       ...getColumnSearchProps("Status"),
       render: (text) => (
@@ -498,13 +540,32 @@ const RequestsTab: React.FC = () => {
       {
         dataIndex: "CTINumber",
         key: "CTINumber",
-        width: "20%",
+        width: "10%",
         render: (text) => <span className="m-0">{text ?? "-"}</span>,
+      },
+      {
+        //title: "Attachments",
+        dataIndex: "HasAttachments",
+        key: "HasAttachments",
+        width: "1%",
+        render: (text) => (
+          <span>
+            {text === 1 ? (
+              <FontAwesomeIcon
+                title="Attachment Available"
+                icon={faPaperclip}
+                style={{ color: "green" }}
+              />
+            ) : (
+              <span>&nbsp;&nbsp;&nbsp;</span>
+            )}
+          </span>
+        ),
       },
       {
         dataIndex: "IssueDate",
         key: "IssueDate",
-        width: "15%",
+        width: "10%",
         render: (text) => (
           <span className="m-0">
             {text ? dayjs(text).format("DD-MM-YYYY") : "-"}
@@ -514,7 +575,13 @@ const RequestsTab: React.FC = () => {
       {
         dataIndex: "Title",
         key: "Title",
-        width: "20%",
+        width: "15%",
+        render: (text) => <span className="m-0">{text ?? "-"}</span>,
+      },
+      {
+        dataIndex: "EquipmentNames",
+        key: "EquipmentNames",
+        width: "14%",
         render: (text) => <span className="m-0">{text ?? "-"}</span>,
       },
       {
@@ -523,11 +590,21 @@ const RequestsTab: React.FC = () => {
         width: "20%",
         render: (text) => <span className="m-0">{text ?? "-"}</span>,
       },
+      {
+        dataIndex: "TargetClosureDate",
+        key: "TargetClosureDate",
+        width: "10%",
+        render: (text) => (
+          <span className="m-0">
+            {text ? dayjs(text).format("DD-MM-YYYY") : "-"}
+          </span>
+        ),
+      },
 
       {
         dataIndex: "Status",
         key: "Status",
-        width: "15.5%",
+        width: "10%",
         render: (text) => (
           <span
             className={`status-badge status-badge-${
@@ -545,6 +622,7 @@ const RequestsTab: React.FC = () => {
         render: (_, record) => (
           <span className="action-cell">
             <Button
+              style={{ marginLeft: "22px" }}
               title="View"
               className="action-btn"
               icon={<FontAwesomeIcon title="View" icon={faEye} />}

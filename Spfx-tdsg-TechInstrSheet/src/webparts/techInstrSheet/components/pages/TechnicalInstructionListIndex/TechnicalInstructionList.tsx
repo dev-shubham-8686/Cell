@@ -76,7 +76,7 @@ const TechnicalInstructionList: React.FC = () => {
             padding: "24px 20px",
           }}
         >
-          Approvals
+         My Approvals
         </span>
       ),
       children: (

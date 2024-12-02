@@ -660,4 +660,6 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         return result;
 
     }
+
+    public DbSet<TechnicalRevisonMapList> TechnicalRevisonMapLists { get; set; }
 }
