@@ -192,16 +192,25 @@ namespace TDSGCellFormat.Models.Add
     {
         public string? CTINumber { get; set; }
 
-        public string? Title { get; set; }
+        public string? HasAttachments { get; set; }
 
         public string? IssueDate { get; set; }
 
+        public string? Title { get; set; }
+
+        public string? EquipmentNames { get; set; }
+
+        public string? Requestor { get; set; }
+
         public string? IssuedBy { get; set; }
         //public string? Department { get; set; }
-        public string? Requestor { get; set; }
+
+        public string? TargetClosureDate { get; set; }
+
+        public string? Status { get; set; }
+
         public string? RequestedDate { get; set; }
         //public string? ClosedDate { get; set; }
-        public string? Status { get; set; }
     }
 
     public class TechnicalHistoryView
