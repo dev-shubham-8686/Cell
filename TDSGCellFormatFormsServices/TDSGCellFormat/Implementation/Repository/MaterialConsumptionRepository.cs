@@ -657,6 +657,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                     }
                 }
+
                 if (type == ApprovalStatus.AskToAmend)
                 {
                     requestTaskData.Status = ApprovalTaskStatus.UnderAmendment.ToString();
