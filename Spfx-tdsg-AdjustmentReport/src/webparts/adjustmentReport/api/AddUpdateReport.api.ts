@@ -30,12 +30,15 @@ export interface ChangeRiskManagement {
 export interface IAddUpdateReportPayload {
   AdjustmentReportId?: number,
   EmployeeId?: number,
+  SectiionId?: number,
   ReportNo?: string;
   RequestBy?: string;
   CheckedBy?: number;
   When?: dayjs.Dayjs;
   Area?: number[];
   MachineName?: number;
+  OtherMachineName?:string;
+  OtherSubMachineName?:string;
   SubMachineName?: number[];
   DescribeProblem?: string;
   Observation?: string;

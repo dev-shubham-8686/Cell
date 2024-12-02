@@ -20,12 +20,12 @@ import {
 } from "../../../GLOBAL_CONSTANT";
 import { Button, Modal } from "antd";
 import dayjs from "dayjs";
-import { IAdjustmentReportInfo } from "../../../interface";
 import { IUser, useUserContext } from "../../../context/UserContext";
 import { useDeleteAdjustmentReport } from "../../../hooks/useDeleteAdjustmentReport";
 import { useGetAdjustmentReportPDF } from "../../../hooks/useGetAdjustmentReportPDF";
 import { displayRequestStatus } from "../../../utils/utility";
 import Table from "../../table/table";
+import { IAdjustmentReportInfo } from "../../../interface";
 
 const MyRequest: React.FC<{}> = ({}) => {
   const navigate = useNavigate();

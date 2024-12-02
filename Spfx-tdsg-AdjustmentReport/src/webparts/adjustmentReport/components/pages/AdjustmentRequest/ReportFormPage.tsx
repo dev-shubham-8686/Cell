@@ -11,7 +11,6 @@ import { AnyObject } from "antd/es/_util/type";
 import { useAddUpdateReport } from "../../../hooks/useAddUpdateReport";
 import Workflow from "./WorkflowTab";
 import { useUserContext } from "../../../context/UserContext";
-import { IAdjustmentReportPhoto } from "../../../interface";
 import { useUpdateApproveAskToAmend } from "../../../hooks/useUpdateApproveAskToAmend";
 import { IAdditionalDepartmentHeads, IApproveAskToAmendPayload } from "../../../api/UpdateApproveAskToAmend.api";
 import { IPullBack } from "../../../api/PullBack.api";
@@ -22,6 +21,7 @@ import { useGetApprorverFlowData } from "../../../hooks/useGetApprorverFlowData"
 import { useGetSectionHead } from "../../../hooks/useGetSectionHead";
 import { useGetDepartmentHead } from "../../../hooks/useGetDepartmentHead";
 import WorkFlowButtons from "../../common/workFlowButtons";
+import { IAdjustmentReportPhoto } from "../../../interface";
 // import { useEffect } from "react";
 // import { useGetApprorverFlowData } from "../../../hooks/useGetApprorverFlowData";
 

@@ -19,10 +19,11 @@ import { useGetAdjustmentReportById } from "../../../hooks/useGetAdjustmentRepor
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import FileUpload from "../fileUpload/FileUpload";
 import { DocumentLibraries, OPERATION } from "../../../GLOBAL_CONSTANT";
-import { IAdjustmentReportPhoto } from "../../../interface";
 import { useAddUpdateReport } from "../../../hooks/useAddUpdateReport";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { IAdjustmentReportPhoto } from "../../../interface";
+import { useGetAllSections } from "../../../hooks/useGetAllSections";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -44,11 +45,10 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     useState<IAdjustmentReportPhoto[]>([]);
   const [afterAdjustmentReportPhotos, setafterAdjustmentReportPhotos] =
     useState<IAdjustmentReportPhoto[]>([]);
-  const [showRemarksforSubMachine, setShowRemarksforSubMachine] =
-    useState(false);
+  const [showOtherSubMachine, setShowOtherSubMachine] = useState(false);
   const [hideOptionsforSubMachine, setHideOptionsforSubMachine] =
     useState(false);
-  const [showRemarks, setShowRemarks] = useState(false);
+  const [showOtherMachine, setshowOtherMachine] = useState(false);
   const [hideOptions, setHideOptions] = useState(false);
   const [cRMRequired, setCRMRequired] = React.useState<boolean>(false);
   const [formSections, setFormSections] = React.useState<number[]>([0]); // Initially, one form section
@@ -66,6 +66,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const { data: subMachinesResult, isLoading: submachineloading } =
     useGetAllSubMachines();
   const { data: areasResult, isLoading: arealoading } = useGetAllAreas();
+  const { data: sections, isLoading: sectionIsLoading } = useGetAllSections();
+
   const { data: checkedByResult, isLoading: checkedloading } =
     useGetCheckedBy();
   const { mode, id } = useParams();
@@ -174,11 +176,11 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const handleSubMachineChange = (selected: string[]) => {
     // Check if "Other" is selected
     if (selected.includes("other")) {
-      setShowRemarksforSubMachine(true);
+      setShowOtherSubMachine(true);
       setHideOptionsforSubMachine(true); // Hide all other options
       form.setFieldValue("subMachineName", ["other"]); // Keep only "Other" selected
     } else {
-      setShowRemarksforSubMachine(false);
+      setShowOtherSubMachine(false);
       setHideOptionsforSubMachine(false); // Show all options
     }
 
@@ -268,11 +270,11 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   // Handle machine change by user, clearing subMachineName selection
   const handleMachineChange = (value: any) => {
     if (value === "other") {
-      setShowRemarks(true);
-      setHideOptions(true); // Hide all other options
+      setshowOtherMachine(true);
+      setHideOptions(true);
       form.setFieldValue("machineName", "other"); // Keep only "Other" selected
     } else {
-      setShowRemarks(false);
+      setshowOtherMachine(false);
       setHideOptions(false); // Show all options
       setSelectedMachineId(value); // Update selected machine ID
       setFilteredSubMachines([]); // Clear filtered options temporarily
@@ -310,27 +312,44 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   };
 
   const deleteFormSection = (sectionIndex: number) => {
+    debugger;
     setFormSections((prevSections) =>
       prevSections.filter((_, index) => index !== sectionIndex)
     );
-    console.log("CR after deleting ",formSections)
+    debugger;
+    form.setFieldsValue({
+      [`changes-${sectionIndex}`]: "",
+      [`riskWithChanges-${sectionIndex}`]: "",
+      [`factor-${sectionIndex}`]: "",
+      [`counterMeasures-${sectionIndex}`]: "",
+      [`function-${sectionIndex}`]: "",
+      [`date-${sectionIndex}`]: "",
+      [`personInCharge-${sectionIndex}`]: "",
+      [`results-${sectionIndex}`]: "",
+    });
+    const values = form.getFieldsValue();
+    debugger;
+    console.log("CR after deleting ", formSections);
     console.log(`Deleted section at index: ${sectionIndex}`);
   };
 
-  const CreatePayload = (values: any,operation?:any) => {
-    console.log({ values });
+  const CreatePayload = (values: any, operation?: any) => {
+    console.log( "FormData",values );
     const beforeImages: IAdjustmentReportPhoto[] = values.beforeImages;
     const afterImages: IAdjustmentReportPhoto[] = values.afterImages;
 
     const payload: IAddUpdateReportPayload = {
       AdjustmentReportId: id ? parseInt(id, 10) : 0,
       EmployeeId: user?.EmployeeId,
+      SectiionId:values.SectionId,
       ReportNo: values.reportNo, //done
       RequestBy: values.requestedBy, //done
       CheckedBy: values.checkedBy, //done
       When: values.dateTime, // need to confirm
       Area: values.area, //done
-      MachineName: values.machineName, //done
+      MachineName: values.machineName,
+      OtherMachineName:values.OtherMachineName,
+      OtherSubMachineName:values.OtherSubMachineName, //done
       SubMachineName: values.subMachineName, //done
       DescribeProblem: values.describeProblem, //done
       Observation: values.observation, //done
@@ -339,8 +358,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       ConditionAfterAdjustment: values.conditionAfterAdjustment, // done
       ChangeRiskManagementRequired: values.ChangeRiskManagementRequired, // done
       ChangeRiskManagement_AdjustmentReport: values.ChangeRiskManagementList, // Ensure this is an array of ChangeRiskManagement objects
-       IsSubmit: operation==OPERATION.Submit, //done
-       IsAmendReSubmitTask: operation==OPERATION.Resubmit,
+      IsSubmit: operation == OPERATION.Submit, //done
+      IsAmendReSubmitTask: operation == OPERATION.Resubmit,
       Photos: { BeforeImages: beforeImages, AfterImages: afterImages },
       CreatedBy: user?.EmployeeId, //need to change
       CreatedDate: dayjs(),
@@ -349,10 +368,10 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     };
     return payload;
   };
-  const onSaveFormHandler = (values: any , operation?:any) => {
+  const onSaveFormHandler = (values: any, operation?: any) => {
     debugger;
     try {
-      const payload = CreatePayload(values,operation);
+      const payload = CreatePayload(values, operation);
       //const res =
       addUpdateReport(payload);
       navigate(-1);
@@ -361,14 +380,14 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     }
   };
 
-  const onFinish = (operation?:any) => {
+  const onFinish = (operation?: any) => {
     debugger;
     const values = form.getFieldsValue();
     values.ChangeRiskManagementRequired = cRMRequired;
     values.ChangeRiskManagementList = [];
 
     const numberOfSections = formSections.length;
-debugger
+    debugger;
     for (let i = 0; i < numberOfSections; i++) {
       // Create a ChangeRiskManagement object for each section
       const changeRiskManagement: ChangeRiskManagement = {
@@ -381,12 +400,12 @@ debugger
         PersonInCharge: values[`personInCharge-${formSections[i]}`],
         Results: values[`results-${formSections[i]}`],
       };
-      debugger
+      debugger;
       values.ChangeRiskManagementList.push(changeRiskManagement);
     }
-    debugger
+    debugger;
 
-    onSaveFormHandler(values ,operation);
+    onSaveFormHandler(values, operation);
   };
 
   // const handleUpload = async (file: any) => {
@@ -550,14 +569,20 @@ debugger
         <>
           <div className="d-flex gap-3">
             {true && (
-              <button className="btn btn-primary" onClick={()=>onFinish(OPERATION.Save)}>
+              <button
+                className="btn btn-primary"
+                onClick={() => onFinish(OPERATION.Save)}
+              >
                 <i className="fa-solid fa-floppy-disk" />
                 Save
               </button>
             )}
 
             {true && (
-              <button className="btn btn-darkgrey " onClick={()=>onFinish(OPERATION.Submit)}>
+              <button
+                className="btn btn-darkgrey "
+                onClick={() => onFinish(OPERATION.Submit)}
+              >
                 <i className="fa-solid fa-share-from-square" />
                 Submit
               </button>
@@ -601,9 +626,11 @@ debugger
               name="checkedBy"
               rules={[{ required: true }]}
             >
-              <Select 
-              disabled ={isViewMode}
-              placeholder="Select Checked By" loading={checkedloading}>
+              <Select
+                disabled={isViewMode}
+                placeholder="Select Checked By"
+                loading={checkedloading}
+              >
                 {checkedByResult?.ReturnValue &&
                   checkedByResult.ReturnValue.map((checkedBy) => (
                     <Option
@@ -624,7 +651,7 @@ debugger
               rules={[{ required: true, message: "Please Select Date" }]}
             >
               <DatePicker
-                 disabled ={isViewMode}
+                disabled={isViewMode}
                 disabledDate={disabledDate}
                 showTime
                 placeholder="Date & Time"
@@ -645,8 +672,7 @@ debugger
               ]}
             >
               <Select
-                            disabled ={isViewMode}
-
+                disabled={isViewMode}
                 mode="multiple"
                 placeholder="Select Area"
                 showSearch={false}
@@ -690,8 +716,7 @@ debugger
               ]}
             >
               <Select
-                            disabled ={isViewMode}
-
+                disabled={isViewMode}
                 placeholder="Select Machine Name"
                 onChange={handleMachineChange}
                 value={hideOptions ? "other" : undefined}
@@ -712,8 +737,8 @@ debugger
               </Select>
             </Form.Item>
 
-            {showRemarks && (
-              <Form.Item label="Remarks" name="remarks">
+            {showOtherMachine && (
+              <Form.Item label="Other Machine Name" name="OtherMachineName">
                 <TextArea
                   rows={1}
                   maxLength={500}
@@ -734,8 +759,7 @@ debugger
               ]}
             >
               <Select
-                            disabled ={isViewMode}
-
+                disabled={isViewMode}
                 mode="multiple"
                 placeholder="Select Sub-Machine Name"
                 onChange={handleSubMachineChange}
@@ -767,8 +791,11 @@ debugger
               </Select>
             </Form.Item>
 
-            {showRemarksforSubMachine && (
-              <Form.Item label="Remarks" name="remarks">
+            {showOtherSubMachine && (
+              <Form.Item
+                label="Other SubMachine Name "
+                name="OtherSubMachineName"
+              >
                 <TextArea
                   rows={1}
                   maxLength={500}
@@ -784,8 +811,7 @@ debugger
               rules={[{ required: true }]}
             >
               <TextArea
-                            disabled ={isViewMode}
-
+                disabled={isViewMode}
                 rows={1}
                 maxLength={2000}
                 placeholder="Describe the problem"
@@ -803,8 +829,7 @@ debugger
               rules={[{ required: true }]}
             >
               <TextArea
-                            disabled ={isViewMode}
-
+                disabled={isViewMode}
                 rows={4}
                 maxLength={2000}
                 placeholder="Enter your observation"
@@ -818,8 +843,7 @@ debugger
               rules={[{ required: true }]}
             >
               <TextArea
-                            disabled ={isViewMode}
-
+                disabled={isViewMode}
                 rows={4}
                 maxLength={2000}
                 placeholder="Describe the root cause"
@@ -833,8 +857,7 @@ debugger
               rules={[{ required: true }]}
             >
               <TextArea
-                            disabled ={isViewMode}
-
+                disabled={isViewMode}
                 rows={4}
                 maxLength={2000}
                 placeholder="Describe the adjustment made"
@@ -842,18 +865,37 @@ debugger
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item
-              label="Condition After Adjustment"
-              name="conditionAfterAdjustment"
-            >
-              <TextArea
-                            disabled ={isViewMode}
-
-                rows={4}
-                maxLength={2000}
-                placeholder="Describe the condition after adjustment"
-              />
-            </Form.Item>
+          <Form.Item
+                  label={<span className="text-muted w-95">Section Name</span>}
+                  name="SectionId"
+                  rules={[{ required: true }]}
+                >
+                  <Select
+                 
+                    showSearch
+                    // onChange={handleSectionChange}
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={sections?.ReturnValue?.map((section) => ({
+                      label: section.sectionName,
+                      value: section.sectionId,
+                    }))}
+                    loading={sectionIsLoading}
+                    className="custom-disabled-select"
+                  >
+                    {/* {troubles?.map((trouble) => (
+                      <Select.Option
+                        key={trouble.troubleId}
+                        value={trouble.troubleId}
+                      >
+                        {trouble.name}
+                      </Select.Option>
+                    ))} */}
+                  </Select>
+                </Form.Item>
           </Col>
         </Row>
         <Row gutter={48}>
@@ -937,6 +979,19 @@ debugger
               />
             </Form.Item>
           </Col>
+          <Col span={6}>
+            <Form.Item
+              label="Condition After Adjustment"
+              name="conditionAfterAdjustment"
+            >
+              <TextArea
+                disabled={isViewMode}
+                rows={4}
+                maxLength={2000}
+                placeholder="Describe the condition after adjustment"
+              />
+            </Form.Item>
+          </Col>
         </Row>
 
         <div>
@@ -948,11 +1003,9 @@ debugger
               onChange={(e: any) => setCRMRequired(e.target.value)}
               value={cRMRequired}
               name="cRMRequired"
-              disabled ={isViewMode}
+              disabled={isViewMode}
             >
-              <Radio 
-
-              value={true} style={{ marginRight: 16 }}>
+              <Radio value={true} style={{ marginRight: 16 }}>
                 Yes
               </Radio>
               <Radio value={false}>No</Radio>
@@ -986,10 +1039,7 @@ debugger
           ))} */}
         {cRMRequired &&
           formSections.map((sectionIndex) => (
-            <div
-              key={sectionIndex}
-            
-            >
+            <div key={sectionIndex}>
               <ChangeRiskManagementForm
                 index={sectionIndex}
                 form={form}
