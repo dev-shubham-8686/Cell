@@ -14,6 +14,7 @@ using System.Text;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Graph.Models;
+using System.DirectoryServices.ActiveDirectory;
 
 
 namespace TDSGCellFormat.Implementation.Repository
@@ -901,7 +902,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var equipmentApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentId && x.IsActive == true && x.Status == ApprovalTaskStatus.LogicalAmendment.ToString()).FirstOrDefault();
+               // var equipmentApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentId && x.IsActive == true && x.Status == ApprovalTaskStatus.LogicalAmendment.ToString()).FirstOrDefault();
 
                 var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == equipmentId && x.IsDeleted == false).FirstOrDefault();
 
@@ -914,17 +915,17 @@ namespace TDSGCellFormat.Implementation.Repository
                 });
                 await _context.SaveChangesAsync();
                 // equipmentApproverTask.Status = ApprovalTaskStatus.LogicalAmendmentInReview.ToString();
-                equipment.Status = ApprovalTaskStatus.LogicalAmendmentInReview.ToString();
+                equipment.Status = ApprovalTaskStatus.InReview.ToString();
                 await _context.SaveChangesAsync();
 
                 var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
                 if (userId == adminId)
                 {
-                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.LogicalAmendmentInReview.ToString(), Convert.ToInt32(userId), HistoryAction.ReSubmitted.ToString(), 0);
+                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.ReSubmitted.ToString(), 0);
                 }
                 else
                 {
-                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.LogicalAmendmentInReview.ToString(), Convert.ToInt32(userId), HistoryAction.ReSubmitted.ToString(), 0);
+                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.ReSubmitted.ToString(), 0);
                 }
 
 
@@ -1227,6 +1228,8 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (data.Type == ApprovalStatus.Approved)
                 {
+                    bool approvalHistory = true;
+                       
                     equipmentData.Status = ApprovalTaskStatus.Approved.ToString();
                     equipmentData.ModifiedBy = data.CurrentUserId;
                     equipmentData.ActionTakenBy = data.CurrentUserId;
@@ -1240,8 +1243,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false).FirstOrDefault();
 
-                    InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.Approved.ToString(), 0);
-
+                   
 
                     if (data.EquipmentApprovalData != null)
                     {
@@ -1264,8 +1266,10 @@ namespace TDSGCellFormat.Implementation.Repository
                             }
 
                         }
+
                         else if (approvalData.EmailAttachments != null && approvalData.EmailAttachments.Count > 0)
                         {
+                            approvalHistory = false;
                             //skip
                             //var attachment = approvalData.EmailAttachments;
                             foreach (var attachment in approvalData.EmailAttachments)
@@ -1287,6 +1291,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                         else if (approvalData.IsToshibaDiscussion == false)
                         {
+                            approvalHistory = false;
                             equipment.ToshibaApprovalRequired = true;
                             equipment.ToshibaApprovalComment = approvalData.Comment;
                             //equipment.ToshibaApprovalTargetDate = !string.IsNullOrEmpty(approvalData.TargetDate) ? DateTime.Parse(approvalData.TargetDate) : (DateTime?)null;
@@ -1301,23 +1306,13 @@ namespace TDSGCellFormat.Implementation.Repository
 
                             var notificationHelper = new NotificationHelper(_context, _cloneContext);
                             await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.ToshibaTeamApproval, data.Comment, 0);
-                           
-                           
-                            /*  //if pcrnpending then changes the status accordingly 
-                              if (approvalData.IsPcrnRequired == true)
-                              {
-                                  equipment.IsSubmit = false;
-                                  equipment.Status = ApprovalTaskStatus.PCRNPending.ToString();
-                                  equipmentData.Status = ApprovalTaskStatus.PCRNPending.ToString();
-                                  await _context.SaveChangesAsync();
-
-                                  InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.PCRNRequired.ToString(), 0);
-
-                              }
-                              await _context.SaveChangesAsync();*/
-
                         }
 
+                    }
+
+                    if (approvalHistory)
+                    {
+                        InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.Approved.ToString(), 0);
                     }
 
                     var currentApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsActive == true
