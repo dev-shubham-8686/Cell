@@ -73,7 +73,8 @@ namespace TDSGCellFormat.Common
             ToshibaApproved = 23,
             ToshibaApprovalRequired = 24,
             PCRNRequired = 25,
-            ToshibaDiscussionRequired = 26
+            ToshibaDiscussionRequired = 26,
+            UpdateTargetDate = 27
         }
         public enum ApprovalStatus
         {
