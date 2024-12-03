@@ -408,3 +408,15 @@ export const updateOutlineEditor = (data: any): Promise<any> => {
     
   });
 };
+
+export const notifyCellDivPart = (technicalId: string): Promise<any> => {
+  return http.get(`${API_URL}/NotifyCellDivPart`, {
+    params: { technicalId },
+  })
+  .then((response) => {
+    return response.data; // Return the data from the response
+  })
+  .catch((error) => {
+    throw new Error("Error fetching data"); // Handle errors
+  });
+};

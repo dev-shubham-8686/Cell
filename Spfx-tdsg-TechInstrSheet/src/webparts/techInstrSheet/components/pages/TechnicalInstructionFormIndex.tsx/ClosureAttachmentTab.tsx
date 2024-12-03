@@ -33,19 +33,19 @@ const ClosureAttachment: React.FC<any> = ({
   }, [existingTechniaclInstructionSlip]);
 
   return (
-    <div>
+    <div className="closure-attachment-page">
       <Form layout="vertical">
         <Row gutter={16}>
           <Col span={8}>
             <Form.Item
-              label="Closure Attachment"
+              label="Closure Attachments"
               name="technicalClosureAttachmentAdds"
-              rules={[
-                {
-                  required: true,
-                  message: "Please upload at least one document.",
-                },
-              ]}
+              // rules={[
+              //   {
+              //     required: true,
+              //     message: "Please upload at least one document.",
+              //   },
+              // ]}
             >
               <Upload
                 className={isViewMode ? "upload-red-only" : ""}
