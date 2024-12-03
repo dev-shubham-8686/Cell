@@ -81,4 +81,11 @@ namespace TDSGCellFormat.Models.View
 
     }
 
+    public class NotifyCellDivPartView
+    {
+        public string? emails { get; set; }
+
+        public object? pdf { get; set; }
+    }
+
 }

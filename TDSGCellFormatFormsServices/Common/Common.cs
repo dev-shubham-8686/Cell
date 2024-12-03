@@ -53,7 +53,7 @@ namespace TDSGCellFormat.Common
             Approved = 3,
             Rejected = 4,
             Cancelled = 5,
-            Amended = 6,
+            AskToAmend = 6,
             Completed = 7,
             Closed = 8,
             PullBack = 9,
@@ -73,7 +73,9 @@ namespace TDSGCellFormat.Common
             ToshibaApproved = 23,
             ToshibaApprovalRequired = 24,
             PCRNRequired = 25,
-            ToshibaDiscussionRequired = 26
+            ToshibaDiscussionRequired = 26,
+            UpdateTargetDate = 27,
+            Reject = 28
         }
         public enum ApprovalStatus
         {

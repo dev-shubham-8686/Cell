@@ -226,12 +226,38 @@ console.log("Folder renamed successfully");
     }
     
   };
+
+  // Function to convert Base64 string to a File (Blob)
+  export function convertBase64ToFile(base64String:any, fileName:any) {
+    const byteCharacters = atob(base64String); // Decode base64 string to binary data
+    const byteArrays = [];
   
+    for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+      const slice = byteCharacters.slice(offset, Math.min(offset + 1024, byteCharacters.length));
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      byteArrays.push(new Uint8Array(byteNumbers));
+    }
+  
+    // Create a Blob object and then create a File object from it
+    const blob = new Blob(byteArrays, { type: 'application/pdf' });
+    return new File([blob], fileName, { type: 'application/pdf' });
+  }
+  // Function to generate unique filename with timestamp
+ export function generateUniqueFileNameWitCtiNumber(ctiNumber:string) {
+  const timestamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+/, ''); // ISO format without special characters
+  return `${ctiNumber}-${timestamp}.pdf`; // Append timestamp to CTI number for uniqueness
+ }
+
   
   export default {
     redirectToHome,
     downloadPDF,
     downloadExcelFile,
     create_UUID,
-    renameFolder
+    renameFolder,
+    convertBase64ToFile,
+    generateUniqueFileNameWitCtiNumber
   };
