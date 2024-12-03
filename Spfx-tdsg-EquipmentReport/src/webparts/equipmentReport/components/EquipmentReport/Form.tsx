@@ -331,6 +331,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           "ResultStatus",
         ]);
       }
+      else {
+        await form.validateFields();
+      }
       Modal.confirm({
         title: "Are you sure you want to resubmit the form?",
         okText: "Resubmit",
@@ -1521,11 +1524,12 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
               <div className="col">
                 <Form.Item
-                  label={
-                    <span className="text-muted">
-                      Current Situation Attachments
-                    </span>
-                  }
+                 label={
+                  <span>
+                    {currSituationAttchments.length != 0? (<span style={{ color: "#CF1919",fontSize: "1.3rem"}}>*  </span>):"" }
+                    <span className="text-muted">Current Situation Attachments</span>
+                  </span>
+                }
                   name="EquipmentCurrSituationAttachmentDetails"
                   rules={
                     currSituationAttchments.length == 0
@@ -1667,9 +1671,13 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               )}
               <div className="col">
                 <Form.Item
-                  label={
+                 label={
+                  <span>
+                    {improvementAttchments.length != 0? (<span style={{ color: "#CF1919",fontSize: "1.3rem"}}>*  </span>):"" }
                     <span className="text-muted">Improvement Attachments</span>
-                  }
+                  </span>
+                }
+                  
                   name="EquipmentImprovementAttachmentDetails"
                   rules={
                     improvementAttchments.length == 0

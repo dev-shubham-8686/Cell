@@ -305,6 +305,9 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
+      render: (text) => (
+        <p className="text-cell">{text? dayjs(text).format(DATE_FORMAT):"-"}</p>
+      ),
     },
     {
       title: "Area",

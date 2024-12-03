@@ -3,7 +3,7 @@ import Table from "../../table/table";
 import { useNavigate } from "react-router-dom";
 import { SearchOutlined } from "@ant-design/icons";
 import ColumnFilter from "../../table/columnFilter/columnFilter";
-import { REQUEST_STATUS, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
+import { DATE_FORMAT, REQUEST_STATUS, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faEye, faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { AnyObject } from "antd/es/_util/type";
@@ -11,6 +11,7 @@ import { ColumnsType } from "antd/es/table/interface";
 import { displayRequestStatus } from "../../../utility/utility";
 import { IUser, UserContext } from "../../../context/userContext";
 import usePDFViewer from "../../../apis/pdf/usePDFViewer";
+import dayjs from "dayjs";
 
 const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
   const navigate = useNavigate();
@@ -64,6 +65,9 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       // filterIcon: (filtered: boolean) => (
       //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       // ),
+      render: (text) => (
+        <p className="text-cell">{text? dayjs(text).format(DATE_FORMAT):"-"}</p>
+      ),
     },
     {
       title: "Area",
@@ -163,7 +167,7 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      width: 170,
+      width: 230,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (

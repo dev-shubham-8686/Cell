@@ -111,6 +111,9 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
+      render: (text) => (
+        <p className="text-cell">{text? dayjs(text).format(DATE_FORMAT):"-"}</p>
+      ),
     },
     {
       title: "Area",
@@ -201,7 +204,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      width: 170,
+      width: 230,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
