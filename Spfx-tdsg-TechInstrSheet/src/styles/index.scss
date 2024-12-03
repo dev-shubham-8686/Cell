@@ -755,3 +755,8 @@ p.text-cell {
 .closure-attachment-page .ant-upload {
   display: none;
 }
+
+
+.fr-popup {
+  z-index: 2147483647 !important; /* Maximum value for z-index */
+}
