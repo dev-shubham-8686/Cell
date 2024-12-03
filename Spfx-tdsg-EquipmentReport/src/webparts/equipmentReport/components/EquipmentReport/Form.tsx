@@ -322,18 +322,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       // if (existingEquipmentReport?.Status == REQUEST_STATUS.PCRNPending) {
       //   await form.validateFields(["PcrnAttachments"]);
       // }
-      if (existingEquipmentReport?.WorkflowLevel === 2) {
-        await form.validateFields([
-          "TargetDate",
-          "ActualDate",
-          "ResultMonitoring",
-          "ResultMonitoringDate",
-          "ResultStatus",
-        ]);
-      }
-      else {
+    
         await form.validateFields();
-      }
+      
       Modal.confirm({
         title: "Are you sure you want to resubmit the form?",
         okText: "Resubmit",
@@ -549,9 +540,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       setisAdmin(user?.isAdmin);
     }
     if (existingEquipmentReport) {
-      console.log("sk..........", existingEquipmentReport);
       const changeRiskData =
-        existingEquipmentReport.ChangeRiskManagementDetails?.map(
+        existingEquipmentReport?.ChangeRiskManagementDetails?.map(
           (obj, index) => {
             return {
               key: index,
@@ -562,7 +552,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       form.setFieldsValue({
         ...existingEquipmentReport,
         ChangeRiskManagementDetails:
-          existingEquipmentReport.ChangeRiskManagementDetails.map((data) => ({
+          existingEquipmentReport?.ChangeRiskManagementDetails?.map((data) => ({
             ...data,
             DueDate: dayjs(data.DueDate, DATE_FORMAT) ?? null,
           })),
@@ -659,21 +649,21 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment &&
-        existingEquipmentReport.CreatedBy == user.employeeId &&
+        existingEquipmentReport?.CreatedBy == user.employeeId &&
         existingEquipmentReport?.WorkflowLevel == 1
       ) {
         setunderAmmendment(true);
       }
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment &&
-        existingEquipmentReport.CreatedBy == user.employeeId &&
+        existingEquipmentReport?.CreatedBy == user.employeeId &&
         existingEquipmentReport?.WorkflowLevel == 2
       ) {
         setresultUnderAmmendment(true);
       }
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.LogicalAmendment &&
-        existingEquipmentReport.CreatedBy == user.employeeId
+        existingEquipmentReport?.CreatedBy == user.employeeId
       ) {
         setunderLogicalAmmendment(true);
       }
@@ -1286,7 +1276,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     value={
                       existingEquipmentReport?.When
                         ? dayjs(
-                            existingEquipmentReport.When,
+                            existingEquipmentReport?.When,
                             DATE_TIME_FORMAT
                           ).format(DATE_FORMAT)
                         : "-"

@@ -202,10 +202,11 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
           </button>
           {
           // row.IsSubmit &&
-            user?.isQcTeamHead &&
+           ( (user?.isQcTeamHead &&
             (row.ApproverTaskStatus == REQUEST_STATUS.InReview ||
               row.ApproverTaskStatus ==
-                REQUEST_STATUS.UnderToshibaApproval) && (
+                REQUEST_STATUS.UnderToshibaApproval))|| (row.Status ==
+                  REQUEST_STATUS.Completed)) && (
               <button
                 type="button"
                 style={{ background: "none", border: "none" }}
