@@ -331,7 +331,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
                     {
-                        var data = await SubmitRequest(adjustMentReportId, request.EmployeeId);
+                        var data = await SubmitRequest(adjustMentReportId, request.EmployeeId, request.AdvisorId);
                         if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.AdjustMentSubmit;
@@ -530,13 +530,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
                     {
-                        var data = await SubmitRequest(existingReport.AdjustMentReportId, existingReport.CreatedBy);
+                        var data = await SubmitRequest(existingReport.AdjustMentReportId, existingReport.CreatedBy, request.AdvisorId);
                         if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.AdjustMentSubmit;
                         }
 
                     }
+
                     else if (request.IsSubmit == true && request.IsAmendReSubmitTask == true)
                     {
                         var data = await Resubmit(existingReport.AdjustMentReportId, existingReport.CreatedBy);
@@ -545,10 +546,10 @@ namespace TDSGCellFormat.Implementation.Repository
                             res.Message = Enums.AdjustMentSubmit;
                         }
                     }
+
                     else
                     {
                         InsertHistoryData(adjustMentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Update the form ", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
-
                     }
 
                     res.ReturnValue = new
@@ -598,7 +599,7 @@ namespace TDSGCellFormat.Implementation.Repository
             }
         }
 
-        public async Task<AjaxResult> SubmitRequest(int adjustmentReportId, int? createdBy)
+        public async Task<AjaxResult> SubmitRequest(int adjustmentReportId, int? createdBy, int? AdvisorId)
         {
             var res = new AjaxResult();
             try
@@ -608,6 +609,16 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     adjustment.Status = ApprovalTaskStatus.InReview.ToString();
                     adjustment.IsSubmit = true;
+                    await _context.SaveChangesAsync();
+                }
+
+                if (AdvisorId != null && AdvisorId > 0)
+                {
+                    var advisorData = new AdjustmentAdvisorMaster();
+                    advisorData.EmployeeId = AdvisorId;
+                    advisorData.IsActive = true;
+                    advisorData.AdjustmentReportId = adjustmentReportId;
+                    _context.AdjustmentAdvisorMasters.Add(advisorData);
                     await _context.SaveChangesAsync();
                 }
 
@@ -826,7 +837,17 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     InsertHistoryData(asktoAmend.AdjustmentId, FormType.EquipmentImprovement.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.Approved.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.Approved.ToString(), 0);
 
-
+                    if(asktoAmend.IsDivHeadRequired == true)
+                    {
+                        var divisionHead = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId &&  x.IsActive == false && x.SequenceNo == 8)
+                                  .OrderByDescending(x => x.ApproverTaskId)
+                                .FirstOrDefault();
+                        if (divisionHead != null)
+                        {
+                            divisionHead.IsActive = true;
+                            await _context.SaveChangesAsync();
+                        }
+                    }
                     //if (asktoAmend.AdvisorId != null && asktoAmend.AdvisorId > 0)
                     //{
                     //    var advisorData = new AdjustmentAdvisorMaster();
@@ -851,58 +872,54 @@ namespace TDSGCellFormat.Implementation.Repository
                             await _context.SaveChangesAsync();
                         }
 
-                        var otherdepartmenthead1 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 1" && x.IsActive == true && x.SequenceNo == 4).FirstOrDefault();
+                        var otherdepartmenthead1 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 1" && x.IsActive == false && x.SequenceNo == 4)
+                                                 .OrderByDescending(x => x.ApproverTaskId)
+                                               .FirstOrDefault();
                         var departmentHead1 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 1 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
-                        //var departmentId = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 1 && x.IsActive == true).Select(x => x.DepartmentId).FirstOrDefault();
-                        //var departMentName = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID == departmentId).Select(x => x.Name).FirstOrDefault();
-                        var departmentName1 = (from aad in _context.AdjustmentAdditionalDepartmentHeadMasters
-                                               join dm in _cloneContext.DepartmentMasters
-                                               on aad.DepartmentId equals dm.DepartmentID
-                                               where aad.AdjustmentReportId == asktoAmend.AdjustmentId
-                                                     && aad.ApprovalSequence == 1
-                                                     && aad.IsActive == true
-                                               select dm.Name).FirstOrDefault();
+                        var departmentId1 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 1 && x.IsActive == true).Select(x => x.DepartmentId).FirstOrDefault();
+                        var departMentName1 = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID == departmentId1).Select(x => x.Name).FirstOrDefault();
+                        //var departmentName1 = (from aad in _context.AdjustmentAdditionalDepartmentHeadMasters
+                        //                       join dm in _cloneContext.DepartmentMasters
+                        //                       on aad.DepartmentId equals dm.DepartmentID
+                        //                       where aad.AdjustmentReportId == asktoAmend.AdjustmentId
+                        //                             && aad.ApprovalSequence == 1
+                        //                             && aad.IsActive == true
+                        //                       select dm.Name).FirstOrDefault();
 
                         if (otherdepartmenthead1 != null && departmentHead1 > 0)
                         {
                             otherdepartmenthead1.AssignedToUserId = departmentHead1;
                             otherdepartmenthead1.IsActive = true;
-                            otherdepartmenthead1.DisplayName = departmentName1;
+                            otherdepartmenthead1.DisplayName = departMentName1;
                             await _context.SaveChangesAsync();
                         }
 
-                        var otherdepartmenthead2 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 2" && x.IsActive == true && x.SequenceNo == 5).FirstOrDefault();
+                        var otherdepartmenthead2 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 2" && x.IsActive == false && x.SequenceNo == 5)
+                                           .OrderByDescending(x => x.ApproverTaskId)
+                                          .FirstOrDefault();
                         var departmentHead2 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 2 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
-                        var departmentName2 = (from aad in _context.AdjustmentAdditionalDepartmentHeadMasters
-                                               join dm in _cloneContext.DepartmentMasters
-                                               on aad.DepartmentId equals dm.DepartmentID
-                                               where aad.AdjustmentReportId == asktoAmend.AdjustmentId
-                                                     && aad.ApprovalSequence == 2
-                                                     && aad.IsActive == true
-                                               select dm.Name).FirstOrDefault();
+                        var departmentId2 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 2 && x.IsActive == true).Select(x => x.DepartmentId).FirstOrDefault();
+                        var departMentName2 = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID == departmentId2).Select(x => x.Name).FirstOrDefault();
                         if (otherdepartmenthead2 != null && departmentHead2 > 0)
                         {
                             otherdepartmenthead2.AssignedToUserId = departmentHead2;
                             otherdepartmenthead2.IsActive = true;
-                            otherdepartmenthead2.DisplayName = departmentName2;
+                            otherdepartmenthead2.DisplayName = departMentName2;
                             await _context.SaveChangesAsync();
                         }
 
-                        var otherdepartmenthead3 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 3" && x.IsActive == true && x.SequenceNo == 6).FirstOrDefault();
+                        var otherdepartmenthead3 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 3" && x.IsActive == false && x.SequenceNo == 6)
+                                                .OrderByDescending(x => x.ApproverTaskId)
+                                                .FirstOrDefault();
                         var departmentHead3 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 3 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
-                        var departmentName3 = (from aad in _context.AdjustmentAdditionalDepartmentHeadMasters
-                                               join dm in _cloneContext.DepartmentMasters
-                                               on aad.DepartmentId equals dm.DepartmentID
-                                               where aad.AdjustmentReportId == asktoAmend.AdjustmentId
-                                                     && aad.ApprovalSequence == 3
-                                                     && aad.IsActive == true
-                                               select dm.Name).FirstOrDefault();
+                        var departmentId3 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 3 && x.IsActive == true).Select(x => x.DepartmentId).FirstOrDefault();
+                        var departMentName3 = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID == departmentId3).Select(x => x.Name).FirstOrDefault();
 
                         if (otherdepartmenthead3 != null && departmentHead3 > 0)
                         {
                             otherdepartmenthead3.AssignedToUserId = departmentHead3;
                             otherdepartmenthead3.IsActive = true;
-                            otherdepartmenthead3.DisplayName = departmentName3;
+                            otherdepartmenthead3.DisplayName = departMentName3;
                             await _context.SaveChangesAsync();
                         }
 
@@ -1018,6 +1035,13 @@ namespace TDSGCellFormat.Implementation.Repository
                         a.ModifiedDate = DateTime.Now;
                     });
                     await _context.SaveChangesAsync();
+
+                    var advisorId = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == data.AdjustmentReportId && x.IsActive == true).FirstOrDefault();
+                    if (advisorId != null)
+                    {
+                        advisorId.IsActive = false;
+                        await _context.SaveChangesAsync();
+                    }
 
                     InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
 

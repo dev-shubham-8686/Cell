@@ -43,7 +43,7 @@ namespace TDSGCellFormat.Models.Add
 
         public List<ChangeRiskManagement_AdjustmentReports>? ChangeRiskManagement_AdjustmentReport { get; set; }
 
-
+        public int? AdvisorId { get; set; }
         public string? WorkFlowStatus { get; set; }
 
         public string? Status { get; set; }
@@ -91,6 +91,8 @@ namespace TDSGCellFormat.Models.Add
         public string? Comment { get; set; }
 
         public int AdjustmentId { get; set; }
+
+        public bool? IsDivHeadRequired { get; set; }
 
         public List<AdditionalDepartmentHeads>? AdditionalDepartmentHeads { get; set; } = new List<AdditionalDepartmentHeads>();
     }
