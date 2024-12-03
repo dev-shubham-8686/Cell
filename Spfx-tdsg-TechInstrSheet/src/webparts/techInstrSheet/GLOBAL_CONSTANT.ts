@@ -25,7 +25,8 @@ export const DOCUMENT_LIBRARIES = {
   Technical_Attachment: "TechnicalSheetDocs",
   Technical_Attachment__Related_Document: "RelatedDocuments",
   Technical_Attachment__Outline_Attachment: "OutlineAttachment",
-  Technical_Attchment__Closure_Attachment: "ClosureAttachment"
+  Technical_Attchment__Closure_Attachment: "ClosureAttachment",
+  Technical_Attchment__NotificationPdf_Attachment: "NotificationPdf_Attachment"
 };
 
 export const SERVICE_URL = 

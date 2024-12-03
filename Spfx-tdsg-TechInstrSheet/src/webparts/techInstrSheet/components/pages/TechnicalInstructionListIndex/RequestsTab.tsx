@@ -11,11 +11,13 @@ import {
   fetchTechnicalInstructionsUpdate,
   technicalReviseList,
   technicalReopen,
+  notifyCellDivPart,
 } from "../../../api/technicalInstructionApi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleExclamation,
   faEdit,
+  faEnvelope,
   faEye,
   faFileExcel,
   faFileExport,
@@ -28,15 +30,24 @@ import {
   // faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { Modal } from "antd";
-import { REQUEST_STATUS, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
 import {
+  DOCUMENT_LIBRARIES,
+  REQUEST_STATUS,
+  STATUS_COLOUR_CLASS,
+  WEB_URL,
+} from "../../../GLOBAL_CONSTANT";
+import {
+  convertBase64ToFile,
   displayRequestStatus,
   downloadExcelFile,
   downloadPDF,
+  generateUniqueFileNameWitCtiNumber,
 } from "../../../api/utility/utility";
 import { UserContext } from "../../../context/userContext";
 import ExportToExcel from "../../common/ExportToExcel";
 import displayjsx from "../../../utils/displayjsx";
+import { checkAndCreateFolder, uploadFile } from "../../../api/fileUploadApi";
+import { WebPartContext } from "../../../context/WebPartContext";
 
 const RequestsTab: React.FC = () => {
   const navigate = useNavigate();
@@ -83,6 +94,91 @@ const RequestsTab: React.FC = () => {
         });
       });
   }, []);
+
+  const [isNotifyModalVisible, setIsNotifyModalVisible] = React.useState(false);
+  // const [emailContent, setEmailContent] = React.useState("");
+  const [mailTriggerTechnicalId, setMailTriggerTechnicalId] =
+    React.useState("");
+  const [mailTriggerCtinumber, setMailTriggerCtinumber] = React.useState("");
+  const [mailLoading, setMailLoading] = React.useState(false);
+  const webPartContext = React.useContext(WebPartContext);
+
+  const showNotifyModal = (technicalId: string, ctiNumber: string) => {
+    // Open the modal and save the current request details
+    // setEmailContent("");
+    setMailTriggerTechnicalId("");
+    setMailTriggerCtinumber("");
+
+    setIsNotifyModalVisible(true);
+    setMailTriggerTechnicalId(technicalId);
+    setMailTriggerCtinumber(ctiNumber);
+  };
+
+  const handleSendEmail = () => {
+    setMailLoading(true);
+    // Construct the mailto link with content and PDF attachment
+
+    notifyCellDivPart(mailTriggerTechnicalId)
+      .then(async (response) => {
+        setMailLoading(false);
+        const emailList = response.ReturnValue.emails; // Comma-separated emails
+        const pdfBase64 = response.ReturnValue.pdf; // Base64 string of PDF
+        const subject = `Notification for ${mailTriggerCtinumber}`;
+        let pdf_url_link = "";
+        debugger;
+
+        if (pdfBase64) {
+          const isValidFolderOutline = await checkAndCreateFolder(
+            webPartContext,
+            DOCUMENT_LIBRARIES.Technical_Attachment,
+            mailTriggerCtinumber,
+            DOCUMENT_LIBRARIES.Technical_Attchment__NotificationPdf_Attachment
+          );
+
+          console.log(isValidFolderOutline);
+
+          const file = convertBase64ToFile(pdfBase64, "application/pdf");
+
+          const fileName =
+            generateUniqueFileNameWitCtiNumber(mailTriggerCtinumber);
+
+          const uploaded = await uploadFile(
+            webPartContext,
+            DOCUMENT_LIBRARIES.Technical_Attachment,
+            mailTriggerCtinumber,
+            file,
+            fileName,
+            DOCUMENT_LIBRARIES.Technical_Attchment__NotificationPdf_Attachment
+          );
+
+          if (uploaded) {
+            pdf_url_link = `${WEB_URL}/${DOCUMENT_LIBRARIES.Technical_Attachment}/${mailTriggerCtinumber}/${DOCUMENT_LIBRARIES.Technical_Attchment__NotificationPdf_Attachment}/${fileName}`;
+            console.log("File uploaded successfully");
+          } else {
+            console.log("Error uploading file");
+          }
+        }
+
+        if (emailList) {
+          // `emailContent` holds text area input from the modal
+          const bodyContent = `\n\nAttached PDF:\n${pdf_url_link}`;
+
+          // Properly encode subject and body for the mailto link
+          const encodedSubject = encodeURIComponent(subject);
+          const encodedBody = encodeURIComponent(bodyContent);
+
+          const mailtoLink = `mailto:?cc=${emailList}&subject=${encodedSubject}&body=${encodedBody}`;
+
+          window.location.href = mailtoLink; // Opens Outlook or default mail client
+        }
+      })
+      .catch((e) => {
+        setMailLoading(false);
+        void displayjsx.showErrorMsg("Error fetching data");
+      });
+
+    setIsNotifyModalVisible(false);
+  };
 
   React.useEffect(() => {
     loadData({ pagination, sorter, searchText, searchColumn });
@@ -527,6 +623,23 @@ const RequestsTab: React.FC = () => {
                 />
               )
           }
+
+          {/* Notify Cell Division Button */}
+          {record.CreatedBy == user?.employeeId && (
+            <Button
+              title="Notify Cell Division"
+              className="action-btn"
+              icon={
+                <FontAwesomeIcon
+                  title="Notify Cell Division"
+                  icon={faEnvelope}
+                />
+              }
+              onClick={() =>
+                showNotifyModal(record.TechnicalId, record.CTINumber)
+              }
+            />
+          )}
         </span>
       ),
     },
@@ -720,7 +833,29 @@ const RequestsTab: React.FC = () => {
         scroll={{ x: true }}
         className="w-full shadow-sm no-radius-table dashboard-table"
       />
-      <Spin spinning={excelLoading || pdfLoading} fullscreen />
+      <Spin spinning={excelLoading || pdfLoading || mailLoading} fullscreen />
+
+      {
+        <Modal
+          title="Confirm Notification"
+          open={isNotifyModalVisible}
+          onCancel={() => setIsNotifyModalVisible(false)}
+          footer={[
+            <Button key="cancel" onClick={() => setIsNotifyModalVisible(false)}>
+              Cancel
+            </Button>,
+            <Button
+              key="confirm"
+              type="primary"
+              onClick={handleSendEmail} // Assuming this function sends the email
+            >
+               Send
+            </Button>,
+          ]}
+        >
+          <p>Are you sure you want to notify the Cell Division?</p>
+        </Modal>
+      }
     </div>
   );
 };
