@@ -1669,7 +1669,14 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
 
   //console.log("dscds:" + editorModel);
   return (
-    <div style={{ padding: "2rem" }}>
+    <div
+      style={{
+        padding: "2rem",
+        position: "relative",
+        height: "100vh",
+        overflow: "hidden",
+      }}
+    >
       <Loader loading={loading} /> {/* Show loader */}
       <h2 className="title">TECHNICAL INSTRUCTIONS FORM</h2>
       <div
@@ -1692,121 +1699,123 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           Back
         </Button>
       </div>
-      <Tabs
-        activeKey={activeKey}
-        onTabClick={handleTabClick} // Trigger tab load on click
-        tabBarExtraContent={operations}
-        tabBarGutter={50}
-        className="custom-tabs"
-        destroyInactiveTabPane={true}
-      >
-        <TabPane
-          tab={
-            <span
-              className="my-tab-button"
-              style={{
-                color: activeKey === "1" ? "#c50017" : "#8C8C8C",
-                padding: "24px 20px",
-              }}
-            >
-              Form
-            </span>
-          }
-          key="1"
-          style={{ padding: "8px" }}
+      <div className="tabs-wrapper">
+        <Tabs
+          activeKey={activeKey}
+          onTabClick={handleTabClick} // Trigger tab load on click
+          tabBarExtraContent={operations}
+          tabBarGutter={50}
+          className="custom-tabs"
+          destroyInactiveTabPane={true}
         >
-          {/* Form tab content */}
-          {loadedTabs.indexOf("1") !== -1 && (
-            <FormTab
-              form={form}
-              onFinish={onFinish}
-              initialData={initialData}
-              isViewMode={isViewMode}
-              equipments={equipments}
-              handleUpload={handleUpload}
-              handleRemove={handleRemove}
-              ctiNumber={ctiNumber}
-              fileList={fileList}
-              intialFolderName={intialFolderName}
-              handleOutlineUpload={handleOutlineUpload}
-              technicalOutlineFileList={technicalOutlineFileList}
-              handleOutlineRemove={handleOutlineRemove}
-              setEditorModel={setEditorModel}
-              editorModel={editorModel}
-              outlineImageFiles={outlineImageFiles}
-              setoutlineImageFiles={setoutlineImageFiles}
-            />
-          )}
-        </TabPane>
-        <TabPane
-          tab={
-            <span
-              className="my-tab-button"
-              style={{
-                color: activeKey === "2" ? "#c50017" : "#8C8C8C",
-                padding: "24px 20px",
-              }}
-            >
-              History
-            </span>
-          }
-          key="2"
-        >
-          {/* History tab content */}
-          {loadedTabs.indexOf("2") !== -1 && (
-            <HistoryTab technicalId={id ? id.toString() : ""} />
-          )}
-        </TabPane>
-        <TabPane
-          tab={
-            <span
-              className="my-tab-button"
-              style={{
-                color: activeKey === "3" ? "#c50017" : "#8C8C8C",
-                padding: "24px 20px",
-              }}
-            >
-              Workflow
-            </span>
-          }
-          key="3"
-        >
-          {/* Workflow tab content */}
-          {loadedTabs.indexOf("3") !== -1 && (
-            <Workflow approverTasks={approveerFlowData ?? []} />
-          )}
-        </TabPane>
+          <TabPane
+            tab={
+              <span
+                className="my-tab-button"
+                style={{
+                  color: activeKey === "1" ? "#c50017" : "#8C8C8C",
+                  padding: "24px 20px",
+                }}
+              >
+                Form
+              </span>
+            }
+            key="1"
+            style={{ padding: "8px" }}
+          >
+            {/* Form tab content */}
+            {loadedTabs.indexOf("1") !== -1 && (
+              <FormTab
+                form={form}
+                onFinish={onFinish}
+                initialData={initialData}
+                isViewMode={isViewMode}
+                equipments={equipments}
+                handleUpload={handleUpload}
+                handleRemove={handleRemove}
+                ctiNumber={ctiNumber}
+                fileList={fileList}
+                intialFolderName={intialFolderName}
+                handleOutlineUpload={handleOutlineUpload}
+                technicalOutlineFileList={technicalOutlineFileList}
+                handleOutlineRemove={handleOutlineRemove}
+                setEditorModel={setEditorModel}
+                editorModel={editorModel}
+                outlineImageFiles={outlineImageFiles}
+                setoutlineImageFiles={setoutlineImageFiles}
+              />
+            )}
+          </TabPane>
+          <TabPane
+            tab={
+              <span
+                className="my-tab-button"
+                style={{
+                  color: activeKey === "2" ? "#c50017" : "#8C8C8C",
+                  padding: "24px 20px",
+                }}
+              >
+                History
+              </span>
+            }
+            key="2"
+          >
+            {/* History tab content */}
+            {loadedTabs.indexOf("2") !== -1 && (
+              <HistoryTab technicalId={id ? id.toString() : ""} />
+            )}
+          </TabPane>
+          <TabPane
+            tab={
+              <span
+                className="my-tab-button"
+                style={{
+                  color: activeKey === "3" ? "#c50017" : "#8C8C8C",
+                  padding: "24px 20px",
+                }}
+              >
+                Workflow
+              </span>
+            }
+            key="3"
+          >
+            {/* Workflow tab content */}
+            {loadedTabs.indexOf("3") !== -1 && (
+              <Workflow approverTasks={approveerFlowData ?? []} />
+            )}
+          </TabPane>
 
-        {existingTechniaclInstructionSlip !== null &&
-          existingTechniaclInstructionSlip.isClosed === true && (
-            <TabPane
-              tab={
-                <span
-                  className="my-tab-button"
-                  style={{
-                    color: activeKey === "4" ? "#c50017" : "#8C8C8C",
-                    padding: "24px 20px",
-                  }}
-                >
-                  Closure Attachment
-                </span>
-              }
-              key="4"
-            >
-              {/* Workflow tab content */}
-              {loadedTabs.indexOf("4") !== -1 && (
-                //<Workflow approverTasks={approveerFlowData ?? []} />
-                <ClosureAttachment
-                  isViewMode={isViewMode}
-                  ctiNumber={ctiNumber}
-                  existingTechniaclInstructionSlip={
-                    existingTechniaclInstructionSlip
-                  }
-                />
-              )}
-            </TabPane>
-          )}
-      </Tabs>
+          {existingTechniaclInstructionSlip !== null &&
+            existingTechniaclInstructionSlip.isClosed === true && (
+              <TabPane
+                tab={
+                  <span
+                    className="my-tab-button"
+                    style={{
+                      color: activeKey === "4" ? "#c50017" : "#8C8C8C",
+                      padding: "24px 20px",
+                    }}
+                  >
+                    Closure Attachments
+                  </span>
+                }
+                key="4"
+              >
+                {/* Workflow tab content */}
+                {loadedTabs.indexOf("4") !== -1 && (
+                  //<Workflow approverTasks={approveerFlowData ?? []} />
+                  <ClosureAttachment
+                    isViewMode={isViewMode}
+                    ctiNumber={ctiNumber}
+                    existingTechniaclInstructionSlip={
+                      existingTechniaclInstructionSlip
+                    }
+                  />
+                )}
+              </TabPane>
+            )}
+        </Tabs>
+      </div>
       <>
         {/* Second Modal for selecting sections */}
         <Modal

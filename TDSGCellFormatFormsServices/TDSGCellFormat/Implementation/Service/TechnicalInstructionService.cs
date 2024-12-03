@@ -169,5 +169,10 @@ namespace TDSGCellFormat.Implementation.Service
             return await _technicalRepository.ExportToPdf_v2(technicalId);
         }
 
+        public async Task<NotifyCellDivPartView> NotifyCellDivPart(int technicalId)
+        {
+            return await _technicalRepository.NotifyCellDivPart(technicalId);
+        }
+
     }
 }

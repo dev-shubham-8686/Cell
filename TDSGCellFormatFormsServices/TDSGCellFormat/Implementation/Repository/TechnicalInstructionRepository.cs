@@ -2211,18 +2211,41 @@ namespace TDSGCellFormat.Implementation.Repository
         #endregion
 
         #region NotifyCellDivPart
-        public async Task<bool> NotifyCellDivPart(int technicalId, string emailBody)
+        public async Task<NotifyCellDivPartView> NotifyCellDivPart(int technicalId)
         {
-            var get_cell_depts = await _cloneContext.DepartmentMasters.Where(c => c.Name == "Cell Production" && c.IsActive == true).FirstOrDefaultAsync();
-
-            if (get_cell_depts != null)
+            NotifyCellDivPartView notifyCellDivPartView = new NotifyCellDivPartView();
+            try
             {
-                var get_emps = await _cloneContext.EmployeeMasters.Where(c => c.DepartmentID == get_cell_depts.DepartmentID).Select(c => c.Email).ToListAsync();
+                
+                var pdf = await ExportToPdf_v2(technicalId);
 
+                notifyCellDivPartView.pdf = pdf.ReturnValue;
+
+                var get_cell_dept_id = await _cloneContext.DepartmentMasters
+                .Where(c => c.Name == "Cell Production" && c.IsActive == true).Select(c => c.DepartmentID)
+                .SingleOrDefaultAsync();
+
+                if (get_cell_dept_id != null)
+                {
+                    var get_emps = await _cloneContext.EmployeeMasters
+                        .Where(c => c.DepartmentID == get_cell_dept_id && c.IsActive == true)
+                        .Select(c => c.Email)
+                        .ToListAsync();
+
+                    notifyCellDivPartView.emails = get_emps.Any() ? string.Join(";", get_emps) : null;
+
+                    // Return a comma-separated string if there are any emails, otherwise return null.
+                    return notifyCellDivPartView;
+                }
+
+            }
+            catch (Exception ex)
+            {
 
             }
 
-            return false;
+            
+            return notifyCellDivPartView;
         }
         #endregion
 

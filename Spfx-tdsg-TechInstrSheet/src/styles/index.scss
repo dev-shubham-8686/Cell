@@ -731,3 +731,27 @@ p.text-cell {
 .text-center {
   text-align: center !important;
 }
+
+
+.tabs-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding-top: 1rem;
+}
+
+.ant-tabs-content-holder {
+  height: calc(100vh - 150px); /* Adjust based on your layout */
+  overflow-y: auto;
+}
+
+.ant-tabs-nav {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+
+.closure-attachment-page .ant-upload {
+  display: none;
+}
