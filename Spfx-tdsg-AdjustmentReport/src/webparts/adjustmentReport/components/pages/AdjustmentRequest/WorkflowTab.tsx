@@ -124,7 +124,7 @@ const Workflow: React.FC<IProps> = ({
           if (item.Status !== REQUEST_STATUS.Pending) {
             className = `status-cell-${item.Status.toLowerCase()} ${
               item.Status === REQUEST_STATUS.InReview &&
-              item.AssignedToUserId === user?.EmployeeId
+              item.AssignedToUserId === user?.employeeId
                 ? "active-approver"
                 : ""
             }`;

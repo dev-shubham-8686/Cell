@@ -22,7 +22,7 @@ const AdjustmentReportMain: React.FC = () => {
       onClick={() => onAddRequest()}
       icon={<PlusCircleOutlined />}
     >
-      Request
+       New Request
     </Button>
   );
 

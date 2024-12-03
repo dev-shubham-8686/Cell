@@ -20,7 +20,7 @@ import {
 } from "../../../GLOBAL_CONSTANT";
 import { Button, Modal } from "antd";
 import dayjs from "dayjs";
-import { IUser, useUserContext } from "../../../context/UserContext";
+import {  useUserContext } from "../../../context/UserContext";
 import { useDeleteAdjustmentReport } from "../../../hooks/useDeleteAdjustmentReport";
 import { useGetAdjustmentReportPDF } from "../../../hooks/useGetAdjustmentReportPDF";
 import { displayRequestStatus } from "../../../utils/utility";

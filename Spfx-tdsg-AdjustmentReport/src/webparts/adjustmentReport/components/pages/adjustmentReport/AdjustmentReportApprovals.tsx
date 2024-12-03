@@ -46,7 +46,7 @@ const AdjustmentReportApprovals = () => {
     searchQuery,
     sortColumn,
     orderBy,
-    user?.EmployeeId
+    user?.employeeId
   );
 
   useEffect(() => {

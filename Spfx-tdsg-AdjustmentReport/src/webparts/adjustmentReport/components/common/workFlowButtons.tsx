@@ -176,7 +176,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
 
       {existingAdjustmentReport?.IsSubmit &&
         existingAdjustmentReport?.Status !== "UnderAmendment" &&
-        user?.EmployeeId === existingAdjustmentReport?.EmployeeId ? (
+        user?.employeeId === existingAdjustmentReport?.EmployeeId ? (
         <Button
           color="primary"
           variant="solid"

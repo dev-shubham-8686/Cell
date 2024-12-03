@@ -106,9 +106,9 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
     if (url) {   
       let params;
       if(paginationRequired){
-        
+        debugger
         params={
-          createdBy: user?.EmployeeId,
+          createdBy: user?.employeeId,
           skip: (currentPage - 1) * pageSize,
           take: pageSize,
           order: order || "Desc",
@@ -132,7 +132,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
       
       console.log("data",data,columns)
     }
-  }, [url, currentPage, pageSize, order, orderBy, columnFilter,id,user?.EmployeeId,refetchKey]);
+  }, [url, currentPage, pageSize, order, orderBy, columnFilter,id,user?.employeeId,refetchKey]);
   console.log("DATA",data)
   return (
     <>

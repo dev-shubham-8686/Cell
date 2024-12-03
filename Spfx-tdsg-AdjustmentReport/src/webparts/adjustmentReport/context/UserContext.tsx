@@ -1,19 +1,19 @@
 import * as React from "react";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { Spin } from "antd";
-import useUser from "../api/User/useUser";
+import useUser, { IUser } from "../api/User/useUser";
 
 // import useUser from "../apis/user/useUser";
 
-export interface IUser {
-    EmployeeId: number;
-    EmployeeCode: string;
-    Email: string;
-    EmployeeName: string;
-    DepartmentName: string;
-    DivisionName: string;
-    IsAdmin: number;
-}
+// export interface IUser {
+//     EmployeeId: number;
+//     EmployeeCode: string;
+//     Email: string;
+//     EmployeeName: string;
+//     DepartmentName: string;
+//     DivisionName: string;
+//     IsAdmin: number;
+// }
 
 interface IUserProvider {
     userEmail: string;

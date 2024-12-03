@@ -68,11 +68,11 @@ const ReportFormPage = () => {
     if (isEditMode || isViewMode) {
       setexistingAdjustmentReport(reportData?.ReturnValue);
 
-      console.log(user?.EmployeeId,head?.ReturnValue)
-      setadvisorRequired(user?.EmployeeId == parseInt(head?.ReturnValue, 10));
+      console.log(user?.employeeId,head?.ReturnValue)
+      setadvisorRequired(user?.employeeId == parseInt(head?.ReturnValue, 10));
 
-      console.log(user?.EmployeeId,departmentHead?.ReturnValue)
-      setisdepartmentHead(user?.EmployeeId == parseInt(departmentHead?.ReturnValue, 10));
+      console.log(user?.employeeId,departmentHead?.ReturnValue)
+      setisdepartmentHead(user?.employeeId == parseInt(departmentHead?.ReturnValue, 10));
 
       if (reportData?.ReturnValue?.IsSubmit) {
         setsubmitted(true);
@@ -80,7 +80,7 @@ const ReportFormPage = () => {
 
       if (
         reportData?.ReturnValue?.Status == REQUEST_STATUS.UnderAmendment &&
-        reportData?.ReturnValue.EmployeeId == user?.EmployeeId
+        reportData?.ReturnValue.EmployeeId == user?.employeeId
       ) {
         setunderAmmendment(true);
       }
@@ -88,7 +88,7 @@ const ReportFormPage = () => {
       getCurrentApprover(
         {
           AdjustmentReportId: id ? parseInt(id, 10) : 0,
-          userId: user?.EmployeeId ? user?.EmployeeId : 0
+          userId: user?.employeeId ? user?.employeeId : 0
         },
         {
           onSuccess: (data) => {
@@ -97,7 +97,7 @@ const ReportFormPage = () => {
         },
       )
 
-      console.log(id ? parseInt(id, 10) : 0, { currentApproverTask }, user?.EmployeeId ? user?.EmployeeId : 0)
+      console.log(id ? parseInt(id, 10) : 0, { currentApproverTask }, user?.employeeId ? user?.employeeId : 0)
 
     }
   };
@@ -119,7 +119,7 @@ const ReportFormPage = () => {
 
     const payload: IAddUpdateReportPayload = {
       AdjustmentReportId: id ? parseInt(id, 10) : 0,
-      EmployeeId: user?.EmployeeId,
+      EmployeeId: user?.employeeId,
       ReportNo: values.reportNo, //done
       RequestBy: values.requestedBy, //done
       CheckedBy: values.checkedBy, //done
@@ -197,7 +197,7 @@ const ReportFormPage = () => {
     debugger
     const data: IApproveAskToAmendPayload = {
       ApproverTaskId: currentApproverTask.approverTaskId,
-      CurrentUserId: user?.EmployeeId ? user?.EmployeeId : 0,
+      CurrentUserId: user?.employeeId ? user?.employeeId : 0,
       Type: 1, //Approved
       Comment: comment,
       AdjustmentId: id ? parseInt(id, 10) : 0,
@@ -223,7 +223,7 @@ const ReportFormPage = () => {
   const handleAskToAmend = async (comment: string): Promise<void> => {
     const data: IApproveAskToAmendPayload = {
       ApproverTaskId: currentApproverTask.approverTaskId,
-      CurrentUserId: user?.EmployeeId ? user?.EmployeeId : 0,
+      CurrentUserId: user?.employeeId ? user?.employeeId : 0,
       Type: 3, //AskToAmend
       Comment: comment,
       AdjustmentId: id ? parseInt(id, 10) : 0,
@@ -247,7 +247,7 @@ const ReportFormPage = () => {
   const handlePullBack = async (comment: string): Promise<void> => {
     const data: IPullBack = {
       AdjustmentReportId: id ? parseInt(id, 10) : 0,
-      userId: user?.EmployeeId ? user?.EmployeeId : 0,
+      userId: user?.employeeId ? user?.employeeId : 0,
       comment: comment,
     };
 

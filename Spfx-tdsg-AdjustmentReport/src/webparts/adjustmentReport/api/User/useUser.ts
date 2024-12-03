@@ -13,14 +13,34 @@ export interface AuthResponse {
   ResultType: number;
 }
 
+// export interface IUser {
+//   EmployeeId: number;
+//   EmployeeCode: string;
+//   Email: string;
+//   EmployeeName: string;
+//   DepartmentName: string;
+//   DivisionName: string;
+//   IsAdmin: number;
+// }
+
 export interface IUser {
-  EmployeeId: number;
-  EmployeeCode: string;
-  Email: string;
-  EmployeeName: string;
-  DepartmentName: string;
-  DivisionName: string;
-  IsAdmin: number;
+  employeeId: number;
+  departmentId: number;
+  departmentName: string;
+  divisionId: number;
+  divisionName: string;
+  employeeCode: number;
+  employeeName: string;
+  email: string;
+  empDesignation: string;
+  mobileNo: string;
+  departmentHeadEmpId: number;
+  divisionHeadEmpId: number;
+  costCenter: string;
+  cMRoleId: number;
+  isDivHeadUser: boolean;
+  isAdmin: boolean;
+  isAdminId: number;
 }
 
 const authenticateUser = async (email: string): Promise<boolean> => {
@@ -50,9 +70,10 @@ const getUser = async (email: string) => {
   console.log(email)
   let res = await authenticateUser(email);
   if (res) {
-
+debugger
     const response = await apiClient.get<IAjaxResult>(GET_USER, { params: { email } });
-    return response.data.ReturnValue;
+    debugger
+    return response.data;
   }
   return null;
 };

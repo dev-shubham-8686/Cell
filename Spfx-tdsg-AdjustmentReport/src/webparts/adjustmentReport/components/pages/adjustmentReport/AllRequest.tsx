@@ -21,7 +21,7 @@ import {
 import { Button, Modal } from "antd";
 import dayjs from "dayjs";
 import { IAdjustmentReportInfo } from "../../../interface";
-import { IUser, useUserContext } from "../../../context/UserContext";
+import { useUserContext } from "../../../context/UserContext";
 import { useDeleteAdjustmentReport } from "../../../hooks/useDeleteAdjustmentReport";
 import { useGetAdjustmentReportPDF } from "../../../hooks/useGetAdjustmentReportPDF";
 import { displayRequestStatus } from "../../../utils/utility";
@@ -211,10 +211,10 @@ const AllRequest: React.FC<{}> = ({}) => {
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
 
-          {(user?.IsAdmin ||
+          {(user?.isAdmin ||
             ((record.Status === REQUEST_STATUS.Draft ||
               record.Status === REQUEST_STATUS.UnderAmendment) &&
-              record.EmployeeId === user?.EmployeeId)) && (
+              record.EmployeeId === user?.employeeId)) && (
             <button
               type="button"
               style={{ background: "none", border: "none" }}
@@ -242,7 +242,7 @@ const AllRequest: React.FC<{}> = ({}) => {
           )}
 
 {record.Status === REQUEST_STATUS.Draft &&
-            record.CreatedBy == user?.EmployeeId && (
+            record.CreatedBy == user?.employeeId && (
               <button
                 type="button"
                 style={{ background: "none", border: "none" }}

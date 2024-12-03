@@ -49,10 +49,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const [afterAdjustmentReportPhotos, setafterAdjustmentReportPhotos] =
     useState<IAdjustmentReportPhoto[]>([]);
   const [showOtherSubMachine, setShowOtherSubMachine] = useState(false);
-  const [hideOptionsforSubMachine, setHideOptionsforSubMachine] =
-    useState(false);
+
   const [showOtherMachine, setshowOtherMachine] = useState(false);
-  const [hideOptions, setHideOptions] = useState(false);
   const [cRMRequired, setCRMRequired] = React.useState<boolean>(false);
   const [formSections, setFormSections] = React.useState<number[]>([0]); // Initially, one form section
   const [selectedMachineId, setSelectedMachineId] = useState<number | null>(
@@ -72,6 +70,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     useGetAllSubMachines();
   const { data: areasResult, isLoading: arealoading } = useGetAllAreas();
   const { data: sections, isLoading: sectionIsLoading } = useGetAllSections();
+  const [selectedMachine, setselectedMachine] = useState<number | 0>(0);
 
   const { data: checkedByResult, isLoading: checkedloading } =
     useGetCheckedBy();
@@ -124,6 +123,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       newAttachment,
     ];
 
+  
+    
     setbeforeAdjustmentReportPhotos(updatedAttachments);
     form.setFieldsValue({ beforeImages: updatedAttachments });
     console.log({ updatedAttachments });
@@ -178,28 +179,6 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     console.log({ afterAdjustmentReportPhotos });
   };
 
-  const handleSubMachineChange = (selected: string[]) => {
-    // Check if "Other" is selected
-    if (selected.includes("other")) {
-      setShowOtherSubMachine(true);
-      setHideOptionsforSubMachine(true); // Hide all other options
-      form.setFieldValue("subMachineName", ["other"]); // Keep only "Other" selected
-    } else {
-      setShowOtherSubMachine(false);
-      setHideOptionsforSubMachine(false); // Show all options
-    }
-
-    // Handle "Select All" if "Other" is not selected
-    const allSubMachineIds =
-      filteredSubMachines?.map((subMachine) => subMachine.SubMachineId) || [];
-    if (!selected.includes("other") && selected.includes("all")) {
-      const newSelected =
-        selected.length === allSubMachineIds.length + 2
-          ? []
-          : allSubMachineIds.concat("other");
-      form.setFieldValue("subMachineName", newSelected);
-    }
-  };
 
   // Use effect to set report data when it becomes available
   const loadData = async () => {
@@ -291,19 +270,61 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   }, [reportData, isEditMode, isViewMode, subMachinesResult, form]);
 
   // Handle machine change by user, clearing subMachineName selection
-  const handleMachineChange = (value: any) => {
-    if (value === "other") {
+  // const handleMachineChange = (value: any) => {
+  //   if (value === "other") {
+  //     setshowOtherMachine(true);
+  //     form.setFieldValue("machineName", "other"); // Keep only "Other" selected
+  //   } else {
+  //     setshowOtherMachine(false);
+  //     setSelectedMachineId(value); // Update selected machine ID
+  //     setFilteredSubMachines([]); // Clear filtered options temporarily
+  //     form.setFieldsValue({ subMachineName: [] });
+  //     setShowOtherSubMachine(false) // Reset sub-machine selection
+  //   }
+  // };
+
+  const handleMachineChange = (values: any) => {
+    debugger;
+    setselectedMachine(values);
+
+    setShowOtherSubMachine(false);
+   
+    if (values == -1) {
+      debugger
       setshowOtherMachine(true);
-      setHideOptions(true);
-      form.setFieldValue("machineName", "other"); // Keep only "Other" selected
+ 
     } else {
+      debugger
       setshowOtherMachine(false);
-      setHideOptions(false); // Show all options
-      setSelectedMachineId(value); // Update selected machine ID
-      setFilteredSubMachines([]); // Clear filtered options temporarily
-      form.setFieldsValue({ subMachineName: [] }); // Reset sub-machine selection
+      form.setFieldsValue({
+        OtherMachine:""    
+      });
     }
+    form.setFieldsValue({
+      subMachineName: [],
+      OtherSubMachine:""    
+    });
   };
+  
+
+  const handleSubMachineChange = (values: any) => {
+    debugger;
+    if (values.includes(-1)) {
+      form.setFieldsValue({ subMachineName: [-1] });
+      setShowOtherSubMachine(false);
+    } else if (values.includes(-2)) {
+      setShowOtherSubMachine(true);
+
+    } else {
+      setShowOtherSubMachine(false);
+      form.setFieldsValue({
+        subMachineName: values,
+        OtherSubMachine: ""
+      });
+    }
+    console.log("OtherSub", showOtherSubMachine, showOtherMachine);
+  };
+
   const validationRules = {
     When: [{ required: true, message: "Please enter When Date" }],
     Area: [{ required: true, message: "Please select Area" }],
@@ -372,32 +393,32 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     }
   }, [selectedMachineId, subMachinesResult]);
 
-  const addFormSection = () => {
-    setFormSections((prevSections) => [...prevSections, prevSections.length]);
-    console.log({ formSections });
-  };
+  // const addFormSection = () => {
+  //   setFormSections((prevSections) => [...prevSections, prevSections.length]);
+  //   console.log({ formSections });
+  // };
 
-  const deleteFormSection = (sectionIndex: number) => {
-    debugger;
-    setFormSections((prevSections) =>
-      prevSections.filter((_, index) => index !== sectionIndex)
-    );
-    debugger;
-    form.setFieldsValue({
-      [`changes-${sectionIndex}`]: "",
-      [`riskWithChanges-${sectionIndex}`]: "",
-      [`factor-${sectionIndex}`]: "",
-      [`counterMeasures-${sectionIndex}`]: "",
-      [`function-${sectionIndex}`]: "",
-      [`date-${sectionIndex}`]: "",
-      [`personInCharge-${sectionIndex}`]: "",
-      [`results-${sectionIndex}`]: "",
-    });
-    const values = form.getFieldsValue();
-    debugger;
-    console.log("CR after deleting ", formSections);
-    console.log(`Deleted section at index: ${sectionIndex}`);
-  };
+  // const deleteFormSection = (sectionIndex: number) => {
+  //   debugger;
+  //   setFormSections((prevSections) =>
+  //     prevSections.filter((_, index) => index !== sectionIndex)
+  //   );
+  //   debugger;
+  //   form.setFieldsValue({
+  //     [`changes-${sectionIndex}`]: "",
+  //     [`riskWithChanges-${sectionIndex}`]: "",
+  //     [`factor-${sectionIndex}`]: "",
+  //     [`counterMeasures-${sectionIndex}`]: "",
+  //     [`function-${sectionIndex}`]: "",
+  //     [`date-${sectionIndex}`]: "",
+  //     [`personInCharge-${sectionIndex}`]: "",
+  //     [`results-${sectionIndex}`]: "",
+  //   });
+  //   const values = form.getFieldsValue();
+  //   debugger;
+  //   console.log("CR after deleting ", formSections);
+  //   console.log(`Deleted section at index: ${sectionIndex}`);
+  // };
 
   const CreatePayload = (values: any, operation?: any) => {
     console.log( "FormData",values );
@@ -406,7 +427,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
 
     const payload: IAddUpdateReportPayload = {
       AdjustmentReportId: id ? parseInt(id, 10) : 0,
-      EmployeeId: user?.EmployeeId,
+      EmployeeId: user?.employeeId,
       SectiionId:values.SectionId,
       ReportNo: values.reportNo, //done
       RequestBy: values.requestedBy, //done
@@ -414,8 +435,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       When: values.dateTime, // need to confirm
       Area: values.area, //done
       MachineName: values.machineName,
-      OtherMachineName:values.OtherMachineName,
-      OtherSubMachineName:values.OtherSubMachineName, //done
+      OtherMachineName:values.OtherMachine,
+      OtherSubMachineName:values.OtherSubMachine, //done
       SubMachineName: values.subMachineName, //done
       DescribeProblem: values.describeProblem, //done
       Observation: values.observation, //done
@@ -427,9 +448,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       IsSubmit: operation == OPERATION.Submit, //done
       IsAmendReSubmitTask: operation == OPERATION.Resubmit,
       Photos: { BeforeImages: beforeImages, AfterImages: afterImages },
-      CreatedBy: user?.EmployeeId, //need to change
+      CreatedBy: user?.employeeId, //need to change
       CreatedDate: dayjs(),
-      ModifiedBy: user?.EmployeeId, // need to change conditionally
+      ModifiedBy: user?.employeeId, // need to change conditionally
       ModifiedDate: dayjs(), // change conditionally , if modifying then pass only
     };
     return payload;
@@ -926,7 +947,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   //         await createTechnicalAttachment({
   //           TechnicalId: id,
   //           DocumentName: uploadFileItem.name,
-  //           CreatedBy: user?.EmployeeId,
+  //           CreatedBy: user?.employeeId,
   //         });
 
   //         // Refresh the technical instruction to get the updated file list
@@ -949,7 +970,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   //   } else {
   //     if (intialFolderName == "") {
   //       setIntialFolderName(
-  //         `${user?.EmployeeId}_${Date.now().toString().slice(-6)}`
+  //         `${user?.employeeId}_${Date.now().toString().slice(-6)}`
   //       );
   //     } else {
   //     }
@@ -1000,7 +1021,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
 
   return (
     <>
-      <div style={{ position: "relative", left: "1500px", bottom: "80px" }}>
+      <div style={{ position: "relative", left: "1580px", bottom: "80px",zIndex:"1000" }}>
         <>
           <div className="d-flex gap-3">
             {true && (
@@ -1151,29 +1172,24 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               ]}
             >
               <Select
+              allowClear
                 disabled={isViewMode}
                 placeholder="Select Machine Name"
                 onChange={handleMachineChange}
-                value={hideOptions ? "other" : undefined}
+               
                 loading={machineloading}
-              >
-                {/* Dynamically loaded machine options */}
-                {!hideOptions &&
-                  machinesResult?.ReturnValue?.map((machine: any) => (
-                    <Option key={machine.MachineId} value={machine.MachineId}>
-                      {machine.MachineName}
-                    </Option>
-                  ))}
-
-                {/* "Other" Option */}
-                <Option key="other" value="other">
-                  Other
-                </Option>
-              </Select>
+                options={[
+                  ...(machinesResult?.ReturnValue?.map((machine) => ({
+                    label: machine.MachineName,
+                    value: machine.MachineId,
+                  })) || []),
+                  ...(machinesResult?.ReturnValue?  [{ label: "Other", value: -1 }] : []),
+                ]}
+              />
             </Form.Item>
 
             {showOtherMachine && (
-              <Form.Item label="Other Machine Name" name="OtherMachineName">
+              <Form.Item label="Other Machine Name" name="OtherMachine">
                 <TextArea
                   rows={1}
                   maxLength={500}
@@ -1198,38 +1214,30 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                 mode="multiple"
                 placeholder="Select Sub-Machine Name"
                 onChange={handleSubMachineChange}
-                value={hideOptionsforSubMachine ? ["other"] : undefined}
+                options={[
+                  ...(selectedMachine !== 0 && selectedMachine !== -1
+                    ? [{ label: "All", value: -1 }]
+                    : []),
+                  ...(subMachinesResult?.ReturnValue?.filter(
+                      (submachine:ISubMachine) =>
+                        submachine.MachineId === selectedMachine
+                    )
+                    ?.map((subdevice:ISubMachine) => ({
+                      label: subdevice.SubMachineName,
+                      value: subdevice.SubMachineId,
+                    })) || []),
+                  ...(selectedMachine !== 0
+                    ? [{ label: "Other", value: -2 }]
+                    : []),
+                ]}
                 loading={submachineloading}
-              >
-                {/* "Select All" Option (hidden if "Other" is selected) */}
-                {!hideOptionsforSubMachine && (
-                  <Option key="all" value="all">
-                    Select All
-                  </Option>
-                )}
-
-                {/* Sub-Machine Options */}
-                {!hideOptionsforSubMachine &&
-                  filteredSubMachines?.map((subMachine) => (
-                    <Option
-                      key={subMachine.SubMachineId}
-                      value={subMachine.SubMachineId}
-                    >
-                      {subMachine.SubMachineName}
-                    </Option>
-                  ))}
-
-                {/* "Other" Option */}
-                <Option key="other" value="other">
-                  Other
-                </Option>
-              </Select>
+              />
             </Form.Item>
 
             {showOtherSubMachine && (
               <Form.Item
                 label="Other SubMachine Name "
-                name="OtherSubMachineName"
+                name="OtherSubMachine"
               >
                 <TextArea
                   rows={1}
@@ -1354,7 +1362,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                 }
                 key={`file-upload-before-images`}
                 folderName={
-                  form.getFieldValue("reportNo") ?? user?.EmployeeId.toString()
+                  form.getFieldValue("reportNo") ?? user?.employeeId.toString()
                 }
                 subFolderName={"BeforeImages"}
                 libraryName={DocumentLibraries.Adjustment_Attachments}
@@ -1394,7 +1402,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                 }
                 key={`file-upload-after-images`}
                 folderName={
-                  form.getFieldValue("reportNo") ?? user?.EmployeeId.toString()
+                  form.getFieldValue("reportNo") ?? user?.employeeId.toString()
                 }
                 subFolderName={"AfterImages"}
                 libraryName={DocumentLibraries.Adjustment_Attachments}

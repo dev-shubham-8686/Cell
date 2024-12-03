@@ -291,12 +291,12 @@ const AdjustmentReportRequests: React.FC = () => {
             onClick={() => ViewHandler(record.AdjustmentReportId)}
           />
 
-          {console.log(record,record.EmployeeId,user?.EmployeeId)}
+          {console.log(record,record.EmployeeId,user?.employeeId)}
 
-          {(user?.IsAdmin ||
+          {(user?.isAdmin ||
             ((record.Status === REQUEST_STATUS.Draft ||
               record.Status === REQUEST_STATUS.UnderAmendment) &&
-              record.EmployeeId === user?.EmployeeId)) && (
+              record.EmployeeId === user?.employeeId)) && (
               <Button
                 type="link"
                 title="Edit"
@@ -305,7 +305,7 @@ const AdjustmentReportRequests: React.FC = () => {
               />
             )}
 
-          {(user?.IsAdmin || record.EmployeeId == user?.EmployeeId
+          {(user?.isAdmin || record.EmployeeId == user?.employeeId
 
             && (
             record.Status == REQUEST_STATUS.Completed ||
@@ -319,9 +319,9 @@ const AdjustmentReportRequests: React.FC = () => {
               />
             )}
 
-          {(user?.IsAdmin ||
+          {(user?.isAdmin ||
             (record.Status == REQUEST_STATUS.Draft &&
-              record.EmployeeId == user?.EmployeeId)) && (
+              record.EmployeeId == user?.employeeId)) && (
               <Button
                 type="link"
                 title="Delete"
