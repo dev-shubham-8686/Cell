@@ -92,9 +92,6 @@ namespace TDSGCellFormat.Models.Add
 
         public int AdjustmentId { get; set; }
 
-        public int? AdvisorId { get; set; }
-
-        
         public List<AdditionalDepartmentHeads>? AdditionalDepartmentHeads { get; set; } = new List<AdditionalDepartmentHeads>();
     }
 

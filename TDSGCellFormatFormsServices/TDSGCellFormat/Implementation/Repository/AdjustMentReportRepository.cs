@@ -45,6 +45,27 @@ namespace TDSGCellFormat.Implementation.Repository
             _configuration = configurationBuilder.Build();
         }
 
+        #region GetUserRole
+        public async Task<GetEquipmentUser> GetUserRole(string userEmail)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserEmail", userEmail, DbType.String, ParameterDirection.Input, 150);
+
+                var result = await connection.QueryFirstOrDefaultAsync<GetEquipmentUser>(
+                    "dbo.SPP_GetUserDetails_ADJ",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                return result;
+            }
+        }
+        #endregion
+
         #region Listing screen 
 
         public async Task<List<AdjustmentReportView>> GetAllAdjustmentData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
@@ -87,7 +108,6 @@ namespace TDSGCellFormat.Implementation.Repository
         }
 
         #endregion
-
 
         #region CRUD
         public IQueryable<AdjustMentReportRequest> GetAll()
@@ -593,7 +613,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 InsertHistoryData(adjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.Submit.ToString(), 0);
 
-
                 await _context.CallAdjustmentReportApproverMaterix(createdBy, adjustmentReportId);
 
                 res.Message = Enums.AdjustMentSubmit;
@@ -808,16 +827,15 @@ namespace TDSGCellFormat.Implementation.Repository
                     InsertHistoryData(asktoAmend.AdjustmentId, FormType.EquipmentImprovement.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.Approved.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.Approved.ToString(), 0);
 
 
-                    if (asktoAmend.AdvisorId != null && asktoAmend.AdvisorId > 0)
-                    {
-                        var advisorData = new AdjustmentAdvisorMaster();
-                        advisorData.EmployeeId = asktoAmend.AdvisorId;
-                        advisorData.IsActive = true;
-                        advisorData.AdjustmentReportId = asktoAmend.AdjustmentId;
-                        _context.AdjustmentAdvisorMasters.Add(advisorData);
-                        await _context.SaveChangesAsync();
-
-                    }
+                    //if (asktoAmend.AdvisorId != null && asktoAmend.AdvisorId > 0)
+                    //{
+                    //    var advisorData = new AdjustmentAdvisorMaster();
+                    //    advisorData.EmployeeId = asktoAmend.AdvisorId;
+                    //    advisorData.IsActive = true;
+                    //    advisorData.AdjustmentReportId = asktoAmend.AdjustmentId;
+                    //    _context.AdjustmentAdvisorMasters.Add(advisorData);
+                    //    await _context.SaveChangesAsync();
+                    //}
 
                     if (asktoAmend.AdditionalDepartmentHeads != null && asktoAmend.AdditionalDepartmentHeads.Count > 0)
                     {

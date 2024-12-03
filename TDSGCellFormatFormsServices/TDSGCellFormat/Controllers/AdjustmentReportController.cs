@@ -23,6 +23,36 @@ namespace TDSGCellFormat.Controllers
             _tdsgService = tdsgService;
         }
 
+        [HttpGet("GetUserRole")]
+        public async Task<IActionResult> GetUserRole(string email)
+        {
+            //var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            //// Call the IsValidAuthentication method
+            //AjaxResult authResult;
+            //bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+            //
+            //if (!isValidAuth)
+            //{
+            //    // Return unauthorized response if authentication fails
+            //    Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+            //    return Unauthorized(Ajaxresponse);
+            //}
+
+            var userDetails = await _tdsgService.GetUserRole(email);
+            if (userDetails == null)
+            {
+                AjaxResult result = new AjaxResult();
+                result.ResultType = (int)MessageType.NotAuthorize;
+                result.StatusCode = Status.NotAuthorize;
+                result.Message = Enums.TroubleAuthorization;
+
+                return NotFound(result);
+            }
+            return Ok(userDetails);
+        }
+
+
+
         [HttpGet("GetAllAdjustmentData")]
         public async Task<IActionResult> GetAllAdjustmentData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
