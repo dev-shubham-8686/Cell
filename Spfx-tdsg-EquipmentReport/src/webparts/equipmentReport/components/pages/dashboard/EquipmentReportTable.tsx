@@ -289,7 +289,8 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Application No",
       dataIndex: "EquipmentImprovementNo",
       key: "EquipmentImprovementNo",
-      width: 150,
+      width: 160,
+      filterDropdown: ColumnFilter,
       sorter: true,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
@@ -315,7 +316,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       key: "Area",
        width: 150,
       sorter: true,
-      filterDropdown: ColumnFilter,
+     // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -340,7 +341,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       key: "SubMachineName",
        width: 200,
       sorter: true,
-      filterDropdown: ColumnFilter,
+      //filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
