@@ -1119,6 +1119,41 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
         </Row>
 
         <Row gutter={48}>
+
+        <Col span={6}>
+          <Form.Item
+                  label={<span className="text-muted w-95">Section Name</span>}
+                  name="SectionId"
+                  rules={[{ required: true }]}
+                >
+                  <Select
+                 
+                    showSearch
+                    // onChange={handleSectionChange}
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={sections?.ReturnValue?.map((section) => ({
+                      label: section.sectionName,
+                      value: section.sectionId,
+                    }))}
+                    loading={sectionIsLoading}
+                    className="custom-disabled-select"
+                  >
+                    {/* {troubles?.map((trouble) => (
+                      <Select.Option
+                        key={trouble.troubleId}
+                        value={trouble.troubleId}
+                      >
+                        {trouble.name}
+                      </Select.Option>
+                    ))} */}
+                  </Select>
+                </Form.Item>
+          </Col>
+
           <Col span={6}>
             <Form.Item
               label="Area"
@@ -1247,7 +1282,11 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               </Form.Item>
             )}
           </Col>
-          <Col span={6}>
+          
+        </Row>
+
+        <Row gutter={48}>
+        <Col span={6}>
             <Form.Item
               label="Describe Problem"
               name="describeProblem"
@@ -1261,9 +1300,6 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               />
             </Form.Item>
           </Col>
-        </Row>
-
-        <Row gutter={48}>
           <Col span={6}>
             {/* Observation */}
             <Form.Item
@@ -1307,41 +1343,28 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               />
             </Form.Item>
           </Col>
-          <Col span={6}>
-          <Form.Item
-                  label={<span className="text-muted w-95">Section Name</span>}
-                  name="SectionId"
-                  rules={[{ required: true }]}
-                >
-                  <Select
-                 
-                    showSearch
-                    // onChange={handleSectionChange}
-                    filterOption={(input, option) =>
-                      (option?.label ?? "")
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    options={sections?.ReturnValue?.map((section) => ({
-                      label: section.sectionName,
-                      value: section.sectionId,
-                    }))}
-                    loading={sectionIsLoading}
-                    className="custom-disabled-select"
-                  >
-                    {/* {troubles?.map((trouble) => (
-                      <Select.Option
-                        key={trouble.troubleId}
-                        value={trouble.troubleId}
-                      >
-                        {trouble.name}
-                      </Select.Option>
-                    ))} */}
-                  </Select>
-                </Form.Item>
-          </Col>
+         
         </Row>
         <Row gutter={48}>
+        <Col span={6}>
+            <Form.Item
+              label="Condition After Adjustment"
+              name="conditionAfterAdjustment"
+              rules={[
+                {
+                  required: true,
+                  message: "Please upload before images!",
+                },
+              ]}
+            >
+              <TextArea
+                disabled={isViewMode}
+                rows={4}
+                maxLength={2000}
+                placeholder="Describe the condition after adjustment"
+              />
+            </Form.Item>
+          </Col>
           <Col span={6}>
             <Form.Item
               label="Before Images"
@@ -1422,19 +1445,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               />
             </Form.Item>
           </Col>
-          <Col span={6}>
-            <Form.Item
-              label="Condition After Adjustment"
-              name="conditionAfterAdjustment"
-            >
-              <TextArea
-                disabled={isViewMode}
-                rows={4}
-                maxLength={2000}
-                placeholder="Describe the condition after adjustment"
-              />
-            </Form.Item>
-          </Col>
+          
         </Row>
 
         <div>
@@ -1501,7 +1512,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             </div>
           ))} */}
 {          console.log("CHANGE RISK DATA",ChangeRiskManagementDetails)
-}  <div>
+}  { cRMRequired ? 
+            <div>
               <div className="d-flex justify-content-between my-3">
                 <p
                   className="mb-0"
@@ -1533,7 +1545,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                 //   ),
                 // }}
               />
-</div>
+</div>:<></>}
         {/* 
         <Button
           onClick={handleAdditionalApprovalClick}
