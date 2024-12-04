@@ -1585,13 +1585,13 @@ namespace TDSGCellFormat.Helper
                                 emailSubject = string.Format("[Action required!] Adjustment_{0}} has been Resubmitted", adjustmentData.ReportNo);
                                 isInReviewTask = true;
                                 approvelink = true;
+                                isRequestorinCCEmail = true;
                                 break;
 
                             case EmailNotificationAction.Approved:
                                 templateFile = "Adjustment_Approved.html";
-                                emailSubject = string.Format("[Action required!] Adjustment_{0} has been Submitted for Approval", adjustmentData.ReportNo);
+                                emailSubject = string.Format("[Action required!] Adjustment_{0} has been Approved", adjustmentData.ReportNo);
                                 isInReviewTask = true;
-                                isApprovedtask = true;
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
                                 break;
@@ -1600,24 +1600,146 @@ namespace TDSGCellFormat.Helper
                                 templateFile = "Adjustment_Amend.html";
                                 emailSubject = string.Format("[Action taken!] Adjustment_{0} has been Asked for Amendment", adjustmentData.ReportNo);
                                 isRequestorinToEmail = true;
-                                approvelink = true;
+                                isIsAmendTask = true;
+                                isEditable = true;
                                 break;
 
                             case EmailNotificationAction.PullBack:
                                 templateFile = "Adjustment_PullBack.html";
                                 emailSubject = string.Format("[Action taken!] Adjustment_{0} has been Pull Backed", adjustmentData.ReportNo);
-                                isPullBacked = true;
                                 isRequestorinCCEmail = true;
+                                isPullBacked = true;
                                 break;
 
                             case EmailNotificationAction.Completed:
                                 templateFile = "Adjustment_Completed.html";
                                 emailSubject = string.Format("[Action required!] Adjustment_{0} has been Approved and completed", adjustmentData.ReportNo);
                                 isRequestorinToEmail = true;
-                                break;
+                                allApprover = true;
+                                break; 
 
                             default:
                                 break;
+                        }
+
+                        if (isPullBacked)
+                        {
+                            foreach (var item in approverData)
+                            {
+                                if (item.Status != ApprovalTaskStatus.Pending.ToString())
+                                {
+                                    emailToAddressList.Add(item.email);
+                                }
+                            }
+                        }
+
+                        if (isRequestorinCCEmail)
+                        {
+                            emailCCAddressList.Add(requesterUserEmail);
+                        }
+                        if (isRequestorinToEmail)
+                        {
+                            emailToAddressList.Add(requesterUserEmail);
+                        }
+
+                        if (isIsAmendTask)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.UnderAmendment.ToString() && item.ApproverTaskId == nextApproverTaskId)
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (allApprover)
+                        {
+                            foreach (var item in approverData)
+                            {
+                                emailCCAddressList.Add(item.email);
+                            }
+                        }
+
+                        if (isInReviewTask)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.InReview.ToString() && item.ApproverTaskId == nextApproverTaskId)
+                                    {
+                                        emailToAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.InReview.ToString())
+                                    {
+                                        emailToAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(templateFile))
+                        {
+                            string baseDirectory = AppContext.BaseDirectory;
+                            string docLink = documentLink + "view/" + requestId;
+                            templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
+                            if (!string.IsNullOrEmpty(templateFilePath))
+                            {
+                                emailBody.Append(System.IO.File.ReadAllText(templateFilePath));
+                            }
+                            if (emailBody?.Length > 0)
+                            {
+                                if (approvelink)
+                                {
+                                    docLink = documentLink.Replace("#", "?action=approval#") + "edit/" + requestId;
+                                }
+                                else
+                                {
+                                    if (isEditable)
+                                    {
+                                        docLink = documentLink + "edit/" + requestId;
+                                    }
+                                    else
+                                    {
+                                        docLink = documentLink + "view/" + requestId;
+                                    }
+
+                                }
+
+                                emailBody = emailBody.Replace("#Requestor#", requesterUserName);
+                                emailBody = emailBody.Replace("#EquipmentLink#", docLink);
+                                emailBody = emailBody.Replace("#ApplicationNo#", adjustmentNo);
+                                //emailBody = emailBody.Replace("#Improvement#", equipmentData.ImprovementName);
+                               // emailBody = emailBody.Replace("#Area#", areaNamesString);
+                               // emailBody = emailBody.Replace("#Section#", sectionName);
+                                emailBody = emailBody.Replace("#Comment#", comment);
+                                emailBody = emailBody.Replace("#Role#", Role);
+                                emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
+                                emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
+                                var requestData = new EmailLogMaster()
+                                {
+                                    FormId = requestId,
+                                    EmailBody = emailBody.ToString(),
+                                    EmailCC = string.Join(",", emailCCAddressList.Distinct().ToList()),
+                                    EmailTo = string.Join(",", emailToAddressList.Distinct().ToList()),
+                                    EmailSubject = emailSubject.ToString(),
+                                    EmailSentTime = DateTime.Now,
+                                    isDelete = false,
+                                    IsEmailSent = emailSent,
+                                };
+                                _context.EmailLogMasters.Add(requestData);
+                                await _context.SaveChangesAsync();
+                            }
                         }
                     }
                 }

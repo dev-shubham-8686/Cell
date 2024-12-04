@@ -13,6 +13,8 @@ namespace TDSGCellFormat.Models
 
         public int? AdjustmentReportId { get; set; }
 
+        public string? Comment { get; set; }
+
         public bool? IsActive { get; set; }
     }
 }
