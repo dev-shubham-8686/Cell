@@ -168,7 +168,6 @@ namespace TDSGCellFormat.Models.Add
         public ApprovalStatus Type { get; set; }
         public string? Comment { get; set; }
         public int EquipmentId { get; set; }
-
         public EquipmentApprovalData? EquipmentApprovalData { get; set; }
     }
 
