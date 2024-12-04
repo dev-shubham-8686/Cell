@@ -1115,6 +1115,23 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+        public AdjustmentAdvisor GetAdvisorData(int adjustmentReportId)
+        {
+            var res = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsActive == true).FirstOrDefault();
+            
+            if(res != null)
+            {
+                return null;
+            }
+
+            var advisorData = new AdjustmentAdvisor();
+            advisorData.AdjustmentAdvisorId = res.AdjustmentAdvisorId;
+            advisorData.AdjustmentReportId = res.AdjustmentReportId;
+            advisorData.Comment = res.Comment;
+
+            return advisorData;
+        }
+
         #endregion 
 
         #region Excel and Pdf
