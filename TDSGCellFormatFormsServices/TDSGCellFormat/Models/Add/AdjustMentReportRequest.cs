@@ -122,4 +122,12 @@ namespace TDSGCellFormat.Models.Add
         public int? EmployeeId { get; set; }
         public string? Comment { get; set; }
     }
+
+    public class AdjustmentAdvisor
+    {
+        public int? AdjustmentAdvisorId { get; set; }
+        public int? AdvisorId {  get; set; }
+        public int? AdjustmentReportId { get; set; }
+        public string? Comment { get; set; }
+    }
 }
