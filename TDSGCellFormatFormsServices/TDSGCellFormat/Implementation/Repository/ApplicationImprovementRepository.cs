@@ -1664,6 +1664,20 @@ namespace TDSGCellFormat.Implementation.Repository
                     return res;
                 }
 
+                // Additional filtering for Type = 3
+                if (type == 3)
+                {
+                    var adminId = _context.AdminApprovers
+                        .Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true)
+                        .Select(x => x.AdminId)
+                        .FirstOrDefault();
+
+                    excelData = excelData
+                        .Where(item => employeeId == adminId ||
+                                       item.GetType().GetProperty("Status")?.GetValue(item)?.ToString() != ApprovalTaskStatus.Draft.ToString())
+                        .ToList<object>();
+                }
+
                 using (var workbook = new XLWorkbook())
                 {
                     var worksheet = workbook.Worksheets.Add("Equipment Improvement");
@@ -1672,7 +1686,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     //var properties = excelData.GetType().GetGenericArguments()[0].GetProperties();
 
                     // Reflect properties based on Type
-                    var properties = type == 1
+                    var properties = (type == 1 || type == 3)
                         ? typeof(EquipmentExcelViewForType1).GetProperties()
                         : typeof(EquipmentExcelViewForType2).GetProperties();
 
