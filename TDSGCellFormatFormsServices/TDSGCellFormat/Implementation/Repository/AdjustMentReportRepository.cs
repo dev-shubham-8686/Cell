@@ -1091,6 +1091,32 @@ namespace TDSGCellFormat.Implementation.Repository
 
         #endregion
 
+        #region Advisor flow
+
+        public async Task<AjaxResult> AddOrUpdateAdvisorData(AdjustmentAdvisor request)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var advisor = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentAdvisorId == x.AdjustmentAdvisorId && x.AdjustmentReportId == request.AdjustmentReportId && x.IsActive == true && x.EmployeeId == request.AdvisorId).FirstOrDefault();
+                if (advisor != null) 
+                {
+                    advisor.Comment = request.Comment;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch(Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "AddOrUpdateAdvisorData");
+            }
+            return res;
+        }
+
+        #endregion 
+
         #region Excel and Pdf
 
         public async Task<AjaxResult> GetAdjustmentReportExcel(DateTime fromDate, DateTime todate, int employeeId, int type)
