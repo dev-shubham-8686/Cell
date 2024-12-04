@@ -187,6 +187,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 ReportNo = res.ReportNo,
                 When = res.When.HasValue ? res.When.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
                 Area = !string.IsNullOrEmpty(res.Area) ? res.Area.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
+                SectionId = res.SectionId,
                 MachineName = res.MachineName,
                 OtherMachineName = res.OtherMachineName,
                 SubMachineName = !string.IsNullOrEmpty(res.SubMachineName) ? res.SubMachineName.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
