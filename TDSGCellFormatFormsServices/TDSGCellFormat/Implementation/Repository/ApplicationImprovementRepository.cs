@@ -1024,7 +1024,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var equpmentData = new List<EquipmentImprovementView>();
             foreach (var item in listData)
             {
-                if(createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
+               // if(createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
                 equpmentData.Add(item);
             }
             return equpmentData;
