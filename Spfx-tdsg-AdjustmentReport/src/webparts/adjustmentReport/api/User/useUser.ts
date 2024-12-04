@@ -70,9 +70,9 @@ const getUser = async (email: string) => {
   console.log(email)
   let res = await authenticateUser(email);
   if (res) {
-debugger
+
     const response = await apiClient.get<IAjaxResult>(GET_USER, { params: { email } });
-    debugger
+    
     return response.data;
   }
   return null;

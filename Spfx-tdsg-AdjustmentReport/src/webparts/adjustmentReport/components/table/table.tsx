@@ -106,7 +106,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
     if (url) {   
       let params;
       if(paginationRequired){
-        debugger
+        
         params={
           createdBy: user?.employeeId,
           skip: (currentPage - 1) * pageSize,

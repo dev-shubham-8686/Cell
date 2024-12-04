@@ -55,7 +55,7 @@ const ReportFormPage = () => {
   const {data: head} = useGetSectionHead(id ? parseInt(id, 10) : 0);
 
   const {data: departmentHead} = useGetDepartmentHead(id ? parseInt(id, 10) : 0);
-
+  console.log("approval data",approvalData)
   const handleTabChange = (key: string) => {
     setActiveTabKey(key);
   };
@@ -92,6 +92,7 @@ const ReportFormPage = () => {
         },
         {
           onSuccess: (data) => {
+            console.log("getCurrentApprover data",data)
             setcurrentApproverTask(data.ReturnValue);
           }
         },
@@ -194,7 +195,7 @@ const ReportFormPage = () => {
   };
 
   const handleApprove = async (comment: string, advisorId: number, approvalSequence : any): Promise<void> => {
-    debugger
+    
     const data: IApproveAskToAmendPayload = {
       ApproverTaskId: currentApproverTask.approverTaskId,
       CurrentUserId: user?.employeeId ? user?.employeeId : 0,

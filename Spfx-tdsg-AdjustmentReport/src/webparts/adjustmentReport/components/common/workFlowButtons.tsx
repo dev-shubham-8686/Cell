@@ -117,7 +117,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
       setLoading(true);
 
       const comment = values.comment; // Get the validated comment
-      debugger
+      
       console.log({ comment });
       console.log({ values });
 
@@ -148,26 +148,25 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   return (
     <>
       {/* Action Buttons */}
-      {showWorkflowBtns && approverRequest ? (
+{      console.log("approval data",showWorkflowBtns,approverRequest)
+}      {showWorkflowBtns && approverRequest ? (
         <>
           <Button
-            color="primary"
-            variant="solid"
+            className="btn btn-primary"
             onClick={() => {
               isFormModified && handleClick("approve");
             }}
-            style={{ marginRight: "10px" }}
+            style={{ marginRight: "10px",marginBottom:"50px" }}
           >
             Approve
           </Button>
 
           <Button
-            color="primary"
-            variant="solid"
+            className="btn btn-primary"
             onClick={() => {
               isFormModified && handleClick("amend");
             }}
-            style={{ marginRight: "10px" }}
+            style={{ marginRight: "10px",marginBottom:"50px" }}
           >
             Ask to Amend
           </Button>

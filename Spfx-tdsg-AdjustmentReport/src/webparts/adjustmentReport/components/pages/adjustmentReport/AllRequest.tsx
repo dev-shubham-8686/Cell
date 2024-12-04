@@ -26,6 +26,7 @@ import { useDeleteAdjustmentReport } from "../../../hooks/useDeleteAdjustmentRep
 import { useGetAdjustmentReportPDF } from "../../../hooks/useGetAdjustmentReportPDF";
 import { displayRequestStatus } from "../../../utils/utility";
 import Table from "../../table/table";
+import ColumnFilter from "../../table/columnFilter/columnFilter";
 
 const AllRequest: React.FC<{}> = ({}) => {
   const navigate = useNavigate();
@@ -97,15 +98,15 @@ const AllRequest: React.FC<{}> = ({}) => {
       key: "ReportNo",
       width: 160,
       sorter: true,
-      //   filterDropdown: ColumnFilter,
-      //   filterIcon: (filtered: boolean) => (
-      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      //   ),
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
     },
     {
-      title: "When",
-      dataIndex: "CreatedDate",
-      key: "CreatedDate",
+      title: "Date and Time",
+      dataIndex: "IssueDate",
+      key: "IssueDate",
       width: 140,
       sorter: true,
       render: (text) => (
@@ -113,11 +114,14 @@ const AllRequest: React.FC<{}> = ({}) => {
           {text ? dayjs(text).format(DATE_FORMAT) : ""}
         </p>
       ),
-      //   filterDropdown: ColumnFilter,
-      //   filterIcon: (filtered: boolean) => (
-      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      //   ),
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
     },
+   
+
+  
     {
       title: "Area",
       dataIndex: "AreaName",
@@ -135,10 +139,10 @@ const AllRequest: React.FC<{}> = ({}) => {
       key: "MachineName",
       width: 140,
       sorter: true,
-      //   filterDropdown: ColumnFilter,
-      //   filterIcon: (filtered: boolean) => (
-      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      //   ),
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
     },
     {
       title: "Sub-Machine Name",
@@ -157,21 +161,25 @@ const AllRequest: React.FC<{}> = ({}) => {
       key: "Requestor",
       width: 140,
       sorter: true,
-      //   filterDropdown: ColumnFilter,
-      //   filterIcon: (filtered: boolean) => (
-      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      //   ),
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
     },
     {
       title: "Current Approver",
       dataIndex: "CurrentApprover",
       key: "CurrentApprover",
-      width: 160,
+      width: 160, 
       sorter: true,
       render: (text) => (
         <span style={{ display: "flex", justifyContent: "center" }}>
           {text ? text : "-"}
         </span>
+      ),
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
     {
@@ -185,22 +193,23 @@ const AllRequest: React.FC<{}> = ({}) => {
         className={`status-badge status-badge-${
           STATUS_COLOUR_CLASS[text] ?? ""
         }`}
+
       >
         {displayRequestStatus(text)}
       </span>
       ),
-      // filterDropdown: ColumnFilter,
-      // filterIcon: (filtered: boolean) => (
-      //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      // ),
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
     },
     {
-      title: "Action",
+      title: <p className="text-center p-0 m-0">Actions</p>,
       key: "action",
       width: 140,
       sorter: false,
       render: (record) => (
-        <div className="flex">
+        <div className="action-cell">
           <button
             type="button"
             style={{ background: "none", border: "none" }}
@@ -247,7 +256,7 @@ const AllRequest: React.FC<{}> = ({}) => {
                 type="button"
                 style={{ background: "none", border: "none" }}
                 onClick={() => {
-                  handleDelete(record.EquipmentImprovementId);
+                  handleDelete(record.AdjustmentReportId);
                 }}
               >
                 <FontAwesomeIcon title="Delete" icon={faTrash} />

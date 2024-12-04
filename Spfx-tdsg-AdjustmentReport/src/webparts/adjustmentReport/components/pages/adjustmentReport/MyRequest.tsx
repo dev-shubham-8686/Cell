@@ -26,6 +26,7 @@ import { useGetAdjustmentReportPDF } from "../../../hooks/useGetAdjustmentReport
 import { displayRequestStatus } from "../../../utils/utility";
 import Table from "../../table/table";
 import { IAdjustmentReportInfo } from "../../../interface";
+import ColumnFilter from "../../table/columnFilter/columnFilter";
 
 const MyRequest: React.FC<{}> = ({}) => {
   const navigate = useNavigate();
@@ -74,7 +75,7 @@ const MyRequest: React.FC<{}> = ({}) => {
       cancelButtonProps: { className: "btn btn-outline-primary" },
       okButtonProps: { className: "btn btn-primary" },
       onOk() {
-        debugger
+        
         deleteAdjustment(id, {
           onSuccess: (Response:any) => {
             console.log("ATA Response: ", Response);
@@ -98,27 +99,30 @@ const MyRequest: React.FC<{}> = ({}) => {
       key: "ReportNo",
       width: 160,
       sorter: true,
-      //   filterDropdown: ColumnFilter,
-      //   filterIcon: (filtered: boolean) => (
-      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      //   ),
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
     },
     {
-      title: "When",
-      dataIndex: "CreatedDate",
-      key: "CreatedDate",
+      title: "Date and Time",
+      dataIndex: "IssueDate",
+      key: "IssueDate",
       width: 140,
       sorter: true,
       render: (text) => (
         <p className="text-cell">
-          {text ? dayjs(text).format(DATE_FORMAT) : ""}
+          {text ? dayjs(text).format(DATE_FORMAT) : "-"}
         </p>
       ),
-      //   filterDropdown: ColumnFilter,
-      //   filterIcon: (filtered: boolean) => (
-      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      //   ),
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
     },
+   
+
+  
     {
       title: "Area",
       dataIndex: "AreaName",
@@ -136,10 +140,10 @@ const MyRequest: React.FC<{}> = ({}) => {
       key: "MachineName",
       width: 140,
       sorter: true,
-      //   filterDropdown: ColumnFilter,
-      //   filterIcon: (filtered: boolean) => (
-      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      //   ),
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
     },
     {
       title: "Sub-Machine Name",
@@ -158,10 +162,10 @@ const MyRequest: React.FC<{}> = ({}) => {
       key: "Requestor",
       width: 140,
       sorter: true,
-      //   filterDropdown: ColumnFilter,
-      //   filterIcon: (filtered: boolean) => (
-      //     <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      //   ),
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
     },
     {
       title: "Current Approver",
@@ -173,6 +177,10 @@ const MyRequest: React.FC<{}> = ({}) => {
         <span style={{ display: "flex", justifyContent: "center" }}>
           {text ? text : "-"}
         </span>
+      ),
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
     {
@@ -191,18 +199,18 @@ const MyRequest: React.FC<{}> = ({}) => {
         {displayRequestStatus(text)}
       </span>
       ),
-      // filterDropdown: ColumnFilter,
-      // filterIcon: (filtered: boolean) => (
-      //   <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-      // ),
+      filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
     },
     {
-      title: "Action",
+      title: <p className="text-center p-0 m-0">Actions</p>,
       key: "action",
       width: 140,
       sorter: false,
       render: (record) => (
-        <div className="flex">
+        <div className="action-cell">
           <button
             type="button"
             style={{ background: "none", border: "none" }}

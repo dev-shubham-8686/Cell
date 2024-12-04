@@ -30,7 +30,8 @@ export interface ChangeRiskManagement {
 export interface IAddUpdateReportPayload {
   AdjustmentReportId?: number,
   EmployeeId?: number,
-  SectiionId?: number,
+  AdvisorId?:number,
+  SectionId?: number,
   ReportNo?: string;
   RequestBy?: string;
   CheckedBy?: number;
