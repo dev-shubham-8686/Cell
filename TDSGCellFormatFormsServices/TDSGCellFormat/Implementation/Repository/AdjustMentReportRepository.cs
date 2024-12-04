@@ -373,7 +373,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     existingReport.OtherSubMachineName = request.SubMachineName != null && request.SubMachineName.Contains(-2)
                           ? request.OtherSubMachineName
                           : "";
-                    //existingReport.EmployeeId = request.EmployeeId;
+                    existingReport.SectionId = request.SectionId;
                     existingReport.CheckedBy = request.CheckedBy;
                     existingReport.DescribeProblem = request.DescribeProblem;
                     existingReport.Observation = request.Observation;
