@@ -410,7 +410,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         const fieldsToValidate = allFields.filter(
           (field) => !fieldsToExclude.includes(field)
         );
-        await form.validateFields(fieldsToValidate); //: TODO Need to update
+        await form.validateFields(fieldsToValidate);
+        await form.validateFields();
+        //: TODO Need to update
       } else {
         debugger;
 
