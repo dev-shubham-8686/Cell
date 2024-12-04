@@ -1243,8 +1243,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false).FirstOrDefault();
 
-                   
-
                     if (data.EquipmentApprovalData != null)
                     {
                         var approvalData = data.EquipmentApprovalData;
