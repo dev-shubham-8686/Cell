@@ -61,6 +61,8 @@ namespace TDSGCellFormat.Models.Add
         public int? ModifiedBy { get; set; }
 
         public bool? IsDeleted { get; set; }
+
+        public int? DepartmentHeadId { get; set; }
     }
 
     public class ChangeRiskManagement_AdjustmentReports
