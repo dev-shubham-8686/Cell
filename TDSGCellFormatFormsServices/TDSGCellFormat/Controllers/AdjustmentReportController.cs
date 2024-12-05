@@ -332,5 +332,23 @@ namespace TDSGCellFormat.Controllers
             }
             return Ok(Ajaxresponse);
         }
+
+        [HttpGet("GetHistoryData")]
+        public IActionResult GetHistoryData(int adjustmentId)
+        {
+           
+            var result = _tdsgService.GetHistoryData(adjustmentId);
+
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), result);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), result);
+            }
+            return Ok(Ajaxresponse);
+        }
+
     }
 }

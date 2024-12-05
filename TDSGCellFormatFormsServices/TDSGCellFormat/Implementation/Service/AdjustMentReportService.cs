@@ -118,5 +118,10 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return await _adjustMentRepository.GetAdditionalDepartmentHeads();
         }
+
+        public List<TroubleReportHistoryView> GetHistoryData(int adjustmentId)
+        {
+            return  _adjustMentRepository.GetHistoryData(adjustmentId);
+        }
     }
 }
