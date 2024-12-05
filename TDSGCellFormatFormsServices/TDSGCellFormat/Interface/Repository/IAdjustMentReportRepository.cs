@@ -46,5 +46,7 @@ namespace TDSGCellFormat.Interface.Repository
         Task<AjaxResult> GetAdditionalDepartmentHeads();
 
         Task<GetEquipmentUser> GetUserRole(string email);
+
+        List<TroubleReportHistoryView> GetHistoryData(int adjustmentId);
     }
 }
