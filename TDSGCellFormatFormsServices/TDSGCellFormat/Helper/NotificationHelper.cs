@@ -1547,6 +1547,7 @@ namespace TDSGCellFormat.Helper
                 string? requesterUserName = null, requesterUserEmail = null;
                 string? departmentHeadName = null, departmentHeadEmail = null;
                 bool approvelink = false;
+                bool userEditLinkFromEmail = false;
                 bool cpcDeptPeople = false;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? documentLink = _configuration["SPSiteUrl"] +
@@ -1579,7 +1580,7 @@ namespace TDSGCellFormat.Helper
                         {
                             case EmailNotificationAction.Submitted:
                                 templateFile = "TechnicalInstruction_Submitted.html";
-                                emailSubject = string.Format("[Action required!] MCS_{0} has been Submitted for Approval", materialData.CTINumber);
+                                emailSubject = string.Format("[Action required!] TIS_{0} has been Submitted for Approval", materialData.CTINumber);
                                 isInReviewTask = true;
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
@@ -1587,7 +1588,7 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.ReSubmitted:
                                 templateFile = "TechnicalInstruction_ReSubmitted.html";
-                                emailSubject = string.Format("[Action required!] MCS_{0} has been amended", materialData.CTINumber);
+                                emailSubject = string.Format("[Action required!] TIS_{0} has been amended", materialData.CTINumber);
                                 isInReviewTask = true;
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
@@ -1595,7 +1596,7 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.Approved:
                                 templateFile = "TechnicalInstruction_Approved.html";
-                                emailSubject = string.Format("[Action required!] MCS_{0} has been Submitted for Approval", materialData.CTINumber);
+                                emailSubject = string.Format("[Action required!] TIS_{0} has been Submitted for Approval", materialData.CTINumber);
                                 isInReviewTask = true;
                                 isApprovedtask = true;
                                 approvelink = true;
@@ -1604,20 +1605,21 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.ApproveInformed:
                                 templateFile = "TechnicalInstruction_ApprovedInfo.html";
-                                emailSubject = string.Format("[Action taken!] MCS_{0} has been Approved", materialData.CTINumber);
+                                emailSubject = string.Format("[Action taken!] TIS_{0} has been Approved", materialData.CTINumber);
                                 isRequestorinToEmail = true;
                                 break;
 
                             case EmailNotificationAction.Amended:
-                                templateFile = "TechnicalInstruction_AskForAmendment .html";
-                                emailSubject = string.Format("[Action taken!] MCS_{0} has been Asked for Amendment", materialData.CTINumber);
+                                templateFile = "TechnicalInstruction_AskForAmendment.html";
+                                emailSubject = string.Format("[Action taken!] TIS_{0} has been Asked for Amendment", materialData.CTINumber);
                                 isRequestorinToEmail = true;
+                                userEditLinkFromEmail = true;
                                 approvelink = true;
                                 break;
 
                             case EmailNotificationAction.PullBack:
                                 templateFile = "TechnicalInstruction_PullBack.html";
-                                emailSubject = string.Format("[Action taken!] MCS_{0} has been Pull Backed", materialData.CTINumber);
+                                emailSubject = string.Format("[Action taken!] TIS_{0} has been Pull Backed", materialData.CTINumber);
                                 isApprovedtask = true;
                                 isInReviewTask = true;
                                 isRequestorinCCEmail = true;
@@ -1625,14 +1627,14 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.Completed:
                                 templateFile = "TechnicalInstruction_Completed.html";
-                                emailSubject = string.Format("[Action required!]  MCS_{0} has been Approved and Submitted for close request", materialData.CTINumber);
+                                emailSubject = string.Format("[Action required!]  TIS_{0} has been Approved and Submitted for close request", materialData.CTINumber);
                                 isRequestorinToEmail = true;
                                 cpcDeptPeople = true;
                                 break;
 
                             case EmailNotificationAction.Closed:
                                 templateFile = "TechnicalInstruction_Closed.html";
-                                emailSubject = string.Format("[Action Taken] MCS_{0} has been Closed", materialData.CTINumber);
+                                emailSubject = string.Format("[Action Taken] TIS_{0} has been Closed", materialData.CTINumber);
                                 isDepartMentHead = true;
                                 break;
 
@@ -1756,9 +1758,14 @@ namespace TDSGCellFormat.Helper
                             }
                             if (emailBody?.Length > 0)
                             {
-                                if (approvelink)
+                                if (userEditLinkFromEmail = true && approvelink == true) 
                                 {
-                                    docLink = documentLink.Replace("#", "?action=approval#") + "form/edit/" + requestId;
+                                    docLink = documentLink + "form/edit/" + requestId;
+                                }
+                                else if (approvelink)
+                                {
+                                    
+                                    docLink = documentLink.Replace("#", "?action=approval#") + "form/view/" + requestId;
                                 }
                                 else
                                 {
