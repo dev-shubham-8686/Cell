@@ -531,7 +531,7 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpPost("TechnicalReopen")]
-        public async Task<IActionResult> ReOpenTechnicalForm(int technicalId, int userId)
+        public async Task<IActionResult> ReOpenTechnicalForm(int technicalId, int userId, string comment)
         {
             var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
             // Call the IsValidAuthentication method
@@ -544,7 +544,7 @@ namespace TDSGCellFormat.Controllers
                 Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
                 return Unauthorized(Ajaxresponse);
             }
-            var result = await _technicalService.ReOpenTechnicalForm(technicalId, userId);
+            var result = await _technicalService.ReOpenTechnicalForm(technicalId, userId, comment);
             return Ok(result);
         }
 
@@ -675,7 +675,7 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpPost("ChangeRequestOwner")]
-        public async Task<IActionResult> ChangeRequestOwner(int technicalId, int userId)
+        public async Task<IActionResult> ChangeRequestOwner(int technicalId, int userId, string comment)
         {
             var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
             // Call the IsValidAuthentication method
@@ -688,7 +688,7 @@ namespace TDSGCellFormat.Controllers
                 Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
                 return Unauthorized(Ajaxresponse);
             }
-            var result = await _technicalService.ChangeRequestOwner(technicalId, userId);
+            var result = await _technicalService.ChangeRequestOwner(technicalId, userId, comment);
             return Ok(result);
         }
 

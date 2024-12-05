@@ -119,9 +119,9 @@ namespace TDSGCellFormat.Implementation.Service
             return await _technicalRepository.CloseTechnical(report);
         }
 
-        public async Task<AjaxResult> ReOpenTechnicalForm(int technicalId, int userId)
+        public async Task<AjaxResult> ReOpenTechnicalForm(int technicalId, int userId, string comment)
         {
-            return await _technicalRepository.ReOpenTechnicalForm(technicalId, userId);
+            return await _technicalRepository.ReOpenTechnicalForm(technicalId, userId, comment);
         }
 
         public async Task<string> GetReviseDataListing(int technicalId)
@@ -154,9 +154,9 @@ namespace TDSGCellFormat.Implementation.Service
             return _technicalRepository.GetAllEmployee();
         }
 
-        public async Task<AjaxResult> ChangeRequestOwner(int technicalId, int userId)
+        public async Task<AjaxResult> ChangeRequestOwner(int technicalId, int userId, string comment)
         {
-            return await _technicalRepository.ChangeRequestOwner(technicalId, userId);
+            return await _technicalRepository.ChangeRequestOwner(technicalId, userId, comment);
         }
 
         public async Task<AjaxResult> UpdateOutlineEditor(UpdateOutlineEditor updateOutlineEditor)

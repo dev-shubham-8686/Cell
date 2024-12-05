@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import {
   deleteTechnicalInstruction,
   technicalPDF,
-  technicalExcel,
+  // technicalExcel,
   fetchTechnicalInstructionsUpdate,
   technicalReviseList,
   technicalReopen,
@@ -19,7 +19,7 @@ import {
   faEdit,
   faEnvelope,
   faEye,
-  faFileExcel,
+  //faFileExcel,
   faFileExport,
   faFilePdf,
   faPaperclip,
@@ -39,7 +39,7 @@ import {
 import {
   convertBase64ToFile,
   displayRequestStatus,
-  downloadExcelFile,
+  // downloadExcelFile,
   downloadPDF,
   generateUniqueFileNameWitCtiNumber,
 } from "../../../api/utility/utility";
@@ -54,7 +54,7 @@ const RequestsTab: React.FC = () => {
   const [searchText, setSearchText] = React.useState<string>("");
   const [data, setData] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(false);
-  const [excelLoading, setExcelLoading] = React.useState(false);
+  // const [excelLoading, setExcelLoading] = React.useState(false);
   const [pdfLoading, setPdfLoading] = React.useState(false);
   const exportRef = React.useRef<any>();
   //const [searchValue, setSearchValue] = React.useState<string>('');
@@ -102,6 +102,10 @@ const RequestsTab: React.FC = () => {
   const [mailTriggerCtinumber, setMailTriggerCtinumber] = React.useState("");
   const [mailLoading, setMailLoading] = React.useState(false);
   const webPartContext = React.useContext(WebPartContext);
+  const [visible, setVisible] = React.useState(false);
+  const [revisonLoading, setRevisonLoading] = React.useState(false);
+  const [comment, setComment] = React.useState("");
+  const [revTecId, setRevTecId] = React.useState("");
 
   const showNotifyModal = (technicalId: string, ctiNumber: string) => {
     // Open the modal and save the current request details
@@ -230,7 +234,7 @@ const RequestsTab: React.FC = () => {
   };
 
   // Column-specific search filter
-  const getColumnSearchProps = (dataIndex: string) => ({
+  const getColumnSearchProps = (dataIndex: string, placeholderString:string) => ({
     filterDropdown: ({
       setSelectedKeys,
       selectedKeys,
@@ -239,7 +243,7 @@ const RequestsTab: React.FC = () => {
     }: any) => (
       <div style={{ padding: 8 }}>
         <Input
-          placeholder={`Search ${dataIndex}`}
+          placeholder={`Search ${placeholderString}`}
           value={selectedKeys[0]}
           onChange={(e) =>
             setSelectedKeys(e.target.value ? [e.target.value] : [])
@@ -329,19 +333,19 @@ const RequestsTab: React.FC = () => {
     }
   };
 
-  const handleExportToExcelSingle = (id: string, no: string): void => {
-    setExcelLoading(true);
-    technicalExcel(id)
-      .then((data) => {
-        setExcelLoading(false);
-        downloadExcelFile(data.ReturnValue, no);
-        void displayjsx.showSuccess("File downloaded successfully.");
-      })
-      .catch((err) => {
-        setExcelLoading(false);
-        console.log(err);
-      });
-  };
+  // const handleExportToExcelSingle = (id: string, no: string): void => {
+  //   setExcelLoading(true);
+  //   technicalExcel(id)
+  //     .then((data) => {
+  //       setExcelLoading(false);
+  //       downloadExcelFile(data.ReturnValue, no);
+  //       void displayjsx.showSuccess("File downloaded successfully.");
+  //     })
+  //     .catch((err) => {
+  //       setExcelLoading(false);
+  //       console.log(err);
+  //     });
+  // };
 
   const handlePdf = (id: string, no: string): void => {
     setPdfLoading(true);
@@ -400,35 +404,54 @@ const RequestsTab: React.FC = () => {
         });
     }
   };
+  
+  const showModal = () => setVisible(true);
 
   const handleAddRevision = (id: string): void => {
-    Modal.confirm({
-      title: "Are you sure you want to revise the request?",
-      icon: (
-        <FontAwesomeIcon
-          icon={faCircleExclamation}
-          style={{ marginRight: "10px", marginTop: "5px" }}
-        />
-      ),
-      //content: "Please confirm if you want to proceed.",
-      okText: "Yes",
-      cancelText: "No",
-      okType: "primary",
-      okButtonProps: { className: "btn btn-primary save-btn" },
-      cancelButtonProps: { className: "btn-outline-primary no-btn" },
-      onOk: () => {
-        setLoading(true);
-        technicalReopen(id, user?.employeeId.toString() ?? "")
-          .then((data) => {
-            setLoading(false);
-            void displayjsx.showSuccess("Add revision successfully.");
-            window.location.reload(); // Reload the page after success
-          })
-          .catch((error) => {
-            setLoading(false);
-          });
-      },
-    });
+    setComment("");
+    setRevTecId("");
+    setRevTecId(id);
+    showModal();
+    // Modal.confirm({
+    //   title: "Are you sure you want to revise the request?",
+    //   icon: (
+    //     <FontAwesomeIcon
+    //       icon={faCircleExclamation}
+    //       style={{ marginRight: "10px", marginTop: "5px" }}
+    //     />
+    //   ),
+    //   //content: "Please confirm if you want to proceed.",
+    //   okText: "Yes",
+    //   cancelText: "No",
+    //   okType: "primary",
+    //   okButtonProps: { className: "btn btn-primary save-btn" },
+    //   cancelButtonProps: { className: "btn-outline-primary no-btn" },
+    //   onOk: () => {
+    //     setLoading(true);
+    //     technicalReopen(id, user?.employeeId.toString() ?? "")
+    //       .then((data) => {
+    //         setLoading(false);
+    //         void displayjsx.showSuccess("Add revision successfully.");
+    //         window.location.reload(); // Reload the page after success
+    //       })
+    //       .catch((error) => {
+    //         setLoading(false);
+    //       });
+    //   },
+    // });
+  };
+
+  const handleFinalSubmit = async () => {
+    setRevisonLoading(true);
+    try {
+      await technicalReopen(revTecId, user?.employeeId.toString() ?? "", comment);
+      void displayjsx.showSuccess("Revision added successfully.");
+      window.location.reload(); // Reload the page after success
+    } catch (error) {
+      setRevisonLoading(false);
+    }finally{
+      setRevisonLoading(false);
+    }
   };
 
   const columns: ColumnsType<any> = [
@@ -439,7 +462,7 @@ const RequestsTab: React.FC = () => {
       width: "10%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("CTINumber"),
+      ...getColumnSearchProps("CTINumber","Request No"),
     },
     {
       //title: "Attachments",
@@ -471,7 +494,7 @@ const RequestsTab: React.FC = () => {
       render: (text) => (
         <span>{text ? dayjs(text).format("DD-MM-YYYY") : ""}</span>
       ),
-      ...getColumnSearchProps("IssueDate"),
+      ...getColumnSearchProps("IssueDate", "Issue Date"),
     },
     {
       title: "Title",
@@ -480,7 +503,7 @@ const RequestsTab: React.FC = () => {
       width: "15%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("Title"),
+      ...getColumnSearchProps("Title", "Title"),
     },
     {
       title: "Equipment",
@@ -489,7 +512,7 @@ const RequestsTab: React.FC = () => {
       width: "14%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("EquipmentNames"),
+      ...getColumnSearchProps("EquipmentNames", "Equipment"),
     },
     {
       title: "Requestor",
@@ -498,7 +521,7 @@ const RequestsTab: React.FC = () => {
       width: "20%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("IssuedBy"),
+      ...getColumnSearchProps("IssuedBy", "Requestor"),
     },
     {
       title: "Closure Date",
@@ -510,7 +533,7 @@ const RequestsTab: React.FC = () => {
       render: (text) => (
         <span>{text ? dayjs(text).format("DD-MM-YYYY") : ""}</span>
       ),
-      ...getColumnSearchProps("TargetClosureDate"),
+      ...getColumnSearchProps("TargetClosureDate", "Closure Date"),
     },
     {
       title: "Status",
@@ -518,7 +541,7 @@ const RequestsTab: React.FC = () => {
       key: "Status",
       width: "10%",
       sorter: true,
-      ...getColumnSearchProps("Status"),
+      ...getColumnSearchProps("Status", "Status"),
       render: (text) => (
         <span
           className={`status-badge status-badge-${
@@ -565,7 +588,7 @@ const RequestsTab: React.FC = () => {
               )
           }
 
-          {record.IsReOpen == false && //user?.isAdmin ||
+          {/* {record.IsReOpen == false && //user?.isAdmin ||
             (record.Status == REQUEST_STATUS.Closed ||
               record.Status == REQUEST_STATUS.Completed ||
               record.Status == REQUEST_STATUS.Approved) && (
@@ -582,7 +605,7 @@ const RequestsTab: React.FC = () => {
                   )
                 }
               />
-            )}
+            )} */}
 
           {record.IsReOpen == false && //user?.isAdmin ||
             (record.Status == REQUEST_STATUS.Closed ||
@@ -625,21 +648,22 @@ const RequestsTab: React.FC = () => {
           }
 
           {/* Notify Cell Division Button */}
-          {record.CreatedBy == user?.employeeId && (
-            <Button
-              title="Notify Cell Division"
-              className="action-btn"
-              icon={
-                <FontAwesomeIcon
-                  title="Notify Cell Division"
-                  icon={faEnvelope}
-                />
-              }
-              onClick={() =>
-                showNotifyModal(record.TechnicalId, record.CTINumber)
-              }
-            />
-          )}
+          {record.CreatedBy == user?.employeeId &&
+            record.Status == REQUEST_STATUS.Completed && (
+              <Button
+                title="Notify Cell Division"
+                className="action-btn"
+                icon={
+                  <FontAwesomeIcon
+                    title="Notify Cell Division"
+                    icon={faEnvelope}
+                  />
+                }
+                onClick={() =>
+                  showNotifyModal(record.TechnicalId, record.CTINumber)
+                }
+              />
+            )}
         </span>
       ),
     },
@@ -741,6 +765,12 @@ const RequestsTab: React.FC = () => {
               icon={<FontAwesomeIcon title="View" icon={faEye} />}
               onClick={() => handleView(record.TechnicalId)}
             />
+            <Button
+                title="PDF"
+                className="action-btn"
+                icon={<FontAwesomeIcon title="PDF" icon={faFilePdf} />}
+                onClick={() => handlePdf(record.TechnicalId, record.CTINumber)}
+              />
           </span>
         ),
         sorter: false,
@@ -833,7 +863,7 @@ const RequestsTab: React.FC = () => {
         scroll={{ x: true }}
         className="w-full shadow-sm no-radius-table dashboard-table"
       />
-      <Spin spinning={excelLoading || pdfLoading || mailLoading} fullscreen />
+      <Spin spinning={pdfLoading || mailLoading || revisonLoading} fullscreen />
 
       {
         <Modal
@@ -849,12 +879,50 @@ const RequestsTab: React.FC = () => {
               type="primary"
               onClick={handleSendEmail} // Assuming this function sends the email
             >
-               Send
+              Send
             </Button>,
           ]}
         >
           <p>Are you sure you want to notify the Cell Division?</p>
         </Modal>
+      }
+
+      {
+        <Modal
+        title={
+          <>
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              style={{ marginRight: "10px", marginTop: "5px" }}
+            />
+            Are you sure you want to revise the request?
+          </>
+        }
+        maskClosable={false}
+        open={visible}
+        onCancel={() => setVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setVisible(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            onClick={handleFinalSubmit}
+            disabled={comment.trim() === ""} // Disable if comment is empty
+          >
+            Submit
+          </Button>,
+        ]}
+      >
+        <Input.TextArea
+          placeholder="Enter Comment"
+          rows={4}
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          style={{margin:"10px 0px 10px 0px"}}
+        />
+      </Modal>
       }
     </div>
   );

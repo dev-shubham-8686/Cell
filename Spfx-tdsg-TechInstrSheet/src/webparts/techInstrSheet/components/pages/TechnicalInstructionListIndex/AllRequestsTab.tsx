@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import {
   deleteTechnicalInstruction,
   technicalPDF,
-  technicalExcel,
+  // technicalExcel,
   technicalReviseList,
   //technicalReopen,
   fetchTechnicalInstructions,
@@ -19,7 +19,7 @@ import {
   faCircleExclamation,
   faEdit,
   faEye,
-  faFileExcel,
+  // faFileExcel,
   faFileExport,
   faFilePdf,
   faPaperclip,
@@ -33,7 +33,7 @@ import { Modal } from "antd";
 import { REQUEST_STATUS, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
 import {
   displayRequestStatus,
-  downloadExcelFile,
+  // downloadExcelFile,
   downloadPDF,
 } from "../../../api/utility/utility";
 import { UserContext } from "../../../context/userContext";
@@ -47,7 +47,7 @@ const AllRequestsTab: React.FC = () => {
   const [searchText, setSearchText] = React.useState<string>("");
   const [data, setData] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(false);
-  const [excelLoading, setExcelLoading] = React.useState(false);
+  // const [excelLoading, setExcelLoading] = React.useState(false);
   const [pdfLoading, setPdfLoading] = React.useState(false);
   const [reOpenLoading, setReOpenLoading] = React.useState(false);
   const exportRef = React.useRef<any>();
@@ -67,6 +67,8 @@ const AllRequestsTab: React.FC = () => {
   const [selectedOwner, setSelectedOwner] = React.useState<number | null>(null);
   const [selectedTICId, setSelectedTICId] = React.useState<string | null>(null);
   const [empData, setEmpData] = React.useState<any[]>([]);
+  const [comment, setComment] = React.useState("");
+  const [visible, setVisible] = React.useState(false);
 
   const loadData = React.useCallback((params: any) => {
     setLoading(true);
@@ -144,7 +146,7 @@ const AllRequestsTab: React.FC = () => {
   };
 
   // Column-specific search filter
-  const getColumnSearchProps = (dataIndex: string) => ({
+  const getColumnSearchProps = (dataIndex: string, placeholderString: string) => ({
     filterDropdown: ({
       setSelectedKeys,
       selectedKeys,
@@ -153,7 +155,7 @@ const AllRequestsTab: React.FC = () => {
     }: any) => (
       <div style={{ padding: 8 }}>
         <Input
-          placeholder={`Search ${dataIndex}`}
+          placeholder={`Search ${placeholderString}`}
           value={selectedKeys[0]}
           onChange={(e) =>
             setSelectedKeys(e.target.value ? [e.target.value] : [])
@@ -243,19 +245,19 @@ const AllRequestsTab: React.FC = () => {
     }
   };
 
-  const handleExportToExcelSingle = (id: string, no: string): void => {
-    setExcelLoading(true);
-    technicalExcel(id)
-      .then((data) => {
-        setExcelLoading(false);
-        downloadExcelFile(data.ReturnValue, no);
-        void displayjsx.showSuccess("File downloaded successfully.");
-      })
-      .catch((err) => {
-        setExcelLoading(false);
-        console.log(err);
-      });
-  };
+  // const handleExportToExcelSingle = (id: string, no: string): void => {
+  //   setExcelLoading(true);
+  //   technicalExcel(id)
+  //     .then((data) => {
+  //       setExcelLoading(false);
+  //       downloadExcelFile(data.ReturnValue, no);
+  //       void displayjsx.showSuccess("File downloaded successfully.");
+  //     })
+  //     .catch((err) => {
+  //       setExcelLoading(false);
+  //       console.log(err);
+  //     });
+  // };
 
   const handlePdf = (id: string, no: string): void => {
     setPdfLoading(true);
@@ -331,41 +333,86 @@ const AllRequestsTab: React.FC = () => {
       });
   };
 
+  const showModal = () => setVisible(true);
+
+  const handleFinalSubmit = () => {
+    handleFetchEmps();
+  }
+
   const handleAddRevision = (id: string): void => {
-    //handleFetchEmps();
-    debugger;
-    Modal.confirm({
-      title: "Are you sure you want to revise the request?",
-      icon: (
-        <FontAwesomeIcon
-          icon={faCircleExclamation}
-          style={{ marginRight: "10px", marginTop: "5px" }}
-        />
-      ),
-      //content: "Please confirm if you want to proceed.",
-      okText: "Yes",
-      cancelText: "No",
-      okType: "primary",
-      okButtonProps: { className: "btn btn-primary save-btn" },
-      cancelButtonProps: { className: "btn-outline-primary no-btn" },
-      onOk: () => {
-        // setLoading(true);
-        // technicalReopen(id, user?.employeeId.toString() ?? "")
-        //   .then((data) => {
-        //     setLoading(false);
-        //     void displayjsx.showSuccess("Add revision successfully.");
-        //     window.location.reload(); // Reload the page after success
-        //   })
-        //   .catch((error) => {
-        //     setLoading(false);
-        //   });
-        debugger;
-        setSelectedTICId(null);
-        setSelectedTICId(id);
-        handleFetchEmps();
-      },
-    });
+    setSelectedTICId(null);
+    setComment("");
+    setSelectedTICId(id);
+    showModal();
+    // debugger;
+    // Modal.confirm({
+    //   title: "Are you sure you want to revise the request?",
+    //   icon: (
+    //     <FontAwesomeIcon
+    //       icon={faCircleExclamation}
+    //       style={{ marginRight: "10px", marginTop: "5px" }}
+    //     />
+    //   ),
+    //   //content: "Please confirm if you want to proceed.",
+    //   okText: "Yes",
+    //   cancelText: "No",
+    //   okType: "primary",
+    //   okButtonProps: { className: "btn btn-primary save-btn" },
+    //   cancelButtonProps: { className: "btn-outline-primary no-btn" },
+    //   onOk: () => {
+    //     // setLoading(true);
+    //     // technicalReopen(id, user?.employeeId.toString() ?? "")
+    //     //   .then((data) => {
+    //     //     setLoading(false);
+    //     //     void displayjsx.showSuccess("Add revision successfully.");
+    //     //     window.location.reload(); // Reload the page after success
+    //     //   })
+    //     //   .catch((error) => {
+    //     //     setLoading(false);
+    //     //   });
+    //     debugger;
+    //     setSelectedTICId(null);
+    //     setSelectedTICId(id);
+    //     handleFetchEmps();
+    //   },
+    // });
   };
+
+  // const handleAddRevision = (id: string): void => {
+  //   //handleFetchEmps();
+  //   debugger;
+  //   Modal.confirm({
+  //     title: "Are you sure you want to revise the request?",
+  //     icon: (
+  //       <FontAwesomeIcon
+  //         icon={faCircleExclamation}
+  //         style={{ marginRight: "10px", marginTop: "5px" }}
+  //       />
+  //     ),
+  //     //content: "Please confirm if you want to proceed.",
+  //     okText: "Yes",
+  //     cancelText: "No",
+  //     okType: "primary",
+  //     okButtonProps: { className: "btn btn-primary save-btn" },
+  //     cancelButtonProps: { className: "btn-outline-primary no-btn" },
+  //     onOk: () => {
+  //       // setLoading(true);
+  //       // technicalReopen(id, user?.employeeId.toString() ?? "")
+  //       //   .then((data) => {
+  //       //     setLoading(false);
+  //       //     void displayjsx.showSuccess("Add revision successfully.");
+  //       //     window.location.reload(); // Reload the page after success
+  //       //   })
+  //       //   .catch((error) => {
+  //       //     setLoading(false);
+  //       //   });
+  //       debugger;
+  //       setSelectedTICId(null);
+  //       setSelectedTICId(id);
+  //       handleFetchEmps();
+  //     },
+  //   });
+  // };
 
   const columns: ColumnsType<any> = [
     {
@@ -375,7 +422,7 @@ const AllRequestsTab: React.FC = () => {
       width: "10%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("CTINumber"),
+      ...getColumnSearchProps("CTINumber", "Request No"),
     },
     {
       //title: "Attachments",
@@ -407,7 +454,7 @@ const AllRequestsTab: React.FC = () => {
       render: (text) => (
         <span>{text ? dayjs(text).format("DD-MM-YYYY") : ""}</span>
       ),
-      ...getColumnSearchProps("IssueDate"),
+      ...getColumnSearchProps("IssueDate", "Issue Date"),
     },
     {
       title: "Title",
@@ -416,7 +463,7 @@ const AllRequestsTab: React.FC = () => {
       width: "15%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("Title"),
+      ...getColumnSearchProps("Title", "Title"),
     },
     {
       title: "Equipment",
@@ -425,7 +472,7 @@ const AllRequestsTab: React.FC = () => {
       width: "14%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("EquipmentNames"),
+      ...getColumnSearchProps("EquipmentNames", "Equipment"),
     },
     {
       title: "Requestor",
@@ -434,7 +481,7 @@ const AllRequestsTab: React.FC = () => {
       width: "20%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("IssuedBy"),
+      ...getColumnSearchProps("IssuedBy", "Requestor"),
     },
     {
       title: "Closure Date",
@@ -446,7 +493,7 @@ const AllRequestsTab: React.FC = () => {
       render: (text) => (
         <span>{text ? dayjs(text).format("DD-MM-YYYY") : ""}</span>
       ),
-      ...getColumnSearchProps("TargetClosureDate"),
+      ...getColumnSearchProps("TargetClosureDate", "Closure Date"),
     },
     {
       title: "Status",
@@ -454,7 +501,7 @@ const AllRequestsTab: React.FC = () => {
       key: "Status",
       width: "10%",
       sorter: true,
-      ...getColumnSearchProps("Status"),
+      ...getColumnSearchProps("Status", "Status"),
       render: (text) => (
         <span
           className={`status-badge status-badge-${
@@ -498,7 +545,7 @@ const AllRequestsTab: React.FC = () => {
             />
           )}
 
-          {record.IsReOpen == false &&
+          {/* {record.IsReOpen == false &&
             (user?.isAdmin ||
               record.Status == REQUEST_STATUS.Closed ||
               record.Status == REQUEST_STATUS.Completed ||
@@ -516,7 +563,7 @@ const AllRequestsTab: React.FC = () => {
                   )
                 }
               />
-            )}
+            )} */}
 
           {record.IsReOpen == false &&
             (user?.isAdmin ||
@@ -650,6 +697,12 @@ const AllRequestsTab: React.FC = () => {
               icon={<FontAwesomeIcon title="View" icon={faEye} />}
               onClick={() => handleView(record.TechnicalId)}
             />
+            <Button
+                title="PDF"
+                className="action-btn"
+                icon={<FontAwesomeIcon title="PDF" icon={faFilePdf} />}
+                onClick={() => handlePdf(record.TechnicalId, record.CTINumber)}
+              />
           </span>
         ),
         sorter: false,
@@ -675,7 +728,8 @@ const AllRequestsTab: React.FC = () => {
     setReOpenLoading(true);
     changeRequestOwner(
       selectedTICId?.toString() ?? "",
-      selectedOwner?.toString() ?? ""
+      selectedOwner?.toString() ?? "",
+      comment
     )
       .then((data) => {
         setReOpenLoading(false);
@@ -758,7 +812,7 @@ const AllRequestsTab: React.FC = () => {
         scroll={{ x: true }}
         className="w-full shadow-sm no-radius-table dashboard-table"
       />
-      <Spin spinning={excelLoading || pdfLoading || reOpenLoading} fullscreen />
+      <Spin spinning={pdfLoading || reOpenLoading} fullscreen />
 
       <>
         {/* Employee Modal for selecting sections */}
@@ -807,6 +861,46 @@ const AllRequestsTab: React.FC = () => {
             </Form.Item>
           </Form>
         </Modal>
+      </>
+
+      <>
+      {
+        <Modal
+        title={
+          <>
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              style={{ marginRight: "10px", marginTop: "5px" }}
+            />
+            Are you sure you want to revise the request?
+          </>
+        }
+        maskClosable={false}
+        open={visible}
+        onCancel={() => setVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setVisible(false)}>
+            Cancel
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            onClick={handleFinalSubmit}
+            disabled={comment.trim() === ""} // Disable if comment is empty
+          >
+            Submit
+          </Button>,
+        ]}
+      >
+        <Input.TextArea
+          placeholder="Enter Comment"
+          rows={4}
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          style={{margin:"10px 0px 10px 0px"}}
+        />
+      </Modal>
+      }
       </>
     </div>
   );

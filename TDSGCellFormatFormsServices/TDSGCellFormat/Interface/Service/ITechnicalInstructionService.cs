@@ -36,7 +36,7 @@ namespace TDSGCellFormat.Interface.Service
 
         Task<AjaxResult> CloseTechnical(Technical_ScrapNoteAdd report);
 
-        Task<AjaxResult> ReOpenTechnicalForm(int technicalId, int userId);
+        Task<AjaxResult> ReOpenTechnicalForm(int technicalId, int userId, string comment);
 
         Task<string> GetReviseDataListing(int troubleReportId);
         IQueryable<SectionHeadSelectionView> GetAllSections();
@@ -45,7 +45,7 @@ namespace TDSGCellFormat.Interface.Service
 
         IQueryable<TechnicalEmployeeMasterView> GetAllEmployee();
 
-        Task<AjaxResult> ChangeRequestOwner(int technicalId, int userId);
+        Task<AjaxResult> ChangeRequestOwner(int technicalId, int userId, string comment);
 
         Task<AjaxResult> UpdateOutlineEditor(UpdateOutlineEditor updateOutlineEditor);
 

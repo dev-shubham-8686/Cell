@@ -7,6 +7,8 @@ namespace TDSGCellFormat.Models.Add
     {
         public int TechnicalId { get; set; }
         public string? outline { get; set; }
+
+        public string? outlineImageBytes { get; set; }
     }
     public class TechnicalInstructionAdd
     {
@@ -202,7 +204,7 @@ namespace TDSGCellFormat.Models.Add
 
         public string? Requestor { get; set; }
 
-        public string? IssuedBy { get; set; }
+        //public string? IssuedBy { get; set; }
         //public string? Department { get; set; }
 
         public string? TargetClosureDate { get; set; }
