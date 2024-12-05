@@ -252,6 +252,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
         OtherSubMachine:reportData?.ReturnValue.OtherSubMachineName,
         OtherMachine:reportData?.ReturnValue.OtherMachineName,
         subMachineName: reportData?.ReturnValue.SubMachineName,
+        SectionId:reportData?.ReturnValue.SectionId,
         requestedBy: reportData?.ReturnValue.RequestBy,
         checkedBy: reportData?.ReturnValue.CheckedBy,
         dateTime: reportData
@@ -457,7 +458,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       RootCause: values.rootCause, //done
       AdjustmentDescription: values.adjustmentDescription, //done
       ConditionAfterAdjustment: values.conditionAfterAdjustment, // done
-      ChangeRiskManagementRequired: values.ChangeRiskManagementRequired, // done
+      ChangeRiskManagementRequired: cRMRequired, // done
       ChangeRiskManagement_AdjustmentReport: ChangeRiskManagementDetails, // Ensure this is an array of ChangeRiskManagement objects
       IsSubmit: operation == OPERATION.Submit, //done
       IsAmendReSubmitTask: operation == OPERATION.Resubmit,
@@ -1161,6 +1162,13 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                 disabled={isViewMode}
                 placeholder="Select Checked By"
                 loading={checkedloading}
+                options={[
+                  ...(checkedByResult?.ReturnValue?.map((checkedBy) => ({
+                    label: checkedBy.employeeName,
+                    value: checkedBy.employeeId,
+                  })) || []),
+                  ...(checkedByResult?.ReturnValue? [{ label: "Not Applicable", value: -1 }] : []),
+                ]}
               >
                 {checkedByResult?.ReturnValue &&
                   checkedByResult.ReturnValue.map((checkedBy) => (
@@ -1168,7 +1176,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                       key={checkedBy.employeeId}
                       value={checkedBy.employeeId}
                     >
-                      {checkedBy.employeeName}
+                     {checkedBy.employeeName}
                     </Option>
                   ))}
               </Select>

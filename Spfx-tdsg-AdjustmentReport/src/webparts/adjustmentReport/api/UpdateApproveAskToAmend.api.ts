@@ -8,12 +8,14 @@ export interface IApproveAskToAmendPayload {
     Comment: string;
     AdjustmentId: number;
     AdvisorId?: number;
-    additionalDepartmentHeads?: IAdditionalDepartmentHeads[]
+    AdditionalDepartmentHeads?: IAdditionalDepartmentHeads[];
+    IsDivHeadRequired?:boolean;
 }
 
 export interface IAdditionalDepartmentHeads {
-    departmentHead: number;
-    approvalSequence: number;
+    EmployeeId: number;
+    DepartmentId: number;
+    ApprovalSequence: number;
 }
 
 export const updateApproveAskToAmend = async (

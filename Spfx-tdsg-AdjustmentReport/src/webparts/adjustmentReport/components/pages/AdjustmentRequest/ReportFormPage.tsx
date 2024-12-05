@@ -194,56 +194,8 @@ const ReportFormPage = () => {
     onSaveFormHandler(true, values);
   };
 
-  const handleApprove = async (comment: string, advisorId: number, approvalSequence : any): Promise<void> => {
-    
-    const data: IApproveAskToAmendPayload = {
-      ApproverTaskId: currentApproverTask.approverTaskId,
-      CurrentUserId: user?.employeeId ? user?.employeeId : 0,
-      Type: 1, //Approved
-      Comment: comment,
-      AdjustmentId: id ? parseInt(id, 10) : 0,
-      AdvisorId : advisorId,
-      additionalDepartmentHeads: approvalSequence as IAdditionalDepartmentHeads[],
-    };
 
-    askToAmend(
-      data,
-      {
-        onSuccess: (data) => {
-          navigate("/", {
-            state: {
-              currentTabState: "myapproval-tab",
-            },
-          });
 
-        }
-      }
-    );
-  };
-
-  const handleAskToAmend = async (comment: string): Promise<void> => {
-    const data: IApproveAskToAmendPayload = {
-      ApproverTaskId: currentApproverTask.approverTaskId,
-      CurrentUserId: user?.employeeId ? user?.employeeId : 0,
-      Type: 3, //AskToAmend
-      Comment: comment,
-      AdjustmentId: id ? parseInt(id, 10) : 0,
-    };
-
-    askToAmend(
-      data,
-      {
-        onSuccess: (data) => {
-          navigate("/", {
-            state: {
-              currentTabState: "myapproval-tab",
-            },
-          });
-
-        }
-      }
-    );
-  };
 
   const handlePullBack = async (comment: string): Promise<void> => {
     const data: IPullBack = {
@@ -339,15 +291,13 @@ const ReportFormPage = () => {
 
       {true && (
         <WorkFlowButtons
-          onApprove={handleApprove}
-          onAskToAmend={handleAskToAmend}
           onPullBack={handlePullBack}
           currentApproverTask={currentApproverTask}
           existingAdjustmentReport={existingAdjustmentReport}
           //isFormModified={isEditMode && isViewMode == false ? true : false}
           isFormModified={isEditMode ? true : false}
-          advisorRequired={advisorRequired}
-          departmentHead={isdepartmentHead}
+          departmentHead={existingAdjustmentReport?.DepartmentHeadId==user?.employeeId}
+          depDivHead={existingAdjustmentReport?.DeputyDivHead==user?.employeeId}
         />
       )}
     </div>

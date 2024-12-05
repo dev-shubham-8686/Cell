@@ -28,6 +28,10 @@ export const StatusColors = {
   na: "Gray",
 };
 
+export const ACTION_TYPE={
+  Approve:"approve",
+  AskToAmend:"amend"
+}
 // It returns the background colour class for the status
 export const STATUS_COLOUR_CLASS: { [key: string]: string } = {
   InReview: "in-review",

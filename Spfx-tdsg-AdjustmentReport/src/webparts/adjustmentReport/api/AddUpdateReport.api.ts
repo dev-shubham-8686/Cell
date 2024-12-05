@@ -56,6 +56,8 @@ export interface IAddUpdateReportPayload {
   ModifiedDate?: dayjs.Dayjs;
   Status?: string;
   IsAmendReSubmitTask?: boolean,
+  DeputyDivHead?:number,
+  DepartmentHeadId?:number
 }
 
 export interface IAdjustmentReport {

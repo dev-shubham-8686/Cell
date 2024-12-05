@@ -1,33 +1,38 @@
 import { useState } from "react";
-import { Button, Modal, Input, Form, Select, Row, Col } from "antd";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Button, Modal, Input, Form, Select, Row, Col, Radio } from "antd";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import * as React from "react";
 import { useUserContext } from "../../context/UserContext";
 import { useGetAllAdvisors } from "../../hooks/useGetAllAdvisors";
 import { useGetAdditionalDepartmentHeads } from "../../hooks/useGetAdditionalDepartmentHeads";
+import {
+  IAdditionalDepartmentHeads,
+  IApproveAskToAmendPayload,
+} from "../../api/UpdateApproveAskToAmend.api";
+import { useUpdateApproveAskToAmend } from "../../hooks/useUpdateApproveAskToAmend";
+import { values } from "lodash";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { ACTION_TYPE } from "../../GLOBAL_CONSTANT";
 
 const { Option } = Select;
 
 interface WorkFlowButtonsProps {
-  onApprove: (comment: string, advisorId: number, approvalSequence: any) => Promise<void>;
-  onAskToAmend: (comment: string) => Promise<void>;
   onPullBack: (comment: string) => Promise<void>;
   currentApproverTask: any;
   existingAdjustmentReport: any;
   isFormModified: boolean;
-  advisorRequired: boolean;
   departmentHead: boolean;
+  depDivHead?:boolean
 }
 
 const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
-  onApprove,
-  onAskToAmend,
   onPullBack,
   currentApproverTask,
   existingAdjustmentReport,
   isFormModified,
-  advisorRequired,
-  departmentHead
+  departmentHead,
+  depDivHead
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -41,14 +46,15 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const { user } = useUserContext();
-
+  const { id, mode } = useParams();
+  const { mutate: approveAskToAmend } = useUpdateApproveAskToAmend();
   const { data: advisors = [] } = useGetAllAdvisors();
-  const { data: departmentHeads = [] } = useGetAdditionalDepartmentHeads();
-  console.log({ departmentHeads })
+  const { data: departmentHeads  } = useGetAdditionalDepartmentHeads();
+  console.log({ departmentHeads });
   const [isApprovalSectionVisible, setApprovalSectionVisible] = useState(false);
+  const [isDivHeadRequired, setisDivHeadRequired] = useState(false);
 
   React.useEffect(() => {
-
     // Check if this is an approver request based on the `isApproverRequest` variable
     if (isApproverRequest) {
       setApproverRequest(true); // Set the approver request state to true
@@ -79,12 +85,10 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
     }
   }, []); // Empty dependency array to run only on component mount
 
-
   React.useEffect(() => {
-
     setShowWorkflowBtns(
       currentApproverTask?.approverTaskId &&
-      currentApproverTask?.approverTaskId !== 0
+        currentApproverTask?.approverTaskId !== 0
     );
   }, [currentApproverTask]);
 
@@ -101,30 +105,90 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
 
   const handleCancel = () => {
     // Reset or close the approval section
-    setApprovalSectionVisible(false); // Hide the approval section
+    setApprovalSectionVisible(false);
+    form.resetFields();
   };
 
   // Handle opening the modal for comment input
   const handleClick = (type: string) => {
     setActionType(type);
-    setIsModalVisible(true); // Open comment modal
+    setIsModalVisible(true);
   };
 
+  const handleApprove = async (
+    comment: string,
+    approvalSequence?: any
+  ): Promise<void> => {
+    debugger;
+    const updatedApprovalSequence = approvalSequence?.map((sequenceItem:any) => {
+      const employee = departmentHeads.find(
+        (head) => head.EmployeeId == sequenceItem.EmployeeId
+      );
+      debugger
+      return {
+        ...sequenceItem,
+        DepartmentId: employee?.DepartmentId || null, // Add DepartmentId or null if not found
+      };
+      
+    });
+    const data: IApproveAskToAmendPayload = {
+      ApproverTaskId: currentApproverTask.approverTaskId,
+      CurrentUserId: user?.employeeId ? user?.employeeId : 0,
+      Type: 1, //Approved
+      Comment: comment,
+      AdjustmentId: id ? parseInt(id, 10) : 0,
+      AdditionalDepartmentHeads:
+      updatedApprovalSequence as IAdditionalDepartmentHeads[],
+      IsDivHeadRequired:form.getFieldValue("DivisionHeadApprovalRequired") 
+    };
+    debugger;
+console.log("Approve a to a payload ",data)
+    approveAskToAmend(data, {
+      onSuccess: () => {
+        navigate("/", {
+          state: {
+            currentTabState: "myapproval-tab",
+          },
+        });
+      },
+    });
+  };
+  const handleAskToAmend = async (comment: string): Promise<void> => {
+    const data: IApproveAskToAmendPayload = {
+      ApproverTaskId: currentApproverTask.approverTaskId,
+      CurrentUserId: user?.employeeId ? user?.employeeId : 0,
+      Type: 3, //AskToAmend
+      Comment: comment,
+      AdjustmentId: id ? parseInt(id, 10) : 0,
+    };
+    debugger
+    approveAskToAmend(
+      data,
+      {
+        onSuccess: () => {
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+
+        }
+      }
+    );
+  };
   // Handle the submit action after getting the comment
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields(); // Validate form fields
       setLoading(true);
-
+debugger
       const comment = values.comment; // Get the validated comment
-      
-      console.log({ comment });
-      console.log({ values });
-
+     
+      debugger
       if (actionType === "approve") {
-        await onApprove(comment, parseInt(values.advisor), values.approvalSequence);
+        await handleApprove(comment, values.approvalSequence);
       } else if (actionType === "amend") {
-        await onAskToAmend(comment);
+        await handleAskToAmend(comment);
       } else if (actionType === "pullback") {
         await onPullBack(comment);
       }
@@ -148,15 +212,15 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   return (
     <>
       {/* Action Buttons */}
-{      console.log("approval data",showWorkflowBtns,approverRequest)
-}      {showWorkflowBtns && approverRequest ? (
+      {console.log("approval data", showWorkflowBtns, approverRequest)}{" "}
+      {showWorkflowBtns && approverRequest ? (
         <>
           <Button
             className="btn btn-primary"
             onClick={() => {
-              isFormModified && handleClick("approve");
+              handleClick("approve");
             }}
-            style={{ marginRight: "10px",marginBottom:"50px" }}
+            style={{ marginRight: "10px", marginBottom: "50px" }}
           >
             Approve
           </Button>
@@ -164,18 +228,17 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
           <Button
             className="btn btn-primary"
             onClick={() => {
-              isFormModified && handleClick("amend");
+              handleClick("amend");
             }}
-            style={{ marginRight: "10px",marginBottom:"50px" }}
+            style={{ marginRight: "10px", marginBottom: "50px" }}
           >
             Ask to Amend
           </Button>
         </>
       ) : null}
-
       {existingAdjustmentReport?.IsSubmit &&
-        existingAdjustmentReport?.Status !== "UnderAmendment" &&
-        user?.employeeId === existingAdjustmentReport?.EmployeeId ? (
+      existingAdjustmentReport?.Status !== "UnderAmendment" &&
+      user?.employeeId === existingAdjustmentReport?.EmployeeId ? (
         <Button
           color="primary"
           variant="solid"
@@ -184,18 +247,26 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
           Pullback
         </Button>
       ) : null}
-
       {/* Comment Modal */}
+      {console.log("IsModalVisible", isModalVisible)}{" "}
       <Modal
         open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
+        onCancel={() => {
+          form.resetFields(); // Reset all fields --  for removing comments
+          handleCancel();
+          setIsModalVisible(false);
+        }}
         onOk={handleSubmit}
         confirmLoading={loading}
         okText={getOkText()} // Dynamic okText based on action type
         cancelText="Cancel"
       >
-        <Form form={form} layout="vertical" initialValues={{ approvalSequence: [] }}>
-          {advisorRequired && (
+        <Form
+          form={form}
+          layout="vertical"
+          initialValues={{ approvalSequence: [] }}
+        >
+          {/* {advisorRequired && (
             <Form.Item
               label="Select Advisor"
               name="advisor"
@@ -209,138 +280,357 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
                 ))}
               </Select>
             </Form.Item>
-          )}
+          )} */}
 
-          {departmentHead && (
+          {/* {departmentHead && (
             <Form.Item>
               <Button type="primary" onClick={handleApprovalButtonClick}>
                 Additional Approval Required?
               </Button>
             </Form.Item>
-          )}
+          )} */}
 
           {/* Conditional Approval Section */}
-          {isApprovalSectionVisible && (
+          {
+            isApprovalSectionVisible && <></>
+            //  (
+            //   <>
+            //     <Form.List name="approvalSequence" initialValue={[]}>
+            //       {(fields, { add, remove }) => {
+            //         // Collect currently selected department heads and approval sequences
+            //         const selectedDepartmentHeads = fields.map((field) =>
+            //           form.getFieldValue([
+            //             "approvalSequence",
+            //             field.name,
+            //             "departmentHead",
+            //           ])
+            //         );
+            //         const selectedSequences = fields.map((field) =>
+            //           form.getFieldValue([
+            //             "approvalSequence",
+            //             field.name,
+            //             "approvalSequence",
+            //           ])
+            //         );
+
+            //         return (
+            //           <>
+            //             {fields.map(({ key, name }) => (
+            //               <Row gutter={16} key={key}>
+            //                 <Col span={10}>
+            //                   <Form.Item
+            //                     name={[name, "departmentHead"]}
+            //                     label="Department Head"
+            //                     rules={[
+            //                       {
+            //                         required: true,
+            //                         message: "Please select a department head",
+            //                       },
+            //                     ]}
+            //                   >
+            //                     <Select placeholder="Select Department Head">
+            //                       {departmentHeads
+            //                         .filter(
+            //                           (departmentHead) =>
+            //                             !selectedDepartmentHeads.includes(
+            //                               departmentHead.EmployeeId
+            //                             ) ||
+            //                             departmentHead.EmployeeId ===
+            //                               form.getFieldValue([
+            //                                 "approvalSequence",
+            //                                 name,
+            //                                 "departmentHead",
+            //                               ])
+            //                         )
+            //                         .map((departmentHead) => (
+            //                           <Option
+            //                             key={departmentHead.EmployeeId}
+            //                             value={departmentHead.EmployeeId}
+            //                           >
+            //                             {departmentHead.EmployeeName}
+            //                           </Option>
+            //                         ))}
+            //                     </Select>
+            //                   </Form.Item>
+            //                 </Col>
+            //                 <Col span={10}>
+            //                   <Form.Item
+            //                     name={[name, "approvalSequence"]}
+            //                     label="Approval Sequence"
+            //                     rules={[
+            //                       {
+            //                         required: true,
+            //                         message: "Please select approval sequence",
+            //                       },
+            //                     ]}
+            //                   >
+            //                     <Select placeholder="Select Sequence">
+            //                       {[1, 2, 3]
+            //                         .filter(
+            //                           (seq) =>
+            //                             !selectedSequences.includes(seq) ||
+            //                             seq ===
+            //                               form.getFieldValue([
+            //                                 "approvalSequence",
+            //                                 name,
+            //                                 "approvalSequence",
+            //                               ])
+            //                         )
+            //                         .map((seq) => (
+            //                           <Option key={seq} value={seq}>
+            //                             {seq}
+            //                           </Option>
+            //                         ))}
+            //                     </Select>
+            //                   </Form.Item>
+            //                 </Col>
+            //                 <Col
+            //                   span={0}
+            //                   style={{ display: "flex", alignItems: "center" }}
+            //                 >
+            //                   <Button
+            //                     onClick={() => remove(name)}
+            //                   >
+            //                     <FontAwesomeIcon title="Remove" icon={faTrash} />
+            //                   </Button>
+            //                 </Col>
+            //               </Row>
+            //             ))}
+
+            //             {/* Add button to add new department head */}
+            //             <Form.Item>
+            //               <Button
+            //                 type="dashed"
+            //                 onClick={() => add()}
+            //                 block
+            //                 icon={<i className="anticon anticon-plus" />}
+            //                 disabled={fields.length >= 3} // Disable Add button if there are 3 or more fields
+            //               >
+            //                 Add Department Head
+            //               </Button>
+            //             </Form.Item>
+
+            //             {/* Proceed and Cancel buttons */}
+            //             <Form.Item>
+            //               <Button
+            //                 type="primary"
+            //                 onClick={handleProceed}
+            //                 style={{ marginRight: "8px" }}
+            //               >
+            //                 Proceed
+            //               </Button>
+            //               <Button
+            //                 onClick={() => {
+            //                   debugger
+            //                   form.resetFields(); // Reset all fields --  for removing comments
+            //                   handleCancel();
+            //                 }}
+            //               >
+            //                 Cancel
+            //               </Button>
+            //             </Form.Item>
+            //           </>
+            //         );
+            //       }}
+            //     </Form.List>
+            //   </>
+            // )
+          }
+          {(departmentHead && actionType==ACTION_TYPE.Approve) && (
             <>
-              <Form.List name="approvalSequence" initialValue={[]}>
-                {(fields, { add, remove }) => {
-                  // Collect currently selected department heads and approval sequences
-                  const selectedDepartmentHeads = fields.map((field) =>
-                    form.getFieldValue(["approvalSequence", field.name, "departmentHead"])
-                  );
-                  const selectedSequences = fields.map((field) =>
-                    form.getFieldValue(["approvalSequence", field.name, "approvalSequence"])
-                  );
+              <Form.Item
+                label="Additional Approval Required?"
+                name={"AdditionalApprovalRequired"}
+              >
+                <Radio.Group
+                  onChange={(e) =>
+                    setApprovalSectionVisible(e.target.value === "yes")
+                  }
+                  defaultValue="no"
+                >
+                  <Radio value="yes">Yes</Radio>
+                  <Radio
+                    value="no"
+                    onClick={() => {
+                      form.resetFields(); // Reset all fields -- for removing comments
+                      handleCancel();
+                    }}
+                  >
+                    No
+                  </Radio>
+                </Radio.Group>
+              </Form.Item>
 
-                  return (
-                    <>
-                      {fields.map(({ key, name }) => (
-                        <Row gutter={16} key={key}>
-                          <Col span={8}>
-                            <Form.Item
-                              name={[name, "departmentHead"]}
-                              label="Department Head"
-                              rules={[
-                                { required: true, message: "Please select a department head" },
-                              ]}
-                            >
-                              <Select placeholder="Select Department Head">
-                                {departmentHeads
-                                  .filter(
-                                    (departmentHead) =>
-                                      !selectedDepartmentHeads.includes(departmentHead.EmployeeId) ||
-                                      departmentHead.EmployeeId === form.getFieldValue([
-                                        "approvalSequence",
-                                        name,
-                                        "departmentHead",
-                                      ])
-                                  )
-                                  .map((departmentHead) => (
-                                    <Option
-                                      key={departmentHead.EmployeeId}
-                                      value={departmentHead.EmployeeId}
-                                    >
-                                      {departmentHead.EmployeeName}
-                                    </Option>
-                                  ))}
-                              </Select>
-                            </Form.Item>
-                          </Col>
-                          <Col span={8}>
-                            <Form.Item
-                              name={[name, "approvalSequence"]}
-                              label="Approval Sequence"
-                              rules={[
-                                { required: true, message: "Please select approval sequence" },
-                              ]}
-                            >
-                              <Select placeholder="Select Sequence">
-                                {[1, 2, 3]
-                                  .filter(
-                                    (seq) =>
-                                      !selectedSequences.includes(seq) ||
-                                      seq === form.getFieldValue([
-                                        "approvalSequence",
-                                        name,
-                                        "approvalSequence",
-                                      ])
-                                  )
-                                  .map((seq) => (
-                                    <Option key={seq} value={seq}>
-                                      {seq}
-                                    </Option>
-                                  ))}
-                              </Select>
-                            </Form.Item>
-                          </Col>
-                          <Col span={8} style={{ display: "flex", alignItems: "center" }}>
+              {isApprovalSectionVisible && (
+                <>
+                  <Form.List name="approvalSequence" initialValue={[]}>
+                    {(fields, { add, remove }) => {
+                      // Collect currently selected department heads and approval sequences
+                      const selectedDepartmentHeads = fields.map((field) =>
+                        form.getFieldValue([
+                          "approvalSequence",
+                          field.name,
+                          "EmployeeId",
+                        ])
+                      );
+                      const selectedSequences = fields.map((field) =>
+                        form.getFieldValue([
+                          "approvalSequence",
+                          field.name,
+                          "ApprovalSequence",
+                        ])
+                      );
+
+                      return (
+                        <>
+                          {fields.map(({ key, name }) => (
+                            <Row gutter={16} key={key}>
+                              <Col span={10}>
+                                <Form.Item
+                                  name={[name, "EmployeeId"]}
+                                  label="Department Head"
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message:
+                                        "Please select a department head",
+                                    },
+                                  ]}
+                                >
+                                  <Select placeholder="Select Department Head">
+                                    {departmentHeads
+                                      .filter(
+                                        (departmentHead) =>
+                                          !selectedDepartmentHeads.includes(
+                                            departmentHead.EmployeeId
+                                          ) ||
+                                          departmentHead.EmployeeId ===
+                                            form.getFieldValue([
+                                              "approvalSequence",
+                                              name,
+                                              "EmployeeId",
+                                            ])
+                                      )
+                                      .map((departmentHead) => (
+                                        <Option
+                                          key={departmentHead.EmployeeId}
+                                          value={departmentHead.EmployeeId}
+                                        >
+                                          {departmentHead.EmployeeName}
+                                        </Option>
+                                      ))}
+                                  </Select>
+                                </Form.Item>
+                              </Col>
+                              <Col span={10}>
+                                <Form.Item
+                                  name={[name, "ApprovalSequence"]}
+                                  label="Approval Sequence"
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message:
+                                        "Please select approval sequence",
+                                    },
+                                  ]}
+                                >
+                                  <Select placeholder="Select Sequence">
+                                    {[1, 2, 3]
+                                      .filter(
+                                        (seq) =>
+                                          !selectedSequences.includes(seq) ||
+                                          seq ===
+                                            form.getFieldValue([
+                                              "approvalSequence",
+                                              name,
+                                              "ApprovalSequence",
+                                            ])
+                                      )
+                                      .map((seq) => (
+                                        <Option key={seq} value={seq}>
+                                          {seq}
+                                        </Option>
+                                      ))}
+                                  </Select>
+                                </Form.Item>
+                              </Col>
+                              <Col
+                                span={0}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Button onClick={() => remove(name)}>
+                                  <FontAwesomeIcon
+                                    title="Remove"
+                                    icon={faTrash}
+                                  />
+                                </Button>
+                              </Col>
+                            </Row>
+                          ))}
+
+                          {/* Add button to add new department head */}
+                          <Form.Item>
                             <Button
-                              onClick={() => remove(name)}
-                              style={{ width: "100%" }}
+                              type="dashed"
+                              onClick={() => add()}
+                              block
+                              icon={<i className="anticon anticon-plus" />}
+                              disabled={fields.length >= 3} // Disable Add button if there are 3 or more fields
                             >
-                              Remove
+                              Add Department Head
                             </Button>
-                          </Col>
-                        </Row>
-                      ))}
+                          </Form.Item>
 
-                      {/* Add button to add new department head */}
-                      <Form.Item>
-                        <Button
-                          type="dashed"
-                          onClick={() => add()}
-                          block
-                          icon={<i className="anticon anticon-plus" />}
-                          disabled={fields.length >= 3} // Disable Add button if there are 3 or more fields
-                        >
-                          Add Department Head
-                        </Button>
-                      </Form.Item>
-
-                      {/* Proceed and Cancel buttons */}
-                      <Form.Item>
-                        <Button
-                          type="primary"
-                          onClick={handleProceed}
-                          style={{ marginRight: "8px" }}
-                        >
-                          Proceed
-                        </Button>
-                        <Button onClick={handleCancel}>Cancel</Button>
-                      </Form.Item>
-                    </>
-                  );
-                }}
-              </Form.List>
+                          {/* Proceed and Cancel buttons */}
+                          {/* <Form.Item>
+                            <Button
+                              type="primary"
+                              onClick={handleProceed}
+                              style={{ marginRight: "8px" }}
+                            >
+                              Proceed
+                            </Button>
+                            <Button
+                              onClick={() => {
+                                debugger;
+                                form.resetFields(); // Reset all fields -- for removing comments
+                                handleCancel();
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          </Form.Item> */}
+                        </>
+                      );
+                    }}
+                  </Form.List>
+                </>
+              )}
             </>
           )}
-
+          { (depDivHead  && actionType==ACTION_TYPE.Approve) &&
+            <Form.Item
+              label="Divison Head approval required ?"
+              name={"DivisionHeadApprovalRequired"}
+            >
+              <Radio.Group>
+                <Radio value={true}>Yes</Radio>
+                <Radio value={false}>No</Radio>
+              </Radio.Group>
+            </Form.Item>
+          }
           <Form.Item
             label="Comments"
             name="comment"
             rules={[{ required: true }]} // Validation rule
           >
-            <Input.TextArea rows={4} placeholder="Please provide your comment" />
+            <Input.TextArea
+              rows={4}
+              placeholder="Please provide your comment"
+            />
           </Form.Item>
         </Form>
       </Modal>

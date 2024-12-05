@@ -10,7 +10,7 @@ export interface IEmployee {
 
 export const getAdditionalDepartmentHeads = async (): Promise<IEmployee[]> => {
     const response = await apiClient.get<IAjaxResult>(`${basePathwithprefix}/AdjustmentReport/GetAdditionalDepartmentHeads`);
-
+     console.log("GetAdditionalDepHeads",response)
     console.log(response.data.ReturnValue)
     const list: IEmployee[] = response.data.ReturnValue;
     console.log({ list })

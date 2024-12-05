@@ -4,6 +4,7 @@ import { getAdditionalDepartmentHeads } from "../api/GetAdditionalDepartmentHead
 export interface IEmployee {
     EmployeeId: number;
     EmployeeName?: string;
+    DepartmentId?:number;
     Email?: string;
 }
 
