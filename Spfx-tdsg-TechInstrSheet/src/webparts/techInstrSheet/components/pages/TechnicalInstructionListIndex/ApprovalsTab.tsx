@@ -127,7 +127,7 @@ const ApprovalsTab: React.FC = () => {
   };
 
   // Column-specific search filter
-  const getColumnSearchProps = (dataIndex: string) => ({
+  const getColumnSearchProps = (dataIndex: string, placeholderString: string) => ({
     filterDropdown: ({
       setSelectedKeys,
       selectedKeys,
@@ -136,7 +136,7 @@ const ApprovalsTab: React.FC = () => {
     }: any) => (
       <div style={{ padding: 8 }}>
         <Input
-          placeholder={`Search ${dataIndex}`}
+          placeholder={`Search ${placeholderString}`}
           value={selectedKeys[0]}
           onChange={(e) =>
             setSelectedKeys(e.target.value ? [e.target.value] : [])
@@ -207,7 +207,7 @@ const ApprovalsTab: React.FC = () => {
       width: "20%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("CTINumber"),
+      ...getColumnSearchProps("CTINumber","Request No"),
     },
     {
       title: "Department",
@@ -216,7 +216,7 @@ const ApprovalsTab: React.FC = () => {
       width: "15%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("Department"),
+      ...getColumnSearchProps("Department","Department"),
     },
     {
       title: "Requestor",
@@ -225,7 +225,7 @@ const ApprovalsTab: React.FC = () => {
       width: "15%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("Requestor"),
+      ...getColumnSearchProps("Requestor","Requestor"),
     },
     {
       title: "Requested Date",
@@ -237,7 +237,7 @@ const ApprovalsTab: React.FC = () => {
       render: (text) => (
         <span>{text ? dayjs(text).format("DD-MM-YYYY") : ""}</span>
       ),
-      ...getColumnSearchProps("CreatedDate"),
+      ...getColumnSearchProps("CreatedDate","Requested Date"),
     },
     {
       title: "Status",
@@ -245,7 +245,7 @@ const ApprovalsTab: React.FC = () => {
       key: "Status",
       width: "15%",
       sorter: true,
-      ...getColumnSearchProps("Status"),
+      ...getColumnSearchProps("Status","Status"),
       render: (text) => (
         <span
           className={`status-badge status-badge-${

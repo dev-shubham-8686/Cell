@@ -251,6 +251,21 @@ console.log("Folder renamed successfully");
   return `${ctiNumber}-${timestamp}.pdf`; // Append timestamp to CTI number for uniqueness
  }
 
+ // Function to get Base64 string from Blob URL
+ export const getBase64StringFromBlobUrl = (url: string): Promise<string> => {
+  return fetch(url)
+    .then((response) => response.blob())
+    .then((blob) => {
+      return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onload = () => resolve(reader.result?.toString() || "");
+        reader.onerror = () => reject("Error converting to Base64");
+      });
+    });
+};
+
+
   
   export default {
     redirectToHome,
@@ -259,5 +274,6 @@ console.log("Folder renamed successfully");
     create_UUID,
     renameFolder,
     convertBase64ToFile,
-    generateUniqueFileNameWitCtiNumber
+    generateUniqueFileNameWitCtiNumber,
+    getBase64StringFromBlobUrl
   };

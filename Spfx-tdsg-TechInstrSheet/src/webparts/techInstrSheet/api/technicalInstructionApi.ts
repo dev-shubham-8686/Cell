@@ -326,8 +326,8 @@ export const technicalReviseList = (technicalId: string): Promise<any> => {
 };
 
 // Function to Technical Reopen 
-export const technicalReopen = (technicalId: string, userId: string): Promise<any> => {
-  return http.post(`${API_URL}/TechnicalReopen`, null, {params: {technicalId, userId}})
+export const technicalReopen = (technicalId: string, userId: string, comment: string): Promise<any> => {
+  return http.post(`${API_URL}/TechnicalReopen`, null, {params: {technicalId, userId, comment}})
 
   .then((response) => {
     return response.data; // Return the data from the response
@@ -379,8 +379,8 @@ export const getAllEmployee = (): Promise<any> => {
   });
 };
 
-export const changeRequestOwner = (technicalId: string, userId: string): Promise<any> => {
-  return http.post(`${API_URL}/ChangeRequestOwner`, null, {params: {technicalId, userId}})
+export const changeRequestOwner = (technicalId: string, userId: string, comment: string): Promise<any> => {
+  return http.post(`${API_URL}/ChangeRequestOwner`, null, {params: {technicalId, userId, comment}})
 
   .then((response) => {
     return response.data; // Return the data from the response

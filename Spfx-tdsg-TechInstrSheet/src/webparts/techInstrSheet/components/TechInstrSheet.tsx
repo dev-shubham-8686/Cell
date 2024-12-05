@@ -26,6 +26,7 @@ import "froala-editor/js/plugins/paragraph_format.min.js";
 import "froala-editor/js/plugins/paragraph_style.min.js";
 import "froala-editor/js/plugins/quote.min.js";
 import "froala-editor/js/plugins/table.min.js";
+import "froala-editor/js/plugins/code_view.min.js"
 // import "froala-editor/js/plugins/font_awesome.min.js";
 import "froala-editor/js/plugins/special_characters.min.js";
 import "froala-editor/js/plugins/fullscreen.min.js";
@@ -39,6 +40,7 @@ import "froala-editor/css/plugins/video.min.css";
 import "froala-editor/css/plugins/colors.min.css";
 import "froala-editor/css/plugins/emoticons.min.css";
 import "froala-editor/css/plugins/file.min.css";
+import "froala-editor/css/plugins/code_view.css"
 
 const queryClient = new QueryClient();
 
@@ -53,6 +55,19 @@ const TechInstrSheet: React.FC<ITechInstrSheetProps> = ({
 }) => {
 
   const style = { padding: "1rem"};
+
+  document.addEventListener('copy', (e) => {
+    if (typeof window !== "undefined" && window !== null) {
+      const selection = window.getSelection()?.toString().trim() || ''; // Default to an empty string if selection is undefined
+  
+      // Check if clipboardData is not null before using it
+      if (e.clipboardData) {
+        e.clipboardData.setData('text/plain', selection);
+        e.preventDefault();
+      }
+    }
+  });
+  
 
   return (
     <WebPartContext.Provider value={context}>

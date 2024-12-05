@@ -45,7 +45,10 @@ import {
   DOCUMENT_LIBRARIES,
 } from "../../../GLOBAL_CONSTANT";
 import Workflow from "./WorkflowTab";
-import { renameFolder } from "../../../api/utility/utility";
+import {
+  getBase64StringFromBlobUrl,
+  renameFolder,
+} from "../../../api/utility/utility";
 import DeleteFileModal from "../../common/deleteFileModal";
 import ClosureAttachment from "./ClosureAttachmentTab";
 import { blobUrlToFile } from "../../editor/Options";
@@ -101,6 +104,8 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
   const [editorModel, setEditorModel] = React.useState<string>("");
   const [outlineImageFiles, setoutlineImageFiles] = React.useState<any>([]);
 
+  const [formType, setFormType] = React.useState("draft");
+
   const handleTabClick = (key: string) => {
     setActiveKey(key);
     if (loadedTabs.indexOf(key) === -1) {
@@ -123,7 +128,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
     issuedBy: user?.employeeName,
     title: null,
     ctiNumber: null, //`CTI-${uniqueId}`,
-    revisionNo: 0,
+    revisionNo: null,
     purpose: null,
     productType: null,
     quantity: null,
@@ -494,23 +499,39 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
               );
 
               // Filter out null values (failed uploads)
-              const successfulUploads = uploadedUrls.filter(Boolean);
+              // const successfulUploads = uploadedUrls.filter(Boolean);
 
               debugger;
 
+              console.log(uploadedUrls);
+
               // Step 2: Replace base64 URLs with uploaded file URLs in the editor content
-              let updatedContent = editorModel;
-              successfulUploads.forEach((url: any, index) => {
-                updatedContent = updatedContent.replace(
-                  outlineImageFiles[index],
-                  `${WEB_URL}/${DOCUMENT_LIBRARIES.Technical_Attachment}/${folderName}/${DOCUMENT_LIBRARIES.Technical_Attachment__Outline_Attachment}/${url}`
-                ); // Replace base64 with SharePoint URL
-              });
+              // let updatedContent = editorModel;
+              let __updatedContent = editorModel;
+              // successfulUploads.forEach((url: any, index) => {
+              //   updatedContent = updatedContent.replace(
+              //     outlineImageFiles[index],
+              //     `${WEB_URL}/${DOCUMENT_LIBRARIES.Technical_Attachment}/${folderName}/${DOCUMENT_LIBRARIES.Technical_Attachment__Outline_Attachment}/${url}`
+              //   ); // Replace base64 with SharePoint URL
+              // });
+
+              debugger;
+
+              for (const url of outlineImageFiles) {
+                const base64String = await getBase64StringFromBlobUrl(url);
+                __updatedContent = __updatedContent.replace(
+                  `<img src="${url}"`,
+                  `<img src="${base64String}"`
+                );
+              }
+
+              //console.log(__updatedContent);
 
               setLoading(true);
               await updateOutlineEditor({
                 TechnicalId: GetTechnicalId,
-                outline: updatedContent,
+                outline: __updatedContent,
+                outlineImageBytes: __updatedContent,
               })
                 .then((c) => {
                   debugger;
@@ -567,7 +588,14 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           }
         }
 
-        void displayjsx.showSuccess("Form saved successfully.");
+        if(formType === "draft"){
+          void displayjsx.showSuccess("Technical Instruction form saved successfully.");
+        }else if(formType === "submit"){
+          void displayjsx.showSuccess("Technical Instruction form submitted successfully.");
+        }else{
+          void displayjsx.showSuccess("Technical Instruction form saved successfully.");
+        }
+       
         // Navigate back to the list after successful submission
         navigate("/");
       })
@@ -608,6 +636,8 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           ...prevState,
           sectionId: updatedSectionId,
         }));
+
+        setFormType("submit");
 
         // Check if the updated section ID is set and then submit the form
         if (updatedSectionId > 0) {
@@ -791,88 +821,154 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
   };
 
   const handleSave = () => {
-    Modal.confirm({
-      title: "Are you sure you want to save the form?",
-      icon: (
-        <FontAwesomeIcon
-          icon={faCircleExclamation}
-          style={{ marginRight: "10px", marginTop: "5px" }}
-        />
-      ),
-      //content: "Please confirm if you want to proceed.",
-      okText: "Yes",
-      cancelText: "No",
-      okType: "primary",
-      okButtonProps: { className: "btn btn-primary save-btn" },
-      cancelButtonProps: { className: "btn-outline-primary no-btn" },
-      onOk: () => {
-        setSubmitFormState({
-          ...submitFormState,
-          isSubmit: false,
-          isAmendReSubmitTask: false,
+    // Trigger form validation before showing the modal
+    form
+      .validateFields()
+      .then(() => {
+        if (
+          editorModel === null ||
+          editorModel === "" ||
+          editorModel.trim() === "" ||
+          editorModel === undefined ||
+          isOnlySpacesInPTag(editorModel)
+        ) {
+          setLoading(false);
+
+          void displayjsx.showErrorMsg("Please enter Outline");
+          return false;
+        }
+
+        // If validation passes, show the confirmation modal
+        Modal.confirm({
+          title: "Are you sure you want to save the form?",
+          icon: (
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              style={{ marginRight: "10px", marginTop: "5px" }}
+            />
+          ),
+          okText: "Yes",
+          cancelText: "No",
+          okType: "primary",
+          okButtonProps: { className: "btn btn-primary save-btn" },
+          cancelButtonProps: { className: "btn-outline-primary no-btn" },
+          onOk: () => {
+            setSubmitFormState({
+              ...submitFormState,
+              isSubmit: false,
+              isAmendReSubmitTask: false,
+            });
+            form.submit(); // Trigger form submit programmatically if "Yes" is clicked
+          },
         });
-        form.submit(); // Trigger form submit programmatically if "Yes" is clicked
-      },
-    });
+      })
+      .catch((error) => {
+        // If validation fails, handle the error (e.g., show error messages)
+        console.log("Form validation failed", error);
+      });
   };
 
   const handleSubmit = () => {
-    Modal.confirm({
-      title: "Are you sure you want to submit the form?",
-      icon: (
-        <FontAwesomeIcon
-          icon={faCircleExclamation}
-          style={{ marginRight: "10px", marginTop: "5px" }}
-        />
-      ),
-      //content: "Please confirm if you want to proceed.",
-      okText: "Yes",
-      cancelText: "No",
-      okType: "primary",
-      okButtonProps: { className: "btn btn-primary save-btn" },
-      cancelButtonProps: { className: "btn-outline-primary no-btn" },
-      onOk: () => {
-        setSubmitFormState({
-          ...submitFormState,
-          isSubmit: true,
-          isAmendReSubmitTask: false,
-          //sectionId: 2,
+    form
+      .validateFields()
+      .then(() => {
+        if (
+          editorModel === null ||
+          editorModel === "" ||
+          editorModel.trim() === "" ||
+          editorModel === undefined ||
+          isOnlySpacesInPTag(editorModel)
+        ) {
+          setLoading(false);
+
+          void displayjsx.showErrorMsg("Please enter Outline");
+          return false;
+        }
+
+        Modal.confirm({
+          title: "Are you sure you want to submit the form?",
+          icon: (
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              style={{ marginRight: "10px", marginTop: "5px" }}
+            />
+          ),
+          //content: "Please confirm if you want to proceed.",
+          okText: "Yes",
+          cancelText: "No",
+          okType: "primary",
+          okButtonProps: { className: "btn btn-primary save-btn" },
+          cancelButtonProps: { className: "btn-outline-primary no-btn" },
+          onOk: () => {
+            setSubmitFormState({
+              ...submitFormState,
+              isSubmit: true,
+              isAmendReSubmitTask: false,
+              //sectionId: 2,
+            });
+            //form.submit(); // Trigger form submit programmatically if "Yes" is clicked
+            handleFetchSections();
+          },
         });
-        //form.submit(); // Trigger form submit programmatically if "Yes" is clicked
-        handleFetchSections();
-      },
-    });
+      })
+      .catch((error) => {
+        // If validation fails, handle the error (e.g., show error messages)
+        console.log("Form validation failed", error);
+      });
   };
 
   const handleReSubmit = () => {
-    Modal.confirm({
-      title: "Are you sure you want to  resubmit the form?",
-      icon: (
-        <FontAwesomeIcon
-          icon={faCircleExclamation}
-          style={{ marginRight: "10px", marginTop: "5px" }}
-        />
-      ),
-      //content: "Please confirm if you want to proceed.",
-      okText: "Yes",
-      cancelText: "No",
-      okType: "primary",
-      okButtonProps: { className: "btn btn-primary save-btn" },
-      cancelButtonProps: { className: "btn-outline-primary no-btn" },
-      onOk: () => {
-        setSubmitFormState({
-          ...submitFormState,
-          isSubmit: true,
-          isAmendReSubmitTask: true,
-        });
-        //form.submit(); // Trigger form submit programmatically if "Yes" is clicked
-        handleFetchSections();
+    // Trigger form validation before showing the modal
+    form
+      .validateFields()
+      .then(() => {
 
-        //--> When flow start from where trigger ask to amend
-        //setReSubmitComment("");
-        //return setIsReCommentModalVisible(true);
-      },
-    });
+        if (
+          editorModel === null ||
+          editorModel === "" ||
+          editorModel.trim() === "" ||
+          editorModel === undefined ||
+          isOnlySpacesInPTag(editorModel)
+        ) {
+          setLoading(false);
+
+          void displayjsx.showErrorMsg("Please enter Outline");
+          return false;
+        }
+
+        Modal.confirm({
+          title: "Are you sure you want to  resubmit the form?",
+          icon: (
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              style={{ marginRight: "10px", marginTop: "5px" }}
+            />
+          ),
+          //content: "Please confirm if you want to proceed.",
+          okText: "Yes",
+          cancelText: "No",
+          okType: "primary",
+          okButtonProps: { className: "btn btn-primary save-btn" },
+          cancelButtonProps: { className: "btn-outline-primary no-btn" },
+          onOk: () => {
+            setSubmitFormState({
+              ...submitFormState,
+              isSubmit: true,
+              isAmendReSubmitTask: true,
+            });
+            //form.submit(); // Trigger form submit programmatically if "Yes" is clicked
+            handleFetchSections();
+
+            //--> When flow start from where trigger ask to amend
+            //setReSubmitComment("");
+            //return setIsReCommentModalVisible(true);
+          },
+        });
+      })
+      .catch((error) => {
+        // If validation fails, handle the error (e.g., show error messages)
+        console.log("Form validation failed", error);
+      });
   };
 
   //When flow want to start as before under-amen dment
@@ -917,6 +1013,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       .then((c) => {
         setLoading(false);
         //navigate("/");
+        void displayjsx.showSuccess("Technical Instruction form has been approved.");
         navigate("/", {
           state: {
             currentTabState: "myapproval-tab",
@@ -944,6 +1041,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       .then((c) => {
         setLoading(false);
         //navigate("/");
+        void displayjsx.showSuccess("Technical Instruction form has been requested to amend.");
         navigate("/", {
           state: {
             currentTabState: "myapproval-tab",
@@ -968,6 +1066,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
     pullBack(data)
       .then((c) => {
         setLoading(false);
+        void displayjsx.showSuccess("Technical Instruction form has been pulled back.");
         navigate("/");
       })
       .catch((c) => {
@@ -1031,7 +1130,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
 
     if (!isAllowedFileType) {
       void displayjsx.showErrorMsg(
-        `File type not supported. Allowed types are: Word, Excel, PDF, and PPT.`
+        `File type not supported. Allowed types are: Word, Excel, PDF, PPT, JPG, PNG, JPEG.`
       );
       return false;
     }
