@@ -181,6 +181,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 return null;
             }
 
+            var reqDepId = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == res.CreatedBy).Select(x => x.DepartmentID).FirstOrDefault();
+            var reqDepHead = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID == reqDepId).Select(x => x.Head).FirstOrDefault();
+            var deputyDivisionHead = _context.CellDivisionRoleMasters.Where(x => x.DivisionId == 1).Select(x => x.DeputyDivisionHead).FirstOrDefault();
+
             AdjustMentReportRequest adjustmentData = new AdjustMentReportRequest()
             {
                 AdjustMentReportId = res.AdjustMentReportId,
@@ -205,6 +209,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 IsSubmit = res.IsSubmit,
                 CreatedBy = res.CreatedBy,
                 CreatedDate = res.CreatedDate,
+                DepartmentHeadId = reqDepHead,
+                DeputyDivHead = deputyDivisionHead
             };
 
             var changeRiskManagement = _context.ChangeRiskManagement_AdjustmentReport.Where(x => x.AdjustMentReportId == Id && x.IsDeleted == false).ToList();
