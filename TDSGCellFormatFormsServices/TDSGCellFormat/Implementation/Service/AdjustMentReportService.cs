@@ -123,5 +123,15 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return  _adjustMentRepository.GetHistoryData(adjustmentId);
         }
+
+        public async Task<AjaxResult> AddOrUpdateAdvisorData(AdjustmentAdvisor request)
+        {
+            return await _adjustMentRepository.AddOrUpdateAdvisorData(request);
+        }
+
+        public AdjustmentAdvisor GetAdvisorData(int adjustmentReportId)
+        {
+            return _adjustMentRepository.GetAdvisorData(adjustmentReportId);
+        }
     }
 }

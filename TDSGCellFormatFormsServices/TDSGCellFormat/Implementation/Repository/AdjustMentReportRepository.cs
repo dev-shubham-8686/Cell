@@ -387,7 +387,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     existingReport.AdjustmentDescription = request.AdjustmentDescription;
                     existingReport.ConditionAfterAdjustment = request.ConditionAfterAdjustment;
                     existingReport.ChangeRiskManagementRequired = request.ChangeRiskManagementRequired;
-                    existingReport.Status = request.Status ?? ApprovalTaskStatus.Draft.ToString();
+                    //existingReport.Status = request.Status ?? ApprovalTaskStatus.Draft.ToString();
                     existingReport.IsSubmit = request.IsSubmit;
                     existingReport.ModifiedDate = DateTime.Now;
                     existingReport.ModifiedBy = request.ModifiedBy;
@@ -556,7 +556,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     else
                     {
-                        InsertHistoryData(adjustMentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Update the form ", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
+                        InsertHistoryData(adjustMentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Update the form ", existingReport.Status, Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
                     }
 
                     res.ReturnValue = new
@@ -1276,12 +1276,14 @@ namespace TDSGCellFormat.Implementation.Repository
                 string? htmlTemplate = System.IO.File.ReadAllText(templateFilePath);
                 sb.Append(htmlTemplate);
 
+                var machineName = _context.Machines.Where(x => x.MachineId == adjustMentReportData.MachineName).Select(x => x.MachineName).FirstOrDefault();
+                var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
+                var checkedBy = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CheckedBy).Select(x => x.EmployeeName).FirstOrDefault();
                 //sb.Replace("#area#", data.FirstOrDefault()?.AreaName);
                 sb.Replace("#reportno#", adjustMentReportData.ReportNo);
-               // sb.Replace("#requestor#", data.FirstOrDefault()?.Requestor);
-                //sb.Replace("#machinename#", data.FirstOrDefault()?.MachineName);
-                //sb.Replace("#checkedby#", data.FirstOrDefault()?.CheckedBy);
-               // sb.Replace("#machineid#", data.FirstOrDefault()?.MachineId.ToString());
+                sb.Replace("#requestor#", applicant);
+                sb.Replace("#machinename#", machineName);
+                sb.Replace("#checkedby#", checkedBy);
                 sb.Replace("#when#", adjustMentReportData.When?.ToString("dd-MM-yyyy") ?? "N/A");
                 sb.Replace("#describeproblem#", adjustMentReportData.DescribeProblem);
                 sb.Replace("#observation#", adjustMentReportData.Observation);
