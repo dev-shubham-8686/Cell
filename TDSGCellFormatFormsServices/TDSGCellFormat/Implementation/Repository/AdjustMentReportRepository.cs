@@ -324,19 +324,57 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                         await _context.SaveChangesAsync();
                     }
-
-                    if (request.Photos != null)
+                    if (request.AdjustmentBeforeImagesDetails != null)
                     {
-                        if (request.Photos.BeforeImages != null && request.Photos.AfterImages != null)
+                        foreach (var attach in request.AdjustmentBeforeImagesDetails)
                         {
-                            var totalRecordsToInsert = request.Photos.BeforeImages.Concat(request.Photos.AfterImages).ToList();
-                            totalRecordsToInsert.ForEach(x => x.AdjustmentReportId = adjustMentReportId);
+                            var updatedUrl = attach.BeforeImageDocFilePath.Replace($"/{request.CreatedBy}/", $"/{adjustmentReportNo}/");
+                            ///EqReportDocuments/EQReportDocs/Current Situation Attachments/MaterialConsumption_2024-10-09.xlsx
+                            var attachment = new AdjustmentBeforeImage()
+                            {
 
-                            _context.Photos.AddRange(totalRecordsToInsert);
+                                AdjustmentReportId = adjustMentReportId,
+                                BeforeImageDocName = attach.BeforeImageDocName,
+                                BeforeImageDocFilePath = updatedUrl,
+                                IsDeleted = false,
+                                CreatedBy = attach.CreatedBy,
+                                CreatedDate = DateTime.Now,
+                            };
+                            _context.AdjustmentBeforeImages.Add(attachment);
                         }
+                        await _context.SaveChangesAsync();
+                    }
+
+                    if (request.AdjustmentAfterImagesDetails != null)
+                    {
+                        foreach (var attach in request.AdjustmentAfterImagesDetails)
+                        {
+                            var updatedUrl = attach.AfterImageDocFilePath.Replace($"/{request.CreatedBy}/", $"/{adjustmentReportNo}/");
+                            ///EqReportDocuments/EQReportDocs/Current Situation Attachments/MaterialConsumption_2024-10-09.xlsx
+                            var attachment = new AdjustmentAfterImage()
+                            {
+
+                                AdjustmentReportId = adjustMentReportId,
+                                AfterImageDocName = attach.AfterImageDocName,
+                                AfterImageDocFilePath = updatedUrl,
+                                IsDeleted = false,
+                                CreatedBy = attach.CreatedBy,
+                                CreatedDate = DateTime.Now,
+                            };
+                            _context.AdjustmentAfterImages.Add(attachment);
+                        }
+                        await _context.SaveChangesAsync();
                     }
 
                     await _context.SaveChangesAsync();
+
+                    res.ReturnValue = new
+                    {
+                        AdjustmentReportId = adjustMentReportId,
+                        AdjustmentReportNo = adjustmentReportNo
+                    };
+                    res.StatusCode = Enums.Status.Success;
+                    res.Message = Enums.AdjustMentSave;
 
                     if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
                     {
@@ -361,13 +399,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         InsertHistoryData(adjustMentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Update Status as Draft", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
                     }
 
-                    res.ReturnValue = new
-                    {
-                        AdjustmentReportId = adjustMentReportId,
-                        AdjustmentReportNo = adjustmentReportNo
-                    };
-                    res.StatusCode = Enums.Status.Success;
-                    res.Message = Enums.AdjustMentSave;
+                
                 }
                 else
                 {
@@ -461,24 +493,20 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                     }
 
-                    var existingPhotos = _context.Photos.Where(x => x.AdjustmentReportId == existingReport.AdjustMentReportId).ToList();
-                    MarkAsDeleted(existingPhotos, existingReport.CreatedBy, DateTime.Now);
+                    var existingAfterImage = _context.AdjustmentAfterImages.Where(x => x.AdjustmentReportId == existingReport.AdjustMentReportId).ToList();
+                    MarkAsDeleted(existingAfterImage, existingReport.CreatedBy, DateTime.Now);
                     _context.SaveChanges();
 
-                    if (request.Photos != null && request.Photos.BeforeImages != null && request.Photos.AfterImages != null)
+                    if (request.AdjustmentAfterImagesDetails != null)
                     {
-                        var beforeImages = request.Photos.BeforeImages;
-                        var afterImages = request.Photos.AfterImages;
-
-                        foreach (var attach in beforeImages)
+                        foreach (var attach in request.AdjustmentAfterImagesDetails)
                         {
-                            var updatedUrl = attach.DocumentFilePath.Replace($"/{request.EmployeeId}/", $"/{existingReport.ReportNo}/");
-                            var existingAttachData = _context.Photos.Where(x => x.AdjustmentReportId == attach.AdjustmentReportId && x.AdjustmentReportPhotoId == attach.AdjustmentReportPhotoId).FirstOrDefault();
+                            var updatedUrl = attach.AfterImageDocFilePath.Replace($"/{request.CreatedBy}/", $"/{existingReport.ReportNo}/");
+                            var existingAttachData = _context.AdjustmentAfterImages.Where(x => x.AdjustmentReportId == attach.AdjustmentReportId && x.AdjustmentAfterImageId == attach.AdjustmentAfterImageId).FirstOrDefault();
                             if (existingAttachData != null)
                             {
-                                existingAttachData.DocumentName = attach.DocumentName;
-                                existingAttachData.DocumentFilePath = attach.DocumentFilePath;
-                                existingAttachData.SequenceId = attach.SequenceId;
+                                existingAttachData.AfterImageDocName = attach.AfterImageDocName;
+                                existingAttachData.AfterImageDocFilePath = attach.AfterImageDocFilePath;
                                 existingAttachData.IsDeleted = false;
                                 existingAttachData.ModifiedBy = attach.ModifiedBy;
                                 existingAttachData.ModifiedDate = DateTime.Now;
@@ -486,56 +514,68 @@ namespace TDSGCellFormat.Implementation.Repository
                             else
                             {
 
-                                var attachment = new AdjustmentReportPhoto()
+                                var attachment = new AdjustmentAfterImage()
                                 {
                                     AdjustmentReportId = existingReport.AdjustMentReportId,
-                                    DocumentName = attach.DocumentName,
-                                    DocumentFilePath = updatedUrl,
-                                    SequenceId = attach.SequenceId,
-                                    IsOldPhoto = attach.IsOldPhoto,
+                                    AfterImageDocName = attach.AfterImageDocName,
+                                    AfterImageDocFilePath = updatedUrl,
                                     IsDeleted = false,
                                     CreatedBy = attach.CreatedBy,
                                     CreatedDate = DateTime.Now,
                                 };
-                                _context.Photos.Add(attachment);
-                            }
-                            await _context.SaveChangesAsync();
-                        }
-
-                        foreach (var attach in afterImages)
-                        {
-                            var updatedUrl = attach.DocumentFilePath.Replace($"/{request.EmployeeId}/", $"/{existingReport.ReportNo}/");
-                            var existingAttachData = _context.Photos.Where(x => x.AdjustmentReportId == attach.AdjustmentReportId && x.AdjustmentReportPhotoId == attach.AdjustmentReportPhotoId).FirstOrDefault();
-                            if (existingAttachData != null)
-                            {
-                                existingAttachData.DocumentName = attach.DocumentName;
-                                existingAttachData.DocumentFilePath = attach.DocumentFilePath;
-                                existingAttachData.SequenceId = attach.SequenceId;
-                                existingAttachData.IsDeleted = false;
-                                existingAttachData.ModifiedBy = attach.ModifiedBy;
-                                existingAttachData.ModifiedDate = DateTime.Now;
-                            }
-                            else
-                            {
-
-                                var attachment = new AdjustmentReportPhoto()
-                                {
-                                    AdjustmentReportId = existingReport.AdjustMentReportId,
-                                    DocumentName = attach.DocumentName,
-                                    DocumentFilePath = updatedUrl,
-                                    SequenceId = attach.SequenceId,
-                                    IsOldPhoto = attach.IsOldPhoto,
-                                    IsDeleted = false,
-                                    CreatedBy = attach.CreatedBy,
-                                    CreatedDate = DateTime.Now,
-                                };
-                                _context.Photos.Add(attachment);
+                                _context.AdjustmentAfterImages.Add(attachment);
                             }
                             await _context.SaveChangesAsync();
                         }
                     }
 
+                    var existingBeforeImage = _context.AdjustmentAfterImages.Where(x => x.AdjustmentReportId == existingReport.AdjustMentReportId).ToList();
+                    MarkAsDeleted(existingBeforeImage, existingReport.CreatedBy, DateTime.Now);
+                    _context.SaveChanges();
+
+                    if (request.AdjustmentBeforeImagesDetails != null)
+                    {
+                        foreach (var attach in request.AdjustmentBeforeImagesDetails)
+                        {
+                            var updatedUrl = attach.BeforeImageDocFilePath.Replace($"/{request.CreatedBy}/", $"/{existingReport.ReportNo}/");
+                            var existingAttachData = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == attach.AdjustmentReportId && x.AdjustmentBeforeImageId == attach.AdjustmentBeforeImageId).FirstOrDefault();
+                            if (existingAttachData != null)
+                            {
+                                existingAttachData.BeforeImageDocName = attach.BeforeImageDocName;
+                                existingAttachData.BeforeImageDocFilePath = attach.BeforeImageDocFilePath;
+                                existingAttachData.IsDeleted = false;
+                                existingAttachData.ModifiedBy = attach.ModifiedBy;
+                                existingAttachData.ModifiedDate = DateTime.Now;
+                            }
+                            else
+                            {
+
+                                var attachment = new AdjustmentBeforeImage()
+                                {
+                                    AdjustmentReportId = existingReport.AdjustMentReportId,
+                                    BeforeImageDocName = attach.BeforeImageDocName,
+                                    BeforeImageDocFilePath = updatedUrl,
+                                    IsDeleted = false,
+                                    CreatedBy = attach.CreatedBy,
+                                    CreatedDate = DateTime.Now,
+                                };
+                                _context.AdjustmentBeforeImages.Add(attachment);
+                            }
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+
+
+
                     await _context.SaveChangesAsync();
+
+                    res.ReturnValue = new
+                    {
+                        AdjustmentReportId = existingReport.AdjustMentReportId,
+                        AdjustmentReportNo = existingReport.ReportNo
+                    };
+                    res.StatusCode = Enums.Status.Success;
+                    res.Message = Enums.AdjustMentSave;
 
                     if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
                     {
@@ -561,13 +601,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         InsertHistoryData(adjustMentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Update the form ", existingReport.Status, Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
                     }
 
-                    res.ReturnValue = new
-                    {
-                        AdjustmentReportId = existingReport.AdjustMentReportId,
-                        AdjustmentReportNo = existingReport.ReportNo
-                    };
-                    res.StatusCode = Enums.Status.Success;
-                    res.Message = Enums.AdjustMentSave;
+                    
                 }
             }
 
@@ -842,6 +876,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     requestTaskData.ModifiedDate = DateTime.Now;
                     requestTaskData.Comments = asktoAmend.Comment;
                     await _context.SaveChangesAsync();
+
+
                     res.Message = Enums.AdjustMentApprove;
 
                     InsertHistoryData(asktoAmend.AdjustmentId, FormType.EquipmentImprovement.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.Approved.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.Approved.ToString(), 0);
@@ -1003,24 +1039,6 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public async Task<AjaxResult> AdvisorCommets(AdvisorComment advisor)
-        {
-            var res = new AjaxResult();
-            try
-            {
-                var advisorData = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentAdvisorId == advisor.AdjustmentAdvisorId
-                                  && x.AdjustmentReportId == advisor.AdjustmentReportId && x.IsActive == true).FirstOrDefault();
-            }
-            catch (Exception ex)
-            {
-                res.Message = "Fail " + ex;
-                res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
-                commonHelper.LogException(ex, "Adjustment AdvisorCommets");
-            }
-            return res;
-
-        }
 
         public async Task<AjaxResult> PullBackRequest(PullBackRequest data)
         {
@@ -1055,6 +1073,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
 
                     res.StatusCode = Enums.Status.Success;
+                    res.Message = Enums.AdjustMentPullback;
                 }
             }
             catch (Exception ex)
@@ -1112,6 +1131,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     advisor.Comment = request.Comment;
                     await _context.SaveChangesAsync();
                 }
+                res.Message = Enums.AdjustmentUdpated;
+                res.StatusCode = Enums.Status.Success;
             }
             catch(Exception ex)
             {

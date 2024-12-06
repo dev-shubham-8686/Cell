@@ -279,17 +279,18 @@ namespace TDSGCellFormat.Common
         public const string EquipmentDateUpdate = "Equipment Improvement record updated";
         public const string EquipmentResubmit = "Equipment Improvement form Resubmitted successfully";
 
-        public const string AdjustMentSave = "Adjustment Report saved successfully";
-        public const string AdjustMentSubmit = "AdjustMent form submitted successfully";
-        public const string AdjustMentReSubmit = "AdjustMent form Resubmitted successfully";
-        public const string AdjustMentPullback = "AdjustMent form has been pulled back successfully";
+        public const string AdjustMentSave = "Adjustment Report form saved successfully";
+        public const string AdjustMentSubmit = "Adjustment Report form submitted successfully";
+        public const string AdjustMentReSubmit = "Adjustment Report form resubmitted successfully";
+        public const string AdjustMentPullback = "Adjustment Report form has been pulled back successfully";
         public const string AdjustMentAsktoAmend = "Amendment Asked successfully";
-        public const string AdjustMentApprove = "AdjustMent form has been approved";
-        public const string AdjustMentReject = "AdjustMent rejected";
-        public const string AdjustMentDateUpdate = "AdjustMent record updated";
+        public const string AdjustMentApprove = "Adjustment Report form has been approved";
+        public const string AdjustMentReject = "Amendment rejected";
+        public const string AdjustMentDateUpdate = "Amendment record updated";
         public const string AdjustMentExcel = "Excel file downloaded successfully";
         public const string AdjustMentPdf = "PDF file downloaded successfully";
         public const string AdjustMentNotFound = "Please complete the approval process to download the excel";
+        public const string AdjustmentUdpated = "Adjustment Report form record updated";
 
         public const string MaterialSave = "Material Consumption form saved successfully";
         public const string MaterialSubmit = "Material Consumption form submitted successfully";

@@ -32,6 +32,9 @@ public partial class TdsgCellFormatDivisionContext : DbContext
     public virtual DbSet<SectionHeadEmpMaster> SectionHeadEmpMasters { get; set; }
     public virtual DbSet<TroubleReportReviewerTaskMaster> TroubleReportReviewerTaskMasters { get; set; }
 
+    public virtual DbSet<AdjustmentAfterImage> AdjustmentAfterImages { get; set; }
+    public virtual DbSet<AdjustmentBeforeImage> AdjustmentBeforeImages { get; set; }
+
     public virtual DbSet<AdjustmentReport> AdjustmentReports { get; set; }
     public virtual DbSet<AdjustmentHistoryMaster> AdjustmentHistoryMasters { get; set; }
     public virtual DbSet<AdminApprover> AdminApprovers  { get; set; }

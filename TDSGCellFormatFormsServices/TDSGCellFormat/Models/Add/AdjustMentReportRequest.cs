@@ -65,6 +65,9 @@ namespace TDSGCellFormat.Models.Add
         public int? DepartmentHeadId { get; set; }
 
         public int? DeputyDivHead {  get; set; }
+
+        public List<AdjustmentAfterImageData>? AdjustmentAfterImagesDetails { get; set; }
+        public List<AdjustmentBeforeImageData>? AdjustmentBeforeImagesDetails { get; set; }
     }
 
     public class ChangeRiskManagement_AdjustmentReports
@@ -79,6 +82,29 @@ namespace TDSGCellFormat.Models.Add
         public string? DueDate { get; set; }
         public int? PersonInCharge { get; set; }
         public string? Results { get; set; }
+        public int? CreatedBy { get; set; }
+        public int? ModifiedBy { get; set; }
+
+    }
+
+    public class AdjustmentAfterImageData
+    {
+        public int AdjustmentAfterImageId { get; set; }
+        public int? AdjustmentReportId { get; set; }
+        public string? AfterImageDocName { get; set; }
+        public string? AfterImageDocFilePath { get; set; }
+        public int? CreatedBy { get; set; }
+        public int? ModifiedBy { get; set; }
+
+    }
+
+
+    public class AdjustmentBeforeImageData
+    {
+        public int AdjustmentBeforeImageId { get; set; }
+        public int? AdjustmentReportId { get; set; }
+        public string? BeforeImageDocName { get; set; }
+        public string? BeforeImageDocFilePath { get; set; }
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
 
