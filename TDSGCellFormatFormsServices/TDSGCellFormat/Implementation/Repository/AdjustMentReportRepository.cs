@@ -387,7 +387,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     existingReport.AdjustmentDescription = request.AdjustmentDescription;
                     existingReport.ConditionAfterAdjustment = request.ConditionAfterAdjustment;
                     existingReport.ChangeRiskManagementRequired = request.ChangeRiskManagementRequired;
-                    existingReport.Status = request.Status ?? ApprovalTaskStatus.Draft.ToString();
+                    //existingReport.Status = request.Status ?? ApprovalTaskStatus.Draft.ToString();
                     existingReport.IsSubmit = request.IsSubmit;
                     existingReport.ModifiedDate = DateTime.Now;
                     existingReport.ModifiedBy = request.ModifiedBy;
@@ -556,7 +556,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     else
                     {
-                        InsertHistoryData(adjustMentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Update the form ", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
+                        InsertHistoryData(adjustMentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Update the form ", existingReport.Status, Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
                     }
 
                     res.ReturnValue = new
