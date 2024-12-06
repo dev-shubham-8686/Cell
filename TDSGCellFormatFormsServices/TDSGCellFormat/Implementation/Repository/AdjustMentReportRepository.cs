@@ -388,7 +388,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     existingReport.ConditionAfterAdjustment = request.ConditionAfterAdjustment;
                     existingReport.ChangeRiskManagementRequired = request.ChangeRiskManagementRequired;
                     //existingReport.Status = request.Status ?? ApprovalTaskStatus.Draft.ToString();
-                    existingReport.IsSubmit = request.IsSubmit;
+                    //existingReport.IsSubmit = request.IsSubmit;
                     existingReport.ModifiedDate = DateTime.Now;
                     existingReport.ModifiedBy = request.ModifiedBy;
 
@@ -1125,7 +1125,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             var res = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsActive == true).FirstOrDefault();
             
-            if(res != null)
+            if(res == null)
             {
                 return null;
             }
