@@ -1613,7 +1613,7 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.Completed:
                                 templateFile = "Adjustment_Completed.html";
-                                emailSubject = string.Format("[Action required!] Adjustment_{0} has been Approved and completed", adjustmentData.ReportNo);
+                                emailSubject = string.Format("[Action taken!] Adjustment_{0} has been Approved and completed", adjustmentData.ReportNo);
                                 isRequestorinToEmail = true;
                                 allApprover = true;
                                 break; 
