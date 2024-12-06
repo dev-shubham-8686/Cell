@@ -1276,12 +1276,14 @@ namespace TDSGCellFormat.Implementation.Repository
                 string? htmlTemplate = System.IO.File.ReadAllText(templateFilePath);
                 sb.Append(htmlTemplate);
 
+                var machineName = _context.Machines.Where(x => x.MachineId == adjustMentReportData.MachineName).Select(x => x.MachineName).FirstOrDefault();
+                var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
+                var checkedBy = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CheckedBy).Select(x => x.EmployeeName).FirstOrDefault();
                 //sb.Replace("#area#", data.FirstOrDefault()?.AreaName);
                 sb.Replace("#reportno#", adjustMentReportData.ReportNo);
-               // sb.Replace("#requestor#", data.FirstOrDefault()?.Requestor);
-                //sb.Replace("#machinename#", data.FirstOrDefault()?.MachineName);
-                //sb.Replace("#checkedby#", data.FirstOrDefault()?.CheckedBy);
-               // sb.Replace("#machineid#", data.FirstOrDefault()?.MachineId.ToString());
+                sb.Replace("#requestor#", applicant);
+                sb.Replace("#machinename#", machineName);
+                sb.Replace("#checkedby#", checkedBy);
                 sb.Replace("#when#", adjustMentReportData.When?.ToString("dd-MM-yyyy") ?? "N/A");
                 sb.Replace("#describeproblem#", adjustMentReportData.DescribeProblem);
                 sb.Replace("#observation#", adjustMentReportData.Observation);
