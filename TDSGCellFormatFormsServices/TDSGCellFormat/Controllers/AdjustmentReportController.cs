@@ -350,5 +350,36 @@ namespace TDSGCellFormat.Controllers
             return Ok(Ajaxresponse);
         }
 
+        #region AdvisorData 
+        [HttpGet("GetAdvisorData")]
+        public IActionResult GetAdvisorData(int adjustmentReportId)
+        {
+            var res = _tdsgService.GetAdvisorData(adjustmentReportId);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+
+        [HttpPost("InsertAdvisor")]
+        public async Task<IActionResult> AddOrUpdateAdvisorData(AdjustmentAdvisor request)
+        {
+            var result = await _tdsgService.AddOrUpdateAdvisorData(request);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+        #endregion
+
     }
 }

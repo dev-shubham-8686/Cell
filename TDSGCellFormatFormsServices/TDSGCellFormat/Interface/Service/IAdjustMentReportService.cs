@@ -46,5 +46,9 @@ namespace TDSGCellFormat.Interface.Service
         Task<GetEquipmentUser> GetUserRole(string email);
 
         List<TroubleReportHistoryView> GetHistoryData(int adjustmentId);
+
+        Task<AjaxResult> AddOrUpdateAdvisorData(AdjustmentAdvisor request);
+
+        AdjustmentAdvisor GetAdvisorData(int adjustmentReportId);
     }
 }
