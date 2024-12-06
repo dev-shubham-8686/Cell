@@ -338,6 +338,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     await _context.SaveChangesAsync();
 
+                    res.ReturnValue = new
+                    {
+                        AdjustmentReportId = adjustMentReportId,
+                        AdjustmentReportNo = adjustmentReportNo
+                    };
+                    res.StatusCode = Enums.Status.Success;
+                    res.Message = Enums.AdjustMentSave;
+
                     if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
                     {
                         var data = await SubmitRequest(adjustMentReportId, request.EmployeeId, request.AdvisorId);
@@ -361,13 +369,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         InsertHistoryData(adjustMentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Update Status as Draft", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
                     }
 
-                    res.ReturnValue = new
-                    {
-                        AdjustmentReportId = adjustMentReportId,
-                        AdjustmentReportNo = adjustmentReportNo
-                    };
-                    res.StatusCode = Enums.Status.Success;
-                    res.Message = Enums.AdjustMentSave;
+                
                 }
                 else
                 {
@@ -462,7 +464,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
 
                     var existingPhotos = _context.Photos.Where(x => x.AdjustmentReportId == existingReport.AdjustMentReportId).ToList();
-                    MarkAsDeleted(existingPhotos, existingReport.CreatedBy, DateTime.Now);
+                    MarkAsDeleted(existingPhotos, existingReport.ModifiedBy, DateTime.Now);
                     _context.SaveChanges();
 
                     if (request.Photos != null && request.Photos.BeforeImages != null && request.Photos.AfterImages != null)
@@ -537,6 +539,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     await _context.SaveChangesAsync();
 
+                    res.ReturnValue = new
+                    {
+                        AdjustmentReportId = existingReport.AdjustMentReportId,
+                        AdjustmentReportNo = existingReport.ReportNo
+                    };
+                    res.StatusCode = Enums.Status.Success;
+                    res.Message = Enums.AdjustMentSave;
+
                     if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
                     {
                         var data = await SubmitRequest(existingReport.AdjustMentReportId, existingReport.CreatedBy, request.AdvisorId);
@@ -561,13 +571,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         InsertHistoryData(adjustMentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Update the form ", existingReport.Status, Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
                     }
 
-                    res.ReturnValue = new
-                    {
-                        AdjustmentReportId = existingReport.AdjustMentReportId,
-                        AdjustmentReportNo = existingReport.ReportNo
-                    };
-                    res.StatusCode = Enums.Status.Success;
-                    res.Message = Enums.AdjustMentSave;
+                    
                 }
             }
 
@@ -842,6 +846,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     requestTaskData.ModifiedDate = DateTime.Now;
                     requestTaskData.Comments = asktoAmend.Comment;
                     await _context.SaveChangesAsync();
+
+
                     res.Message = Enums.AdjustMentApprove;
 
                     InsertHistoryData(asktoAmend.AdjustmentId, FormType.EquipmentImprovement.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.Approved.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.Approved.ToString(), 0);
@@ -1003,24 +1009,6 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public async Task<AjaxResult> AdvisorCommets(AdvisorComment advisor)
-        {
-            var res = new AjaxResult();
-            try
-            {
-                var advisorData = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentAdvisorId == advisor.AdjustmentAdvisorId
-                                  && x.AdjustmentReportId == advisor.AdjustmentReportId && x.IsActive == true).FirstOrDefault();
-            }
-            catch (Exception ex)
-            {
-                res.Message = "Fail " + ex;
-                res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
-                commonHelper.LogException(ex, "Adjustment AdvisorCommets");
-            }
-            return res;
-
-        }
 
         public async Task<AjaxResult> PullBackRequest(PullBackRequest data)
         {
@@ -1055,6 +1043,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
 
                     res.StatusCode = Enums.Status.Success;
+                    res.Message = Enums.AdjustMentPullback;
                 }
             }
             catch (Exception ex)
@@ -1112,6 +1101,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     advisor.Comment = request.Comment;
                     await _context.SaveChangesAsync();
                 }
+                res.Message = Enums.AdjustmentUdpated;
+                res.StatusCode = Enums.Status.Success;
             }
             catch(Exception ex)
             {
