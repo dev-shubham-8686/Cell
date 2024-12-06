@@ -184,6 +184,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var reqDepId = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == res.CreatedBy).Select(x => x.DepartmentID).FirstOrDefault();
             var reqDepHead = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID == reqDepId).Select(x => x.Head).FirstOrDefault();
             var deputyDivisionHead = _context.CellDivisionRoleMasters.Where(x => x.DivisionId == 1).Select(x => x.DeputyDivisionHead).FirstOrDefault();
+            var advisorId = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == Id && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
 
             AdjustMentReportRequest adjustmentData = new AdjustMentReportRequest()
             {
@@ -210,7 +211,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 CreatedBy = res.CreatedBy,
                 CreatedDate = res.CreatedDate,
                 DepartmentHeadId = reqDepHead,
-                DeputyDivHead = deputyDivisionHead
+                DeputyDivHead = deputyDivisionHead,
+                AdvisorId = advisorId
             };
 
             var changeRiskManagement = _context.ChangeRiskManagement_AdjustmentReport.Where(x => x.AdjustMentReportId == Id && x.IsDeleted == false).ToList();
@@ -388,7 +390,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     existingReport.ConditionAfterAdjustment = request.ConditionAfterAdjustment;
                     existingReport.ChangeRiskManagementRequired = request.ChangeRiskManagementRequired;
                     //existingReport.Status = request.Status ?? ApprovalTaskStatus.Draft.ToString();
-                    existingReport.IsSubmit = request.IsSubmit;
+                    //existingReport.IsSubmit = request.IsSubmit;
                     existingReport.ModifiedDate = DateTime.Now;
                     existingReport.ModifiedBy = request.ModifiedBy;
 
@@ -1125,7 +1127,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             var res = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsActive == true).FirstOrDefault();
             
-            if(res != null)
+            if(res == null)
             {
                 return null;
             }
