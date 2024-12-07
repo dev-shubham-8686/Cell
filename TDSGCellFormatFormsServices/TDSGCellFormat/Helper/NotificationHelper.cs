@@ -1772,8 +1772,6 @@ namespace TDSGCellFormat.Helper
                                     docLink = documentLink + "form/view/" + requestId;
                                 }
 
-                                return false;
-
                                 emailBody = emailBody.Replace("#TechnicalLink#", docLink);
                                 emailBody = emailBody.Replace("#CTINumber#", materialNum);
                                 emailBody = emailBody.Replace("#Requestor#", requesterUserName);
