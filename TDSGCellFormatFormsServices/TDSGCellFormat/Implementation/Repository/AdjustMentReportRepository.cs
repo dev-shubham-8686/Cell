@@ -233,6 +233,29 @@ namespace TDSGCellFormat.Implementation.Repository
                 }).ToList();
             }
 
+
+            var adjustmentAfterImage = _context.AdjustmentAfterImages.Where(x => x.AdjustmentReportId == Id && x.IsDeleted == false).ToList();
+            if (adjustmentAfterImage != null)
+            {
+                adjustmentData.AdjustmentAfterImagesDetails = adjustmentAfterImage.Select(attach => new AdjustmentAfterImageData
+                {
+                    AdjustmentAfterImageId = attach.AdjustmentAfterImageId,
+                    AfterImageDocFilePath = attach.AfterImageDocFilePath,
+                    AfterImageDocName = attach.AfterImageDocName
+                }).ToList();
+            }
+
+            var adjustmentBeforeImage = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == Id && x.IsDeleted == false).ToList();
+            if (adjustmentBeforeImage != null)
+            {
+                adjustmentData.AdjustmentBeforeImagesDetails = adjustmentBeforeImage.Select(attach => new AdjustmentBeforeImageData
+                {
+                    AdjustmentBeforeImageId = attach.AdjustmentBeforeImageId,
+                    BeforeImageDocName = attach.BeforeImageDocName,
+                    BeforeImageDocFilePath = attach.BeforeImageDocFilePath
+                }).ToList();
+            }
+
             return adjustmentData;
         }
 
