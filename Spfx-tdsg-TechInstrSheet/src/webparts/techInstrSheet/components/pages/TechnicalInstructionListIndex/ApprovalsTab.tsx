@@ -14,6 +14,7 @@ import {
   faEye,
   faFileExport,
   faFilePdf,
+  faPaperclip,
 } from "@fortawesome/free-solid-svg-icons";
 import { UserContext } from "../../../context/userContext";
 import {
@@ -151,7 +152,7 @@ const ApprovalsTab: React.FC = () => {
           onClick={() => handleColumnSearch(selectedKeys, confirm, dataIndex)}
           icon={<SearchOutlined />}
           size="small"
-          style={{ width: 90 }}
+          style={{ width: 90, marginRight: 2 }}
         >
           Search
         </Button>
@@ -204,48 +205,89 @@ const ApprovalsTab: React.FC = () => {
       title: "Request No",
       dataIndex: "CTINumber",
       key: "CTINumber",
-      width: "20%",
+      width: "10%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
       ...getColumnSearchProps("CTINumber","Request No"),
     },
     {
-      title: "Department",
-      dataIndex: "Department",
-      key: "Department",
-      width: "15%",
-      sorter: true,
-      sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("Department","Department"),
+      //title: "Attachments",
+      dataIndex: "HasAttachments",
+      key: "HasAttachments",
+      width: "1%",
+      sorter: false,
+      render: (text) => (
+        <span>
+          {text === 1 ? (
+            <FontAwesomeIcon
+              title="Attachment Available"
+              icon={faPaperclip}
+              style={{ color: "green" }}
+            />
+          ) : (
+            <span>&nbsp;&nbsp;&nbsp;</span>
+          )}
+        </span>
+      ),
     },
     {
-      title: "Requestor",
-      dataIndex: "Requestor",
-      key: "Requestor",
-      width: "15%",
-      sorter: true,
-      sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("Requestor","Requestor"),
-    },
-    {
-      title: "Requested Date",
-      dataIndex: "CreatedDate",
-      key: "CreatedDate",
-      width: "15%",
+      title: "Issue Date",
+      dataIndex: "IssueDate",
+      key: "IssueDate",
+      width: "10%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
       render: (text) => (
         <span>{text ? dayjs(text).format("DD-MM-YYYY") : ""}</span>
       ),
-      ...getColumnSearchProps("CreatedDate","Requested Date"),
+      ...getColumnSearchProps("IssueDate", "Issue Date"),
+    },
+    {
+      title: "Title",
+      dataIndex: "Title",
+      key: "Title",
+      width: "15%",
+      sorter: true,
+      sortDirections: ["ascend", "descend"],
+      ...getColumnSearchProps("Title", "Title"),
+    },
+    {
+      title: "Equipment",
+      dataIndex: "EquipmentNames",
+      key: "EquipmentNames",
+      width: "14%",
+      sorter: true,
+      sortDirections: ["ascend", "descend"],
+      ...getColumnSearchProps("EquipmentNames", "Equipment"),
+    },
+    {
+      title: "Requestor",
+      dataIndex: "IssuedBy",
+      key: "IssuedBy",
+      width: "20%",
+      sorter: true,
+      sortDirections: ["ascend", "descend"],
+      ...getColumnSearchProps("IssuedBy", "Requestor"),
+    },
+    {
+      title: "Closure Date",
+      dataIndex: "TargetClosureDate",
+      key: "TargetClosureDate",
+      width: "10%",
+      sorter: true,
+      sortDirections: ["ascend", "descend"],
+      render: (text) => (
+        <span>{text ? dayjs(text).format("DD-MM-YYYY") : ""}</span>
+      ),
+      ...getColumnSearchProps("TargetClosureDate", "Closure Date"),
     },
     {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      width: "15%",
+      width: "10%",
       sorter: true,
-      ...getColumnSearchProps("Status","Status"),
+      ...getColumnSearchProps("Status", "Status"),
       render: (text) => (
         <span
           className={`status-badge status-badge-${
@@ -271,8 +313,8 @@ const ApprovalsTab: React.FC = () => {
             onClick={() => handleView(record.TechnicalId)}
           />
 
-          {record.seqNumber == 1 &&
-            (user?.isAdmin ||
+          {//record.seqNumber == 1 &&
+            (//user?.isAdmin ||
               record.Status == REQUEST_STATUS.Closed ||
               record.Status == REQUEST_STATUS.Completed ||
               record.Status == REQUEST_STATUS.Approved) && (
@@ -307,12 +349,12 @@ const ApprovalsTab: React.FC = () => {
               type="text"
               placeholder="Search Here"
               value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              onChange={(e) => {setSearchText(e.target.value); setSearchColumn("");}}
               style={{ width: "300px" }}
             />
             {searchText && (
               <CloseOutlined
-                onClick={() => setSearchText("")}
+              onClick={() => {setSearchText(""); setSearchColumn(""); }}
                 className="text-gray-400 cursor-pointer"
                 style={{
                   position: "absolute",

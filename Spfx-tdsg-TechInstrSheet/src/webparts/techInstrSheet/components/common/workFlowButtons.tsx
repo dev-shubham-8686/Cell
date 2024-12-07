@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Modal, Input, Form } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
+//import displayjsx from "../../utils/displayjsx";
 
 interface WorkFlowButtonsProps {
   onApprove: (comment: string) => Promise<void>;
@@ -81,11 +82,25 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
 
   // Handle the submit action after getting the comment
   const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields(); // Validate form fields
-      setLoading(true);
-      const comment = values.comment; // Get the validated comment
+    const values = await form.validateFields(); // Validate form fields
+    const comment = values.comment; // Get the validated comment
 
+      // // Check if comment is null, empty, or whitespace
+      // if (!comment) {
+      //   void displayjsx.showErrorMsg(
+      //     "Please enter Comment"
+      //   );
+      //   return; // Exit function without closing the modal
+      // }
+
+      // // Check if comment exceeds the maximum length
+      // if (comment.length > 500) {
+      //  void displayjsx.showErrorMsg("Comment should not exceed 500 characters.");
+      //   return; // Exit function without closing the modal
+      // }
+
+    try {
+      setLoading(true);
       if (actionType === "approve") {
         await onApprove(comment);
       } else if (actionType === "amend") {
@@ -166,7 +181,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
           <Form.Item
             label="Comments"
             name="comment"
-            rules={[{ required: true }]} // Validation rule
+            rules={[{ required: true, max: 500 }]} // Validation rule
           >
             <Input.TextArea
               rows={4}
