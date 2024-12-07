@@ -566,7 +566,7 @@ const AllRequestsTab: React.FC = () => {
             )} */}
 
           {record.IsReOpen == false &&
-            (user?.isAdmin ||
+            (//user?.isAdmin ||
               record.Status == REQUEST_STATUS.Closed ||
               record.Status == REQUEST_STATUS.Completed ||
               record.Status == REQUEST_STATUS.Approved) && (
@@ -588,7 +588,7 @@ const AllRequestsTab: React.FC = () => {
           )}
 
           {record.IsReOpen == false &&
-            (user?.isAdmin || record.Status == REQUEST_STATUS.Completed) && (
+            (user?.isAdmin && record.Status == REQUEST_STATUS.Completed) && (
               <Button
                 title="Add Revision"
                 className="action-btn"
@@ -750,12 +750,12 @@ const AllRequestsTab: React.FC = () => {
               type="text"
               placeholder="Search Here"
               value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              onChange={(e) => {setSearchText(e.target.value); setSearchColumn("");}}
               style={{ width: "300px" }}
             />
             {searchText && (
               <CloseOutlined
-                onClick={() => setSearchText("")}
+              onClick={() => {setSearchText(""); setSearchColumn(""); }}
                 className="text-gray-400 cursor-pointer"
                 style={{
                   position: "absolute",
@@ -840,7 +840,7 @@ const AllRequestsTab: React.FC = () => {
           <Form layout="vertical">
             <Form.Item label="Select User">
               <Select
-                placeholder="Please select or serach a user"
+                placeholder="Please Select or Serach a User"
                 value={selectedOwner}
                 onChange={(value: number) => setSelectedOwner(value)} // Set the selected section
                 showSearch // Enable search

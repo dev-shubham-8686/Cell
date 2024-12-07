@@ -801,12 +801,12 @@ const RequestsTab: React.FC = () => {
               type="text"
               placeholder="Search Here"
               value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              onChange={(e) => {setSearchText(e.target.value); setSearchColumn("");}}
               style={{ width: "300px" }}
             />
             {searchText && (
               <CloseOutlined
-                onClick={() => setSearchText("")}
+                onClick={() => {setSearchText(""); setSearchColumn(""); }}
                 className="text-gray-400 cursor-pointer"
                 style={{
                   position: "absolute",
