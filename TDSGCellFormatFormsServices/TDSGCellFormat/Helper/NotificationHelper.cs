@@ -1758,7 +1758,7 @@ namespace TDSGCellFormat.Helper
                             }
                             if (emailBody?.Length > 0)
                             {
-                                if (userEditLinkFromEmail = true && approvelink == true) 
+                                if (userEditLinkFromEmail == true && approvelink == true) 
                                 {
                                     docLink = documentLink + "form/edit/" + requestId;
                                 }
@@ -1771,6 +1771,8 @@ namespace TDSGCellFormat.Helper
                                 {
                                     docLink = documentLink + "form/view/" + requestId;
                                 }
+
+                                return false;
 
                                 emailBody = emailBody.Replace("#TechnicalLink#", docLink);
                                 emailBody = emailBody.Replace("#CTINumber#", materialNum);

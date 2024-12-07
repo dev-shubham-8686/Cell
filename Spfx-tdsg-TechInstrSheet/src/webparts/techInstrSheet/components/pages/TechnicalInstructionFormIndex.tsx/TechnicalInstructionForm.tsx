@@ -178,6 +178,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           console.log(ctiNumber);
           form.setFieldsValue({
             ...returnValue,
+            revisionNo: returnValue.revisionNo == 0 ? null : returnValue.revisionNo,
             issueDate: returnValue.issueDate
               ? dayjs(returnValue.issueDate, "DD-MM-YYYY HH:mm:ss")
               : null,
@@ -1939,9 +1940,9 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           ]}
         >
           <Form layout="vertical">
-            <Form.Item label="Select Section head">
+            <Form.Item label="Select Section Head">
               <Select
-                placeholder="Please select a section head"
+                placeholder="Please select a section Head"
                 value={selectedSection}
                 onChange={(value: number) => setSelectedSection(value)} // Set the selected section
               >
