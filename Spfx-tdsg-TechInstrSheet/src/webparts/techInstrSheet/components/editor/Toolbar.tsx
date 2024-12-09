@@ -57,6 +57,7 @@ export const toolbarButtons = {
       "spellChecker",
       "selectAll",
       "html",
+      "codeView",
       "help",
     ],
     align: "right",

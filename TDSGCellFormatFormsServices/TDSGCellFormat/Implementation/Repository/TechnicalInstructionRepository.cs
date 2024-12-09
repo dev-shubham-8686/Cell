@@ -22,6 +22,8 @@ using IronPdf;
 using static TDSGCellFormat.Common.Enums;
 using PnP.Framework.Modernization.Cache;
 using System.Text.RegularExpressions;
+using static IronPdf.PdfPrintOptions;
+using PnP.Framework.Extensions;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -521,6 +523,13 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             else
             {
+                if(report.TechnicalReviseId != null && report.IsReOpen == false)
+                {
+                    var child_record = await _context.TechnicalInstructionSheets.FindAsync(report.TechnicalReviseId);
+                    child_record.IsReOpen = false;
+                    await _context.SaveChangesAsync();
+                }
+
                 report.IsDeleted = true;
                 //report.ModifiedDate = DateTime.Now;
                 int rowsAffected = await _context.SaveChangesAsync();
@@ -547,6 +556,7 @@ namespace TDSGCellFormat.Implementation.Repository
             if (existingReport != null)
             {
                 existingReport.Outline = updateOutlineEditor.outline;
+                //existingReport.OutlineImageBytes = updateOutlineEditor.outlineImageBytes;
 
                 await _context.SaveChangesAsync();
 
@@ -1530,10 +1540,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 string approvedByCPC = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByDivHead = approverData.FirstOrDefault(a => a.SequenceNo == 3)?.employeeNameWithoutCode ?? "N/A";
 
-                sb.Replace("#RequestorName#", reqName);
-                sb.Replace("#SectionHeadName#", approvedByDepHead);
-                sb.Replace("#CMFDepartmentHeadName#", approvedByCPC);
-                sb.Replace("#CQCDepartmentHeadName#", approvedByDivHead);
+                sb.Replace("#ReqName#", reqName);
+                sb.Replace("#SectionHead#", approvedByDepHead);
+                sb.Replace("#CMFHead#", approvedByCPC);
+                sb.Replace("#CQCHead#", approvedByDivHead);
 
                 DateTime? depHeadDate = approverData.FirstOrDefault(a => a.SequenceNo == 1)?.ActionTakenDate;
                 DateTime? cpcDate = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.ActionTakenDate;
@@ -1577,7 +1587,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.ReturnValue = base64StringPDF; // Send the Base64 string to the frontend
 
                 return res;
-
 
                 #region old
                 //using (var ms = new MemoryStream())
@@ -1647,6 +1656,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 //}
 
                 #endregion
+
             }
 
             catch (Exception ex)
@@ -1687,6 +1697,24 @@ namespace TDSGCellFormat.Implementation.Repository
                     commaSeparatedEquipmentNames = string.Join(", ", equipmentNames);
                 }
 
+                //get histroy data
+                var revesionHistroy = "";
+                if(materialdata.TechnicalReviseId != null)
+                {
+                    var get_child_record_Id = await _context.TechnicalInstructionSheets.Where(c => c.TechnicalId == materialdata.TechnicalReviseId).Select(c => c.TechnicalId).SingleOrDefaultAsync();
+                    
+                    if(get_child_record_Id != null && get_child_record_Id > 0)
+                    {
+                        var get_comment = await _context.TechnicalInstructionHistoryMasters.Where(c => c.FormID == get_child_record_Id && c.Status == ApprovalTaskStatus.ReOpen.ToString()).OrderByDescending(c => c.ActionTakenDateTime).FirstOrDefaultAsync();
+
+                        if(revesionHistroy != null)
+                        {
+                            revesionHistroy = get_comment.Comment;
+                        }
+                        
+                    }
+                }
+
                 //normal data
                 var data = await GetTechnicalInstructionData(technicalId);
 
@@ -1723,7 +1751,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#applicationStartDate#", materialdata.ApplicationStartDate?.ToString("dd-MM-yyyy") ?? "N/A");
                 sb.Replace("#applicationLotNo#", materialdata.ApplicationLotNo?.ToString() ?? "");
                 sb.Replace("#equipmentList#", commaSeparatedEquipmentNames ?? "");
-
+                sb.Replace("#revisionHistroy#", revesionHistroy ?? "");
                 //var base64Images = await GetBase64ImagesForTechnicalInstruction(technicalId); // List of Base64 image strings
                 sb.Replace("#technicalOutlineAttachment#", null ?? "");
 
@@ -1756,10 +1784,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 string approvedByCPC = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByDivHead = approverData.FirstOrDefault(a => a.SequenceNo == 3)?.employeeNameWithoutCode ?? "N/A";
 
-                sb.Replace("#RequestorName#", reqName);
-                sb.Replace("#SectionHeadName#", approvedByDepHead);
-                sb.Replace("#CMFDepartmentHeadName#", approvedByCPC);
-                sb.Replace("#CQCDepartmentHeadName#", approvedByDivHead);
+                sb.Replace("#ReqName#", reqName);
+                sb.Replace("#SectionHead#", approvedByDepHead);
+                sb.Replace("#CMFHead#", approvedByCPC);
+                sb.Replace("#CQCHead#", approvedByDivHead);
 
                 DateTime? depHeadDate = approverData.FirstOrDefault(a => a.SequenceNo == 1)?.ActionTakenDate;
                 DateTime? cpcDate = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.ActionTakenDate;
@@ -1780,12 +1808,22 @@ namespace TDSGCellFormat.Implementation.Repository
                 //    "<a href='$1'><img src='$1' alt='Linked Image'/>Linked Image</a>");
 
                 // Convert <img> tags to <a> tags with target="_blank" and a descriptive link name
-                string updatedHtml = Regex.Replace(sb.ToString(),
-                    @"<img\s+[^>]*src\s*=\s*['""]([^'""]+)['""][^>]*>",
-                    "<a href='$1' target='_blank' rel='noopener noreferrer'>Linked Image</a>");
+                //string updatedHtml = Regex.Replace(sb.ToString(),
+                //    @"<img\s+[^>]*src\s*=\s*['""]([^'""]+)['""][^>]*>",
+                //    "<a href='$1' target='_blank' rel='noopener noreferrer'>Linked Image</a>");
 
 
-                var PDF = renderer.RenderHtmlAsPdf(updatedHtml.ToString());
+                var PDF = renderer.RenderHtmlAsPdf(sb.ToString());
+                // Set the paper size to A4 or a custom size
+                // Set paper size, margins, and enable scale to fit
+                renderer.PrintOptions.MarginTop = 0;
+                renderer.PrintOptions.MarginBottom = 0;
+                renderer.PrintOptions.MarginLeft = 0;
+                renderer.PrintOptions.MarginRight = 0;
+                renderer.PrintOptions.PaperSize = PdfPaperSize.A4;
+
+                // Ensure the HTML content scales to fit the page width
+                renderer.PrintOptions.FitToPaperWidth = true;
 
                 string tempPath = Path.GetTempFileName();
                 PDF.SaveAs(tempPath);
@@ -1803,7 +1841,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.ReturnValue = base64StringPDF; // Send the Base64 string to the frontend
 
                 return res;
-
 
                 #region old
                 //using (var ms = new MemoryStream())
@@ -1873,6 +1910,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 //}
 
                 #endregion
+
             }
 
             catch (Exception ex)
@@ -1882,7 +1920,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 // Log the exception using your logging mechanism
                 var commonHelper = new CommonHelper(_context);
-                commonHelper.LogException(ex, "ExportToPdf_v2");
+                commonHelper.LogException(ex, "ExportToPdf_v3");
 
                 return res;
             }
@@ -1979,10 +2017,6 @@ namespace TDSGCellFormat.Implementation.Repository
         //    {
 
         //    }
-
-
-
-
         //    return str;
         //}
 
@@ -2094,7 +2128,7 @@ namespace TDSGCellFormat.Implementation.Repository
         #endregion
 
         #region ReOpen(Revision) the form
-        public async Task<AjaxResult> ReOpenTechnicalForm(int technicalId, int userId)
+        public async Task<AjaxResult> ReOpenTechnicalForm(int technicalId, int userId, string comment)
         {
             var res = new AjaxResult();
             try
@@ -2192,7 +2226,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     res.StatusCode = Status.Success;
                     res.Message = Enums.TechnicalReOpen;
                     res.ReturnValue = technicalRevise.TechnicalId;
-                    InsertHistoryData(technicalId, FormType.TechnicalInstruction.ToString(), null, null, ApprovalTaskStatus.ReOpen.ToString(), userId, ApprovalTaskStatus.ReOpen.ToString(), 0);
+                    InsertHistoryData(technicalId, FormType.TechnicalInstruction.ToString(), null, comment, ApprovalTaskStatus.ReOpen.ToString(), userId, ApprovalTaskStatus.ReOpen.ToString(), 0);
                     //var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     //await notificationHelper.SendEmail(technicalId, EmailNotificationAction.Reopen, null, userId);
                 }
@@ -2243,7 +2277,7 @@ namespace TDSGCellFormat.Implementation.Repository
             return 0;
         }
 
-        public async Task<AjaxResult> ChangeRequestOwner(int technicalId, int userId)
+        public async Task<AjaxResult> ChangeRequestOwner(int technicalId, int userId, string comment)
         {
             var res = new AjaxResult();
             try
@@ -2345,7 +2379,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     res.StatusCode = Status.Success;
                     res.Message = Enums.TechnicalReOpen;
                     res.ReturnValue = technicalRevise.TechnicalId;
-                    InsertHistoryData(technicalId, FormType.TechnicalInstruction.ToString(), null, null, ApprovalTaskStatus.ReOpen.ToString(), userId, ApprovalTaskStatus.ReOpen.ToString(), 0);
+                    InsertHistoryData(technicalId, FormType.TechnicalInstruction.ToString(), null, comment, ApprovalTaskStatus.ReOpen.ToString(), userId, ApprovalTaskStatus.ReOpen.ToString(), 0);
                     //var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     //await notificationHelper.SendEmail(technicalId, EmailNotificationAction.Reopen, null, userId);
                 }

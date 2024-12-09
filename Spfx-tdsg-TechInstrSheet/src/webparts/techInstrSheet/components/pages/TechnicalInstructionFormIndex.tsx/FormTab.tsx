@@ -43,10 +43,41 @@ const FormTab: React.FC<any> = ({
 
   React.useEffect(() => {
     isMountedRef.current = true;
+
+    // Function to update the z-index of all '.fr-popup' elements
+    const updateZIndex = () => {
+      if (isMountedRef.current) {
+        document.querySelectorAll('.fr-popup').forEach(el => {
+          if (el instanceof HTMLElement) {
+            el.style.zIndex = '2147483647'; // Ensure TypeScript recognizes 'style'
+          }
+        });
+      }
+    };
+
+    // Create a MutationObserver to monitor changes in the DOM
+    const observer = new MutationObserver(mutations => {
+      if (isMountedRef.current) {
+        mutations.forEach(mutation => {
+          if (mutation.addedNodes.length > 0) {
+            updateZIndex();
+          }
+        });
+      }
+    });
+
+    // Start observing the body or a specific container for child additions
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Run the function once initially
+    updateZIndex();
+
+    // Cleanup function to disconnect the observer and mark as unmounted
     return () => {
       isMountedRef.current = false; // Mark as unmounted
+      observer.disconnect(); // Stop observing DOM changes
     };
-  }, []);
+  }, []); // Empty dependency array ensures this runs only on mount/unmount
 
   // Handle image insertion
   const handleImageInsert = function (image: any) {
@@ -78,7 +109,7 @@ const FormTab: React.FC<any> = ({
   }, [imageFiles]); // Run when imageFiles changes
 
   const myconfig = {
-    placeholderText: "Edit your content here...",
+    placeholderText: "Enter Outline",
     key: "1C%kZV[IX)_SL}UJHAEFZMUJOYGYQE[\\ZJ]RAe(+%$==", // Replace with your Froala key.
     toolbarButtons: isViewMode == true ? [] : toolbarButtons,
     events: {
@@ -126,6 +157,8 @@ const FormTab: React.FC<any> = ({
             >
               <DatePicker
                 style={{ width: "95%" }}
+                format="DD-MM-YYYY"
+                placeholder="Select Date"
                 disabledDate={(current) =>
                   current && current < dayjs().endOf("day")
                 }
@@ -173,12 +206,12 @@ const FormTab: React.FC<any> = ({
             <Form.Item
               label="Title"
               name="title"
-              rules={[{ required: true, max: 500 }]}
+              rules={[{ required: true, max: 1000 }]}
             >
               <Input.TextArea
                 style={{ width: "95%" }}
-                maxLength={500}
-                placeholder="Enter title"
+                maxLength={1000}
+                placeholder="Enter Title"
                 disabled={isViewMode}
                 rows={3}
               />
@@ -194,7 +227,7 @@ const FormTab: React.FC<any> = ({
               <Input.TextArea
                 style={{ width: "95%" }}
                 maxLength={1000}
-                placeholder="Enter purpose"
+                placeholder="Enter Purpose"
                 disabled={isViewMode}
                 rows={3}
               />
@@ -212,7 +245,7 @@ const FormTab: React.FC<any> = ({
               <Input
                 style={{ width: "95%" }}
                 maxLength={50}
-                placeholder="Enter product type"
+                placeholder="Enter Product Type"
                 disabled={isViewMode}
               />
             </Form.Item>
@@ -228,7 +261,7 @@ const FormTab: React.FC<any> = ({
                 //min={0}
                 //step={0.01}
                 precision={2} // Limit to two decimal places
-                placeholder="Enter quantity"
+                placeholder="Enter Quantity"
                 disabled={isViewMode}
                 controls={false} // Hide the up/down buttons
                 onBlur={(e) => {
@@ -319,6 +352,8 @@ const FormTab: React.FC<any> = ({
             >
               <DatePicker
                 style={{ width: "95%" }}
+                format="DD-MM-YYYY"
+                placeholder="Select Date"
                 disabledDate={(current) =>
                   current && current < dayjs().endOf("day")
                 }
@@ -328,12 +363,14 @@ const FormTab: React.FC<any> = ({
           </Col>
           <Col span={8}>
             <Form.Item
-              label="Target Closure Date "
+              label="Target Closure Date"
               name="targetClosureDate"
               rules={[{ required: true }]}
             >
               <DatePicker
                 style={{ width: "95%" }}
+                format="DD-MM-YYYY"
+                placeholder="Select Date"
                 disabledDate={(current) =>
                   current && current < dayjs().endOf("day")
                 }
@@ -404,19 +441,21 @@ const FormTab: React.FC<any> = ({
         <Row gutter={1}>
           <Col span={8}>
             <Form.Item label="Application Date" name="applicationStartDate">
-              <DatePicker style={{ width: "95%" }} disabled={isViewMode} />
+              <DatePicker style={{ width: "95%" }} format="DD-MM-YYYY" disabled={true} />
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item
               label="Lot No."
               name="applicationLotNo"
+              rules={[{ max: 100 }]}
               //rules={[{ required: true }]}
             >
               <Input
                 style={{ width: "95%" }}
                 placeholder="Enter Lot No."
                 disabled={isViewMode}
+                maxLength={100}
               />
             </Form.Item>
           </Col>
