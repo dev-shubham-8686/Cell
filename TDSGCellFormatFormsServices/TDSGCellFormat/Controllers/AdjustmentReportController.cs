@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using Microsoft.AspNetCore.Mvc;
 using TDSGCellFormat.Common;
+using TDSGCellFormat.Helper;
 using TDSGCellFormat.Interface.Service;
 using TDSGCellFormat.Models.Add;
 using static TDSGCellFormat.Common.Enums;
@@ -10,14 +13,64 @@ namespace TDSGCellFormat.Controllers
     [ApiController]
     public class AdjustmentReportController : Controller
     {
-        private readonly IAdjustMentReporttService _tdsgService;
+        private readonly IAdjustMentReportService _tdsgService;
 
         ResponseHelper responseHelper = new ResponseHelper();
         AjaxResult Ajaxresponse = new AjaxResult();
 
-        public AdjustmentReportController(IAdjustMentReporttService tdsgService)
+        public AdjustmentReportController(IAdjustMentReportService tdsgService)
         {
             _tdsgService = tdsgService;
+        }
+
+        [HttpGet("GetAllAdjustmentData")]
+        public async Task<IActionResult> GetAllAdjustmentData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+
+            //var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            //// Call the IsValidAuthentication method
+            //AjaxResult authResult;
+            //bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+            //
+            //if (!isValidAuth)
+            //{
+            //    // Return unauthorized response if authentication fails
+            //    Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+            //    return Unauthorized(Ajaxresponse);
+            //}
+
+            var res = await _tdsgService.GetAllAdjustmentData(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("MyAdjustmentReq")]
+        public async Task<IActionResult> GetAllAdjustmentMyReqData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            var res = await _tdsgService.GetAllAdjustmentDataMyReq(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
+        }
+
+
+        [HttpGet("AdjustmentApprovalList")]
+        public async Task<IActionResult> GetApprovalList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        {
+            var res = await _tdsgService.GetAllAdjustmentApproverData(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
+            return Ok(Ajaxresponse);
         }
 
         [HttpGet("GetAdjustmentReport")]
@@ -71,6 +124,181 @@ namespace TDSGCellFormat.Controllers
             else
             {
                 Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpDelete("DeleteAttachment/{Id}")]
+        public async Task<IActionResult> DeleteAttachment(int Id)
+        {
+            var result = await _tdsgService.DeleteAttachment(Id);
+            if (result.StatusCode == Status.Success)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+
+        [HttpGet("GetEmployeeDetailsById")]
+        public async Task<IActionResult> GetEmployeeDetailsById(int id = 0, string email = "")
+        {
+            var result = await _tdsgService.GetEmployeeDetailsById(id, email);
+            if (result.StatusCode == Status.Success)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+
+        [HttpPost("UpdateApproveAskToAmend")]
+        public async Task<IActionResult> UpdateApproveAskToAmend(ApproveAsktoAmend asktoAmend)
+        {
+            var result = await _tdsgService.UpdateApproveAskToAmend(asktoAmend);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpPost("PullBack")]
+        public async Task<IActionResult> PullBackRequest(PullBackRequest data)
+        {
+
+            var res = await _tdsgService.PullBackRequest(data);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, res.Message, res.ReturnValue);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, res.Message, res.ReturnValue);
+
+            return Ok(Ajaxresponse);
+
+        }
+
+        [HttpGet("GetApprorverFlowData")]
+        public async Task<IActionResult> GetApproverData(int Id)
+        {
+            var result = await _tdsgService.GeAdjustmentReportWorkFlow(Id);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetCurrentApprover")]
+        public async Task<IActionResult> GetCurrentApproverTask(int Id, int userId)
+        {
+            var result = await _tdsgService.GetCurrentApproverTask(Id, userId);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("AdjustmentExcelListing")]
+        public async Task<IActionResult> GetAdjustmentExcel(DateTime fromDate, DateTime todate, int employeeId, int type)
+        {
+            var result = await _tdsgService.GetAdjustmentReportExcel(fromDate, todate, employeeId, type);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+
+        }
+
+        [HttpGet("AdjustmentReportPDF")]
+        public async Task<IActionResult> ExportToPdf(int adjustmentreportId)
+        {
+            var result = await _tdsgService.ExportToPdf(adjustmentreportId);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetSectionHead")]
+        public async Task<IActionResult> GetSectionHead(int adjustmentreportId)
+        {
+            var result = await _tdsgService.GetSectionHead(adjustmentreportId);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetDepartmentHead")]
+        public async Task<IActionResult> GetDepartmentHead(int adjustmentreportId)
+        {
+            var result = await _tdsgService.GetDepartmentHead(adjustmentreportId);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("GetAdditionalDepartmentHeads")]
+        public async Task<IActionResult> GetAdditionalDepartmentHeads()
+        {
+            var result = await _tdsgService.GetAdditionalDepartmentHeads();
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
             }
             return Ok(Ajaxresponse);
         }

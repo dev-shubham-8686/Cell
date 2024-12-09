@@ -15,15 +15,15 @@ namespace TDSGCellFormat.Models
 
         public string? DocumentFilePath { get; set; }
 
-        public bool? IsOldPhoto { get; set; }
+        public bool? IsOldPhoto { get; set; } = false;
 
         public int? SequenceId { get; set; }
 
-        public bool? IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; } = false;
 
         public int? CreatedBy { get; set; }
 
-        public DateTime? CreatedDate { get; set; }
+        public DateTime? CreatedDate { get; set; } = DateTime.Now;
 
         public int? ModifiedBy { get; set; }
 

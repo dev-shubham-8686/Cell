@@ -289,7 +289,8 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Application No",
       dataIndex: "EquipmentImprovementNo",
       key: "EquipmentImprovementNo",
-      width: 150,
+      width: 160,
+      filterDropdown: ColumnFilter,
       sorter: true,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
@@ -305,6 +306,9 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
+      render: (text) => (
+        <p className="text-cell">{text? dayjs(text).format(DATE_FORMAT):"-"}</p>
+      ),
     },
     {
       title: "Area",
@@ -312,7 +316,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       key: "Area",
        width: 150,
       sorter: true,
-      filterDropdown: ColumnFilter,
+     // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -337,7 +341,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       key: "SubMachineName",
        width: 200,
       sorter: true,
-      filterDropdown: ColumnFilter,
+      //filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -395,7 +399,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-       width: 170,
+       width: 230,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (

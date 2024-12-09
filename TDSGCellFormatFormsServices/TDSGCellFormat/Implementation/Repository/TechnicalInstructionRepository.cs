@@ -1588,7 +1588,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 return res;
 
-
                 #region old
                 //using (var ms = new MemoryStream())
                 //{
@@ -1657,6 +1656,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 //}
 
                 #endregion
+
             }
 
             catch (Exception ex)
@@ -1842,7 +1842,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 return res;
 
-
                 #region old
                 //using (var ms = new MemoryStream())
                 //{
@@ -1911,6 +1910,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 //}
 
                 #endregion
+
             }
 
             catch (Exception ex)
@@ -2017,10 +2017,6 @@ namespace TDSGCellFormat.Implementation.Repository
         //    {
 
         //    }
-
-
-
-
         //    return str;
         //}
 
