@@ -442,6 +442,10 @@ const RequestsTab: React.FC = () => {
   };
 
   const handleFinalSubmit = async () => {
+    if (comment.length > 1000) {
+      void displayjsx.showErrorMsg("Comment length cannot exceed 1000 characters.");
+      return; // Stop further execution if validation fails
+    }
     setRevisonLoading(true);
     try {
       await technicalReopen(revTecId, user?.employeeId.toString() ?? "", comment);

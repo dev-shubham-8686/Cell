@@ -197,11 +197,11 @@ const AllRequestsTab: React.FC = () => {
   });
 
   const handleView = (id: string): void => {
-    navigate(`/form/view/${id}`, { state: { isApproverRequest: false } });
+    navigate(`/form/view/${id}`, { state: { isApproverRequest:false, isFromAllRequest: true } });
   };
 
   const handleEdit = (id: string): void => {
-    navigate(`/form/edit/${id}`, { state: { isApproverRequest: false } });
+    navigate(`/form/edit/${id}`, { state: { isApproverRequest: true, isFromAllRequest: true } });
   };
 
   const handleDelete = (id: string): void => {
@@ -336,6 +336,10 @@ const AllRequestsTab: React.FC = () => {
   const showModal = () => setVisible(true);
 
   const handleFinalSubmit = () => {
+    if (comment.length > 1000) {
+      void displayjsx.showErrorMsg("Comment length cannot exceed 1000 characters.");
+      return; // Stop further execution if validation fails
+    }
     handleFetchEmps();
   }
 
@@ -534,9 +538,10 @@ const AllRequestsTab: React.FC = () => {
             onClick={() => handleRevise(record.TechnicalId)}
           /> */}
 
-          {(user?.isAdmin ||
-            record.Status === REQUEST_STATUS.Draft ||
-            record.Status === REQUEST_STATUS.UnderAmendment) && (
+          {(user?.isAdmin // ||
+            //record.Status === REQUEST_STATUS.Draft ||
+            //record.Status === REQUEST_STATUS.UnderAmendment
+          ) && (
             <Button
               title="Edit"
               className="action-btn"
