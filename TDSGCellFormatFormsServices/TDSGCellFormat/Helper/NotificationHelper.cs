@@ -1759,7 +1759,7 @@ namespace TDSGCellFormat.Helper
                             }
                             if (emailBody?.Length > 0)
                             {
-                                if (userEditLinkFromEmail = true && approvelink == true) 
+                                if (userEditLinkFromEmail == true && approvelink == true) 
                                 {
                                     docLink = documentLink + "form/edit/" + requestId;
                                 }
