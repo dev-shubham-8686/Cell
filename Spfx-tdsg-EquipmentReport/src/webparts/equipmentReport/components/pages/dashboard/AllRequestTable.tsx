@@ -95,8 +95,9 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       title: "Application No",
       dataIndex: "EquipmentImprovementNo",
       key: "EquipmentImprovementNo",
-      width: 150,
+      width: 160,
       sorter: true,
+      filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -111,6 +112,9 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
+      render: (text) => (
+        <p className="text-cell">{text? dayjs(text).format(DATE_FORMAT):"-"}</p>
+      ),
     },
     {
       title: "Area",
@@ -118,7 +122,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       key: "Area",
       width: 150,
       sorter: true,
-      filterDropdown: ColumnFilter,
+      //filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -143,7 +147,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       key: "SubMachineName",
       width: 200,
       sorter: true,
-      filterDropdown: ColumnFilter,
+      //filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -201,7 +205,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-      width: 170,
+      width: 230,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -237,7 +241,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
          
-          {(user.isAdmin ||((row.Status === REQUEST_STATUS.LogicalAmendment ||
+          {/* {(user.isAdmin ||((row.Status === REQUEST_STATUS.LogicalAmendment ||
             row.Status === REQUEST_STATUS.UnderImplementation ||
             (row.Status === REQUEST_STATUS.ResultMonitoring && !row.IsResultSubmit) ||
             row.Status === REQUEST_STATUS.Draft ||
@@ -256,7 +260,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
               >
                 <FontAwesomeIcon title="Edit" icon={faEdit} />
               </button>
-            )}
+            )} */}
           {row.Status === REQUEST_STATUS.Completed && (
             <button
               type="button"

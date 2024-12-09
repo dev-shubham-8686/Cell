@@ -34,7 +34,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             _sprocRepository = new SprocRepository(context);
             this._context = context;
-           // _configuration = configuration;
+            // _configuration = configuration;
             this._cloneContext = cloneContext;
 
             _connectionString = configuration.GetConnectionString("DefaultConnection");
@@ -1103,6 +1103,9 @@ namespace TDSGCellFormat.Implementation.Repository
                         await _context.SaveChangesAsync();
                     }
 
+                    InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor", data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
+
+
                     InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
                    
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
@@ -1337,6 +1340,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var machineName = _context.Machines.Where(x => x.MachineId == adjustMentReportData.MachineName).Select(x => x.MachineName).FirstOrDefault();
                 var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
                 var checkedBy = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CheckedBy).Select(x => x.EmployeeName).FirstOrDefault();
+
                 
                 var areaIds = adjustMentReportData.Area.Split(',').Select(id => int.Parse(id)).ToList();
 
@@ -1367,7 +1371,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 //sb.Replace("#Remarks#", data.FirstOrDefault()?.Remarks);
 
                 StringBuilder tableBuilder = new StringBuilder();
-                
+
                 string approvedBySectionHead = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByDepartmentHead = approverData.FirstOrDefault(a => a.SequenceNo == 3)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByDivisionHead = approverData.FirstOrDefault(a => a.SequenceNo == 7)?.employeeNameWithoutCode ?? "N/A";
@@ -1375,7 +1379,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#sectionhead#", approvedBySectionHead);
                 sb.Replace("#departmenthead#", approvedByDepartmentHead);
                 sb.Replace("#divisionhead#", approvedByDivisionHead);
-                
+
 
                 using (var ms = new MemoryStream())
                 {
@@ -1430,7 +1434,7 @@ namespace TDSGCellFormat.Implementation.Repository
             }
         }
 
-       
+
 
         public async Task<AjaxResult> GetSectionHead(int adjustmentReportId)
         {
@@ -1588,5 +1592,7 @@ namespace TDSGCellFormat.Implementation.Repository
             }).ToList();
         }
         #endregion
+
+
     }
 }

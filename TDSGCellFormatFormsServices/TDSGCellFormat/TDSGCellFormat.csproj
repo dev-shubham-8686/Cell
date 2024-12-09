@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>false</InvariantGlobalization>
+	  
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,6 +39,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\TDSGCellFormat.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="IronPdf.Core">
+      <HintPath>DLL\IronPdf.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

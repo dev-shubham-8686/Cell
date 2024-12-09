@@ -1,0 +1,188 @@
+/* For the red underline on active tab */
+.custom-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #e60000;
+}
+
+.custom-tabs .ant-tabs-ink-bar {
+  background-color: #e60000;
+}
+
+/* Search and buttons */
+.search-bar input {
+  border-radius: 5px;
+  padding: 8px;
+}
+
+.search-bar .ant-btn {
+  background-color: #e60000;
+  border-color: #e60000;
+}
+
+/* Table custom styles */
+.custom-table .ant-table-cell {
+  padding: 10px;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.custom-table .ant-tag {
+  padding: 2px 8px;
+  font-size: 0.875rem;
+}
+
+
+
+/* Border styling for table */
+.custom-table {
+  border-collapse: collapse;
+}
+
+.custom-table .ant-table {
+  border: 1px solid #d9d9d9;
+}
+
+.custom-table .ant-table-thead > tr > th {
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.custom-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #d9d9d9;
+}
+
+
+/* Font & Text */
+
+.title {
+  font-family: 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  line-height: 36px;
+  text-decoration: none solid rgb(197, 0, 23);
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #C50017;
+  background-color: #FFFFFF;
+  background-position: 0% 0%;
+  margin-top: 0px;
+  min-height: auto;
+  min-width: auto;
+  display: block;
+  transform: none;
+  transition: all;
+  /* outline: rgb(255, 0, 0) dashed 0.8px; */
+  box-sizing: border-box;
+  border-bottom: 1px solid #D7DCE4;
+  padding: 8px 0 8px 0;
+}
+
+
+.my-tab-button{
+  font-family: "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  text-decoration: none solid rgb(197, 0, 23);
+  text-align: center;
+  word-spacing: 0px;
+}
+
+.custom-icon {
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 14px !important;
+  text-decoration: none solid rgba(0, 0, 0, 0.88) !important;
+  color: #484848 !important;
+  height: 14px;
+  width: 14px;
+  display: block;
+}
+
+.save-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-size: 14px;
+  line-height: 21px;
+  text-decoration: none !important; /* Ensure no underline */
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  background-color: #C50017 !important;
+  color: #FFFFFF !important;
+  height: 32px;
+  width: auto;
+  border: 1px solid #C50017 !important;
+  margin: 0 0 0 8px;
+  padding: 6px 14px;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  word-wrap: break-word;
+  box-shadow: none !important;
+  border-radius: 4px;
+  transition: none !important;
+  pointer-events: auto;
+}
+
+/* Disable hover effects */
+.save-btn:hover,
+.save-btn:focus,
+.save-btn:active {
+  background-color: #C50017 !important;
+  color: #FFFFFF !important;
+  border-color: #C50017 !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+}
+
+
+
+.no-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-size: 14px;
+  line-height: 21px;
+  text-decoration: none !important;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  background-color: #FFFFFF !important;
+  color: #C50017 !important;
+  height: 32px;
+  width: auto;
+  border: 1px solid #C50017 !important;
+  padding: 6px 14px;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  word-wrap: break-word;
+  box-shadow: none !important;
+  border-radius: 4px;
+  transition: none !important;
+  pointer-events: auto;
+}
+
+/* Disable hover effects */
+.no-btn:hover,
+.no-btn:focus,
+.no-btn:active {
+  background-color: #FFFFFF !important;
+  color: #C50017 !important;
+  border-color: #C50017 !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+}
+
+.submit-btn{
+   background-color: #333333 !important;
+   border-color: 1px solid #333333 !important;
+   color: #fff;
+   transition: none !important
+}
+
+.submit-btn:hover,
+.submit-btn:focus,
+.submit-btn:active{
+  background-color: #333333 !important;
+  color: #fff !important;
+  border-color: 1px solid #333333 !important;
+}
+
