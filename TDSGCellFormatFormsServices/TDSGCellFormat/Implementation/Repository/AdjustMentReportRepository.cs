@@ -237,22 +237,22 @@ namespace TDSGCellFormat.Implementation.Repository
             var adjustmentAfterImage = _context.AdjustmentAfterImages.Where(x => x.AdjustmentReportId == Id && x.IsDeleted == false).ToList();
             if (adjustmentAfterImage != null)
             {
-                adjustmentData.AdjustmentAfterImagesDetails = adjustmentAfterImage.Select(attach => new AdjustmentAfterImageData
+                adjustmentData.AfterImages = adjustmentAfterImage.Select(attach => new AdjustmentAfterImageData
                 {
                     AdjustmentAfterImageId = attach.AdjustmentAfterImageId,
-                    AfterImageDocFilePath = attach.AfterImageDocFilePath,
-                    AfterImageDocName = attach.AfterImageDocName
+                    AfterImgName = attach.AfterImageDocFilePath,
+                    AfterImgPath = attach.AfterImageDocName
                 }).ToList();
             }
 
             var adjustmentBeforeImage = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == Id && x.IsDeleted == false).ToList();
             if (adjustmentBeforeImage != null)
             {
-                adjustmentData.AdjustmentBeforeImagesDetails = adjustmentBeforeImage.Select(attach => new AdjustmentBeforeImageData
+                adjustmentData.BeforeImages  = adjustmentBeforeImage.Select(attach => new AdjustmentBeforeImageData
                 {
                     AdjustmentBeforeImageId = attach.AdjustmentBeforeImageId,
-                    BeforeImageDocName = attach.BeforeImageDocName,
-                    BeforeImageDocFilePath = attach.BeforeImageDocFilePath
+                    BeforeImgName = attach.BeforeImageDocName,
+                    BeforeImgPath = attach.BeforeImageDocFilePath
                 }).ToList();
             }
 
@@ -347,17 +347,17 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                         await _context.SaveChangesAsync();
                     }
-                    if (request.AdjustmentBeforeImagesDetails != null)
+                    if (request.BeforeImages != null)
                     {
-                        foreach (var attach in request.AdjustmentBeforeImagesDetails)
+                        foreach (var attach in request.BeforeImages)
                         {
-                            var updatedUrl = attach.BeforeImageDocFilePath.Replace($"/{request.CreatedBy}/", $"/{adjustmentReportNo}/");
+                            var updatedUrl = attach.BeforeImgPath.Replace($"/{request.CreatedBy}/", $"/{adjustmentReportNo}/");
                             ///EqReportDocuments/EQReportDocs/Current Situation Attachments/MaterialConsumption_2024-10-09.xlsx
                             var attachment = new AdjustmentBeforeImage()
                             {
 
                                 AdjustmentReportId = adjustMentReportId,
-                                BeforeImageDocName = attach.BeforeImageDocName,
+                                BeforeImageDocName = attach.BeforeImgName,
                                 BeforeImageDocFilePath = updatedUrl,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
@@ -368,17 +368,17 @@ namespace TDSGCellFormat.Implementation.Repository
                         await _context.SaveChangesAsync();
                     }
 
-                    if (request.AdjustmentAfterImagesDetails != null)
+                    if (request.AfterImages != null)
                     {
-                        foreach (var attach in request.AdjustmentAfterImagesDetails)
+                        foreach (var attach in request.AfterImages)
                         {
-                            var updatedUrl = attach.AfterImageDocFilePath.Replace($"/{request.CreatedBy}/", $"/{adjustmentReportNo}/");
+                            var updatedUrl = attach.AfterImgPath.Replace($"/{request.CreatedBy}/", $"/{adjustmentReportNo}/");
                             ///EqReportDocuments/EQReportDocs/Current Situation Attachments/MaterialConsumption_2024-10-09.xlsx
                             var attachment = new AdjustmentAfterImage()
                             {
 
                                 AdjustmentReportId = adjustMentReportId,
-                                AfterImageDocName = attach.AfterImageDocName,
+                                AfterImageDocName = attach.AfterImgName,
                                 AfterImageDocFilePath = updatedUrl,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
@@ -520,16 +520,16 @@ namespace TDSGCellFormat.Implementation.Repository
                     MarkAsDeleted(existingAfterImage, existingReport.CreatedBy, DateTime.Now);
                     _context.SaveChanges();
 
-                    if (request.AdjustmentAfterImagesDetails != null)
+                    if (request.AfterImages != null)
                     {
-                        foreach (var attach in request.AdjustmentAfterImagesDetails)
+                        foreach (var attach in request.AfterImages)
                         {
-                            var updatedUrl = attach.AfterImageDocFilePath.Replace($"/{request.CreatedBy}/", $"/{existingReport.ReportNo}/");
-                            var existingAttachData = _context.AdjustmentAfterImages.Where(x => x.AdjustmentReportId == attach.AdjustmentReportId && x.AdjustmentAfterImageId == attach.AdjustmentAfterImageId).FirstOrDefault();
+                            var updatedUrl = attach.AfterImgPath.Replace($"/{request.CreatedBy}/", $"/{existingReport.ReportNo}/");
+                            var existingAttachData = _context.AdjustmentAfterImages.Where(x => x.AdjustmentReportId == attach.AdjustmentreportId && x.AdjustmentAfterImageId == attach.AdjustmentAfterImageId).FirstOrDefault();
                             if (existingAttachData != null)
                             {
-                                existingAttachData.AfterImageDocName = attach.AfterImageDocName;
-                                existingAttachData.AfterImageDocFilePath = attach.AfterImageDocFilePath;
+                                existingAttachData.AfterImageDocName = attach.AfterImgName;
+                                existingAttachData.AfterImageDocFilePath = attach.AfterImgPath;
                                 existingAttachData.IsDeleted = false;
                                 existingAttachData.ModifiedBy = attach.ModifiedBy;
                                 existingAttachData.ModifiedDate = DateTime.Now;
@@ -540,7 +540,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 var attachment = new AdjustmentAfterImage()
                                 {
                                     AdjustmentReportId = existingReport.AdjustMentReportId,
-                                    AfterImageDocName = attach.AfterImageDocName,
+                                    AfterImageDocName = attach.AfterImgName,
                                     AfterImageDocFilePath = updatedUrl,
                                     IsDeleted = false,
                                     CreatedBy = attach.CreatedBy,
@@ -556,16 +556,16 @@ namespace TDSGCellFormat.Implementation.Repository
                     MarkAsDeleted(existingBeforeImage, existingReport.CreatedBy, DateTime.Now);
                     _context.SaveChanges();
 
-                    if (request.AdjustmentBeforeImagesDetails != null)
+                    if (request.BeforeImages != null)
                     {
-                        foreach (var attach in request.AdjustmentBeforeImagesDetails)
+                        foreach (var attach in request.BeforeImages)
                         {
-                            var updatedUrl = attach.BeforeImageDocFilePath.Replace($"/{request.CreatedBy}/", $"/{existingReport.ReportNo}/");
-                            var existingAttachData = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == attach.AdjustmentReportId && x.AdjustmentBeforeImageId == attach.AdjustmentBeforeImageId).FirstOrDefault();
+                            var updatedUrl = attach.BeforeImgPath.Replace($"/{request.CreatedBy}/", $"/{existingReport.ReportNo}/");
+                            var existingAttachData = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == attach.AdjustmentreportId && x.AdjustmentBeforeImageId == attach.AdjustmentBeforeImageId).FirstOrDefault();
                             if (existingAttachData != null)
                             {
-                                existingAttachData.BeforeImageDocName = attach.BeforeImageDocName;
-                                existingAttachData.BeforeImageDocFilePath = attach.BeforeImageDocFilePath;
+                                existingAttachData.BeforeImageDocName = attach.BeforeImgName;
+                                existingAttachData.BeforeImageDocFilePath = attach.BeforeImgPath;
                                 existingAttachData.IsDeleted = false;
                                 existingAttachData.ModifiedBy = attach.ModifiedBy;
                                 existingAttachData.ModifiedDate = DateTime.Now;
@@ -576,7 +576,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 var attachment = new AdjustmentBeforeImage()
                                 {
                                     AdjustmentReportId = existingReport.AdjustMentReportId,
-                                    BeforeImageDocName = attach.BeforeImageDocName,
+                                    BeforeImageDocName = attach.BeforeImgName,
                                     BeforeImageDocFilePath = updatedUrl,
                                     IsDeleted = false,
                                     CreatedBy = attach.CreatedBy,
@@ -692,6 +692,9 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 await _context.CallAdjustmentReportApproverMaterix(createdBy, adjustmentReportId);
 
+                var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                await notificationHelper.SendAdjustmentEmai(adjustmentReportId, EmailNotificationAction.Submitted, string.Empty, 0);
+
                 res.Message = Enums.AdjustMentSubmit;
                 res.StatusCode = Enums.Status.Success;
 
@@ -722,7 +725,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
                 }
                 InsertHistoryData(adjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
-
+               
+                var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                await notificationHelper.SendAdjustmentEmai(adjustmentReportId, EmailNotificationAction.ReSubmitted, string.Empty, 0);
                 res.Message = Enums.AdjustMentReSubmit;
                 res.StatusCode = Enums.Status.Success;
             }
@@ -1026,6 +1031,9 @@ namespace TDSGCellFormat.Implementation.Repository
                             }
                         }
                     }
+
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.SendEquipmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Approved, asktoAmend.Comment, asktoAmend.ApproverTaskId);
                 }
 
 
@@ -1047,7 +1055,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
 
                     InsertHistoryData(asktoAmend.AdjustmentId, FormType.EquipmentImprovement.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.UnderAmendment.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.UnderAmendment.ToString(), 0);
-
+                    
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.SendEquipmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Amended, asktoAmend.Comment, asktoAmend.ApproverTaskId);
                 }
 
 
@@ -1094,7 +1104,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
 
                     InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
-
+                   
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.SendAdjustmentEmai(data.AdjustmentReportId, EmailNotificationAction.PullBack, string.Empty, 0);
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.AdjustMentPullback;
                 }

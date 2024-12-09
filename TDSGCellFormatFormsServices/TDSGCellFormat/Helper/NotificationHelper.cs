@@ -1558,6 +1558,19 @@ namespace TDSGCellFormat.Helper
                 {
                     var adjustmentData = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == requestId && x.IsDeleted == false).FirstOrDefault();
                     var adjustmentNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == requestId && x.IsDeleted == false).Select(x => x.ReportNo).FirstOrDefault();
+                    var areaIds = adjustmentData.Area.Split(',').Select(id => int.Parse(id)).ToList();
+                    var areaNames = new List<string>();
+                    foreach (var id in areaIds)
+                    {
+                        // Query database or use a dictionary/cache to get the name
+                        var areaName = _context.Areas.Where(x => x.AreaId == id && x.IsActive == true).Select(x => x.AreaName).FirstOrDefault(); // Replace this with your actual DB logic
+                        if (!string.IsNullOrEmpty(areaName))
+                        {
+                            areaNames.Add(areaName);
+                        }
+                    }
+
+                    var areaNamesString = string.Join(", ", areaNames);
 
                     if (adjustmentData != null) 
                     {
@@ -1717,7 +1730,7 @@ namespace TDSGCellFormat.Helper
                                 }
 
                                 emailBody = emailBody.Replace("#Requestor#", requesterUserName);
-                                emailBody = emailBody.Replace("#EquipmentLink#", docLink);
+                                emailBody = emailBody.Replace("#AdjustmentLink#", docLink);
                                 emailBody = emailBody.Replace("#ApplicationNo#", adjustmentNo);
                                 //emailBody = emailBody.Replace("#Improvement#", equipmentData.ImprovementName);
                                // emailBody = emailBody.Replace("#Area#", areaNamesString);

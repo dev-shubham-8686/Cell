@@ -66,8 +66,8 @@ namespace TDSGCellFormat.Models.Add
 
         public int? DeputyDivHead {  get; set; }
 
-        public List<AdjustmentAfterImageData>? AdjustmentAfterImagesDetails { get; set; }
-        public List<AdjustmentBeforeImageData>? AdjustmentBeforeImagesDetails { get; set; }
+        public List<AdjustmentAfterImageData>? AfterImages { get; set; }
+        public List<AdjustmentBeforeImageData>? BeforeImages { get; set; }
     }
 
     public class ChangeRiskManagement_AdjustmentReports
@@ -90,9 +90,9 @@ namespace TDSGCellFormat.Models.Add
     public class AdjustmentAfterImageData
     {
         public int AdjustmentAfterImageId { get; set; }
-        public int? AdjustmentReportId { get; set; }
-        public string? AfterImageDocName { get; set; }
-        public string? AfterImageDocFilePath { get; set; }
+        public int? AdjustmentreportId { get; set; }
+        public string? AfterImgName { get; set; }
+        public string? AfterImgPath { get; set; }
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
 
@@ -102,9 +102,9 @@ namespace TDSGCellFormat.Models.Add
     public class AdjustmentBeforeImageData
     {
         public int AdjustmentBeforeImageId { get; set; }
-        public int? AdjustmentReportId { get; set; }
-        public string? BeforeImageDocName { get; set; }
-        public string? BeforeImageDocFilePath { get; set; }
+        public int? AdjustmentreportId { get; set; }
+        public string? BeforeImgName { get; set; }
+        public string? BeforeImgPath { get; set; }
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
 
@@ -112,7 +112,7 @@ namespace TDSGCellFormat.Models.Add
 
     public class ApproveAsktoAmend
     {
-        public int? ApproverTaskId { get; set; }
+        public int ApproverTaskId { get; set; }
 
         public int? CurrentUserId { get; set; }
 
