@@ -69,4 +69,6 @@ public partial class TechnicalInstructionSheet
     public int? OldCreatedBy { get; set; }
 
     public string? OutlineImageBytes { get; set; }
+
+    public string? OtherEquipment { get; set; }
 }

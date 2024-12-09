@@ -38,6 +38,7 @@ namespace TDSGCellFormat.Models.View
         public string? employeeCode { get; set; }
         public string? createdDate { get; set; }
 
+        public string? otherEquipment { get; set; }
     }
 
     public class TechnicalInstructionDto

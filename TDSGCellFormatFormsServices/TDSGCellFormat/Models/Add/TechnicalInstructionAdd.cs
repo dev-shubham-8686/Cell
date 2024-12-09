@@ -75,6 +75,8 @@ namespace TDSGCellFormat.Models.Add
         public int? sectionId { get; set; }
 
         public string? comment { get; set; }
+
+        public string? otherEquipment { get; set; }
     }
 
     public class EquipmentMasterView
