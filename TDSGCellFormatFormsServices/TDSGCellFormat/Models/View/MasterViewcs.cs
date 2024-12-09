@@ -54,14 +54,6 @@
         public string? Email { get; set; }
     }
 
-    public class AdvisorMasterView
-    {
-        public int employeeId { get; set; }
-        public string? employeeName { get; set; }
-
-        public string? Email { get; set; }
-    }
-
     public class AreaMasterView
     {
         public int AreaId { get; set; }
@@ -118,7 +110,18 @@
         public string? functionName { get; set; }
     }
 
+
   
+
+    public class AdvisorMasterView
+    {
+        public int employeeId { get; set; }
+        public string? employeeName { get; set; }
+
+        public string? Email { get; set; }
+    }
+
+
     public class ResultMonitorView
     {
         public int resultMonitorId { get; set; }

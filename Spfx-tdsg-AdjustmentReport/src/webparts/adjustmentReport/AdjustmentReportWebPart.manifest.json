@@ -1,6 +1,6 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
-  "id": "ad5bb174-f958-437d-b9d3-4123fba30481",
+  "id": "25162483-98e4-4a61-942b-c615b034f3c7",
   "alias": "AdjustmentReportWebPart",
   "componentType": "WebPart",
 

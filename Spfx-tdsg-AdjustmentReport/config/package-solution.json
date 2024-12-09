@@ -2,7 +2,7 @@
   "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
   "solution": {
     "name": "spfx-tdsg-adjustment-report-client-side-solution",
-    "id": "0fc5a30b-0a6e-48ba-872e-f9dec77fb6ea",
+    "id": "c66b9971-3770-4684-afac-0d8e6627e7a9",
     "version": "1.0.0.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
@@ -29,7 +29,7 @@
       {
         "title": "spfx-tdsg-adjustment-report Feature",
         "description": "The feature that activates elements of the spfx-tdsg-adjustment-report solution.",
-        "id": "934e8739-ea4a-434d-ad96-a30fc6e27cc7",
+        "id": "ab389b18-afd9-4b3a-87fa-edbaef2a17b7",
         "version": "1.0.0.0"
       }
     ]
