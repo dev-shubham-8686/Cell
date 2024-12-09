@@ -318,20 +318,17 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpGet("GetAdditionalDepartmentHeads")]
-        public async Task<IActionResult> GetAdditionalDepartmentHeads()
+        public async Task<IActionResult> GetAdditionalDepartments(int departmentId)
         {
-            var result = await _tdsgService.GetAdditionalDepartmentHeads();
-            if (result != null)
-            {
-                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
-            }
+            var res = await _tdsgService.GetAdditionalDepartmentHeads(departmentId);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
             else
-            {
-                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
-                //return Ok(Ajaxresponse);
-            }
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
             return Ok(Ajaxresponse);
         }
+
 
         [HttpGet("GetHistoryData")]
         public IActionResult GetHistoryData(int adjustmentId)
@@ -377,6 +374,19 @@ namespace TDSGCellFormat.Controllers
                 Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
                 //return Ok(Ajaxresponse);
             }
+            return Ok(Ajaxresponse);
+        }
+
+        [HttpGet("CellDepartment")]
+     
+        public async Task<IActionResult> AdditionalDepartments(int departmentId)
+        {
+            var res = await _tdsgService.GetAdditionalDepartments(departmentId);
+            if (res != null)
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
+            else
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
+
             return Ok(Ajaxresponse);
         }
         #endregion

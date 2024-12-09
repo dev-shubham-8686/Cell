@@ -114,9 +114,14 @@ namespace TDSGCellFormat.Implementation.Service
             return await _adjustMentRepository.GetDepartmentHead(adjustmentReportId);
         }
 
-        public async Task<AjaxResult> GetAdditionalDepartmentHeads()
+        public async Task<List<DepartmentHeadsView>> GetAdditionalDepartmentHeads(int departmentId)
         {
-            return await _adjustMentRepository.GetAdditionalDepartmentHeads();
+            return await _adjustMentRepository.GetAdditionalDepartmentHeads(departmentId);
+        }
+
+        public async Task<List<CellDepartment>> GetAdditionalDepartments(int departmentId)
+        {
+            return await _adjustMentRepository.GetAdditionalDepartments(departmentId);
         }
 
         public List<TroubleReportHistoryView> GetHistoryData(int adjustmentId)

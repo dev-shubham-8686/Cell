@@ -572,7 +572,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
               handleToshibaReview();
             }}
           >
-            Update target Date
+            Update Target Date
           </button>
         )}
         <TextBoxModal

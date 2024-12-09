@@ -1,112 +1,102 @@
 import * as React from "react";
-import styles from "./TechInstrSheet.module.scss";
 import type { ITechInstrSheetProps } from "./ITechInstrSheetProps";
-import { escape } from "@microsoft/sp-lodash-subset";
 import "../../../styles/dist/tailwind.css";
+import { ConfigProvider } from "antd";
+import { WebPartContext } from "../context/WebPartContext";
+import { Route, HashRouter as Router, Routes } from "react-router-dom";
+import TechnicalInstructionList from "./pages/TechnicalInstructionListIndex/TechnicalInstructionList";
+import TechnicalInstructionFrom from "./pages/TechnicalInstructionFormIndex.tsx/TechnicalInstructionForm";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { UserProvider } from "../context/userContext";
 
-export default class TechInstrSheet extends React.Component<
-  ITechInstrSheetProps,
-  {}
-> {
-  public render(): React.ReactElement<ITechInstrSheetProps> {
-    const {
-      description,
-      isDarkTheme,
-      environmentMessage,
-      hasTeamsContext,
-      userDisplayName,
-    } = this.props;
+import "froala-editor/css/froala_style.min.css";
+import "froala-editor/css/froala_editor.pkgd.min.css";
+import "froala-editor/js/plugins/image.min.js";
+import "froala-editor/js/plugins/video.min.js";
+import "froala-editor/js/plugins/colors.min.js";
+import "froala-editor/js/plugins/emoticons.min.js";
+import "froala-editor/js/plugins/font_family.min.js";
+import "froala-editor/js/plugins/font_size.min.js";
+import "froala-editor/js/plugins/line_height.min.js";
+import "froala-editor/js/plugins/lists.min.js";
+import "froala-editor/js/plugins/align.min.js";
+import "froala-editor/js/plugins/link.min.js";
+import "froala-editor/js/plugins/file.min.js";
+import "froala-editor/js/plugins/paragraph_format.min.js";
+import "froala-editor/js/plugins/paragraph_style.min.js";
+import "froala-editor/js/plugins/quote.min.js";
+import "froala-editor/js/plugins/table.min.js";
+import "froala-editor/js/plugins/code_view.min.js"
+// import "froala-editor/js/plugins/font_awesome.min.js";
+import "froala-editor/js/plugins/special_characters.min.js";
+import "froala-editor/js/plugins/fullscreen.min.js";
+import "froala-editor/js/plugins/print.min.js";
+import "froala-editor/js/third_party/spell_checker.min.js";
+import "froala-editor/css/third_party/spell_checker.min.css";
+import "froala-editor/css/plugins/fullscreen.min.css";
+import "froala-editor/css/plugins/special_characters.min.css";
+import "froala-editor/css/plugins/image.min.css";
+import "froala-editor/css/plugins/video.min.css";
+import "froala-editor/css/plugins/colors.min.css";
+import "froala-editor/css/plugins/emoticons.min.css";
+import "froala-editor/css/plugins/file.min.css";
+import "froala-editor/css/plugins/code_view.css"
 
-    return (
-      <section
-        className={`${styles.techInstrSheet} ${
-          hasTeamsContext ? styles.teams : ""
-        }`}
-      >
-        <div className={styles.welcome}>
-          <img
-            alt=""
-            src={
-              isDarkTheme
-                ? require("../assets/welcome-dark.png")
-                : require("../assets/welcome-light.png")
-            }
-            className={styles.welcomeImage}
-          />
-          <h2>Well done, {escape(userDisplayName)}!</h2>
-          <div>{environmentMessage}</div>
-          <div>
-            Web part property value: <strong>{escape(description)}</strong>
-          </div>
-        </div>
-        <div>
-          <h3>Welcome to SharePoint Framework!</h3>
-          <p>
-            The SharePoint Framework (SPFx) is a extensibility model for
-            Microsoft Viva, Microsoft Teams and SharePoint. It&#39;s the easiest
-            way to extend Microsoft 365 with automatic Single Sign On, automatic
-            hosting and industry standard tooling.
-          </p>
-          <h4>Learn more about SPFx development:</h4>
-          <ul className={styles.links}>
-            <li>
-              <a href="https://aka.ms/spfx" target="_blank" rel="noreferrer">
-                SharePoint Framework Overview
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://aka.ms/spfx-yeoman-graph"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Use Microsoft Graph in your solution
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://aka.ms/spfx-yeoman-teams"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Build for Microsoft Teams using SharePoint Framework
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://aka.ms/spfx-yeoman-viva"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Build for Microsoft Viva Connections using SharePoint Framework
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://aka.ms/spfx-yeoman-store"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Publish SharePoint Framework applications to the marketplace
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://aka.ms/spfx-yeoman-api"
-                target="_blank"
-                rel="noreferrer"
-              >
-                SharePoint Framework API reference
-              </a>
-            </li>
-            <li>
-              <a href="https://aka.ms/m365pnp" target="_blank" rel="noreferrer">
-                Microsoft 365 Developer Community
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-    );
-  }
-}
+const queryClient = new QueryClient();
+
+const TechInstrSheet: React.FC<ITechInstrSheetProps> = ({
+  description,
+  isDarkTheme,
+  environmentMessage,
+  hasTeamsContext,
+  userDisplayName,
+  context,
+  userEmail,
+}) => {
+
+  const style = { padding: "1rem"};
+
+  document.addEventListener('copy', (e) => {
+    if (typeof window !== "undefined" && window !== null) {
+      const selection = window.getSelection()?.toString().trim() || ''; // Default to an empty string if selection is undefined
+  
+      // Check if clipboardData is not null before using it
+      if (e.clipboardData) {
+        e.clipboardData.setData('text/plain', selection);
+        e.preventDefault();
+      }
+    }
+  });
+  
+
+  return (
+    <WebPartContext.Provider value={context}>
+       <QueryClientProvider client={queryClient}>
+        <UserProvider userEmail={userEmail}>
+        <ConfigProvider
+          theme={{
+            token: {
+              colorTextDisabled: "var(--color-disabled-text)",
+              colorPrimary: "#c50017",
+            },
+          }}
+        >
+
+        <Router>
+            <main className="main-content" style={style}>
+              <Routes>
+                <Route path="/" element={<TechnicalInstructionList />} />
+                <Route path="/form/create" element={<TechnicalInstructionFrom isViewMode={false} />} />
+                <Route path="/form/edit/:id" element={<TechnicalInstructionFrom isViewMode={false} />} />
+                <Route path="/form/view/:id" element={<TechnicalInstructionFrom isViewMode={true} />} />
+              </Routes>
+            </main>
+          </Router>
+        </ConfigProvider>
+        </UserProvider>
+        </QueryClientProvider>
+    </WebPartContext.Provider>
+  );
+};
+
+export default TechInstrSheet;
