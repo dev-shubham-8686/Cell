@@ -1337,7 +1337,23 @@ namespace TDSGCellFormat.Implementation.Repository
                 var machineName = _context.Machines.Where(x => x.MachineId == adjustMentReportData.MachineName).Select(x => x.MachineName).FirstOrDefault();
                 var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
                 var checkedBy = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CheckedBy).Select(x => x.EmployeeName).FirstOrDefault();
-                //sb.Replace("#area#", data.FirstOrDefault()?.AreaName);
+                
+                var areaIds = adjustMentReportData.Area.Split(',').Select(id => int.Parse(id)).ToList();
+
+                var areaNames = new List<string>();
+                foreach (var id in areaIds)
+                {
+                    // Query database or use a dictionary/cache to get the name
+                    var areaName = _context.Areas.Where(x => x.AreaId == id && x.IsActive == true).Select(x => x.AreaName).FirstOrDefault(); // Replace this with your actual DB logic
+                    if (!string.IsNullOrEmpty(areaName))
+                    {
+                        areaNames.Add(areaName);
+                    }
+                }
+
+                var areaNamesString = string.Join(", ", areaNames);
+
+                sb.Replace("#area#", areaNamesString);
                 sb.Replace("#reportno#", adjustMentReportData.ReportNo);
                 sb.Replace("#requestor#", applicant);
                 sb.Replace("#machinename#", machineName);
