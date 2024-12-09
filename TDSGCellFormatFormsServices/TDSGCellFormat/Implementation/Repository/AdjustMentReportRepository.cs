@@ -600,6 +600,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.AdjustMentSave;
 
+                    var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+
                     if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
                     {
                         var data = await SubmitRequest(existingReport.AdjustMentReportId, existingReport.CreatedBy, request.AdvisorId);
@@ -621,7 +623,16 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     else
                     {
-                        InsertHistoryData(adjustMentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Update the form ", existingReport.Status, Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
+                        if (request.ModifiedBy == adminId)
+                        {
+                            InsertHistoryData(adjustMentReportId, FormType.EquipmentImprovement.ToString(), "Admin", "Update the Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
+
+                        }
+                        else
+                        {
+                            InsertHistoryData(adjustMentReportId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
+
+                        }
                     }
 
                     
@@ -688,7 +699,17 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
                 }
 
-                InsertHistoryData(adjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.Submit.ToString(), 0);
+                var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+                if(createdBy == adminId)
+                {
+                    InsertHistoryData(adjustmentReportId, FormType.AjustmentReport.ToString(), "Admin", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.Submit.ToString(), 0);
+
+                }
+                else
+                {
+                    InsertHistoryData(adjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.Submit.ToString(), 0);
+
+                }
 
                 await _context.CallAdjustmentReportApproverMaterix(createdBy, adjustmentReportId);
 
@@ -724,8 +745,20 @@ namespace TDSGCellFormat.Implementation.Repository
                     adjusment.Status = ApprovalTaskStatus.InReview.ToString();
                     await _context.SaveChangesAsync();
                 }
-                InsertHistoryData(adjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
-               
+
+
+                var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+                if (createdBy == adminId)
+                {
+                    InsertHistoryData(adjustmentReportId, FormType.AjustmentReport.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.ReSubmitted.ToString(), 0);
+
+                }
+                else
+                {
+                    InsertHistoryData(adjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
+
+                }
+
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 await notificationHelper.SendAdjustmentEmai(adjustmentReportId, EmailNotificationAction.ReSubmitted, string.Empty, 0);
                 res.Message = Enums.AdjustMentReSubmit;
