@@ -18,6 +18,8 @@ using TDSGCellFormat.Models.View;
 using static TDSGCellFormat.Common.Enums;
 using Microsoft.Graph.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using System.Buffers;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -203,7 +205,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 Observation = res.Observation,
                 RootCause = res.RootCause,
                 AdjustmentDescription = res.AdjustmentDescription,
-                Photos = GetAdjustmentReportPhotos(Id),
+              //  Photos = GetAdjustmentReportPhotos(Id),
                 ChangeRiskManagementRequired = res.ChangeRiskManagementRequired,
                 ConditionAfterAdjustment = res.ConditionAfterAdjustment,
                 Status = res.Status,
@@ -1139,7 +1141,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor", data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
 
 
-                    InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
+                    //InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
                    
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendAdjustmentEmai(data.AdjustmentReportId, EmailNotificationAction.PullBack, string.Empty, 0);
@@ -1196,16 +1198,20 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
+                var adj = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == request.AdjustmentReportId && x.IsDeleted == false).FirstOrDefault();
                 var advisor = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentAdvisorId == x.AdjustmentAdvisorId && x.AdjustmentReportId == request.AdjustmentReportId && x.IsActive == true && x.EmployeeId == request.AdvisorId).FirstOrDefault();
-                if (advisor != null) 
+                if (advisor != null)
                 {
                     advisor.Comment = request.Comment;
                     await _context.SaveChangesAsync();
                 }
                 res.Message = Enums.AdjustmentUdpated;
                 res.StatusCode = Enums.Status.Success;
+
+                InsertHistoryData((int)request.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Advisor", request.Comment, adj.Status, Convert.ToInt32(request.AdvisorId), HistoryAction.Update.ToString(), 0);
             }
-            catch(Exception ex)
+
+            catch (Exception ex)
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
@@ -1560,25 +1566,58 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public async Task<AjaxResult> GetAdditionalDepartmentHeads()
-        {
-            var res = new AjaxResult();
-            var result = await _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAdditionalDepartmentHeads]")
-                .ExecuteStoredProcedureAsync<DepartmentHeadsView>();
+        //public async Task<AjaxResult> GetAdditionalDepartmentHeads(int departmentId)
+        //{
+        //    var res = new AjaxResult();
+        //    var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
+        //    var result = await _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAdditionalDepartmentHeads] @DepartmentId")
+        //        .ExecuteStoredProcedureAsync<DepartmentHeadsView>();
 
-            if (result == null)
+        //    if (result == null)
+        //    {
+        //        res.Message = "Data not found";
+        //        res.StatusCode = Enums.Status.Error;
+        //        return res;
+        //    }
+        //    else
+        //    {
+        //        res.Message = "Employee Details Fetched Successfully";
+        //        res.StatusCode = Enums.Status.Success;
+        //        res.ReturnValue = result;
+        //    }
+        //    return res;
+        //}
+
+        public async Task<List<DepartmentHeadsView>> GetAdditionalDepartmentHeads(int departmentId)
+        {
+           // var res = new AjaxResult();
+           // var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
+           // var result = await _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAdditionalDepartmentHeads] @DepartmentId")
+              //  .ExecuteStoredProcedureAsync<DepartmentHeadsView>();
+            var listData = await _context.GetAdditionalDepartmenthead(departmentId);
+            var additionalDepHead = new List<DepartmentHeadsView>();
+            foreach (var item in listData)
             {
-                res.Message = "Data not found";
-                res.StatusCode = Enums.Status.Error;
-                return res;
+                //  if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
+                additionalDepHead.Add(item);
             }
-            else
+            return additionalDepHead;
+           
+        }
+
+
+
+        public async Task<List<CellDepartment>> GetAdditionalDepartments(int departmentId)
+        {
+            //  .ExecuteStoredProcedureAsync<DepartmentHeadsView>();
+            var listData = await _context.GetAdditionalDepartments(departmentId);
+            var additionalDepHead = new List<CellDepartment>();
+            foreach (var item in listData)
             {
-                res.Message = "Employee Details Fetched Successfully";
-                res.StatusCode = Enums.Status.Success;
-                res.ReturnValue = result;
+                //  if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
+                additionalDepHead.Add(item);
             }
-            return res;
+            return additionalDepHead;
         }
 
         #endregion

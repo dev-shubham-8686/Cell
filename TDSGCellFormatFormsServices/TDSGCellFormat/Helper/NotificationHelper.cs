@@ -2018,7 +2018,7 @@ namespace TDSGCellFormat.Helper
                                 emailBody = emailBody.Replace("#AdjustmentLink#", docLink);
                                 emailBody = emailBody.Replace("#ApplicationNo#", adjustmentNo);
                                 //emailBody = emailBody.Replace("#Improvement#", equipmentData.ImprovementName);
-                               // emailBody = emailBody.Replace("#Area#", areaNamesString);
+                                emailBody = emailBody.Replace("#Area#", areaNamesString);
                                // emailBody = emailBody.Replace("#Section#", sectionName);
                                 emailBody = emailBody.Replace("#Comment#", comment);
                                // emailBody = emailBody.Replace("#Role#", Role);

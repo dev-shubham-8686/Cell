@@ -165,6 +165,9 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
         modelBuilder.Entity<AdjustmentReportView>().HasNoKey();
         modelBuilder.Entity<AdjustmentReportApproverView>().HasNoKey();
+        modelBuilder.Entity<DepartmentHeadsView>().HasNoKey();
+        modelBuilder.Entity<CellDepartment>().HasNoKey();
+        //CellDepartment
         modelBuilder.Ignore<Property>();
         //modelBuilder.Entity<AdjustmentReport>(entity =>
         //{
@@ -591,6 +594,24 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
         return await this.Set<AdjustmentReportApproverView>()
             .FromSqlRaw("EXEC GetAdjustmentReportApproverList @createdOne,@skip,@take,@order,@orderBy,@searchColumn,@searchValue", createdParam, skipParam, takeParam, orderParam, orderByParam, columnParam, valueParam)
+            .ToListAsync();
+    }
+
+    public async Task<List<DepartmentHeadsView>> GetAdditionalDepartmenthead(int departmentId)
+    {
+        var depId = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
+        return await this.Set<DepartmentHeadsView>()
+
+            .FromSqlRaw("EXEC SPP_GetAdditionalDepartmentHeads @DepartmentId", depId)
+            .ToListAsync();
+    }
+
+    public async Task<List<CellDepartment>> GetAdditionalDepartments(int departmentId)
+    {
+        var depId = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
+        return await this.Set<CellDepartment>()
+
+            .FromSqlRaw("EXEC SPP_GetCellDepartment @DepartmentId", depId)
             .ToListAsync();
     }
 
