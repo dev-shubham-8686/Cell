@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { format } from "date-fns";
-import {  DATE_TIME_FORMAT, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
+import {  DATE_TIME_FORMAT, DATETIME, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
 import { Button, message, Tooltip } from "antd";
 import { displayRequestStatus } from "../../../utils/utility";
 import { useUserContext } from "../../../context/UserContext";
@@ -123,7 +123,7 @@ const Workflow: React.FC<IProps> = ({
       cellValues:
         approverTasks?.map((item) =>
           item.ActionTakenDate
-            ? format(item.ActionTakenDate, DATE_TIME_FORMAT)
+            ? format(item.ActionTakenDate, DATETIME)
             : // ?item.ActionTakenDate
               ""
         ) ?? [],

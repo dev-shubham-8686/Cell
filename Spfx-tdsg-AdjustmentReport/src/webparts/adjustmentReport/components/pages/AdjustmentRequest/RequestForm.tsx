@@ -53,7 +53,7 @@ import { ColumnsType } from "antd/es/table";
 import { useGetAllEmployees } from "../../../hooks/useGetAllEmployees";
 import { useGetAllAdvisors } from "../../../hooks/useGetAllAdvisors";
 import Operation from "antd/es/transfer/operation";
-import { renameFolder } from "../../../utils/utility";
+import { getBase64, renameFolder } from "../../../utils/utility";
 import { WebPartContext } from "../../../context/WebPartContext";
 import { fromPairs } from "@microsoft/sp-lodash-subset";
 
@@ -146,75 +146,12 @@ const RequestForm = React.forwardRef(() => {
         : undefined,
     });
   }, [afterAdjustmentReportPhotos]);
-
-  // Handlers for Before Images
-  const handleAddBeforeImage = (name: string, url: string) => {
-    const newAttachment: IAdjustmentReportPhoto = {
-      AdjustmentReportPhotoId: 0,
-      AdjustmentReportId: id ? parseInt(id, 10) : 0,
-      DocumentName: name,
-      DocumentFilePath: url,
-      IsOldPhoto: true, // Assuming 'before' images are old photos
-      SequenceId: beforeAdjustmentReportPhotos.length + 1, // Get the next sequence based on before images
-    };
-
-    const updatedAttachments: IAdjustmentReportPhoto[] = [
-      ...beforeAdjustmentReportPhotos,
-      newAttachment,
-    ];
-
-    setbeforeAdjustmentReportPhotos(updatedAttachments);
-    form.setFieldsValue({ beforeImages: updatedAttachments });
-    console.log({ updatedAttachments });
-    console.log({ beforeAdjustmentReportPhotos });
-  };
-
-  const handleRemoveBeforeImage = (documentName: string) => {
-    const updatedAttachments = beforeAdjustmentReportPhotos
-      .filter((doc) => doc.DocumentName !== documentName) // Remove the document by name
-      .map((doc, index) => ({
-        ...doc,
-        SequenceId: index + 1, // Reassign SequenceId after removal
-      }));
-
-    setbeforeAdjustmentReportPhotos(updatedAttachments);
-    form.setFieldsValue({ beforeImages: updatedAttachments });
-    console.log({ beforeAdjustmentReportPhotos });
-  };
-
-  // Handlers for After Images
-  const handleAddAfterImage = (name: string, url: string) => {
-    const newAttachment: IAdjustmentReportPhoto = {
-      AdjustmentReportPhotoId: 0,
-      AdjustmentReportId: id ? parseInt(id, 10) : 0,
-      DocumentName: name,
-      DocumentFilePath: url,
-      IsOldPhoto: false, // Assuming 'after' images are new photos
-      SequenceId: afterAdjustmentReportPhotos.length + 1, // Get the next sequence based on after images
-    };
-
-    const updatedAttachments: IAdjustmentReportPhoto[] = [
-      ...afterAdjustmentReportPhotos,
-      newAttachment,
-    ];
-
-    setafterAdjustmentReportPhotos(updatedAttachments);
-    form.setFieldsValue({ afterImages: updatedAttachments });
-    console.log({ updatedAttachments });
-    console.log({ afterAdjustmentReportPhotos });
-  };
-
-  const handleRemoveAfterImage = (documentName: string) => {
-    const updatedAttachments = afterAdjustmentReportPhotos
-      .filter((doc) => doc.DocumentName !== documentName) // Remove the document by name
-      .map((doc, index) => ({
-        ...doc,
-        SequenceId: index + 1, // Reassign SequenceId after removal
-      }));
-
-    setafterAdjustmentReportPhotos(updatedAttachments);
-    form.setFieldsValue({ afterImages: updatedAttachments });
-    console.log({ afterAdjustmentReportPhotos });
+  const handleAreaChange = (values: any) => {
+    if (form.getFieldValue("SectionId") == 3) {
+      if (values.includes(1)) {
+        form.setFieldsValue({ area: [1] });
+      }
+    }
   };
 
   // Use effect to set report data when it becomes available
@@ -223,7 +160,6 @@ const RequestForm = React.forwardRef(() => {
       // Populate initial form values
       setreportNo(reportData?.ReturnValue.ReportNo);
       setCRMRequired(reportData?.ReturnValue.ChangeRiskManagementRequired);
-      setCRM(reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport);
       const changeRiskData =
         reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport?.map(
           (obj: any, index: any) => {
@@ -233,6 +169,7 @@ const RequestForm = React.forwardRef(() => {
             };
           }
         );
+
       setChangeRiskManagementDetails(changeRiskData);
       form.setFieldsValue({
         ...reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport,
@@ -259,37 +196,34 @@ const RequestForm = React.forwardRef(() => {
       ) {
         setunderamendment(true);
       }
-      const crmSectionCount =
-        reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport.length;
-      const sections = [];
-      for (let i = 0; i < crmSectionCount; i++) {
-        sections.push(i);
-      }
-      setFormSections(sections);
+
+      // const crmSectionCount =
+      //   reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport.length;
+      // const sections = [];
+      // for (let i = 0; i < crmSectionCount; i++) {
+      //   sections.push(i);
+      // }
+      // setFormSections(sections);
       if (reportData?.ReturnValue.IsSubmit) {
         setsubmitted(true);
       }
-      console.log({ cRM });
-      console.log({ formSections });
-      console.log(
-        reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport
-      );
+
       setselectedMachine(parseInt(reportData?.ReturnValue.MachineName ?? "0")); // Set machine initially
-      setbeforeAdjustmentReportPhotos(
-        reportData?.ReturnValue?.Photos.BeforeImages
-      );
-      setbeforeImages(reportData?.ReturnValue?.BeforeImages)
-      setafterImages(reportData?.ReturnValue?.AfterImages)
-      setafterAdjustmentReportPhotos(
-        reportData?.ReturnValue?.Photos.AfterImages
-      );
+      // setbeforeAdjustmentReportPhotos(
+      //   reportData?.ReturnValue?.Photos.BeforeImages
+      // );
+      setbeforeImages(reportData?.ReturnValue?.BeforeImages);
+      setafterImages(reportData?.ReturnValue?.AfterImages);
+      // setafterAdjustmentReportPhotos(
+      //   reportData?.ReturnValue?.Photos.AfterImages
+      // );
       if (reportData?.ReturnValue.MachineName == "-1") {
         setshowOtherMachine(true);
       }
       if (reportData?.ReturnValue.SubMachineName.includes(-2)) {
         setShowOtherSubMachine(true);
       }
-      
+
       form.setFieldsValue({
         reportNo: reportData?.ReturnValue.ReportNo,
         area: reportData?.ReturnValue.Area,
@@ -312,16 +246,16 @@ const RequestForm = React.forwardRef(() => {
       });
 
       // Pre-filter sub-machines based on the machine from reportData?
-      if (
-        reportData?.ReturnValue.MachineName &&
-        subMachinesResult?.ReturnValue
-      ) {
-        const initialFiltered = subMachinesResult.ReturnValue.filter(
-          (subMachine: any) =>
-            subMachine.MachineId === reportData.ReturnValue.MachineName
-        );
-        setFilteredSubMachines(initialFiltered);
-      }
+      // if (
+      //   reportData?.ReturnValue.MachineName &&
+      //   subMachinesResult?.ReturnValue
+      // ) {
+      //   const initialFiltered = subMachinesResult.ReturnValue.filter(
+      //     (subMachine: any) =>
+      //       subMachine.MachineId === reportData.ReturnValue.MachineName
+      //   );
+      //   setFilteredSubMachines(initialFiltered);
+      // }
     }
   };
 
@@ -360,6 +294,10 @@ const RequestForm = React.forwardRef(() => {
       subMachineName: [],
       OtherSubMachine: "",
     });
+  };
+
+  const handleSectionChange = () => {
+    form.setFieldsValue({ area: [] });
   };
 
   const handleSubMachineChange = (values: any) => {
@@ -499,7 +437,7 @@ const RequestForm = React.forwardRef(() => {
         operation == OPERATION.Submit || operation == OPERATION.Resubmit, //done
       IsAmendReSubmitTask: operation == OPERATION.Resubmit,
       BeforeImages: beforeImages,
-      AfterImages: afterImages ,
+      AfterImages: afterImages,
       CreatedBy: user?.employeeId, //need to change
       CreatedDate: dayjs(),
       ModifiedBy: user?.employeeId, // need to change conditionally
@@ -511,23 +449,25 @@ const RequestForm = React.forwardRef(() => {
     try {
       const payload = CreatePayload(values, operation);
       //const res =
+
       addUpdateReport(payload, {
-        onSuccess:async (response:any) => {
+        onSuccess: async (response: any) => {
           if (mode == "add") {
-             await renameFolder(
+            await renameFolder(
               DocumentLibraries.Adjustment_Attachments,
               WEB_URL,
               webPartContext.spHttpClient,
               user?.employeeId.toString(),
               response?.ReturnValue?.AdjustmentReportNo
             );
+            navigate("/");
           }
+          navigate("/");
         },
         onError: () => {
           void message.error("Failed to save . Please try again.");
         },
       });
-      navigate(-1);
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -564,21 +504,21 @@ const RequestForm = React.forwardRef(() => {
       okButtonProps: { className: "btn btn-primary mb-1" },
       cancelButtonProps: { className: "btn-outline-primary" },
       onOk: async () => {
-        debugger
         try {
           const advisorId = form.getFieldValue("AdvisorId");
 
-           debugger
-           if (!advisorId) {
-            void message.error("Please Select an Advisor")// Prevents the modal from closing
+          if (!advisorId) {
+            void message.error("Please Select an Advisor");
+            // return ;// Prevents the modal from closing
           }
+          await form.validateFields();
           const payload = CreatePayload(values, operation);
-          debugger
-          payload.AdvisorId = advisorId
-          debugger
-          await addUpdateReport(payload);
-          debugger
-          //navigate(-1);
+
+          payload.AdvisorId = advisorId;
+
+          // await addUpdateReport(payload);
+
+          navigate("/");
         } catch (error) {
           console.error("Error submitting form:", error);
         }
@@ -590,18 +530,18 @@ const RequestForm = React.forwardRef(() => {
   };
   const onResubmitFormHandler = async (values: any, operation?: any) => {
     try {
-      // await form.validateFields();
+      //await form.validateFields();
       const payload = CreatePayload(values, operation);
       await addUpdateReport(payload);
 
-      navigate(-1);
+      navigate("/");
     } catch (error) {
       console.error("Error submitting form:", error);
     }
   };
   const onFinish = async (operation?: any) => {
     const values = form.getFieldsValue();
- await form.validateFields();
+    await form.validateFields();
     if (operation == OPERATION.Save) {
       onSaveFormHandler(values, operation);
     }
@@ -1213,15 +1153,18 @@ const RequestForm = React.forwardRef(() => {
           </Col>
 
           <Col span={6}>
-            <Form.Item label="Adjustment Done By" name="requestedBy" 
-            initialValue={user?.employeeName}>
+            <Form.Item
+              label="Adjustment Done By"
+              name="requestedBy"
+              initialValue={user?.employeeName}
+            >
               <Input placeholder="-" disabled />
             </Form.Item>
           </Col>
 
           <Col span={6}>
             <Form.Item
-              label="When"
+              label="Date & Time"
               name="dateTime"
               rules={[{ required: true, message: "Please Select Date" }]}
             >
@@ -1291,6 +1234,7 @@ const RequestForm = React.forwardRef(() => {
                   label: section.sectionName,
                   value: section.sectionId,
                 }))}
+                onChange={handleSectionChange}
                 loading={sectionIsLoading}
                 className="custom-disabled-select"
               >
@@ -1320,26 +1264,27 @@ const RequestForm = React.forwardRef(() => {
                 placeholder="Select Area"
                 showSearch={false}
                 loading={arealoading}
-                onChange={(selected) => {
-                  if (selected.includes("all")) {
-                    const allAreaIds =
-                      areasResult?.ReturnValue.map(
-                        (area: IArea) => area.AreaId
-                      ) || [];
-                    // If "Select All" is checked, select all items. Otherwise, clear selection.
-                    form.setFieldValue(
-                      "area",
-                      selected.length === allAreaIds.length + 1
-                        ? []
-                        : allAreaIds
-                    );
-                  }
-                }}
+                onChange={handleAreaChange}
+                // onChange={(selected) => {
+                //   if (selected.includes("all")) {
+                //     const allAreaIds =
+                //       areasResult?.ReturnValue.map(
+                //         (area: IArea) => area.AreaId
+                //       ) || [];
+                //     // If "Select All" is checked, select all items. Otherwise, clear selection.
+                //     form.setFieldValue(
+                //       "area",
+                //       selected.length === allAreaIds.length + 1
+                //         ? []
+                //         : allAreaIds
+                //     );
+                //   }
+                // }}
               >
                 {/* "Select All" Option */}
-                <Option key="all" value="all">
+                {/* <Option key="all" value="all">
                   Select All
-                </Option>
+                </Option> */}
                 {/* Other Options */}
                 {areasResult?.ReturnValue &&
                   areasResult.ReturnValue.map((area: IArea) => (
@@ -1506,7 +1451,7 @@ const RequestForm = React.forwardRef(() => {
               />
             </Form.Item>
           </Col>
-        </Row>  
+        </Row>
         <Row gutter={48}>
           <Col span={6}>
             <Form.Item
@@ -1523,49 +1468,13 @@ const RequestForm = React.forwardRef(() => {
                 disabled={
                   isViewMode || (!isAdmin && submitted && !underamendment)
                 }
-                rows={4}
+                rows={2}
                 maxLength={2000}
                 placeholder="Describe the condition after adjustment"
               />
             </Form.Item>
           </Col>
           <Col span={6}>
-            {/* <Form.Item
-              label="Before Images"
-              name="beforeImages"
-              rules={[
-                {
-                  required: true,
-                  message: "Please upload before images!",
-                },
-              ]}
-            >
-              <FileUpload
-                disabled={
-                  isViewMode || (!isAdmin && submitted && !underamendment)
-                }
-                key={`file-upload-before-images`}
-                folderName={
-                  form.getFieldValue("reportNo") ?? user?.employeeId.toString()
-                }
-                subFolderName={"BeforeImages"}
-                libraryName={DocumentLibraries.Adjustment_Attachments}
-                files={beforeAdjustmentReportPhotos?.map((a) => ({
-                  ...a,
-                  uid: a.AdjustmentReportPhotoId?.toString() ?? "",
-                  name: a.DocumentName,
-                  url: `${a.DocumentFilePath}`,
-                }))}
-                setIsLoading={(loading: boolean) => {
-                  // setIsLoading(loading);
-                }}
-                isLoading={false}
-                onAddFile={handleAddBeforeImage}
-                onRemoveFile={handleRemoveBeforeImage}
-                uploadType="before"
-              />
-            </Form.Item> */}
-
             <Form.Item
               label={<span className="text-muted">Before Attachments</span>}
               name="BeforeImages"
@@ -1591,9 +1500,18 @@ const RequestForm = React.forwardRef(() => {
                   // setIsLoading(loading);
                 }}
                 isLoading={false}
-                onAddFile={(name: string, url: string) => {
+                onAddFile={async (name: string, url: string, file: File) => {
                   const existingAttachments = beforeImages ?? [];
                   console.log("FILES", existingAttachments);
+                  let imageBytes: string | null = null;
+
+                  if (file.type.startsWith("image")) {
+                    // Use FileReader to read the file as a Base64-encoded string
+                    const base64String = await getBase64(file);
+                    imageBytes = base64String.split(",")[1];
+                  } else {
+                    console.error("The file is not an image:", file.type);
+                  }
                   const newAttachment: IBeforeImages = {
                     AdjustmentBeforeImageId: 0,
                     AdjustmentreportId: parseInt(id),
@@ -1601,6 +1519,7 @@ const RequestForm = React.forwardRef(() => {
                     BeforeImgPath: url,
                     CreatedBy: user?.employeeId,
                     ModifiedBy: user?.employeeId,
+                    BeforeImgBytes: imageBytes,
                   };
 
                   const updatedAttachments: IBeforeImages[] = [
@@ -1611,20 +1530,7 @@ const RequestForm = React.forwardRef(() => {
                   void form.validateFields(["BeforeImages"]);
                   setbeforeImages(updatedAttachments);
                 }}
-                // onRemoveFile={(documentName: string) => {
-                //   debugger
-                //   const existingAttachments = currSituationAttchments ?? [];
-
-                //   const updatedAttachments = existingAttachments?.filter(
-                //     (doc) => doc.CurrSituationDocName !== documentName
-                //   );
-                //   setcurrSituationAttchments(updatedAttachments);
-                //   void form.validateFields(["EquipmentCurrSituationAttachmentDetails"]);
-
-                //   console.log("File Removed");
-                // }}
                 onRemoveFile={async (documentName: string) => {
-                  debugger;
                   const existingAttachments = beforeImages ?? [];
 
                   const updatedAttachments = existingAttachments?.filter(
@@ -1635,7 +1541,6 @@ const RequestForm = React.forwardRef(() => {
 
                   console.log("Validation successful after file removal");
                   if (updatedAttachments?.length == 0) {
-                    debugger;
                     form.setFieldValue("BeforeImages", []);
                   }
                   await form.validateFields(["BeforeImages"]);
@@ -1646,8 +1551,7 @@ const RequestForm = React.forwardRef(() => {
             </Form.Item>
           </Col>
           <Col span={6}>
-     
-          <Form.Item
+            <Form.Item
               label={<span className="text-muted">After Attachments</span>}
               name="AfterImages"
             >
@@ -1670,13 +1574,28 @@ const RequestForm = React.forwardRef(() => {
                   // setIsLoading(loading);
                 }}
                 isLoading={false}
-                onAddFile={(name: string, url: string) => {
+                onAddFile={async (name: string, url: string, file: File) => {
                   const existingAttachments = afterImages ?? [];
+
+                  console.log("FileObject", file);
                   console.log("After Files", existingAttachments);
+
+                  let imageBytes: string | null = null;
+
+                  if (file.type.startsWith("image")) {
+                    // Use FileReader to read the file as a Base64-encoded string
+
+                    const base64String = await getBase64(file);
+                    imageBytes = base64String.split(",")[1];
+                  } else {
+                    console.error("The file is not an image:", file.type);
+                  }
+
                   const newAttachment: IAfterImages = {
                     AdjustmentAfterImageId: 0,
                     AdjustmentreportId: parseInt(id),
                     AfterImgName: name,
+                    AfterImgBytes: imageBytes,
                     AfterImgPath: url,
                     CreatedBy: user?.employeeId,
                     ModifiedBy: user?.employeeId,
@@ -1690,20 +1609,7 @@ const RequestForm = React.forwardRef(() => {
                   void form.validateFields(["AfterImages"]);
                   setafterImages(updatedAttachments);
                 }}
-                // onRemoveFile={(documentName: string) => {
-                //   debugger
-                //   const existingAttachments = currSituationAttchments ?? [];
-
-                //   const updatedAttachments = existingAttachments?.filter(
-                //     (doc) => doc.CurrSituationDocName !== documentName
-                //   );
-                //   setcurrSituationAttchments(updatedAttachments);
-                //   void form.validateFields(["EquipmentCurrSituationAttachmentDetails"]);
-
-                //   console.log("File Removed");
-                // }}
                 onRemoveFile={async (documentName: string) => {
-                  debugger;
                   const existingAttachments = afterImages ?? [];
 
                   const updatedAttachments = existingAttachments?.filter(
@@ -1714,7 +1620,6 @@ const RequestForm = React.forwardRef(() => {
 
                   console.log("Validation successful after file removal");
                   if (updatedAttachments?.length == 0) {
-                    debugger;
                     form.setFieldValue("AfterImages", []);
                   }
                   await form.validateFields(["AfterImages"]);
@@ -1726,7 +1631,9 @@ const RequestForm = React.forwardRef(() => {
           </Col>
         </Row>
         <div>
-          <div style={{ display: "flex", alignItems: "center" }}>
+          <div
+            style={{ display: "flex", alignItems: "center", marginTop: "8px" }}
+          >
             <span style={{ marginRight: 16 }}>
               Change Risk Management Required ?
             </span>

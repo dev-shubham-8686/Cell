@@ -1,7 +1,7 @@
 import * as dayjs from "dayjs";
 import { basePathwithprefix } from "../GLOBAL_CONSTANT";
 import apiClient from "../utils/axiosInstance";
-import { IAdjustmentReportPhoto, IAfterImages, IBeforeImages, IChangeRiskData } from "../interface";
+import { IAdjustmentReportPhoto, IAfterImages, IBeforeImages, IChangeRiskData, ICustomAxiosConfig } from "../interface";
 
 // interface Image {
 //   DocumentName: string;
@@ -97,8 +97,11 @@ export interface IAdjustmentReport {
 export const addUpdateReport = async (
   payload: IAddUpdateReportPayload
 ): Promise<boolean> => {
+  const config: ICustomAxiosConfig = {
+    SHOW_NOTIFICATION: true,
+  };
   const url = `${basePathwithprefix}/AdjustmentReport/AddOrUpdate`; // need to change
   console.log(JSON.stringify(payload))
-  const response = await apiClient.post<boolean>(url, payload);
+  const response = await apiClient.post<boolean>(url, payload,config);
   return response.data;
 };

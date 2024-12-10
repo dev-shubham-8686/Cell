@@ -213,7 +213,7 @@ export  const create_UUID = (): string => {
         },
       }
     );
-  
+    
     const folderData = await getFolderResponse.json();
     console.log("folderData", folderData);
     
@@ -232,7 +232,7 @@ export  const create_UUID = (): string => {
           "IF-MATCH": "*",
         },
         body: JSON.stringify({
-          __metadata: { type: "SP.Data.EqReportDocumentsItem" },
+          __metadata: { type: "SP.Data.AdjustmentDocumentsItem" },
           Title: newFolderName,
           FileLeafRef: newFolderName,
         }),
@@ -247,10 +247,18 @@ export  const create_UUID = (): string => {
     console.log("Folder renamed successfully");
   };
   
-  
+  // Function to convert file to Base64
+ export const getBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
   export default {
     redirectToHome,
     create_UUID,
-    renameFolder
+    renameFolder,
+    getBase64
   };
 

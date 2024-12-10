@@ -8,8 +8,8 @@ export interface IEmployee {
     Email?: string;
 }
 
-export const useGetAdditionalDepartmentHeads = (): UseQueryResult<IEmployee[]> => {
-    return useQuery(["get-additional-department-head"], () => getAdditionalDepartmentHeads(), {
+export const useGetAdditionalDepartmentHeads = (id: number): UseQueryResult<IEmployee[]> => {
+    return useQuery(["get-additional-department-head",id], () => getAdditionalDepartmentHeads(id), {
         keepPreviousData: true,
     });
 };

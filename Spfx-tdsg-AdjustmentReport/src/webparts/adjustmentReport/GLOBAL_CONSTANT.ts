@@ -13,10 +13,11 @@ export const GET_LOGIN_SESSION = `${basePath}/api/TroubleReport/GetLoginSession`
 export const GET_USER = `${basePath}/api/AdjustmentReport/GetUserRole`;
 
 export const DATE_TIME_FORMAT = "DD-MM-YYYY HH:mm:ss";
+export const DATETIME = "dd-MM-yyyy HH:mm:ss";
 
 export const WEB_URL = 
-// "https://synopsandbox.sharepoint.com/sites/Training2024"
- "https://synopsandbox.sharepoint.com/sites/e-app-stage"  // -- local
+"https://synopsandbox.sharepoint.com/sites/Training2024"
+//  "https://synopsandbox.sharepoint.com/sites/e-app-stage"  // -- local
 //  "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA"  // --QA
 //"https://tdsgj.sharepoint.com/sites/e-app-stage"        // -stage 
 

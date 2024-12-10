@@ -156,7 +156,7 @@ const MyApproval: React.FC<{}> = ({}) => {
       //   ),
     },
     {
-      title: "Requestor",
+      title: "Adjustment Done By",
       dataIndex: "Requestor",
       key: "Requestor",
       width: 140,

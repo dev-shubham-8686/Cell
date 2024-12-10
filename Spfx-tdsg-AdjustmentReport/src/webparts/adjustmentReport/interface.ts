@@ -1,3 +1,4 @@
+import { AxiosRequestConfig } from "axios";
 import dayjs from "dayjs";
 
 export interface IAdjustmentReportPhoto {
@@ -68,6 +69,7 @@ export interface IBeforeImages{
   AdjustmentBeforeImageId:number;
   AdjustmentreportId:number;
   BeforeImgName:string;
+  BeforeImgBytes?:string;
   BeforeImgPath:string;
   CreatedBy:number;
   ModifiedBy:number;
@@ -77,6 +79,7 @@ export interface IAfterImages{
   AdjustmentAfterImageId:number;
   AdjustmentreportId:number;
   AfterImgName:string;
+  AfterImgBytes?:string;
   AfterImgPath:string;
   CreatedBy:number;
   ModifiedBy:number;
@@ -99,3 +102,6 @@ export interface IEmployee {
 export type ObjectType = { [key: string]: string | number | undefined };
 
 
+export interface ICustomAxiosConfig extends AxiosRequestConfig<any> {
+  SHOW_NOTIFICATION?: boolean;
+}

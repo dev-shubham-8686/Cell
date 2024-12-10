@@ -34,7 +34,7 @@ export default class AdjustmentReportWebPart extends BaseClientSideWebPart<IAdju
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
         userDisplayName: this.context.pageContext.user.displayName,
         context: this.context,
-        userEmail: this.context.pageContext.user.loginName,
+        userEmail: this.context.pageContext.user.email,
       });
 
     ReactDom.render(element, this.domElement);

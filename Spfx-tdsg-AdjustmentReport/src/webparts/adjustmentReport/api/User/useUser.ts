@@ -54,11 +54,13 @@ const authenticateUser = async (email: string): Promise<boolean> => {
 
   const body = {
     parameter: btoa(JSON.stringify(token)),
-    type: "MATERIALCONSUMPTION",
+    type: "ADJUSTMENTREPORT",
   }
   const response = await apiClient.post<any>(GET_LOGIN_SESSION, JSON.stringify(body));
   console.log(response)
+  
   const data = response.data;
+  
   // eslint-disable-next-line require-atomic-updates
   apiClient.defaults.headers.common.Authorization = data.Message;
 
