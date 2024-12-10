@@ -200,7 +200,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 requestor = requestor.EmployeeName,
                 department = department,
                 createdDate = technicalInstruction.CreatedDate?.ToString("dd-MM-yyyy"),
-                isClosed = technicalInstruction.IsClosed
+                isClosed = technicalInstruction.IsClosed,
+                otherEquipment = technicalInstruction.OtherEquipment
             };
 
             if (technicalInstruction != null)
@@ -305,15 +306,21 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (report.equipmentIds != null && report.equipmentIds.Count > 0)
                 {
-                    var objs = report.equipmentIds.Select(id => new TechnicalEquipmentMasterItems
+                    if (report.equipmentIds[0] == -1)
                     {
-                        EquipmentId = id,
-                        TechnicalId = newReport.TechnicalId
-                    }).ToList();
+                        newReport.OtherEquipment = report.otherEquipment;
+                    }
+                    else
+                    {
+                        var objs = report.equipmentIds.Select(id => new TechnicalEquipmentMasterItems
+                        {
+                            EquipmentId = id,
+                            TechnicalId = newReport.TechnicalId
+                        }).ToList();
 
-                    _context.TechnicalEquipmentMasterItems.AddRange(objs);
-                    //await _context.SaveChangesAsync();
-
+                        _context.TechnicalEquipmentMasterItems.AddRange(objs);
+                        //await _context.SaveChangesAsync();
+                    }
                 }
 
                 if (report.technicalAttachmentAdds != null && report.technicalAttachmentAdds.Count > 0)
@@ -415,13 +422,23 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (report.equipmentIds != null && report.equipmentIds.Count > 0)
                 {
-                    var objs = report.equipmentIds.Select(id => new TechnicalEquipmentMasterItems
+                    if (report.equipmentIds[0] == -1)
                     {
-                        EquipmentId = id,
-                        TechnicalId = report.TechnicalId
-                    }).ToList();
+                        existingReport.OtherEquipment = report.otherEquipment;
+                    }
+                    else
+                    {
+                        existingReport.OtherEquipment = null;
 
-                    _context.TechnicalEquipmentMasterItems.AddRange(objs);
+                       var objs = report.equipmentIds.Select(id => new TechnicalEquipmentMasterItems
+                        {
+                            EquipmentId = id,
+                            TechnicalId = report.TechnicalId
+                        }).ToList();
+
+                        _context.TechnicalEquipmentMasterItems.AddRange(objs);
+                    }
+                    
                 }
 
                 if (report.technicalAttachmentAdds != null && report.technicalAttachmentAdds.Count > 0)
@@ -1697,6 +1714,11 @@ namespace TDSGCellFormat.Implementation.Repository
                     commaSeparatedEquipmentNames = string.Join(", ", equipmentNames);
                 }
 
+                if(materialdata.OtherEquipment != null)
+                {
+                    commaSeparatedEquipmentNames = materialdata.OtherEquipment;
+                }
+
                 //get histroy data
                 var revesionHistroy = "";
                 if(materialdata.TechnicalReviseId != null)
@@ -1713,6 +1735,24 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                         
                     }
+                }
+
+                var Attachments_String = "";
+                var get_attachemnts = await _context.TechnicalAttachments
+                    .Where(c => c.TechnicalId == materialdata.TechnicalId && c.IsDeleted == false)
+                    .ToListAsync();
+
+                string? documentLink = _configuration["SPSiteUrl"];
+
+                if (get_attachemnts != null && get_attachemnts.Count > 0)
+                {
+                    Attachments_String += @"<ul style='list-style-type: none; margin: 0;'>";
+                    foreach (var a in get_attachemnts)
+                    {
+                        // Assuming `DocumentUrl` contains the file's URL or relative path
+                        Attachments_String += $"<li><a href='{documentLink}{a.DocumentFilePath}' target='_blank'>{a.DocumentName}</a></li>";
+                    }
+                    Attachments_String += "</ul>";
                 }
 
                 //normal data
@@ -1754,7 +1794,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#revisionHistroy#", revesionHistroy ?? "");
                 //var base64Images = await GetBase64ImagesForTechnicalInstruction(technicalId); // List of Base64 image strings
                 sb.Replace("#technicalOutlineAttachment#", null ?? "");
-
+                sb.Replace("#relatedDocument#", Attachments_String ?? "");
 
                 StringBuilder tableBuilder = new StringBuilder();
                 int serialNumber = 1;
@@ -2164,6 +2204,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     technicalRevise.CreatedBy = userId;
                     technicalRevise.IsSubmit = false;
                     technicalRevise.IsClosed = false;
+                    technicalRevise.ApplicationStartDate = DateTime.Now;
                     //technicalRevise.IsReview = false;
 
                     _context.TechnicalInstructionSheets.Add(technicalRevise);
@@ -2313,6 +2354,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     technicalRevise.CreatedBy = userId;
                     technicalRevise.IsSubmit = false;
                     technicalRevise.IsClosed = false;
+                    technicalRevise.ApplicationStartDate = DateTime.Now;
                     //technicalRevise.IsReview = false;
 
 

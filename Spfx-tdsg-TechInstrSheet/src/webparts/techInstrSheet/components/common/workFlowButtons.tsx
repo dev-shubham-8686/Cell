@@ -156,8 +156,11 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
 
       {existingTechniaclInstructionSlip?.isSubmit &&
       existingTechniaclInstructionSlip?.status !== "UnderAmendment" &&
+      existingTechniaclInstructionSlip?.status !== "Closed" &&
+      existingTechniaclInstructionSlip?.status !== "Completed" &&
+      existingTechniaclInstructionSlip?.status !== "Approved" &&
       user?.employeeId === existingTechniaclInstructionSlip?.userId &&
-      existingTechniaclInstructionSlip?.seqNumber < 2 ? (
+      existingTechniaclInstructionSlip?.seqNumber < 3 ? (
         <Button
           color="primary"
           variant="solid"
