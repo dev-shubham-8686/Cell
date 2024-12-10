@@ -538,7 +538,8 @@ const FormTab: React.FC<any> = ({
                 ]}
               >
                 <Input
-                  placeholder="Enter other equipment"
+                  disabled={isViewMode}
+                  placeholder="Enter Other Equipment"
                   value={otherEquipment}
                   onChange={(e) => setOtherEquipment(e.target.value)}
                 />
