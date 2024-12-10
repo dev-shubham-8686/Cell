@@ -45,6 +45,7 @@ namespace TDSGCellFormat.Common
             MaterialConsumption = 4, //MATERIALCONSUMPTION
             TechnicalInstruction = 5
         }
+       
         public enum HistoryAction
         {
             Submit = 1,
@@ -52,7 +53,7 @@ namespace TDSGCellFormat.Common
             Approved = 3,
             Rejected = 4,
             Cancelled = 5,
-            Amended = 6,
+            AskToAmend = 6,
             Completed = 7,
             Closed = 8,
             PullBack = 9,
@@ -72,7 +73,9 @@ namespace TDSGCellFormat.Common
             ToshibaApproved = 23,
             ToshibaApprovalRequired = 24,
             PCRNRequired = 25,
-            ToshibaDiscussionRequired = 26
+            ToshibaDiscussionRequired = 26,
+            UpdateTargetDate = 27,
+            Reject = 28
         }
         public enum ApprovalStatus
         {
@@ -302,6 +305,18 @@ namespace TDSGCellFormat.Common
         public const string MaterialExcel = "Excel file downloaded successfully";
         public const string MaterialPdf = "PDF file downloaded successfully";
         public const string MaterialExcelNotFound = "Please complete the approval process to download the excel";
+
+        public const string TechnicalSave = "Technical Instruction form saved successfully";
+        public const string TechnicalSubmit = "Technical Instruction form submitted successfully";
+        public const string TechnicalApprove = "Technical Instruction form has been approved";
+        public const string TechnicalAsktoAmend = "Amendment Asked successfully";
+        public const string TechnicalResubmit = "Technical Instruction form Resubmitted successfully";
+        public const string TechnicalPullback = "Technical Instruction form has been pulled back successfully";
+        public const string TechnicalClose = "Technical Instruction form closed successfully";
+        public const string TechnicalExcel = "Excel file downloaded successfully";
+        public const string TechnicalPdf = "PDF file downloaded successfully";
+        public const string TechnicalExcelNotFound = "Please complete the approval process to download the excel";
+        public const string TechnicalReOpen = "Technical Instruction reopened";
         #endregion
     }
 }

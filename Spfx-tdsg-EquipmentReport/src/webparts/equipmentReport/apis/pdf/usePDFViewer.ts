@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import http from "../../http";
 import { downloadPDF } from "../../utility/utility";
 import { PDF_VIEWER } from "../../URLs";
+import { showSuccess } from "../../utility/displayjsx";
 
 const pdfViewer = async ({ id, EQNo }: { id: number; EQNo: any }) => {
     
@@ -9,6 +10,9 @@ const pdfViewer = async ({ id, EQNo }: { id: number; EQNo: any }) => {
   const data = response.data.ReturnValue;
   
   downloadPDF(data, EQNo); 
+  if(data){
+    void showSuccess("PDF file downloaded successfully")
+  }
   return data;
 };
 

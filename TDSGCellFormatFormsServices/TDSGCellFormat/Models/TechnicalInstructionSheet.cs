@@ -15,17 +15,34 @@ public partial class TechnicalInstructionSheet
 
     public string? Title { get; set; }
 
+    public DateTime? IssueDate { get; set; }
+
+    public string? IssuedBy { get; set; }
+
+    public string? CTINumber { get; set; }
+
+    public int? RevisionNo { get; set; }
+
     public string? Purpose { get; set; }
 
     public string? ProductType { get; set; }
 
-    public string? Quantity { get; set; }
+    public double? Quantity { get; set; }
 
     public string? Outline { get; set; }
 
     public DateTime? TISApplicable { get; set; }
 
+    public DateTime? TargetClosureDate { get; set; }
+
+    public string? LotNo { get; set; }
+
     public string? Attachment { get; set; }
+    public DateTime? ApplicationStartDate { get; set; }
+
+    public string? ApplicationLotNo { get; set; }
+
+    public string? ApplicationEquipment { get; set; }
 
     public string? Status { get; set; }
 
@@ -40,4 +57,16 @@ public partial class TechnicalInstructionSheet
     public DateTime? ModifiedDate { get; set; }
 
     public bool? IsDeleted { get; set; }
+
+    public bool? IsClosed { get; set; }
+
+    public DateTime? ClosedDate { get; set; }
+
+    public bool? IsReOpen { get; set; }
+
+    public int? TechnicalReviseId { get; set; }
+
+    public int? OldCreatedBy { get; set; }
+
+    public string? OutlineImageBytes { get; set; }
 }

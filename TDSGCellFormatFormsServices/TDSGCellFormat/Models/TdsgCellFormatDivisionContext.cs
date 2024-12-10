@@ -145,6 +145,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         modelBuilder.Entity<TroubleReportResult>().HasNoKey();
         modelBuilder.Entity<TroubleRevisionResult>().HasNoKey();
         modelBuilder.Entity<TroubleReportApproverTaskMasterAdd>().HasNoKey();
+        modelBuilder.Entity<TechnicalInstructionTaskMasterAdd>().HasNoKey();
         modelBuilder.Entity<MaterialConsumptionApproverTaskMasterAdd>().HasNoKey();
         modelBuilder.Entity<EquipmentApproverTaskMasterAdd>().HasNoKey();
         modelBuilder.Entity<EquipmentImprovementView>().HasNoKey();
@@ -156,6 +157,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         modelBuilder.Entity<GetUserDetailsView>().HasNoKey();
         modelBuilder.Entity<GetEquipmentUser>().HasNoKey();
         modelBuilder.Entity<TroubleReportExcel>().HasNoKey();
+        modelBuilder.Entity<TechnicalExcel>().HasNoKey();
         modelBuilder.Entity<MaterialExcel>().HasNoKey();
 
         modelBuilder.Entity<EquipmentExcelViewForType1>().HasNoKey();
@@ -163,6 +165,9 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
         modelBuilder.Entity<AdjustmentReportView>().HasNoKey();
         modelBuilder.Entity<AdjustmentReportApproverView>().HasNoKey();
+        modelBuilder.Entity<DepartmentHeadsView>().HasNoKey();
+        modelBuilder.Entity<CellDepartment>().HasNoKey();
+        //CellDepartment
         modelBuilder.Ignore<Property>();
         //modelBuilder.Entity<AdjustmentReport>(entity =>
         //{
@@ -487,7 +492,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         var employeeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@EmployeeId", employeeId);
         var typeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@Type", type);
 
-        if (type == 1)
+        if (type == 1 || type == 3)
         {
             return await this.Set<EquipmentExcelViewForType1>()
                 .FromSqlRaw("EXEC GetEquipmentListExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
@@ -592,6 +597,24 @@ public partial class TdsgCellFormatDivisionContext : DbContext
             .ToListAsync();
     }
 
+    public async Task<List<DepartmentHeadsView>> GetAdditionalDepartmenthead(int departmentId)
+    {
+        var depId = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
+        return await this.Set<DepartmentHeadsView>()
+
+            .FromSqlRaw("EXEC SPP_GetAdditionalDepartmentHeads @DepartmentId", depId)
+            .ToListAsync();
+    }
+
+    public async Task<List<CellDepartment>> GetAdditionalDepartments(int departmentId)
+    {
+        var depId = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
+        return await this.Set<CellDepartment>()
+
+            .FromSqlRaw("EXEC SPP_GetCellDepartment @DepartmentId", depId)
+            .ToListAsync();
+    }
+
 
     public async Task<List<MaterialConsumptionListView>> GetMaterialConsumptionList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
     {
@@ -608,4 +631,59 @@ public partial class TdsgCellFormatDivisionContext : DbContext
             .ToListAsync();
     }
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+
+    public virtual DbSet<EquipmentMaster> EquipmentMasters { get; set; }
+
+    public virtual DbSet<TechnicalEquipmentMasterItems> TechnicalEquipmentMasterItems { get; set; }
+
+    public virtual DbSet<TechnicalAttachment> TechnicalAttachments { get; set; }
+
+    public virtual DbSet<TechnicalOutlineAttachment> TechnicalOutlineAttachments { get; set; }
+
+    public virtual DbSet<TechnicalInstructionHistoryMaster> TechnicalInstructionHistoryMasters { get; set; }
+
+    public virtual DbSet<TechnicalInstructionApproverTaskMaster> TechnicalInstructionApproverTaskMasters { get; set; }
+
+    //public virtual DbSet<SectionMaster> SectionMasters { get; set; }
+
+    //public virtual DbSet<SectionHeadEmpMaster> SectionHeadEmpMasters { get; set; }
+
+    public virtual DbSet<TechnicalClosureAttachment> TechnicalClosureAttachments { get; set; }
+
+    public DbSet<TechnicalNumberResult> TechnicalNumberResults { get; set; }
+
+    public void CallTechnicalInstructionApproverMatrix(int? userId, int technicalId, int sectionId)
+    {
+        var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@UserId", userId);
+        var technicalInstructionIdParam = new Microsoft.Data.SqlClient.SqlParameter("@TechnicalId", technicalId);
+        var sectionIdParam = new Microsoft.Data.SqlClient.SqlParameter("@SectionId", sectionId);
+
+        Database.ExecuteSqlRaw("EXECUTE dbo.SPP_TechnicalInstructionApproverMatrix @UserId, @TechnicalId, @SectionId", userIdParam, technicalInstructionIdParam, sectionIdParam);
+
+    }
+    public DbSet<TechnicalInstructionCTINumberResult> TechnicalInstructionCTINumberResults { get; set; }
+
+    public async Task<List<TechnicalInstructionTaskMasterAdd>> GetTechnicalWorkFlowData(int technicalId)
+    {
+        var userIdParam = new Microsoft.Data.SqlClient.SqlParameter("@TechnicalId", technicalId);
+        return await this.Set<TechnicalInstructionTaskMasterAdd>()
+            .FromSqlRaw("EXEC SPP_GetTechnicalInstructionWorkFlowDetails @TechnicalId", userIdParam)
+            .ToListAsync();
+    }
+
+    public async Task<List<TechnicalExcel>> GetTechnicalExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
+    {
+        var fromDateParam = new Microsoft.Data.SqlClient.SqlParameter("@FromDate", fromDate.ToString("yyyy-MM-dd"));
+        var toDateParam = new Microsoft.Data.SqlClient.SqlParameter("@ToDate", toDate.ToString("yyyy-MM-dd"));
+        var employeeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@EmployeeId", employeeId);
+        var typeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@Type", type);
+        var result = await this.Set<TechnicalExcel>()
+        .FromSqlRaw("EXEC GetTechnicalInstructionListExcel @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
+        .ToListAsync();
+        return result;
+
+    }
+
+    public DbSet<TechnicalRevisonMapList> TechnicalRevisonMapLists { get; set; }
 }

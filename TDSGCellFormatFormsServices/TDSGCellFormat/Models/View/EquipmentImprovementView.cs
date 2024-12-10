@@ -28,6 +28,8 @@
         public bool? IsResultSubmit { get; set; }
         public int? totalCount { get; set; }
 
+        public DateTime? ModifiedDate { get; set; }
+
     }
 
     public class EquipmentImprovementApproverView
@@ -49,6 +51,8 @@
         public string? Status { get; set; }
         public int? CreatedBy { get; set; }
         public int? totalCount { get; set; }
+
+        public DateTime? ModifiedDate { get; set; }
     }
 
     public class EquipmentExcelViewForType1

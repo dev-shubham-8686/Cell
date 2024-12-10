@@ -41,7 +41,7 @@ namespace TDSGCellFormat.Interface.Service
 
         Task<AjaxResult> GetDepartmentHead(int adjustmentReportId);
 
-        Task<AjaxResult> GetAdditionalDepartmentHeads();
+        Task<List<DepartmentHeadsView>> GetAdditionalDepartmentHeads(int departmentId);
 
         Task<GetEquipmentUser> GetUserRole(string email);
 
@@ -50,5 +50,7 @@ namespace TDSGCellFormat.Interface.Service
         Task<AjaxResult> AddOrUpdateAdvisorData(AdjustmentAdvisor request);
 
         AdjustmentAdvisor GetAdvisorData(int adjustmentReportId);
+
+        Task<List<CellDepartment>> GetAdditionalDepartments(int departmentId);
     }
 }
