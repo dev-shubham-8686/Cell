@@ -10,16 +10,20 @@ import AllRequestsTab from "./AllRequestsTab";
 const TAB_KEYS = {
   REQUESTS: "1",
   APPROVALS: "3",
-  ALLREQUESTS: "4"
+  ALLREQUESTS: "4",
 };
 
 const TechnicalInstructionList: React.FC = () => {
   const location = useLocation();
-  const [activeKey, setActiveKey] = useState(
-    location.state?.currentTabState === "myapproval-tab"
-      ? TAB_KEYS.APPROVALS
-      : TAB_KEYS.REQUESTS
-  );
+  const [activeKey, setActiveKey] = useState(() => {
+    if (location.state?.currentTabState === "myapproval-tab") {
+      return TAB_KEYS.APPROVALS;
+    } else if (location.state?.currentTabState === "allrequest-tab") {
+      return TAB_KEYS.ALLREQUESTS;
+    } else {
+      return TAB_KEYS.REQUESTS;
+    }
+  });
   const navigate = useNavigate();
 
   const tabOperations = (
@@ -52,7 +56,7 @@ const TechnicalInstructionList: React.FC = () => {
             padding: "24px 20px",
           }}
         >
-         My Requests
+          My Requests
         </span>
       ),
       children: (
@@ -76,7 +80,7 @@ const TechnicalInstructionList: React.FC = () => {
             padding: "24px 20px",
           }}
         >
-         My Approvals
+          My Approvals
         </span>
       ),
       children: (

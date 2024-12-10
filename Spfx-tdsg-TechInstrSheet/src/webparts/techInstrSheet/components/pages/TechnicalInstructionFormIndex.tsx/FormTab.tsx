@@ -36,6 +36,11 @@ const FormTab: React.FC<any> = ({
   editorModel,
   outlineImageFiles,
   setoutlineImageFiles,
+  showOtherField,
+  setShowOtherField,
+  otherEquipment,
+  setOtherEquipment,
+  handleChangeEquipment,
 }) => {
   const [model, setModel] = React.useState<string>("");
   const [imageFiles, setImageFiles] = React.useState<any>([]);
@@ -47,18 +52,18 @@ const FormTab: React.FC<any> = ({
     // Function to update the z-index of all '.fr-popup' elements
     const updateZIndex = () => {
       if (isMountedRef.current) {
-        document.querySelectorAll('.fr-popup').forEach(el => {
+        document.querySelectorAll(".fr-popup").forEach((el) => {
           if (el instanceof HTMLElement) {
-            el.style.zIndex = '2147483647'; // Ensure TypeScript recognizes 'style'
+            el.style.zIndex = "2147483647"; // Ensure TypeScript recognizes 'style'
           }
         });
       }
     };
 
     // Create a MutationObserver to monitor changes in the DOM
-    const observer = new MutationObserver(mutations => {
+    const observer = new MutationObserver((mutations) => {
       if (isMountedRef.current) {
-        mutations.forEach(mutation => {
+        mutations.forEach((mutation) => {
           if (mutation.addedNodes.length > 0) {
             updateZIndex();
           }
@@ -138,6 +143,27 @@ const FormTab: React.FC<any> = ({
       setModel(editorModel);
     }
   }, [editorModel]);
+
+  // const [showOtherField, setShowOtherField] = React.useState(false);
+  // const [otherEquipment, setOtherEquipment] = React.useState("");
+  // const handleChange = (value: any) => {
+  //   // Check if "Other" is selected
+  //   debugger;
+  //   if (value.includes("other")) {
+  //     setShowOtherField(true);
+  //     form.setFieldsValue({
+  //       equipmentIds: ["other"],
+  //       otherEquipment: "",
+  //     }); // Reset the "Other" input field
+  //   } else {
+  //     setShowOtherField(false);
+  //     form.setFieldsValue({
+  //       equipmentIds: value,
+  //       otherEquipment: null, // Clear "Other" input field in form when not needed
+  //     });
+  //   }
+  //   setOtherEquipment("");
+  // };
 
   return (
     <div>
@@ -282,7 +308,7 @@ const FormTab: React.FC<any> = ({
 
               //rules={[{ required: true, max: 1000 }]}
             >
-              <div className="editor-container" style={{width:"100%"}}>
+              <div className="editor-container" style={{ width: "100%" }}>
                 <FroalaEditor
                   tag="textarea"
                   config={myconfig}
@@ -441,7 +467,11 @@ const FormTab: React.FC<any> = ({
         <Row gutter={1}>
           <Col span={8}>
             <Form.Item label="Application Date" name="applicationStartDate">
-              <DatePicker style={{ width: "95%" }} format="DD-MM-YYYY" disabled={true} />
+              <DatePicker
+                style={{ width: "95%" }}
+                format="DD-MM-YYYY"
+                disabled={true}
+              />
             </Form.Item>
           </Col>
           <Col span={8}>
@@ -471,18 +501,50 @@ const FormTab: React.FC<any> = ({
                 placeholder="Select Equipment"
                 allowClear
                 disabled={isViewMode}
+                onChange={handleChangeEquipment}
               >
                 {/* Example options; replace with actual master data */}
 
                 {equipments.map(
                   (eq: { EquipmentId: React.Key; EquipmentName: string }) => (
-                    <Option key={eq.EquipmentId} value={eq.EquipmentId}>
+                    <Option
+                      key={eq.EquipmentId}
+                      value={eq.EquipmentId}
+                      disabled={showOtherField}
+                    >
                       {eq.EquipmentName}
                     </Option>
                   )
                 )}
+
+                {/* Add "Other" option */}
+                <Option key="other" value="other">
+                  Other
+                </Option>
               </Select>
             </Form.Item>
+            {/* Conditionally show the "Other" textbox */}
+            {/* Conditionally render textbox for "Other" equipment */}
+            {showOtherField && (
+              <Form.Item
+                name="otherEquipment"
+                label="Other Equipment"
+                style={{ width: "95%" }}
+                rules={[
+                  {
+                    required: true,
+                    max: 250,
+                  },
+                ]}
+              >
+                <Input
+                  disabled={isViewMode}
+                  placeholder="Enter Other Equipment"
+                  value={otherEquipment}
+                  onChange={(e) => setOtherEquipment(e.target.value)}
+                />
+              </Form.Item>
+            )}
           </Col>
         </Row>
       </Form>
