@@ -1553,7 +1553,7 @@ namespace TDSGCellFormat.Helper
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? documentLink = _configuration["SPSiteUrl"] +
                 "/SitePages/Technical-Instruction-Sheet.aspx#/";
-
+                bool allPersonInCc = false;
                 //string? documentLink = _configuration["SPSiteUrl"] +
                 //"/SitePages/TechInstructionSheet.aspx#/";
 
@@ -1631,12 +1631,15 @@ namespace TDSGCellFormat.Helper
                                 emailSubject = string.Format("[Action required!]  TIS_{0} has been Approved and Submitted for close request", materialData.CTINumber);
                                 isRequestorinToEmail = true;
                                 cpcDeptPeople = true;
+                                allPersonInCc = true;
                                 break;
 
                             case EmailNotificationAction.Closed:
                                 templateFile = "TechnicalInstruction_Closed.html";
                                 emailSubject = string.Format("[Action Taken] TIS_{0} has been Closed", materialData.CTINumber);
                                 isDepartMentHead = true;
+                                isRequestorinToEmail = true;
+                                allPersonInCc = true;
                                 break;
 
                             default:
@@ -1748,6 +1751,18 @@ namespace TDSGCellFormat.Helper
                             }
                         }
 
+                        if (allPersonInCc)
+                        {
+                            foreach (var item in approverData)
+                            {
+
+                                if (item.Status == ApprovalTaskStatus.Approved.ToString())
+                                {
+                                    emailCCAddressList.Add(item.email);
+                                }
+                            }
+                        }
+
                         if (!string.IsNullOrEmpty(templateFile))
                         {
                             string baseDirectory = AppContext.BaseDirectory;
@@ -1834,6 +1849,7 @@ namespace TDSGCellFormat.Helper
                 bool approvelink = false;
                 bool isEditable = false, allApprover = false;
                 bool cpcDeptPeople = false;
+                int reqDeptId = 0;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? documentLink = _configuration["SPSiteUrl"] +
                 "/SitePages/TechInstructionSheet.aspx#/";
@@ -1863,7 +1879,7 @@ namespace TDSGCellFormat.Helper
                             EmployeeMaster? requestorUserDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustmentData.CreatedBy && x.IsActive == true).FirstOrDefault();
                             requesterUserName = requestorUserDetails?.EmployeeName;
                             requesterUserEmail = requestorUserDetails?.Email;
-                            //reqDeptId = requestorUserDetails.DepartmentID;
+                            reqDeptId = requestorUserDetails.DepartmentID;
                         }
 
                         var approverData = await _context.GeAdjustmentReportWorkFlow(requestId);
@@ -1914,6 +1930,7 @@ namespace TDSGCellFormat.Helper
                                 emailSubject = string.Format("[Action taken!] Adjustment_{0} has been Approved and completed", adjustmentData.ReportNo);
                                 isRequestorinToEmail = true;
                                 allApprover = true;
+                                isDepartMentHead = true;
                                 break; 
 
                             default:
@@ -1962,12 +1979,45 @@ namespace TDSGCellFormat.Helper
                             }
                         }
 
+                        if (isDepartMentHead)
+                        {
+
+                            var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1 && (x.HRMSDeptName == "CP01-DP-1003" || x.HRMSDeptName == "CP01-DP-1004" || x.HRMSDeptName == "CP01-DP-1002")).Select(x => x.Head).ToList();
+                            foreach (var dept in userOtherDepId)
+                            {
+                                var deptEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == dept && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                emailCCAddressList.Add(deptEmail);
+                            }
+                        }
+
                         if (isInReviewTask)
                         {
                             if (nextApproverTaskId > 0)
                             {
                                 foreach (var item in approverData)
                                 {
+                                    var task = approverData.FirstOrDefault(item =>
+                                                item.Status == ApprovalTaskStatus.InReview.ToString()
+                                                && item.ApproverTaskId == nextApproverTaskId);
+
+                                    var approved = approverData
+                                                      .Where(item => item.Status == ApprovalTaskStatus.Approved.ToString())
+                                                      .OrderByDescending(item => item.ApproverTaskId)
+                                                      .FirstOrDefault();
+                                    if (task != null)
+                                    {
+                                        if(task.SequenceNo == 1 || approved.SequenceNo == 2 || approved.SequenceNo == 7 || approved.SequenceNo == 8)
+                                        {
+                                            var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1 && (x.HRMSDeptName == "CP01-DP-1003" || x.HRMSDeptName == "CP01-DP-1004" || x.HRMSDeptName == "CP01-DP-1002")).Select(x => x.Head).ToList();
+                                            foreach (var dept in userOtherDepId)
+                                            {
+                                                var deptEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == dept && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                                emailCCAddressList.Add(deptEmail);
+                                            }
+                                        }
+                                    }
                                     if (item.Status == ApprovalTaskStatus.InReview.ToString() && item.ApproverTaskId == nextApproverTaskId)
                                     {
                                         emailToAddressList.Add(item.email);
