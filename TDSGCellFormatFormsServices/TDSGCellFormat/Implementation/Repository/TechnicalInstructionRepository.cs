@@ -1737,6 +1737,24 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                 }
 
+                var Attachments_String = "";
+                var get_attachemnts = await _context.TechnicalAttachments
+                    .Where(c => c.TechnicalId == materialdata.TechnicalId && c.IsDeleted == false)
+                    .ToListAsync();
+
+                string? documentLink = _configuration["SPSiteUrl"];
+
+                if (get_attachemnts != null && get_attachemnts.Count > 0)
+                {
+                    Attachments_String += @"<ul style='list-style-type: none; margin: 0;'>";
+                    foreach (var a in get_attachemnts)
+                    {
+                        // Assuming `DocumentUrl` contains the file's URL or relative path
+                        Attachments_String += $"<li><a href='{documentLink}{a.DocumentFilePath}' target='_blank'>{a.DocumentName}</a></li>";
+                    }
+                    Attachments_String += "</ul>";
+                }
+
                 //normal data
                 var data = await GetTechnicalInstructionData(technicalId);
 
@@ -1776,7 +1794,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#revisionHistroy#", revesionHistroy ?? "");
                 //var base64Images = await GetBase64ImagesForTechnicalInstruction(technicalId); // List of Base64 image strings
                 sb.Replace("#technicalOutlineAttachment#", null ?? "");
-
+                sb.Replace("#relatedDocument#", Attachments_String ?? "");
 
                 StringBuilder tableBuilder = new StringBuilder();
                 int serialNumber = 1;

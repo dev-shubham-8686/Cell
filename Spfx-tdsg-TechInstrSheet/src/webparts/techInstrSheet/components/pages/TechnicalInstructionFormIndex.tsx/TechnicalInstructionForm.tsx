@@ -1446,19 +1446,65 @@ debugger;
   };
 
   const handleClosureUpload = async (file: any) => {
-    const MAX_FILES = 5;
+    // const MAX_FILES = 3;
+    // const MAX_FILE_SIZE_MB = 10;
+    // const ALLOWED_FILE_TYPES = [
+    //   "application/msword",
+    //   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    //   "application/vnd.ms-excel",
+    //   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    //   "application/pdf",
+    //   "application/vnd.ms-powerpoint",
+    //   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    //   "image/jpeg", // Added for JPG and JPEG
+    //   "image/png", // Added for PNG
+    // ];
+
+    // // Check if the file with the same name already exists in the fileList
+    // const isDuplicate = technicalClosureFileList.some(
+    //   (existingFile: any) => existingFile.name === file.name
+    // );
+
+    // if (isDuplicate) {
+    //   // Display a message indicating that the file already exists
+    //   void displayjsx.showErrorMsg(
+    //     `File with the name "${file.name}" already exists.`
+    //   );
+    //   return false; // Prevent the file from being added to the list
+    // }
+
+    // // Validate the maximum file count
+    // if (technicalClosureFileList.length >= MAX_FILES) {
+    //   void displayjsx.showErrorMsg(
+    //     `Cannot upload more than ${MAX_FILES} files.`
+    //   );
+    //   return false;
+    // }
+
+    // // Validate file size (convert size from bytes to MB)
+    // const fileSizeInMB = file.size / (1024 * 1024);
+    // if (fileSizeInMB > MAX_FILE_SIZE_MB) {
+    //   void displayjsx.showErrorMsg(
+    //     `File "${file.name}" exceeds the size limit of ${MAX_FILE_SIZE_MB} MB.`
+    //   );
+    //   return false;
+    // }
+
+    // // Validate file type using `some` instead of `includes`
+    // const isAllowedFileType = ALLOWED_FILE_TYPES.some(
+    //   (type) => type === file.type
+    // );
+
+    // if (!isAllowedFileType) {
+    //   void displayjsx.showErrorMsg(
+    //     `File type not supported. Allowed types are: Word, Excel, PDF, PPT, JPG, PNG, JPEG.`
+    //   );
+    //   return false;
+    // }
+
+    const MAX_FILES = 3;
     const MAX_FILE_SIZE_MB = 10;
-    const ALLOWED_FILE_TYPES = [
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/vnd.ms-excel",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "application/pdf",
-      "application/vnd.ms-powerpoint",
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-      "image/jpeg", // Added for JPG and JPEG
-      "image/png", // Added for PNG
-    ];
+    const DISALLOWED_FILE_TYPE = "application/x-msdownload"; // MIME type for .exe
 
     // Check if the file with the same name already exists in the fileList
     const isDuplicate = technicalClosureFileList.some(
@@ -1466,11 +1512,10 @@ debugger;
     );
 
     if (isDuplicate) {
-      // Display a message indicating that the file already exists
       void displayjsx.showErrorMsg(
         `File with the name "${file.name}" already exists.`
       );
-      return false; // Prevent the file from being added to the list
+      return false;
     }
 
     // Validate the maximum file count
@@ -1490,17 +1535,14 @@ debugger;
       return false;
     }
 
-    // Validate file type using `some` instead of `includes`
-    const isAllowedFileType = ALLOWED_FILE_TYPES.some(
-      (type) => type === file.type
-    );
-
-    if (!isAllowedFileType) {
+    // Validate file type (disallow .exe files)
+    if (file.type === DISALLOWED_FILE_TYPE || file.name.endsWith('.exe')) {
       void displayjsx.showErrorMsg(
-        `File type not supported. Allowed types are: Jpg, PNG, Jpeg.`
+        `File type not allowed. Executable files (.exe) are not supported.`
       );
       return false;
     }
+
 
     if (isViewMode) {
       const folderName = ctiNumber;
