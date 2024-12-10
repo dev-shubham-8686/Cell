@@ -242,8 +242,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 adjustmentData.AfterImages = adjustmentAfterImage.Select(attach => new AdjustmentAfterImageData
                 {
                     AdjustmentAfterImageId = attach.AdjustmentAfterImageId,
-                    AfterImgName = attach.AfterImageDocFilePath,
-                    AfterImgPath = attach.AfterImageDocName
+                    AfterImgName = attach.AfterImageDocName,
+                    AfterImgPath = attach.AfterImageDocFilePath
                 }).ToList();
             }
 
