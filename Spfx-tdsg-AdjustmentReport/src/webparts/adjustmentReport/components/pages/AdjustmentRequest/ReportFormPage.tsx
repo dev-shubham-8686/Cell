@@ -22,6 +22,7 @@ import { useGetSectionHead } from "../../../hooks/useGetSectionHead";
 import { useGetDepartmentHead } from "../../../hooks/useGetDepartmentHead";
 import WorkFlowButtons from "../../common/workFlowButtons";
 import { IAdjustmentReportPhoto } from "../../../interface";
+import { useEffect } from "react";
 // import { useEffect } from "react";
 // import { useGetApprorverFlowData } from "../../../hooks/useGetApprorverFlowData";
 
@@ -33,7 +34,7 @@ const ReportFormPage = () => {
   const [operation, setOperation] = React.useState<string>("");
   const [isSave, setIsSave] = React.useState<boolean>(true);
   const [isAmendReSubmitTask, seIsAmendReSubmitTask] = React.useState<boolean>(false);
-  //const [approverFlowData, setapproverFlowData] = React.useState<any>([]);
+  const [approverFlowData, setapproverFlowData] = React.useState<any>([]);
   const { mode, id } = useParams();
   const { user } = useUserContext();
   const isViewMode = mode === "view";
@@ -48,7 +49,6 @@ const ReportFormPage = () => {
   const [currentApproverTask, setcurrentApproverTask] = React.useState<any>(null);
   const [existingAdjustmentReport, setexistingAdjustmentReport] = React.useState<any>(null);
   const { mutate: askToAmend } = useUpdateApproveAskToAmend();
-  const { mutate: pullback } = usePullBack();
   const { data: reportData } = useGetAdjustmentReportById(id ? parseInt(id, 10) : 0);
   const { mutate: getCurrentApprover } = useGetCurrentApprover();
   const { data : approvalData} = useGetApprorverFlowData(id ? parseInt(id, 10) : 0);
@@ -107,118 +107,14 @@ const ReportFormPage = () => {
     void loadData();
   }, [reportData, isEditMode, isViewMode]);
 
-  const formRef = React.useRef<any>(null);
 
-  // useEffect(() => {
-  //   setapproverFlowData(useGetApprorverFlowData(id ? parseInt(id, 10) : 0).data.ReturnValue);
-  // }, []);
-
-  const CreatePayload = (values: AnyObject) => {
-    console.log({ values })
-    const beforeImages: IAdjustmentReportPhoto[] = values.beforeImages;
-    const afterImages: IAdjustmentReportPhoto[] = values.afterImages;
-
-    const payload: IAddUpdateReportPayload = {
-      AdjustmentReportId: id ? parseInt(id, 10) : 0,
-      EmployeeId: user?.employeeId,
-      ReportNo: values.reportNo, //done
-      RequestBy: values.requestedBy, //done
-      CheckedBy: values.checkedBy, //done
-      When: values.dateTime, // need to confirm
-      Area: values.area, //done
-      MachineName: values.machineName, //done
-      SubMachineName: values.subMachineName, //done
-      DescribeProblem: values.describeProblem, //done
-      Observation: values.observation, //done
-      RootCause: values.rootCause, //done
-      AdjustmentDescription: values.adjustmentDescription, //done
-      ConditionAfterAdjustment: values.conditionAfterAdjustment, // done
-      ChangeRiskManagementRequired: values.ChangeRiskManagementRequired, // done
-      ChangeRiskManagement_AdjustmentReport: values.ChangeRiskManagementList, // Ensure this is an array of ChangeRiskManagement objects
-      IsSubmit: !isSave, //done
-      IsAmendReSubmitTask: isAmendReSubmitTask,
-      Photos: { BeforeImages: beforeImages, AfterImages: afterImages },
-      //CreatedBy: values.requestedBy, //need to change
-      CreatedDate: dayjs(),
-      ModifiedBy: values.ModifiedById, // need to change conditionally
-      ModifiedDate: dayjs(), // change conditionally , if modifying then pass only
-    };
-    return payload;
-  };
-
-  const onSaveFormHandler = (showPopUp: boolean, values: any) => {
-    if (showPopUp) {
-      confirm({
-        title: getMessage(operation),
-        icon: (
-          <i
-            className="fa-solid fa-circle-exclamation"
-            style={{ marginRight: "10px", marginTop: "7px" }}
-          />
-        ),
-        okText: "Yes",
-        okType: "primary",
-        cancelText: "No",
-        okButtonProps: { className: "modal-ok-button" },
-        onOk: async () => {
-          try {
-            const payload = CreatePayload(values);
-            //const res = 
-            addUpdateReport(payload);
-            navigate(-1);
-          } catch (error) {
-            console.error("Error submitting form:", error);
-          }
-        },
-        onCancel() {
-          console.log("Cancel submission");
-        },
-      });
-    }
-  };
-
-  const handleSave = (isSave: boolean, operation: string) => {
-    setIsSave(isSave);
-    setOperation(operation);
-
-    if (operation === "onReSubmit") {
-      seIsAmendReSubmitTask(true);
-    }
-
-    if (formRef.current) {
-      formRef.current.submit();
-    }
-  };
-
-  const handleFormSubmit = (values: any) => {
-    onSaveFormHandler(true, values);
-  };
-
-
-
-
-  const handlePullBack = async (comment: string): Promise<void> => {
-    const data: IPullBack = {
-      AdjustmentReportId: id ? parseInt(id, 10) : 0,
-      userId: user?.employeeId ? user?.employeeId : 0,
-      comment: comment,
-    };
-
-    pullback(
-      data,
-      {
-        onSuccess: (data) => {
-          navigate("/");
-        }
-      }
-    );
-  };
+ 
 
   const items: TabsProps["items"] = [
     {
       key: "1",
       label: "Form",
-      children: <RequestForm ref={formRef} onFormSubmit={handleFormSubmit} />,
+      children: <RequestForm />,
     },
     {
       key: "2",
@@ -228,7 +124,7 @@ const ReportFormPage = () => {
     {
       key: "3",
       label: "Workflow",
-      children: <Workflow approverTasks={approvalData ? approvalData : []} />,
+      children: <Workflow submitted={reportData?.ReturnValue?.IsSubmit} approverTasks={approvalData ? approvalData : []} advisorId={reportData?.ReturnValue?.AdvisorId} />,
     },
   ];
 
@@ -272,7 +168,7 @@ const ReportFormPage = () => {
         </Form.Item>
       )} */}
 
-      {!isViewMode && activeTabKey === "1" && underAmmendment && (
+      {/* {!isViewMode && activeTabKey === "1" && underAmmendment && (
         <Form.Item
           style={{
             display: "inline-block", // Inline display for second button as well
@@ -287,11 +183,10 @@ const ReportFormPage = () => {
             Resubmit
           </Button>
         </Form.Item>
-      )}
+      )} */}
 
       {true && (
         <WorkFlowButtons
-          onPullBack={handlePullBack}
           currentApproverTask={currentApproverTask}
           existingAdjustmentReport={existingAdjustmentReport}
           //isFormModified={isEditMode && isViewMode == false ? true : false}

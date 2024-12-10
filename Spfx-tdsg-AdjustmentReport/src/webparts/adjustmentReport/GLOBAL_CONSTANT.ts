@@ -1,15 +1,24 @@
 export const DATE_FORMAT = "DD-MM-YYYY";
-export const basePathwithprefix = `https://localhost:44353/api`;
-export const basePath = `https://localhost:44353`;
-export const GET_LOGIN_SESSION = "https://localhost:44353/api/TroubleReport/GetLoginSession";
-export const GET_USER = "https://localhost:44353/api/AdjustmentReport/GetUserRole";
+export const basePath = 
+`https://localhost:44353`;                    //    ---  local
+// `https://cellformservice-qa.tdsgj.co.in`;         //   ---  stage
 
-export const MY_DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm:ss";
+
+
+export const basePathwithprefix = `${basePath}/api`;
+
+
+
+export const GET_LOGIN_SESSION = `${basePath}/api/TroubleReport/GetLoginSession`;
+export const GET_USER = `${basePath}/api/AdjustmentReport/GetUserRole`;
+
+export const DATE_TIME_FORMAT = "DD-MM-YYYY HH:mm:ss";
 
 export const WEB_URL = 
 // "https://synopsandbox.sharepoint.com/sites/Training2024"
- "https://synopsandbox.sharepoint.com/sites/e-app-stage"
-//"https://tdsgj.sharepoint.com/sites/e-app-stage"
+ "https://synopsandbox.sharepoint.com/sites/e-app-stage"  // -- local
+//  "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA"  // --QA
+//"https://tdsgj.sharepoint.com/sites/e-app-stage"        // -stage 
 
 //Process Status
 export const ProcessStatus = [

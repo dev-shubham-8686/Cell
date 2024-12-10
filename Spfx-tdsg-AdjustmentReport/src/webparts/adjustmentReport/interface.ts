@@ -64,6 +64,24 @@ export interface IWorkflowDetail {
   email: string;
 }
 
+export interface IBeforeImages{
+  AdjustmentBeforeImageId:number;
+  AdjustmentreportId:number;
+  BeforeImgName:string;
+  BeforeImgPath:string;
+  CreatedBy:number;
+  ModifiedBy:number;
+}
+
+export interface IAfterImages{
+  AdjustmentAfterImageId:number;
+  AdjustmentreportId:number;
+  AfterImgName:string;
+  AfterImgPath:string;
+  CreatedBy:number;
+  ModifiedBy:number;
+}
+
 export interface IAjaxResult {
   ResultType?: number;
   StatusCode?: number;

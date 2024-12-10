@@ -13,12 +13,13 @@ import { useUpdateApproveAskToAmend } from "../../hooks/useUpdateApproveAskToAme
 import { values } from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { ACTION_TYPE } from "../../GLOBAL_CONSTANT";
+import { ACTION_TYPE, REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
+import { IPullBack } from "../../api/PullBack.api";
+import { usePullBack } from "../../hooks/usePullBack";
 
 const { Option } = Select;
 
 interface WorkFlowButtonsProps {
-  onPullBack: (comment: string) => Promise<void>;
   currentApproverTask: any;
   existingAdjustmentReport: any;
   isFormModified: boolean;
@@ -27,7 +28,6 @@ interface WorkFlowButtonsProps {
 }
 
 const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
-  onPullBack,
   currentApproverTask,
   existingAdjustmentReport,
   isFormModified,
@@ -48,6 +48,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   const { user } = useUserContext();
   const { id, mode } = useParams();
   const { mutate: approveAskToAmend } = useUpdateApproveAskToAmend();
+  const { mutate: pullback } = usePullBack();
   const { data: advisors = [] } = useGetAllAdvisors();
   const { data: departmentHeads  } = useGetAdditionalDepartmentHeads();
   console.log({ departmentHeads });
@@ -119,12 +120,12 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
     comment: string,
     approvalSequence?: any
   ): Promise<void> => {
-    debugger;
+    
     const updatedApprovalSequence = approvalSequence?.map((sequenceItem:any) => {
       const employee = departmentHeads.find(
         (head) => head.EmployeeId == sequenceItem.EmployeeId
       );
-      debugger
+      
       return {
         ...sequenceItem,
         DepartmentId: employee?.DepartmentId || null, // Add DepartmentId or null if not found
@@ -141,7 +142,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
       updatedApprovalSequence as IAdditionalDepartmentHeads[],
       IsDivHeadRequired:form.getFieldValue("DivisionHeadApprovalRequired") 
     };
-    debugger;
+    
 console.log("Approve a to a payload ",data)
     approveAskToAmend(data, {
       onSuccess: () => {
@@ -161,7 +162,7 @@ console.log("Approve a to a payload ",data)
       Comment: comment,
       AdjustmentId: id ? parseInt(id, 10) : 0,
     };
-    debugger
+    
     approveAskToAmend(
       data,
       {
@@ -176,21 +177,38 @@ console.log("Approve a to a payload ",data)
       }
     );
   };
+  
+  const handlePullBack = async (comment: string): Promise<void> => {
+    const data: IPullBack = {
+      AdjustmentReportId: id ? parseInt(id, 10) : 0,
+      userId: user?.employeeId ? user?.employeeId : 0,
+      comment: comment,
+    };
+
+    pullback(
+      data,
+      {
+        onSuccess: (data) => {
+          navigate("/");
+        }
+      }
+    );
+  };
   // Handle the submit action after getting the comment
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields(); // Validate form fields
       setLoading(true);
-debugger
+
       const comment = values.comment; // Get the validated comment
      
-      debugger
+      
       if (actionType === "approve") {
         await handleApprove(comment, values.approvalSequence);
       } else if (actionType === "amend") {
         await handleAskToAmend(comment);
       } else if (actionType === "pullback") {
-        await onPullBack(comment);
+        await handlePullBack(comment);
       }
     } catch (errorInfo) {
       console.log("Validation Failed:", errorInfo); // Handle validation failure
@@ -237,14 +255,13 @@ debugger
         </>
       ) : null}
       {existingAdjustmentReport?.IsSubmit &&
-      existingAdjustmentReport?.Status !== "UnderAmendment" &&
-      user?.employeeId === existingAdjustmentReport?.EmployeeId ? (
+      existingAdjustmentReport?.Status !== REQUEST_STATUS.UnderAmendment &&
+      user?.employeeId === existingAdjustmentReport?.CreatedBy ? (
         <Button
-          color="primary"
-          variant="solid"
+        className="btn btn-primary"        
           onClick={() => handleClick("pullback")}
         >
-          Pullback
+          Pull Back
         </Button>
       ) : null}
       {/* Comment Modal */}
@@ -421,7 +438,7 @@ debugger
             //               </Button>
             //               <Button
             //                 onClick={() => {
-            //                   debugger
+            //                   
             //                   form.resetFields(); // Reset all fields --  for removing comments
             //                   handleCancel();
             //                 }}
@@ -595,7 +612,7 @@ debugger
                             </Button>
                             <Button
                               onClick={() => {
-                                debugger;
+                                
                                 form.resetFields(); // Reset all fields -- for removing comments
                                 handleCancel();
                               }}

@@ -30,11 +30,12 @@ export const sessionExpiredStatus = [
 
 const getGridData = async (param: IGridParams ) => {
  try{ if (!param.url) return;
-
+  
   const response:any = await apiClient.get<any[] | any>(param.url, {
     params: { ...param.params },
   });
   
+  console.log("GRID DATA",response)
   if(param.listingScreen){
     const tabledata=response.data?.ReturnValue ||  []
     return tabledata;

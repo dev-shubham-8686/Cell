@@ -119,7 +119,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
       }
       else {
          params={
-          equipmentId:id
+          adjustmentId:id
         }
       }
       

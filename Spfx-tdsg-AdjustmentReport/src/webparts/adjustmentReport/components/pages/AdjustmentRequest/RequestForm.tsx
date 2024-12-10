@@ -1,4 +1,16 @@
-import { Button, Col, DatePicker, Form, Input, Modal, Radio, Row, Select, Table } from "antd";
+import {
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  message,
+  Modal,
+  Radio,
+  Row,
+  Select,
+  Table,
+} from "antd";
 import * as React from "react";
 import { disabledDate } from "../../../utils/helper";
 import * as dayjs from "dayjs";
@@ -13,29 +25,46 @@ import { useGetAllAreas } from "../../../hooks/useGetAllAreas";
 import {
   ChangeRiskManagement,
   IAddUpdateReportPayload,
+  IAdjustmentReport,
 } from "../../../api/AddUpdateReport.api";
 import { useUserContext } from "../../../context/UserContext";
 import { useGetAdjustmentReportById } from "../../../hooks/useGetAdjustmentReportById";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import FileUpload from "../fileUpload/FileUpload";
-import { DATE_FORMAT, DocumentLibraries, OPERATION } from "../../../GLOBAL_CONSTANT";
+import {
+  DATE_FORMAT,
+  DATE_TIME_FORMAT,
+  DocumentLibraries,
+  OPERATION,
+  REQUEST_STATUS,
+  WEB_URL,
+} from "../../../GLOBAL_CONSTANT";
 import { useAddUpdateReport } from "../../../hooks/useAddUpdateReport";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { IAdjustmentReportPhoto, IChangeRiskData } from "../../../interface";
+import {
+  IAdjustmentReportPhoto,
+  IAfterImages,
+  IBeforeImages,
+  IChangeRiskData,
+} from "../../../interface";
 import { useGetAllSections } from "../../../hooks/useGetAllSections";
 import { ColumnsType } from "antd/es/table";
 import { useGetAllEmployees } from "../../../hooks/useGetAllEmployees";
 import { useGetAllAdvisors } from "../../../hooks/useGetAllAdvisors";
+import Operation from "antd/es/transfer/operation";
+import { renameFolder } from "../../../utils/utility";
+import { WebPartContext } from "../../../context/WebPartContext";
+import { fromPairs } from "@microsoft/sp-lodash-subset";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
 interface RequestFormProps {
-  onFormSubmit: (values: any) => void;
+  reportData?: any;
 }
 
-const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
+const RequestForm = React.forwardRef(() => {
   const [form] = Form.useForm();
   const currentDateTime = dayjs();
   const { user } = useUserContext();
@@ -58,6 +87,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const [selectedMachineId, setSelectedMachineId] = useState<number | null>(
     null
   );
+  const [beforeImages, setbeforeImages] = useState<IBeforeImages[] | []>([]);
+
+  const [afterImages, setafterImages] = useState<IAfterImages[] | []>([]);
   const { data: employeesResult } = useGetAllEmployees();
 
   const [filteredSubMachines, setFilteredSubMachines] = useState<ISubMachine[]>(
@@ -74,7 +106,11 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   const { data: sections, isLoading: sectionIsLoading } = useGetAllSections();
   const [selectedMachine, setselectedMachine] = useState<number | 0>(0);
   const [submitted, setsubmitted] = useState(false);
-  const { data: advisors  } = useGetAllAdvisors();
+  const [underamendment, setunderamendment] = useState(false);
+  const [isAdmin, setisAdmin] = useState(false);
+  const webPartContext = React.useContext(WebPartContext);
+
+  const { data: advisors } = useGetAllAdvisors();
 
   const { data: checkedByResult, isLoading: checkedloading } =
     useGetCheckedBy();
@@ -87,7 +123,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     reportNo: reportNo === undefined ? "" : reportNo,
   };
   const { data: reportData } = useGetAdjustmentReportById(
-    id ? parseInt(id, 10) : 0
+    id ? parseInt(id) : 0
   );
   console.log("GetByIdData", reportData);
   const { mutate: addUpdateReport } = useAddUpdateReport();
@@ -127,8 +163,6 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       newAttachment,
     ];
 
-  
-    
     setbeforeAdjustmentReportPhotos(updatedAttachments);
     form.setFieldsValue({ beforeImages: updatedAttachments });
     console.log({ updatedAttachments });
@@ -183,7 +217,6 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     console.log({ afterAdjustmentReportPhotos });
   };
 
-
   // Use effect to set report data when it becomes available
   const loadData = async () => {
     if (isEditMode || isViewMode) {
@@ -192,22 +225,24 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       setCRMRequired(reportData?.ReturnValue.ChangeRiskManagementRequired);
       setCRM(reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport);
       const changeRiskData =
-      reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport?.map(
-        (obj:any, index:any) => {
-          return {
-            key: index,
-            ...obj,
-          };
-        }
-      );
-      setChangeRiskManagementDetails(changeRiskData)
+        reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport?.map(
+          (obj: any, index: any) => {
+            return {
+              key: index,
+              ...obj,
+            };
+          }
+        );
+      setChangeRiskManagementDetails(changeRiskData);
       form.setFieldsValue({
         ...reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport,
         ChangeRiskManagementDetails:
-        reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport?.map((data:any) => ({
-            ...data,
-            DueDate: dayjs(data.DueDate, DATE_FORMAT) ?? null,
-          })),
+          reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport?.map(
+            (data: any) => ({
+              ...data,
+              DueDate: dayjs(data.DueDate, DATE_FORMAT) ?? null,
+            })
+          ),
       });
 
       // if (reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport) {
@@ -215,6 +250,15 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       //     Array.from({ length: reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport.length }, (_: any, i: any) => i)
       //   );
       // }
+      if (user) {
+        setisAdmin(user?.isAdmin);
+      }
+      if (
+        reportData?.ReturnValue.Status == REQUEST_STATUS.UnderAmendment &&
+        reportData?.ReturnValue.CreatedBy == user?.employeeId
+      ) {
+        setunderamendment(true);
+      }
       const crmSectionCount =
         reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport.length;
       const sections = [];
@@ -222,7 +266,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
         sections.push(i);
       }
       setFormSections(sections);
-      if ( reportData?.ReturnValue.IsSubmit) {
+      if (reportData?.ReturnValue.IsSubmit) {
         setsubmitted(true);
       }
       console.log({ cRM });
@@ -234,25 +278,26 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       setbeforeAdjustmentReportPhotos(
         reportData?.ReturnValue?.Photos.BeforeImages
       );
-      form.setFieldsValue({ beforeImages: beforeAdjustmentReportPhotos });
+      setbeforeImages(reportData?.ReturnValue?.BeforeImages)
+      setafterImages(reportData?.ReturnValue?.AfterImages)
       setafterAdjustmentReportPhotos(
         reportData?.ReturnValue?.Photos.AfterImages
       );
-      if( reportData?.ReturnValue.MachineName=="-1"){
-        setshowOtherMachine(true)
+      if (reportData?.ReturnValue.MachineName == "-1") {
+        setshowOtherMachine(true);
       }
-      if( reportData?.ReturnValue.SubMachineName.includes(-2)){
-        setShowOtherSubMachine(true)
+      if (reportData?.ReturnValue.SubMachineName.includes(-2)) {
+        setShowOtherSubMachine(true);
       }
-      form.setFieldsValue({ afterImages: beforeAdjustmentReportPhotos });
+      
       form.setFieldsValue({
         reportNo: reportData?.ReturnValue.ReportNo,
         area: reportData?.ReturnValue.Area,
         machineName: reportData?.ReturnValue.MachineName,
-        OtherSubMachine:reportData?.ReturnValue.OtherSubMachineName,
-        OtherMachine:reportData?.ReturnValue.OtherMachineName,
+        OtherSubMachine: reportData?.ReturnValue.OtherSubMachineName,
+        OtherMachine: reportData?.ReturnValue.OtherMachineName,
         subMachineName: reportData?.ReturnValue.SubMachineName,
-        SectionId:reportData?.ReturnValue.SectionId,
+        SectionId: reportData?.ReturnValue.SectionId,
         requestedBy: reportData?.ReturnValue.RequestBy,
         checkedBy: reportData?.ReturnValue.CheckedBy,
         dateTime: reportData
@@ -299,42 +344,35 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   // };
 
   const handleMachineChange = (values: any) => {
-    
     setselectedMachine(values);
 
     setShowOtherSubMachine(false);
-   
+
     if (values == -1) {
-      
       setshowOtherMachine(true);
- 
     } else {
-      
       setshowOtherMachine(false);
       form.setFieldsValue({
-        OtherMachine:""    
+        OtherMachine: "",
       });
     }
     form.setFieldsValue({
       subMachineName: [],
-      OtherSubMachine:""    
+      OtherSubMachine: "",
     });
   };
-  
 
   const handleSubMachineChange = (values: any) => {
-    
     if (values.includes(-1)) {
       form.setFieldsValue({ subMachineName: [-1] });
       setShowOtherSubMachine(false);
     } else if (values.includes(-2)) {
       setShowOtherSubMachine(true);
-
     } else {
       setShowOtherSubMachine(false);
       form.setFieldsValue({
         subMachineName: values,
-        OtherSubMachine: ""
+        OtherSubMachine: "",
       });
     }
     console.log("OtherSub", showOtherSubMachine, showOtherMachine);
@@ -383,7 +421,6 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     attachment: [{ required: true, message: "Please upload attachment" }],
   };
 
-
   // const handleAdditionalApprovalClick = () => {
   //   setApprovalModalVisible(true);
   // };
@@ -414,11 +451,11 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   // };
 
   // const deleteFormSection = (sectionIndex: number) => {
-  //   
+  //
   //   setFormSections((prevSections) =>
   //     prevSections.filter((_, index) => index !== sectionIndex)
   //   );
-  //   
+  //
   //   form.setFieldsValue({
   //     [`changes-${sectionIndex}`]: "",
   //     [`riskWithChanges-${sectionIndex}`]: "",
@@ -430,28 +467,26 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
   //     [`results-${sectionIndex}`]: "",
   //   });
   //   const values = form.getFieldsValue();
-  //   
+  //
   //   console.log("CR after deleting ", formSections);
   //   console.log(`Deleted section at index: ${sectionIndex}`);
   // };
 
   const CreatePayload = (values: any, operation?: any) => {
-    console.log( "FormData",values );
-    const beforeImages: IAdjustmentReportPhoto[] = values.beforeImages;
-    const afterImages: IAdjustmentReportPhoto[] = values.afterImages;
+    console.log("FormData", values);
 
     const payload: IAddUpdateReportPayload = {
       AdjustmentReportId: id ? parseInt(id, 10) : 0,
       EmployeeId: user?.employeeId,
-      SectionId:values.SectionId,
+      SectionId: values.SectionId,
       ReportNo: values.reportNo, //done
       RequestBy: values.requestedBy, //done
       CheckedBy: values.checkedBy, //done
       When: values.dateTime, // need to confirm
       Area: values.area, //done
       MachineName: values.machineName,
-      OtherMachineName:values.OtherMachine,
-      OtherSubMachineName:values.OtherSubMachine, //done
+      OtherMachineName: values.OtherMachine,
+      OtherSubMachineName: values.OtherSubMachine, //done
       SubMachineName: values.subMachineName, //done
       DescribeProblem: values.describeProblem, //done
       Observation: values.observation, //done
@@ -460,9 +495,11 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       ConditionAfterAdjustment: values.conditionAfterAdjustment, // done
       ChangeRiskManagementRequired: cRMRequired, // done
       ChangeRiskManagement_AdjustmentReport: ChangeRiskManagementDetails, // Ensure this is an array of ChangeRiskManagement objects
-      IsSubmit: operation == OPERATION.Submit, //done
+      IsSubmit:
+        operation == OPERATION.Submit || operation == OPERATION.Resubmit, //done
       IsAmendReSubmitTask: operation == OPERATION.Resubmit,
-      Photos: { BeforeImages: beforeImages, AfterImages: afterImages },
+      BeforeImages: beforeImages,
+      AfterImages: afterImages ,
       CreatedBy: user?.employeeId, //need to change
       CreatedDate: dayjs(),
       ModifiedBy: user?.employeeId, // need to change conditionally
@@ -471,18 +508,32 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     return payload;
   };
   const onSaveFormHandler = (values: any, operation?: any) => {
-    
     try {
       const payload = CreatePayload(values, operation);
       //const res =
-      addUpdateReport(payload);
+      addUpdateReport(payload, {
+        onSuccess:async (response:any) => {
+          if (mode == "add") {
+             await renameFolder(
+              DocumentLibraries.Adjustment_Attachments,
+              WEB_URL,
+              webPartContext.spHttpClient,
+              user?.employeeId.toString(),
+              response?.ReturnValue?.AdjustmentReportNo
+            );
+          }
+        },
+        onError: () => {
+          void message.error("Failed to save . Please try again.");
+        },
+      });
       navigate(-1);
     } catch (error) {
       console.error("Error submitting form:", error);
     }
   };
 
-  const onSubmitFormHandler =async  (values: any, operation?: any) => {
+  const onSubmitFormHandler = async (values: any, operation?: any) => {
     // await form.validateFields();
     Modal.confirm({
       // title: "Are you sure you want to submit the form?",
@@ -500,11 +551,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                 label: advisor.employeeName,
                 value: advisor.employeeId,
               }))}
-              onChange={(e)=>{
-                debugger
-                setselectedAdvisor(e)
-                console.log("Advisor",selectedAdvisor)
-                debugger
+              onChange={(e) => {
+                setselectedAdvisor(e);
+                console.log("Advisor", selectedAdvisor);
               }}
             />
           </Form.Item>
@@ -515,56 +564,52 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
       okButtonProps: { className: "btn btn-primary mb-1" },
       cancelButtonProps: { className: "btn-outline-primary" },
       onOk: async () => {
+        debugger
         try {
-          debugger
-            // await form.validateFields();
+          const advisorId = form.getFieldValue("AdvisorId");
+
+           debugger
+           if (!advisorId) {
+            void message.error("Please Select an Advisor")// Prevents the modal from closing
+          }
           const payload = CreatePayload(values, operation);
           debugger
-         payload.AdvisorId=form.getFieldValue("AdvisorId");
-         debugger  
+          payload.AdvisorId = advisorId
+          debugger
           await addUpdateReport(payload);
           debugger
-          navigate(-1);
-           
+          //navigate(-1);
         } catch (error) {
           console.error("Error submitting form:", error);
         }
-    },
-    onCancel: () => {
-      console.log("Submission cancelled");
-    },
-    
-  })
+      },
+      onCancel: () => {
+        console.log("Submission cancelled");
+      },
+    });
+  };
+  const onResubmitFormHandler = async (values: any, operation?: any) => {
+    try {
+      // await form.validateFields();
+      const payload = CreatePayload(values, operation);
+      await addUpdateReport(payload);
+
+      navigate(-1);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   };
   const onFinish = async (operation?: any) => {
-    
     const values = form.getFieldsValue();
-    // values.ChangeRiskManagementRequired = cRMRequired;
-    // values.ChangeRiskManagementList = [];
-
-    // const numberOfSections = formSections.length;
-    
-    // for (let i = 0; i < numberOfSections; i++) {
-    //   // Create a ChangeRiskManagement object for each section
-    //   const changeRiskManagement: ChangeRiskManagement = {
-    //     Changes: values[`changes-${formSections[i]}`],
-    //     RiskAssociated: values[`riskWithChanges-${formSections[i]}`],
-    //     Factor: values[`factor-${formSections[i]}`],
-    //     CounterMeasures: values[`counterMeasures-${formSections[i]}`],
-    //     FunctionId: values[`function-${formSections[i]}`],
-    //     DueDate: values[`date-${formSections[i]}`],
-    //     PersonInCharge: values[`personInCharge-${formSections[i]}`],
-    //     Results: values[`results-${formSections[i]}`],
-    //   };
-      
-    //   values.ChangeRiskManagementList.push(changeRiskManagement);
-    // }
-    
-    if(operation==OPERATION.Save){
-    onSaveFormHandler(values, operation);
+ await form.validateFields();
+    if (operation == OPERATION.Save) {
+      onSaveFormHandler(values, operation);
     }
-    if(operation==OPERATION.Submit){
-    await onSubmitFormHandler(values,operation);
+    if (operation == OPERATION.Submit) {
+      await onSubmitFormHandler(values, operation);
+    }
+    if (operation == OPERATION.Resubmit) {
+      await onResubmitFormHandler(values, operation);
     }
   };
 
@@ -628,7 +673,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
     setChangeRiskManagementDetails(newData);
     console.log("Uppdated Change risk", ChangeRiskManagementDetails, newData);
   };
-  
+
   const nestedTableColumns: ColumnsType<any> = [
     {
       title: "Changes",
@@ -649,7 +694,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
           >
             <Input
               maxLength={100}
-              disabled={isViewMode}
+              disabled={
+                isViewMode || (!isAdmin && submitted && !underamendment)
+              }
               style={{ width: "100%" }}
               placeholder="Please enter Changes"
               onChange={(e) => {
@@ -682,7 +729,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
           >
             <TextArea
               maxLength={1000}
-              disabled={isViewMode}
+              disabled={
+                isViewMode || (!isAdmin && submitted && !underamendment)
+              }
               style={{ width: "100%" }}
               placeholder="Select function"
               onChange={(e) => {
@@ -715,7 +764,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             rules={validationRules.Risks}
           >
             <TextArea
-              disabled={isViewMode}
+              disabled={
+                isViewMode || (!isAdmin && submitted && !underamendment)
+              }
               maxLength={1000}
               placeholder="Enter risks"
               rows={2}
@@ -748,7 +799,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             rules={validationRules.Factor}
           >
             <TextArea
-              disabled={isViewMode}
+              disabled={
+                isViewMode || (!isAdmin && submitted && !underamendment)
+              }
               maxLength={1000}
               placeholder="Add Factor"
               rows={2}
@@ -785,7 +838,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             rules={validationRules.CounterMeasure}
           >
             <TextArea
-              disabled={isViewMode}
+              disabled={
+                isViewMode || (!isAdmin && submitted && !underamendment)
+              }
               maxLength={1000}
               placeholder="Add Counter Measures"
               rows={2}
@@ -816,7 +871,6 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             // }
             rules={validationRules.DueDate}
           >
-          
             <DatePicker
               //  value={
               //   record?.DueDate
@@ -824,7 +878,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               //     : undefined
               // }
               format="DD-MM-YYYY"
-              disabled={isViewMode}
+              disabled={
+                isViewMode || (!isAdmin && submitted && !underamendment)
+              }
               onChange={(date, dateString) => {
                 onChangeTableData(record.key, "DueDate", dateString);
               }}
@@ -853,7 +909,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             rules={validationRules.Person}
           >
             <Select
-             disabled={isViewMode}
+              disabled={
+                isViewMode || (!isAdmin && submitted && !underamendment)
+              }
               showSearch
               optionFilterProp="children"
               style={{ width: "100%" }}
@@ -898,7 +956,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             rules={validationRules.Results}
           >
             <TextArea
-              disabled={isViewMode}
+              disabled={
+                isViewMode || (!isAdmin && submitted && !underamendment)
+              }
               maxLength={1000}
               placeholder="Enter results"
               rows={2}
@@ -919,13 +979,14 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
         return (
           <div className="action-cell">
             <button
-              disabled={isViewMode}
+              disabled={
+                isViewMode || (!isAdmin && submitted && !underamendment)
+              }
               type="button"
               style={{ background: "none", border: "none" }}
               onClick={() => {
                 handleDelete(record.key);
               }}
-             
             >
               <span>
                 <FontAwesomeIcon icon={faTrash} />
@@ -1095,11 +1156,17 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
 
   return (
     <>
-      <div style={{ position: "relative", left: "1580px", bottom: "80px",zIndex:"1000" }}>
+      <div
+        style={{
+          position: "relative",
+          left: "1580px",
+          bottom: "80px",
+          zIndex: "1000",
+        }}
+      >
         <>
           <div className="d-flex gap-3">
-            {!isViewMode &&
-                !submitted  && (
+            {!isViewMode && (!submitted || underamendment) && (
               <button
                 className="btn btn-primary"
                 onClick={() => onFinish(OPERATION.Save)}
@@ -1109,8 +1176,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               </button>
             )}
 
-            {!isViewMode &&
-                !submitted  && (
+            {!isViewMode && !submitted && (
               <button
                 className="btn btn-darkgrey "
                 onClick={() => onFinish(OPERATION.Submit)}
@@ -1120,11 +1186,11 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               </button>
             )}
 
-            {false && (
+            {!isViewMode && underamendment && (
               <button
                 className="btn btn-primary"
                 type="button"
-                onClick={onFinish}
+                onClick={() => onFinish(OPERATION.Resubmit)}
               >
                 Resubmit
               </button>
@@ -1147,8 +1213,28 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
           </Col>
 
           <Col span={6}>
-            <Form.Item label="Requested By" name="requestedBy">
+            <Form.Item label="Adjustment Done By" name="requestedBy" 
+            initialValue={user?.employeeName}>
               <Input placeholder="-" disabled />
+            </Form.Item>
+          </Col>
+
+          <Col span={6}>
+            <Form.Item
+              label="When"
+              name="dateTime"
+              rules={[{ required: true, message: "Please Select Date" }]}
+            >
+              <DatePicker
+                disabled={
+                  isViewMode || (!isAdmin && submitted && !underamendment)
+                }
+                disabledDate={disabledDate}
+                showTime
+                placeholder="Date & Time"
+                format={DATE_TIME_FORMAT}
+                className="bg-antdDisabledBg border-antdDisabledBorder w-full"
+              />
             </Form.Item>
           </Col>
 
@@ -1167,7 +1253,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                     label: checkedBy.employeeName,
                     value: checkedBy.employeeId,
                   })) || []),
-                  ...(checkedByResult?.ReturnValue? [{ label: "Not Applicable", value: -1 }] : []),
+                  ...(checkedByResult?.ReturnValue
+                    ? [{ label: "Not Applicable", value: -1 }]
+                    : []),
                 ]}
               >
                 {checkedByResult?.ReturnValue &&
@@ -1176,56 +1264,37 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                       key={checkedBy.employeeId}
                       value={checkedBy.employeeId}
                     >
-                     {checkedBy.employeeName}
+                      {checkedBy.employeeName}
                     </Option>
                   ))}
               </Select>
             </Form.Item>
           </Col>
-
+        </Row>
+        <Row gutter={48}>
           <Col span={6}>
             <Form.Item
-              label="When"
-              name="dateTime"
-              rules={[{ required: true, message: "Please Select Date" }]}
+              label={<span className="text-muted w-95">Section Name</span>}
+              name="SectionId"
+              rules={[{ required: true }]}
             >
-              <DatePicker
+              <Select
                 disabled={isViewMode}
-                disabledDate={disabledDate}
-                showTime
-                placeholder="Date & Time"
-                format="YYYY-MM-DD HH:mm:ss"
-                className="bg-antdDisabledBg border-antdDisabledBorder w-full"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={48}>
-
-        <Col span={6}>
-          <Form.Item
-                  label={<span className="text-muted w-95">Section Name</span>}
-                  name="SectionId"
-                  rules={[{ required: true }]}
-                >
-                  <Select
-                    disabled={isViewMode}
-                    showSearch
-                    // onChange={handleSectionChange}
-                    filterOption={(input, option) =>
-                      (option?.label ?? "")
-                        .toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    options={sections?.ReturnValue?.map((section) => ({
-                      label: section.sectionName,
-                      value: section.sectionId,
-                    }))}
-                    loading={sectionIsLoading}
-                    className="custom-disabled-select"
-                  >
-                    {/* {troubles?.map((trouble) => (
+                showSearch
+                // onChange={handleSectionChange}
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={sections?.ReturnValue?.map((section) => ({
+                  label: section.sectionName,
+                  value: section.sectionId,
+                }))}
+                loading={sectionIsLoading}
+                className="custom-disabled-select"
+              >
+                {/* {troubles?.map((trouble) => (
                       <Select.Option
                         key={trouble.troubleId}
                         value={trouble.troubleId}
@@ -1233,8 +1302,8 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                         {trouble.name}
                       </Select.Option>
                     ))} */}
-                  </Select>
-                </Form.Item>
+              </Select>
+            </Form.Item>
           </Col>
 
           <Col span={6}>
@@ -1285,23 +1354,24 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             <Form.Item
               label="Machine Name"
               name="machineName"
-              rules={[
-                { required: true, message: "Please select a machine name" },
-              ]}
+              rules={validationRules.Machine}
             >
               <Select
-              allowClear
-                disabled={isViewMode}
+                allowClear
+                disabled={
+                  isViewMode || (!isAdmin && submitted && !underamendment)
+                }
                 placeholder="Select Machine Name"
                 onChange={handleMachineChange}
-               
                 loading={machineloading}
                 options={[
                   ...(machinesResult?.ReturnValue?.map((machine) => ({
                     label: machine.MachineName,
                     value: machine.MachineId,
                   })) || []),
-                  ...(machinesResult?.ReturnValue?  [{ label: "Other", value: -1 }] : []),
+                  ...(machinesResult?.ReturnValue
+                    ? [{ label: "Other", value: -1 }]
+                    : []),
                 ]}
               />
             </Form.Item>
@@ -1309,7 +1379,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             {showOtherMachine && (
               <Form.Item label="Other Machine Name" name="OtherMachine">
                 <TextArea
-                 disabled={isViewMode}
+                  disabled={
+                    isViewMode || (!isAdmin && submitted && !underamendment)
+                  }
                   rows={1}
                   maxLength={500}
                   placeholder="Provide additional details (optional)"
@@ -1329,7 +1401,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               ]}
             >
               <Select
-                disabled={isViewMode}
+                disabled={
+                  isViewMode || (!isAdmin && submitted && !underamendment)
+                }
                 mode="multiple"
                 placeholder="Select Sub-Machine Name"
                 onChange={handleSubMachineChange}
@@ -1338,14 +1412,12 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                     ? [{ label: "All", value: -1 }]
                     : []),
                   ...(subMachinesResult?.ReturnValue?.filter(
-                      (submachine:ISubMachine) =>
-                        submachine.MachineId === selectedMachine
-                    )
-                    ?.map((subdevice:ISubMachine) => ({
-                      
-                      label: subdevice.SubMachineName,
-                      value: subdevice.SubMachineId,
-                    })) || []),
+                    (submachine: ISubMachine) =>
+                      submachine.MachineId === selectedMachine
+                  )?.map((subdevice: ISubMachine) => ({
+                    label: subdevice.SubMachineName,
+                    value: subdevice.SubMachineId,
+                  })) || []),
                   ...(selectedMachine !== 0
                     ? [{ label: "Other", value: -2 }]
                     : []),
@@ -1355,12 +1427,11 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             </Form.Item>
 
             {showOtherSubMachine && (
-              <Form.Item
-                label="Other SubMachine Name "
-                name="OtherSubMachine"
-              >
+              <Form.Item label="Other SubMachine Name " name="OtherSubMachine">
                 <TextArea
-                  disabled={isViewMode}
+                  disabled={
+                    isViewMode || (!isAdmin && submitted && !underamendment)
+                  }
                   rows={1}
                   maxLength={500}
                   placeholder="Provide additional details (optional)"
@@ -1368,18 +1439,18 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               </Form.Item>
             )}
           </Col>
-          
         </Row>
-
         <Row gutter={48}>
-        <Col span={6}>
+          <Col span={6}>
             <Form.Item
               label="Describe Problem"
               name="describeProblem"
               rules={[{ required: true }]}
             >
               <TextArea
-                disabled={isViewMode}
+                disabled={
+                  isViewMode || (!isAdmin && submitted && !underamendment)
+                }
                 rows={1}
                 maxLength={2000}
                 placeholder="Describe the problem"
@@ -1394,7 +1465,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               rules={[{ required: true }]}
             >
               <TextArea
-                disabled={isViewMode}
+                disabled={
+                  isViewMode || (!isAdmin && submitted && !underamendment)
+                }
                 rows={4}
                 maxLength={2000}
                 placeholder="Enter your observation"
@@ -1408,7 +1481,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               rules={[{ required: true }]}
             >
               <TextArea
-                disabled={isViewMode}
+                disabled={
+                  isViewMode || (!isAdmin && submitted && !underamendment)
+                }
                 rows={4}
                 maxLength={2000}
                 placeholder="Describe the root cause"
@@ -1422,17 +1497,18 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               rules={[{ required: true }]}
             >
               <TextArea
-                disabled={isViewMode}
+                disabled={
+                  isViewMode || (!isAdmin && submitted && !underamendment)
+                }
                 rows={4}
                 maxLength={2000}
                 placeholder="Describe the adjustment made"
               />
             </Form.Item>
           </Col>
-         
-        </Row>
+        </Row>  
         <Row gutter={48}>
-        <Col span={6}>
+          <Col span={6}>
             <Form.Item
               label="Condition After Adjustment"
               name="conditionAfterAdjustment"
@@ -1444,7 +1520,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               ]}
             >
               <TextArea
-                disabled={isViewMode}
+                disabled={
+                  isViewMode || (!isAdmin && submitted && !underamendment)
+                }
                 rows={4}
                 maxLength={2000}
                 placeholder="Describe the condition after adjustment"
@@ -1452,7 +1530,7 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             </Form.Item>
           </Col>
           <Col span={6}>
-            <Form.Item
+            {/* <Form.Item
               label="Before Images"
               name="beforeImages"
               rules={[
@@ -1463,7 +1541,9 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               ]}
             >
               <FileUpload
-                disabled={isViewMode}
+                disabled={
+                  isViewMode || (!isAdmin && submitted && !underamendment)
+                }
                 key={`file-upload-before-images`}
                 folderName={
                   form.getFieldValue("reportNo") ?? user?.employeeId.toString()
@@ -1484,57 +1564,177 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
                 onRemoveFile={handleRemoveBeforeImage}
                 uploadType="before"
               />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
+            </Form.Item> */}
+
             <Form.Item
-              label="After Images"
-              name="afterImages"
-              rules={[
-                {
-                  required: true,
-                  message: "Please upload after images!",
-                },
-              ]}
+              label={<span className="text-muted">Before Attachments</span>}
+              name="BeforeImages"
             >
+              {/* all types except exe  ,  max size -30MB  , no-10*/}
+              {console.log("USERID", user?.employeeId.toString())}
               <FileUpload
-                disabled={isViewMode}
-                key={`file-upload-after-images`}
+                key={`file-upload-before-images`}
                 folderName={
-                  form.getFieldValue("reportNo") ?? user?.employeeId.toString()
+                  form.getFieldValue("reportNo") !== ""
+                    ? form.getFieldValue("reportNo")
+                    : user?.employeeId.toString()
                 }
-                subFolderName={"AfterImages"}
+                subFolderName={"Before Images"}
                 libraryName={DocumentLibraries.Adjustment_Attachments}
-                files={afterAdjustmentReportPhotos?.map((a) => ({
+                files={beforeImages?.map((a) => ({
                   ...a,
-                  uid: a.AdjustmentReportPhotoId?.toString() ?? "",
-                  name: a.DocumentName,
-                  url: `${a.DocumentFilePath}`,
+                  uid: a.AdjustmentBeforeImageId?.toString() ?? "",
+                  name: a.BeforeImgName,
+                  url: `${WEB_URL}/${a.BeforeImgPath}`,
                 }))}
                 setIsLoading={(loading: boolean) => {
                   // setIsLoading(loading);
                 }}
                 isLoading={false}
-                onAddFile={handleAddAfterImage}
-                onRemoveFile={handleRemoveAfterImage}
-                uploadType="after"
+                onAddFile={(name: string, url: string) => {
+                  const existingAttachments = beforeImages ?? [];
+                  console.log("FILES", existingAttachments);
+                  const newAttachment: IBeforeImages = {
+                    AdjustmentBeforeImageId: 0,
+                    AdjustmentreportId: parseInt(id),
+                    BeforeImgName: name,
+                    BeforeImgPath: url,
+                    CreatedBy: user?.employeeId,
+                    ModifiedBy: user?.employeeId,
+                  };
+
+                  const updatedAttachments: IBeforeImages[] = [
+                    ...existingAttachments,
+                    newAttachment,
+                  ];
+
+                  void form.validateFields(["BeforeImages"]);
+                  setbeforeImages(updatedAttachments);
+                }}
+                // onRemoveFile={(documentName: string) => {
+                //   debugger
+                //   const existingAttachments = currSituationAttchments ?? [];
+
+                //   const updatedAttachments = existingAttachments?.filter(
+                //     (doc) => doc.CurrSituationDocName !== documentName
+                //   );
+                //   setcurrSituationAttchments(updatedAttachments);
+                //   void form.validateFields(["EquipmentCurrSituationAttachmentDetails"]);
+
+                //   console.log("File Removed");
+                // }}
+                onRemoveFile={async (documentName: string) => {
+                  debugger;
+                  const existingAttachments = beforeImages ?? [];
+
+                  const updatedAttachments = existingAttachments?.filter(
+                    (doc) => doc.BeforeImgName !== documentName
+                  );
+
+                  setbeforeImages(updatedAttachments);
+
+                  console.log("Validation successful after file removal");
+                  if (updatedAttachments?.length == 0) {
+                    debugger;
+                    form.setFieldValue("BeforeImages", []);
+                  }
+                  await form.validateFields(["BeforeImages"]);
+
+                  console.log("File Removed");
+                }}
               />
             </Form.Item>
           </Col>
-          
-        </Row>
+          <Col span={6}>
+     
+          <Form.Item
+              label={<span className="text-muted">After Attachments</span>}
+              name="AfterImages"
+            >
+              <FileUpload
+                key={`file-upload-after-images`}
+                folderName={
+                  form.getFieldValue("reportNo") !== ""
+                    ? form.getFieldValue("reportNo")
+                    : user?.employeeId.toString()
+                }
+                subFolderName={"After Images"}
+                libraryName={DocumentLibraries.Adjustment_Attachments}
+                files={afterImages?.map((a) => ({
+                  ...a,
+                  uid: a.AdjustmentAfterImageId?.toString() ?? "",
+                  name: a.AfterImgName,
+                  url: `${WEB_URL}/${a.AfterImgPath}`,
+                }))}
+                setIsLoading={(loading: boolean) => {
+                  // setIsLoading(loading);
+                }}
+                isLoading={false}
+                onAddFile={(name: string, url: string) => {
+                  const existingAttachments = afterImages ?? [];
+                  console.log("After Files", existingAttachments);
+                  const newAttachment: IAfterImages = {
+                    AdjustmentAfterImageId: 0,
+                    AdjustmentreportId: parseInt(id),
+                    AfterImgName: name,
+                    AfterImgPath: url,
+                    CreatedBy: user?.employeeId,
+                    ModifiedBy: user?.employeeId,
+                  };
 
+                  const updatedAttachments: IAfterImages[] = [
+                    ...existingAttachments,
+                    newAttachment,
+                  ];
+
+                  void form.validateFields(["AfterImages"]);
+                  setafterImages(updatedAttachments);
+                }}
+                // onRemoveFile={(documentName: string) => {
+                //   debugger
+                //   const existingAttachments = currSituationAttchments ?? [];
+
+                //   const updatedAttachments = existingAttachments?.filter(
+                //     (doc) => doc.CurrSituationDocName !== documentName
+                //   );
+                //   setcurrSituationAttchments(updatedAttachments);
+                //   void form.validateFields(["EquipmentCurrSituationAttachmentDetails"]);
+
+                //   console.log("File Removed");
+                // }}
+                onRemoveFile={async (documentName: string) => {
+                  debugger;
+                  const existingAttachments = afterImages ?? [];
+
+                  const updatedAttachments = existingAttachments?.filter(
+                    (doc) => doc.AfterImgName !== documentName
+                  );
+
+                  setafterImages(updatedAttachments);
+
+                  console.log("Validation successful after file removal");
+                  if (updatedAttachments?.length == 0) {
+                    debugger;
+                    form.setFieldValue("AfterImages", []);
+                  }
+                  await form.validateFields(["AfterImages"]);
+
+                  console.log("After File Removed");
+                }}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
         <div>
           <div style={{ display: "flex", alignItems: "center" }}>
             <span style={{ marginRight: 16 }}>
               Change Risk Management Required ?
             </span>
             <Radio.Group
-              onChange={(e: any) =>{ 
+              onChange={(e: any) => {
                 setCRMRequired(e.target.value);
                 setChangeRiskManagementDetails([]);
-              }
-              }
+              }}
               value={cRMRequired}
               name="cRMRequired"
               disabled={isViewMode}
@@ -1546,7 +1746,6 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
             </Radio.Group>
           </div>
         </div>
-
         {/* Render multiple form sections */}
         {/* {cRMRequired && (
           <div className="flex justify-end items-center my-3">
@@ -1591,41 +1790,44 @@ const RequestForm = React.forwardRef((props: RequestFormProps, ref) => {
               </span>
             </div>
           ))} */}
-{          console.log("CHANGE RISK DATA",ChangeRiskManagementDetails)
-}  { cRMRequired ? 
-            <div>
-              <div className="d-flex justify-content-between my-3">
-                <p
-                  className="mb-0"
-                  style={{ fontSize: "20px", color: "#C50017" }}
+        {console.log("CHANGE RISK DATA", ChangeRiskManagementDetails)}{" "}
+        {cRMRequired ? (
+          <div>
+            <div className="d-flex justify-content-between my-3">
+              <p
+                className="mb-0"
+                style={{ fontSize: "20px", color: "#C50017" }}
+              >
+                Change Risk Management
+              </p>
+              {console.log("Mode", mode)}
+              {(mode == "add" || !isViewMode) && (
+                <button
+                  className="btn btn-primary mt-3"
+                  type="button"
+                  onClick={handleAdd}
                 >
-                  Change Risk Management
-                </p>
-                {console.log("Mode", mode)}
-                {(mode == "add" || !isViewMode) && (
-                  <button
-                    className="btn btn-primary mt-3"
-                    type="button"
-                    onClick={handleAdd}
-                  >
-                    <i className="fa-solid fa-circle-plus" /> Add
-                  </button>
-                )}
-              </div>
-              <Table
-                className="change-risk-table"
-                dataSource={ChangeRiskManagementDetails}
-                columns={nestedTableColumns}
-                scroll={{ x: "max-content" }}
-                // locale={{
-                //   emptyText: (
-                //     <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                //       <Empty description="No Data Available" />
-                //     </div>
-                //   ),
-                // }}
-              />
-</div>:<></>}
+                  <i className="fa-solid fa-circle-plus" /> Add
+                </button>
+              )}
+            </div>
+            <Table
+              className="change-risk-table"
+              dataSource={ChangeRiskManagementDetails}
+              columns={nestedTableColumns}
+              scroll={{ x: "max-content" }}
+              // locale={{
+              //   emptyText: (
+              //     <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              //       <Empty description="No Data Available" />
+              //     </div>
+              //   ),
+              // }}
+            />
+          </div>
+        ) : (
+          <></>
+        )}
         {/* 
         <Button
           onClick={handleAdditionalApprovalClick}

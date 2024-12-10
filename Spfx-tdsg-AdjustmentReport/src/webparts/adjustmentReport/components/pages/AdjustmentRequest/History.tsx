@@ -1,73 +1,70 @@
-import { Table } from "antd";
-import * as React from "react";
+import * as  React from 'react'
+import { ColumnsType } from 'antd/es/table';
+import { AnyObject } from "antd/es/_util/type";
+import Table from '../../table/table';
+export interface DataType {
+    key: number;
+    status?: string;
+    action: string;
+    comments: string;
+    actionTakenBy: string;
+    actionTakenDate: string;
+  }
+const History: React.FC = () => {
 
-const History = () => {
-  //   Define the data for the table
-  const dataSource = [
-    {
-      key: "1",
-      Action: "Approve",
-      Comments: "No Need to change",
-      ActionTakenBy: "Jane Smith",
-      ActionTakenDate: new Date().toLocaleDateString(),
-    },
-    {
-      key: "2",
-      Action: "Reject",
-      Comments: "Need to change",
-      ActionTakenBy: "John Doe",
-      ActionTakenDate: new Date().toLocaleDateString(),
-    },
-    {
-      key: "3",
-      Action: "Approver",
-      Comments: "Need to change",
-      ActionTakenBy: "Jane Smith",
-      ActionTakenDate: new Date().toLocaleDateString(),
-    },
-    {
-      key: "4",
-      Action: "Approver",
-      Comments: "Need to change",
-      ActionTakenBy: "Jane Smith",
-      ActionTakenDate: new Date().toLocaleDateString(),
-    },
-  ];
-
-  const columns = [
-    {
-      title: "Action",
-      dataIndex: "Action",
-      key: "Action",
-    },
-    {
-      title: "Comments",
-      dataIndex: "Comments",
-      key: "Comments",
-    },
-
-    {
-      title: "Action taken By",
-      dataIndex: "ActionTakenBy",
-      key: "ActionTakenBy",
-    },
-    {
-      title: "Action Taken Date",
-      dataIndex: "ActionTakenDate",
-      key: "ActionTakenDate",
-    },
-  ];
-
+    const columns:ColumnsType<AnyObject> = [
+        {
+          title: "Action",
+          dataIndex: "actionType",
+          key: "actionType",
+          render: (text:string) => <p className="text-cell">{text}</p>,
+          width: "15%",
+        },
+        {
+          title: "Status",
+          dataIndex: "status",
+          key: "status",
+          render: (text:string) => <p className="text-cell">{text}</p>,
+          width: "15%",
+        },
+        {
+          title: "Comments",
+          dataIndex: "comment",
+          key: "comment",
+          render: (text:string) => (
+            <p
+              className="text-cell"
+              style={{
+                textTransform: "none",
+              }}
+            >
+              {text}
+            </p>
+          ),
+          width: "30%",
+        },
+        {
+          title: "Action Taken By",
+          dataIndex: "actionTakenBy",
+          key: "actionTakenBy",
+          render: (text:string) => <p className="text-cell">{text}</p>,
+          width: "20%",
+        },
+        {
+          title: "Action Taken Date",
+          dataIndex: "actionTakenDateTime",
+          key: "actionTakenDate",
+        //   render: (value: string) => (
+        //     <p className="text-cell">{dayjs(value).format(DATE_FORMAT)}</p>
+        //   ),
+          width: "20%",
+        },
+      ];
   return (
-    <div className="py-3 history-table">
-      <Table
-        bordered
-        columns={columns}
-        dataSource={dataSource}
-        pagination={false}
-      />
+    <div>
+       <Table columns={columns} paginationRequired={false} url="/api/AdjustmentReport/GetHistoryData" />
     </div>
-  );
-};
+  )
+}
 
-export default History;
+export default History
