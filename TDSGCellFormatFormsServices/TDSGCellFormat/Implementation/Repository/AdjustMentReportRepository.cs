@@ -349,6 +349,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                         await _context.SaveChangesAsync();
                     }
+
                     if (request.BeforeImages != null)
                     {
                         foreach (var attach in request.BeforeImages)
