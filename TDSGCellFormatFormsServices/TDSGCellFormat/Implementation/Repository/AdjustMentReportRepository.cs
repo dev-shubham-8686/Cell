@@ -1375,10 +1375,12 @@ namespace TDSGCellFormat.Implementation.Repository
                 string? htmlTemplatePath = _configuration["TemplateSettings:PdfTemplate"];
                 string baseDirectory = AppContext.BaseDirectory;
                 DirectoryInfo? directoryInfo = new DirectoryInfo(baseDirectory);
+                //enable while work in local 
+                string projectRootDirectory = Path.GetFullPath(Path.Combine(baseDirectory, @"..\..\..\"));
 
                 string templateFile = "AdjustmentReportPDF.html";
 
-                string templateFilePath = Path.Combine(baseDirectory, htmlTemplatePath, templateFile);
+                string templateFilePath = Path.Combine(projectRootDirectory, htmlTemplatePath, templateFile);
 
                 string? htmlTemplate = System.IO.File.ReadAllText(templateFilePath);
                 sb.Append(htmlTemplate);
@@ -1427,9 +1429,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#divisionhead#", approvedByDivisionHead);
 
                 //local
-                //var baseUrl = "https://synopsandbox.sharepoint.com/sites/Training2024";
+                var baseUrl = "https://synopsandbox.sharepoint.com/sites/Training2024";
                 //stage
-                var baseUrl = "https://tdsgj.sharepoint.com/sites/e-app-stage";
+                //var baseUrl = "https://tdsgj.sharepoint.com/sites/e-app-stage";
                 var beforeImageUrl = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == adjustMentReportId
                          && x.IsDeleted == false)
                           // .Select(x => $"{baseUrl}{x.BeforeImageDocFilePath}")
