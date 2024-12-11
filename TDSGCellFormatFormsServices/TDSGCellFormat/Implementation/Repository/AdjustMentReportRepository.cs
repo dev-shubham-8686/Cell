@@ -205,7 +205,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 Observation = res.Observation,
                 RootCause = res.RootCause,
                 AdjustmentDescription = res.AdjustmentDescription,
-              //  Photos = GetAdjustmentReportPhotos(Id),
+                //  Photos = GetAdjustmentReportPhotos(Id),
                 ChangeRiskManagementRequired = res.ChangeRiskManagementRequired,
                 ConditionAfterAdjustment = res.ConditionAfterAdjustment,
                 Status = res.Status,
@@ -250,7 +250,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var adjustmentBeforeImage = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == Id && x.IsDeleted == false).ToList();
             if (adjustmentBeforeImage != null)
             {
-                adjustmentData.BeforeImages  = adjustmentBeforeImage.Select(attach => new AdjustmentBeforeImageData
+                adjustmentData.BeforeImages = adjustmentBeforeImage.Select(attach => new AdjustmentBeforeImageData
                 {
                     AdjustmentBeforeImageId = attach.AdjustmentBeforeImageId,
                     BeforeImgName = attach.BeforeImageDocName,
@@ -362,6 +362,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 AdjustmentReportId = adjustMentReportId,
                                 BeforeImageDocName = attach.BeforeImgName,
                                 BeforeImageDocFilePath = updatedUrl,
+                                BeforeImageBytes = attach.BeforeImgBytes,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
                                 CreatedDate = DateTime.Now,
@@ -383,6 +384,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 AdjustmentReportId = adjustMentReportId,
                                 AfterImageDocName = attach.AfterImgName,
                                 AfterImageDocFilePath = updatedUrl,
+                                AfterImageBytes = attach.AfterImgBytes,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
                                 CreatedDate = DateTime.Now,
@@ -425,7 +427,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         InsertHistoryData(adjustMentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Update Status as Draft", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
                     }
 
-                
+
                 }
                 else
                 {
@@ -528,11 +530,12 @@ namespace TDSGCellFormat.Implementation.Repository
                         foreach (var attach in request.AfterImages)
                         {
                             var updatedUrl = attach.AfterImgPath.Replace($"/{request.CreatedBy}/", $"/{existingReport.ReportNo}/");
-                            var existingAttachData = _context.AdjustmentAfterImages.Where(x => x.AdjustmentReportId == attach.AdjustmentreportId && x.AdjustmentAfterImageId == attach.AdjustmentAfterImageId).FirstOrDefault();
+                            var existingAttachData = _context.AdjustmentAfterImages.Where(x => x.AdjustmentReportId == request.AdjustMentReportId && x.AdjustmentAfterImageId == attach.AdjustmentAfterImageId).FirstOrDefault();
                             if (existingAttachData != null)
                             {
                                 existingAttachData.AfterImageDocName = attach.AfterImgName;
                                 existingAttachData.AfterImageDocFilePath = attach.AfterImgPath;
+                                existingAttachData.AfterImageBytes = attach.AfterImgBytes;
                                 existingAttachData.IsDeleted = false;
                                 existingAttachData.ModifiedBy = attach.ModifiedBy;
                                 existingAttachData.ModifiedDate = DateTime.Now;
@@ -545,6 +548,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                     AdjustmentReportId = existingReport.AdjustMentReportId,
                                     AfterImageDocName = attach.AfterImgName,
                                     AfterImageDocFilePath = updatedUrl,
+                                    AfterImageBytes = attach.AfterImgBytes,
                                     IsDeleted = false,
                                     CreatedBy = attach.CreatedBy,
                                     CreatedDate = DateTime.Now,
@@ -555,7 +559,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                     }
 
-                    var existingBeforeImage = _context.AdjustmentAfterImages.Where(x => x.AdjustmentReportId == existingReport.AdjustMentReportId).ToList();
+                    var existingBeforeImage = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == existingReport.AdjustMentReportId).ToList();
                     MarkAsDeleted(existingBeforeImage, existingReport.CreatedBy, DateTime.Now);
                     _context.SaveChanges();
 
@@ -564,11 +568,12 @@ namespace TDSGCellFormat.Implementation.Repository
                         foreach (var attach in request.BeforeImages)
                         {
                             var updatedUrl = attach.BeforeImgPath.Replace($"/{request.CreatedBy}/", $"/{existingReport.ReportNo}/");
-                            var existingAttachData = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == attach.AdjustmentreportId && x.AdjustmentBeforeImageId == attach.AdjustmentBeforeImageId).FirstOrDefault();
+                            var existingAttachData = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == request.AdjustMentReportId && x.AdjustmentBeforeImageId == attach.AdjustmentBeforeImageId).FirstOrDefault();
                             if (existingAttachData != null)
                             {
                                 existingAttachData.BeforeImageDocName = attach.BeforeImgName;
                                 existingAttachData.BeforeImageDocFilePath = attach.BeforeImgPath;
+                                existingAttachData.BeforeImageBytes = attach.BeforeImgBytes;
                                 existingAttachData.IsDeleted = false;
                                 existingAttachData.ModifiedBy = attach.ModifiedBy;
                                 existingAttachData.ModifiedDate = DateTime.Now;
@@ -581,6 +586,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                     AdjustmentReportId = existingReport.AdjustMentReportId,
                                     BeforeImageDocName = attach.BeforeImgName,
                                     BeforeImageDocFilePath = updatedUrl,
+                                    BeforeImageBytes = attach.BeforeImgBytes,
                                     IsDeleted = false,
                                     CreatedBy = attach.CreatedBy,
                                     CreatedDate = DateTime.Now,
@@ -638,7 +644,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                     }
 
-                    
+
                 }
             }
 
@@ -703,7 +709,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
 
                 var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
-                if(createdBy == adminId)
+                if (createdBy == adminId)
                 {
                     InsertHistoryData(adjustmentReportId, FormType.AjustmentReport.ToString(), "Admin", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.Submit.ToString(), 0);
 
@@ -946,9 +952,9 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     InsertHistoryData(asktoAmend.AdjustmentId, FormType.EquipmentImprovement.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.Approved.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.Approved.ToString(), 0);
 
-                    if(asktoAmend.IsDivHeadRequired == true)
+                    if (asktoAmend.IsDivHeadRequired == true)
                     {
-                        var divisionHead = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId &&  x.IsActive == false && x.SequenceNo == 8)
+                        var divisionHead = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.IsActive == false && x.SequenceNo == 8)
                                   .OrderByDescending(x => x.ApproverTaskId)
                                 .FirstOrDefault();
                         if (divisionHead != null)
@@ -1091,7 +1097,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
 
                     InsertHistoryData(asktoAmend.AdjustmentId, FormType.EquipmentImprovement.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.UnderAmendment.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.UnderAmendment.ToString(), 0);
-                    
+
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendEquipmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Amended, asktoAmend.Comment, asktoAmend.ApproverTaskId);
                 }
@@ -1143,7 +1149,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
 
                     //InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
-                   
+
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendAdjustmentEmai(data.AdjustmentReportId, EmailNotificationAction.PullBack, string.Empty, 0);
                     res.StatusCode = Enums.Status.Success;
@@ -1225,8 +1231,8 @@ namespace TDSGCellFormat.Implementation.Repository
         public AdjustmentAdvisor GetAdvisorData(int adjustmentReportId)
         {
             var res = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsActive == true).FirstOrDefault();
-            
-            if(res == null)
+
+            if (res == null)
             {
                 return null;
             }
@@ -1381,7 +1387,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
                 var checkedBy = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CheckedBy).Select(x => x.EmployeeName).FirstOrDefault();
 
-                
+
                 var areaIds = adjustMentReportData.Area.Split(',').Select(id => int.Parse(id)).ToList();
 
                 var areaNames = new List<string>();
@@ -1420,34 +1426,110 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#departmenthead#", approvedByDepartmentHead);
                 sb.Replace("#divisionhead#", approvedByDivisionHead);
 
+                //local
+                //var baseUrl = "https://synopsandbox.sharepoint.com/sites/Training2024";
+                //stage
+                var baseUrl = "https://tdsgj.sharepoint.com/sites/e-app-stage";
+                var beforeImageUrl = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == adjustMentReportId
+                         && x.IsDeleted == false)
+                          // .Select(x => $"{baseUrl}{x.BeforeImageDocFilePath}")
+                          .ToList();
 
-                using (var ms = new MemoryStream())
+                var afterImageUrl = _context.AdjustmentAfterImages.Where(x => x.AdjustmentReportId == adjustMentReportId
+                                 && x.IsDeleted == false)
+                                  //.Select(x => $"{baseUrl}{x.AfterImageDocFilePath}")
+                                  .ToList();
+
+                StringBuilder beforeImages = new StringBuilder();
+                StringBuilder afterImages = new StringBuilder();
+
+                foreach (var url1 in beforeImageUrl)
                 {
-                    Document document = new Document(iTextSharp.text.PageSize.A3, 10f, 10f, 10f, 30f);
-                    PdfWriter writer = PdfWriter.GetInstance(document, ms);
-                    document.Open();
+                    string bfrUrl = $"{baseUrl}{url1.BeforeImageDocFilePath}";
 
-                    // Convert the StringBuilder HTML content to a PDF using iTextSharp
-                    using (var sr = new StringReader(sb.ToString()))
+                    if (url1.BeforeImageDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                 url1.BeforeImageDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                 url1.BeforeImageDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                                 url1.BeforeImageDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
                     {
-                        iTextSharp.tool.xml.XMLWorkerHelper.GetInstance().ParseXHtml(writer, document, sr);
+                        // Add image tag
+                        beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
+                    }
+                    else
+                    {
+                        beforeImages.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
                     }
 
-                    document.Close();
-
-                    // Convert the PDF to a byte array
-                    byte[] pdfBytes = ms.ToArray();
-
-                    // Encode the PDF as a Base64 string
-                    string base64String = Convert.ToBase64String(pdfBytes);
-
-                    // Set response values
-                    res.StatusCode = Enums.Status.Success;
-                    res.Message = Enums.AdjustMentPdf;
-                    res.ReturnValue = base64String; // Send the Base64 string to the frontend
-
-                    return res;
                 }
+
+
+                foreach (var url2 in afterImageUrl)
+                {
+                    string AftrUrl = $"{baseUrl}{url2.AfterImageDocFilePath}";
+                    if (url2.AfterImageDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                 url2.AfterImageDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                 url2.AfterImageDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                                 url2.AfterImageDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Add image tag
+                        afterImages.AppendLine($"<img src=\"{url2.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
+                    }
+                    else
+                    {
+                        afterImages.Append($"<a href=\"{AftrUrl}\" target=\"_blank\">{Path.GetFileName(AftrUrl)}</a><br>");
+
+                    }
+                }
+
+                // Replace placeholders in the HTML template
+                sb.Replace("#BeforeImg#", beforeImages.ToString());
+                sb.Replace("#AfterImg#", afterImages.ToString());
+
+
+                // Create PDF using SelectPDF
+                var converter = new SelectPdf.HtmlToPdf();
+                converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
+                SelectPdf.PdfDocument pdfDoc = converter.ConvertHtmlString(sb.ToString());
+
+                // Convert the PDF to a byte array
+                byte[] pdfBytes = pdfDoc.Save();
+
+                // Encode the PDF as a Base64 string
+                string base64String = Convert.ToBase64String(pdfBytes);
+
+                // Set response values
+                res.StatusCode = Enums.Status.Success;
+                res.Message = Enums.MaterialPdf;
+                res.ReturnValue = base64String; // Send the Base64 string to the frontend
+
+                return res;
+                //using (var ms = new MemoryStream())
+                //{
+                //    Document document = new Document(iTextSharp.text.PageSize.A3, 10f, 10f, 10f, 30f);
+                //    PdfWriter writer = PdfWriter.GetInstance(document, ms);
+                //    document.Open();
+
+                //    // Convert the StringBuilder HTML content to a PDF using iTextSharp
+                //    using (var sr = new StringReader(sb.ToString()))
+                //    {
+                //        iTextSharp.tool.xml.XMLWorkerHelper.GetInstance().ParseXHtml(writer, document, sr);
+                //    }
+
+                //    document.Close();
+
+                //    // Convert the PDF to a byte array
+                //    byte[] pdfBytes = ms.ToArray();
+
+                //    // Encode the PDF as a Base64 string
+                //    string base64String = Convert.ToBase64String(pdfBytes);
+
+                //    // Set response values
+                //    res.StatusCode = Enums.Status.Success;
+                //    res.Message = Enums.AdjustMentPdf;
+                //    res.ReturnValue = base64String; // Send the Base64 string to the frontend
+
+                //    return res;
+                //}
             }
 
             catch (Exception ex)
@@ -1591,10 +1673,10 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public async Task<List<DepartmentHeadsView>> GetAdditionalDepartmentHeads(int departmentId)
         {
-           // var res = new AjaxResult();
-           // var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
-           // var result = await _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAdditionalDepartmentHeads] @DepartmentId")
-              //  .ExecuteStoredProcedureAsync<DepartmentHeadsView>();
+            // var res = new AjaxResult();
+            // var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
+            // var result = await _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAdditionalDepartmentHeads] @DepartmentId")
+            //  .ExecuteStoredProcedureAsync<DepartmentHeadsView>();
             var listData = await _context.GetAdditionalDepartmenthead(departmentId);
             var additionalDepHead = new List<DepartmentHeadsView>();
             foreach (var item in listData)
@@ -1603,7 +1685,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 additionalDepHead.Add(item);
             }
             return additionalDepHead;
-           
+
         }
 
 

@@ -10,18 +10,19 @@ namespace TDSGCellFormat.Models;
 [Table("AdjustmentBeforeImage")]
 
 public class AdjustmentBeforeImage
-    {
-        [Key]
+{
+    [Key]
 
-        public int AdjustmentBeforeImageId { get; set; }
-        public int? AdjustmentReportId { get; set; }
-        public string? BeforeImageDocName { get; set; }
-        public string? BeforeImageDocFilePath { get; set; }
-        public bool? IsDeleted { get; set; }
-        public int? CreatedBy { get; set; }
-        public DateTime? CreatedDate { get; set; }
-        public int? ModifiedBy { get; set; }
-        public DateTime? ModifiedDate { get; set; }
+    public int AdjustmentBeforeImageId { get; set; }
+    public int? AdjustmentReportId { get; set; }
+    public string? BeforeImageDocName { get; set; }
+    public string? BeforeImageDocFilePath { get; set; }
+    public string? BeforeImageBytes { get; set; }
+    public bool? IsDeleted { get; set; }
+    public int? CreatedBy { get; set; }
+    public DateTime? CreatedDate { get; set; }
+    public int? ModifiedBy { get; set; }
+    public DateTime? ModifiedDate { get; set; }
 
-    }
+}
 
