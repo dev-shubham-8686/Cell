@@ -72,7 +72,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public async Task<List<AdjustmentReportView>> GetAllAdjustmentData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
-            //var admin = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+            //var admin = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
             var listData = await _context.GetAdjustmentReportList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
             var adjustmentData = new List<AdjustmentReportView>();
             foreach (var item in listData)
@@ -85,12 +85,10 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public async Task<List<AdjustmentReportView>> GetAllAdjustmentDataMyReq(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
-            //var admin = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
             var listData = await _context.GetAdjustmentReportMyReqList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
             var adjustmentData = new List<AdjustmentReportView>();
             foreach (var item in listData)
             {
-                //  if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
                 adjustmentData.Add(item);
             }
             return adjustmentData;
@@ -103,7 +101,6 @@ namespace TDSGCellFormat.Implementation.Repository
             var adjustmentData = new List<AdjustmentReportApproverView>();
             foreach (var item in listData)
             {
-                //  if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
                 adjustmentData.Add(item);
             }
             return adjustmentData;
@@ -1402,9 +1399,22 @@ namespace TDSGCellFormat.Implementation.Repository
                         areaNames.Add(areaName);
                     }
                 }
-
                 var areaNamesString = string.Join(", ", areaNames);
 
+                var subMachineId = adjustMentReportData.SubMachineName.Split(',').Select(id => int.Parse(id)).ToList();
+                var subMachineNames = new List<string>();
+                foreach (var id in subMachineId)
+                {
+                    // Query database or use a dictionary/cache to get the name
+                    var subMachineName = _context.SubMachines.Where(x => x.SubMachineId == id && x.IsDeleted == false).Select(x => x.SubMachineName).FirstOrDefault(); // Replace this with your actual DB logic
+                    if (!string.IsNullOrEmpty(subMachineName))
+                    {
+                        subMachineNames.Add(subMachineName);
+                    }
+                }
+                var subMachineString = string.Join(", ", subMachineNames);
+
+                sb.Replace("#submachineName#", subMachineString);
                 sb.Replace("#area#", areaNamesString);
                 sb.Replace("#reportno#", adjustMentReportData.ReportNo);
                 sb.Replace("#requestor#", applicant);
