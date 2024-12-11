@@ -93,6 +93,7 @@ namespace TDSGCellFormat.Models.Add
         public int? AdjustmentreportId { get; set; }
         public string? AfterImgName { get; set; }
         public string? AfterImgPath { get; set; }
+        public string? AfterImgBytes { get; set; }
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
 
@@ -105,6 +106,7 @@ namespace TDSGCellFormat.Models.Add
         public int? AdjustmentreportId { get; set; }
         public string? BeforeImgName { get; set; }
         public string? BeforeImgPath { get; set; }
+        public string? BeforeImgBytes { get; set; }
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
 

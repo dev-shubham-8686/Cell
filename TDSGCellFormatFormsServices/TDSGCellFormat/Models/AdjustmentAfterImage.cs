@@ -15,6 +15,7 @@ public class AdjustmentAfterImage
     public int? AdjustmentReportId { get; set; }
     public string? AfterImageDocName { get; set; }
     public string? AfterImageDocFilePath { get; set; }
+    public string? AfterImageBytes { get; set; }
     public bool? IsDeleted { get; set; }
     public int? CreatedBy { get; set; }
     public DateTime? CreatedDate { get; set; }
