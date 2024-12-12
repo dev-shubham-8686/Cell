@@ -17,6 +17,8 @@ public class EquipmentImprovementAttachment
     public int? EquipmentImprovementId { get; set; }
     public string? ImprovementDocName { get; set; }
     public string? ImprovementDocFilePath { get; set; }
+
+    public string? ImpImageBytes { get; set; }
     public bool? IsDeleted { get; set; }
     public int? CreatedBy { get; set; }
     public DateTime? CreatedDate { get; set; }

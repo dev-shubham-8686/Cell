@@ -92,6 +92,8 @@ namespace TDSGCellFormat.Models.Add
         public int? EquipmentImprovementId { get; set; }
         public string? CurrSituationDocName { get; set; }
         public string? CurrSituationDocFilePath { get; set; }
+
+        public string? CurrentImgBytes { get; set; }
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
 
@@ -104,6 +106,7 @@ namespace TDSGCellFormat.Models.Add
         public int? EquipmentImprovementId { get; set; }
         public string? ImprovementDocName { get; set; }
         public string? ImprovementDocFilePath { get; set; }
+        public string? ImprovementImgBytes { get; set; }
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
 

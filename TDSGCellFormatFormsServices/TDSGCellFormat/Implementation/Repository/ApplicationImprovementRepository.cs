@@ -298,6 +298,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 EquipmentImprovementId = applicationImprovementId,
                                 CurrSituationDocName = attach.CurrSituationDocName,
                                 CurrSituationDocFilePath = updatedUrl,
+                                CurrImageBytes = attach.CurrentImgBytes,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
                                 CreatedDate = DateTime.Now,
@@ -317,6 +318,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 EquipmentImprovementId = newReport.EquipmentImprovementId,
                                 ImprovementDocFilePath = updatedUrl,
                                 ImprovementDocName = attach.ImprovementDocName,
+                                ImpImageBytes = attach.ImprovementImgBytes,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
                                 CreatedDate = DateTime.Now,
@@ -602,6 +604,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             existingAttachData.CurrSituationDocName = attach.CurrSituationDocName;
                             existingAttachData.CurrSituationDocFilePath = attach.CurrSituationDocFilePath;
+                            existingAttachData.CurrImageBytes = attach.CurrentImgBytes;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -614,6 +617,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 EquipmentImprovementId = existingReport.EquipmentImprovementId,
                                 CurrSituationDocName = attach.CurrSituationDocName,
                                 CurrSituationDocFilePath = updatedUrl,
+                                CurrImageBytes = attach.CurrentImgBytes,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
                                 CreatedDate = DateTime.Now,
@@ -638,6 +642,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             existingAttachData.ImprovementDocName = attach.ImprovementDocName;
                             existingAttachData.ImprovementDocFilePath = attach.ImprovementDocFilePath;
+                            existingAttachData.ImpImageBytes = attach.ImprovementImgBytes;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -649,6 +654,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 EquipmentImprovementId = existingReport.EquipmentImprovementId,
                                 ImprovementDocName = attach.ImprovementDocName,
                                 ImprovementDocFilePath = updatedUrl,
+                                ImpImageBytes = attach.ImprovementImgBytes,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
                                 CreatedDate = DateTime.Now,
