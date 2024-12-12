@@ -60,7 +60,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isApproverRequest } = location.state || {};
+  const { isApproverRequest, isFromAllRequest } = location.state || {};
   const user = React.useContext(UserContext);
   const { id } = useParams<{ id: string }>(); // For update/view mode
   const isEditMode = Boolean(id); // Check if we're in edit mode
@@ -165,6 +165,27 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
     });
   };
 
+  const [showOtherField, setShowOtherField] = React.useState(false);
+  const [otherEquipment, setOtherEquipment] = React.useState("");
+  const handleChangeEquipment = (value: any) => {
+    // Check if "Other" is selected
+    debugger;
+    if (value.includes("other")) {
+      setShowOtherField(true);
+      form.setFieldsValue({
+        equipmentIds: ["other"],
+        otherEquipment: "",
+      }); // Reset the "Other" input field
+    } else {
+      setShowOtherField(false);
+      form.setFieldsValue({
+        equipmentIds: value,
+        otherEquipment: null, // Clear "Other" input field in form when not needed
+      });
+    }
+    setOtherEquipment("");
+  };
+
   // Load data function in TechnicalInstructionForm component
   const loadData = (): void => {
     if (isEditMode || isViewMode) {
@@ -176,9 +197,13 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           setexistingTechniaclInstructionSlip(returnValue);
           setCtiNumber(returnValue.ctiNumber);
           console.log(ctiNumber);
+
+          
+
           form.setFieldsValue({
             ...returnValue,
-            revisionNo: returnValue.revisionNo == 0 ? null : returnValue.revisionNo,
+            revisionNo:
+              returnValue.revisionNo == 0 ? null : returnValue.revisionNo,
             issueDate: returnValue.issueDate
               ? dayjs(returnValue.issueDate, "DD-MM-YYYY HH:mm:ss")
               : null,
@@ -205,6 +230,15 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
                   )
                 : null,
           });
+
+          if(returnValue.otherEquipment != null){
+            form.setFieldsValue({
+              equipmentIds: ["other"],
+            });
+            setShowOtherField(true);
+            setOtherEquipment(returnValue.otherEquipment);
+          }
+          
           setEditorModel(returnValue.outline);
 
           if (returnValue.isSubmit) {
@@ -343,7 +377,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       void displayjsx.showErrorMsg("Please enter Outline");
       return false;
     }
-
+debugger;
     const technicalInstructionData = {
       TechnicalId: id ? parseInt(id, 10) : 0, // For update
       issueDate: values.issueDate
@@ -373,12 +407,17 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
         : null,
       applicationLotNo: values.applicationLotNo,
       //applicationEquipment: "test",
+      // equipmentIds: values.equipmentIds
+      //   ? values.equipmentIds.filter(
+      //       (value: any, index: any, self: string | any[]) =>
+      //         self.indexOf(value) === index
+      //     )
+      //   : null,
       equipmentIds: values.equipmentIds
-        ? values.equipmentIds.filter(
-            (value: any, index: any, self: string | any[]) =>
-              self.indexOf(value) === index
-          )
-        : null,
+        ? values.equipmentIds[0] === "other"
+          ? [-1]
+          : values.equipmentIds
+        : [],
       technicalAttachmentAdds: fileList ? mapFiles(fileList) : null,
       technicalOutlineAttachmentAdds: technicalOutlineFileList
         ? mapOutlineFiles(technicalOutlineFileList)
@@ -389,6 +428,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       sectionId: values.sectionId,
       ...submitFormState,
       comment: reSubmitComment,
+      otherEquipment: values.otherEquipment ?? null
     };
 
     //console.log(technicalInstructionData);
@@ -589,14 +629,20 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           }
         }
 
-        if(formType === "draft"){
-          void displayjsx.showSuccess("Technical Instruction form saved successfully.");
-        }else if(formType === "submit"){
-          void displayjsx.showSuccess("Technical Instruction form submitted successfully.");
-        }else{
-          void displayjsx.showSuccess("Technical Instruction form saved successfully.");
+        if (formType === "draft") {
+          void displayjsx.showSuccess(
+            "Technical Instruction form saved successfully."
+          );
+        } else if (formType === "submit") {
+          void displayjsx.showSuccess(
+            "Technical Instruction form submitted successfully."
+          );
+        } else {
+          void displayjsx.showSuccess(
+            "Technical Instruction form saved successfully."
+          );
         }
-       
+
         // Navigate back to the list after successful submission
         navigate("/");
       })
@@ -923,7 +969,6 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
     form
       .validateFields()
       .then(() => {
-
         if (
           editorModel === null ||
           editorModel === "" ||
@@ -1014,7 +1059,9 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       .then((c) => {
         setLoading(false);
         //navigate("/");
-        void displayjsx.showSuccess("Technical Instruction form has been approved.");
+        void displayjsx.showSuccess(
+          "Technical Instruction form has been approved."
+        );
         navigate("/", {
           state: {
             currentTabState: "myapproval-tab",
@@ -1042,7 +1089,9 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       .then((c) => {
         setLoading(false);
         //navigate("/");
-        void displayjsx.showSuccess("Technical Instruction form has been requested to amend.");
+        void displayjsx.showSuccess(
+          "Technical Instruction form has been requested to amend."
+        );
         navigate("/", {
           state: {
             currentTabState: "myapproval-tab",
@@ -1067,7 +1116,9 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
     pullBack(data)
       .then((c) => {
         setLoading(false);
-        void displayjsx.showSuccess("Technical Instruction form has been pulled back.");
+        void displayjsx.showSuccess(
+          "Technical Instruction form has been pulled back."
+        );
         navigate("/");
       })
       .catch((c) => {
@@ -1712,7 +1763,8 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       {activeKey === "1" &&
         existingTechniaclInstructionSlip?.status === REQUEST_STATUS.Completed &&
         (existingTechniaclInstructionSlip?.userId == user?.employeeId ||
-          existingTechniaclInstructionSlip.sectionHead == user?.employeeId) && (
+          existingTechniaclInstructionSlip.sectionHead == user?.employeeId ||
+          user?.isAdmin) && (
           <Form.Item
             style={{
               display: "inline-block", // Inline display for second button as well
@@ -1789,7 +1841,23 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           icon={<LeftCircleFilled />}
           className="back-button"
           type="text"
-          onClick={() => navigate("/")}
+          onClick={() => {
+            if (isFromAllRequest) {
+              navigate("/", {
+                state: {
+                  currentTabState: "allrequest-tab",
+                },
+              });
+            } else if (isApproverRequest) {
+              navigate("/", {
+                state: {
+                  currentTabState: "myapproval-tab",
+                },
+              });
+            } else {
+              navigate("/");
+            }
+          }}
           style={{
             color: "#1E293B",
             fontSize: "18px",
@@ -1843,6 +1911,11 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
                 editorModel={editorModel}
                 outlineImageFiles={outlineImageFiles}
                 setoutlineImageFiles={setoutlineImageFiles}
+                showOtherField={showOtherField}
+                setShowOtherField={setShowOtherField}
+                otherEquipment={otherEquipment}
+                setOtherEquipment={setOtherEquipment}
+                handleChangeEquipment={handleChangeEquipment}
               />
             )}
           </TabPane>

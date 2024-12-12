@@ -1553,7 +1553,7 @@ namespace TDSGCellFormat.Helper
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? documentLink = _configuration["SPSiteUrl"] +
                 "/SitePages/Technical-Instruction-Sheet.aspx#/";
-
+                bool allPersonInCc = false;
                 //string? documentLink = _configuration["SPSiteUrl"] +
                 //"/SitePages/TechInstructionSheet.aspx#/";
 
@@ -1631,12 +1631,15 @@ namespace TDSGCellFormat.Helper
                                 emailSubject = string.Format("[Action required!]  TIS_{0} has been Approved and Submitted for close request", materialData.CTINumber);
                                 isRequestorinToEmail = true;
                                 cpcDeptPeople = true;
+                                allPersonInCc = true;
                                 break;
 
                             case EmailNotificationAction.Closed:
                                 templateFile = "TechnicalInstruction_Closed.html";
                                 emailSubject = string.Format("[Action Taken] TIS_{0} has been Closed", materialData.CTINumber);
                                 isDepartMentHead = true;
+                                isRequestorinToEmail = true;
+                                allPersonInCc = true;
                                 break;
 
                             default:
@@ -1744,6 +1747,18 @@ namespace TDSGCellFormat.Helper
                                     {
                                         emailCCAddressList.Add(item.email);
                                     }
+                                }
+                            }
+                        }
+
+                        if (allPersonInCc)
+                        {
+                            foreach (var item in approverData)
+                            {
+
+                                if (item.Status == ApprovalTaskStatus.Approved.ToString())
+                                {
+                                    emailCCAddressList.Add(item.email);
                                 }
                             }
                         }
