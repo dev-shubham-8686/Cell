@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import useTable from "./useTable";
 import { useUserContext } from "../../context/UserContext";
+import ExportReportBox from "../common/ExportToExcelModal";
 
 interface ITable {
   url: string;
@@ -194,12 +195,12 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
           </button>
         </div>} 
       </div>
-      {/* <ExportReportBox
+      <ExportReportBox
             ref={exportReportBoxRef}
             // onFinish={handleExportFormSubmit}
             buttonText=""
             onCancel={undefined}
-          /> */}
+          />
          {/* <div className="table"> */}
       <AntdTable
         columns={columns}

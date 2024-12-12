@@ -26,7 +26,8 @@
     background-color: $yellow-bg;
   }
 
-  &.status-badge-approved {
+  &.status-badge-approved,
+  &.status-badge-completed {
     color: $green-1;
     background-color: $green-bg;
   }

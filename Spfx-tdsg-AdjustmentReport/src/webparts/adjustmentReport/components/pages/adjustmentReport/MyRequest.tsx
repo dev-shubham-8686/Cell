@@ -2,7 +2,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import { AnyObject } from "antd/es/_util/type";
 import React, { useContext, useEffect, useState } from "react";
 import { ColumnsType } from "antd/es/table/interface";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 
@@ -34,29 +34,30 @@ const MyRequest: React.FC<{}> = ({}) => {
   const { mutate: deleteAdjustment } = useDeleteAdjustmentReport();
   const { mutate: pdfDownload, isLoading: pdfLoading } = useGetAdjustmentReportPDF();
   const [refetchKey, setrefetchKey] = useState<number>(0);
+  const location = useLocation();
+  const {  currentTabState } = location.state || {};
+console.log("location",location.state)
+  const handlePDF = (id: number, AdjustmentReportNo: any) => {
+    try {
 
-//   const handlePDF = (id: any, EQReportNo: any) => {
-//     try {
-//       console.log("MATERIALID", id);
+      pdfDownload(
+        { id, AdjustmentReportNo },
+        {
+          onSuccess: (pdfResponse:any) => {
+            console.log("PDF Response: ", pdfResponse);
+            // window.open(pdfResponse, "_blank");  //this will Open the PDF in a new tab
+          },
 
-//       pdfDownload(
-//         { id },
-//         {
-//           onSuccess: (pdfResponse:any) => {
-//             console.log("PDF Response: ", pdfResponse);
-//             // window.open(pdfResponse, "_blank");  //this will Open the PDF in a new tab
-//           },
-
-//           onError: (error:any) => {
-//             console.error("Export error:", error);
-//           },
-//         }
-//       );
-//       console.log("PDF downloaded ");
-//     } catch (error) {
-//       console.error("Export error:", error);
-//     }
-//   };
+          onError: (error:any) => {
+            console.error("Export error:", error);
+          },
+        }
+      );
+      console.log("PDF downloaded ");
+    } catch (error) {
+      console.error("Export error:", error);
+    }
+  };
 
   const handleDelete = (id: any) => {
     Modal.confirm({
@@ -240,12 +241,12 @@ const MyRequest: React.FC<{}> = ({}) => {
             <button
               type="button"
               style={{ background: "none", border: "none" }}
-            //   onClick={() => {
-            //     handlePDF(
-            //       record.EquipmentImprovementId,
-            //       record.EquipmentImprovementNo
-            //     );
-            //   }}
+              onClick={() => {
+                handlePDF(
+                  record.AdjustmentReportId,
+                  record.ReportNo
+                );
+              }}
             >
               <FontAwesomeIcon title="PDF" icon={faFilePdf} />
             </button>

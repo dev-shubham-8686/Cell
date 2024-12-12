@@ -319,6 +319,7 @@ const RequestForm = React.forwardRef(() => {
   const validationRules = {
     When: [{ required: true, message: "Please enter When Date" }],
     Area: [{ required: true, message: "Please select Area" }],
+    CheckedBy: [{ required: true, message: "Please select Checked By" }],
     Section: [{ required: true, message: "Please select Section Name" }],
     Machine: [{ required: true, message: "Please select Machine Name" }],
     OtherMachine: [
@@ -327,6 +328,21 @@ const RequestForm = React.forwardRef(() => {
     SubMachine: [{ required: true, message: "Please select Sub Machine Name" }],
     OtherSubMachine: [
       { required: true, message: "Please enter other Machine Name" },
+    ],
+    ConditionAfterAdj: [
+      { required: true, message: "Please enter Condition After Adjustment" },
+    ],
+    AdjustmentDescription: [
+      { required: true, message: "Please enter Adjustment Description" },
+    ],
+    RootCause: [
+      { required: true, message: "Please enter Root Cause" },
+    ],
+    Observation: [
+      { required: true, message: "Please enter Observation" },
+    ],
+    DescribeProblem: [
+      { required: true, message: "Please enter Describe Problem" },
     ],
     ImpName: [{ required: true, message: "Please enter Improvement Name" }],
     ImpDesc: [
@@ -504,23 +520,22 @@ const RequestForm = React.forwardRef(() => {
       okButtonProps: { className: "btn btn-primary mb-1" },
       cancelButtonProps: { className: "btn-outline-primary" },
       onOk: async () => {
-        try {
+        try {debugger
           const advisorId = form.getFieldValue("AdvisorId");
-
-          if (!advisorId) {
-            void message.error("Please Select an Advisor");
-            // return ;// Prevents the modal from closing
-          }
-          await form.validateFields();
+          debugger
+            await form.validateFields();
+ 
+          debugger
           const payload = CreatePayload(values, operation);
 
           payload.AdvisorId = advisorId;
 
-          // await addUpdateReport(payload);
+          await addUpdateReport(payload);
 
           navigate("/");
         } catch (error) {
           console.error("Error submitting form:", error);
+          throw error;
         }
       },
       onCancel: () => {
@@ -939,161 +954,7 @@ const RequestForm = React.forwardRef(() => {
       sorter: false,
     },
   ];
-  // const handleUpload = async (file: any) => {
-  //   const MAX_FILES = 5;
-  //   const MAX_FILE_SIZE_MB = 10;
-  //   const ALLOWED_FILE_TYPES = [
-  //     "application/msword",
-  //     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  //     "application/vnd.ms-excel",
-  //     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  //     "application/pdf",
-  //     "application/vnd.ms-powerpoint",
-  //     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  //   ];
-
-  //   // Check if the file with the same name already exists in the fileList
-  //   const isDuplicate = fileList.some(
-  //     (existingFile: any) => existingFile.name === file.name
-  //   );
-
-  //   if (isDuplicate) {
-  //     // Display a message indicating that the file already exists
-  //     void displayjsx.showErrorMsg(
-  //       `File with the name "${file.name}" already exists.`
-  //     );
-  //     return false; // Prevent the file from being added to the list
-  //   }
-
-  //   // Validate the maximum file count
-  //   if (fileList.length >= MAX_FILES) {
-  //     void displayjsx.showErrorMsg(
-  //       `Cannot upload more than ${MAX_FILES} files.`
-  //     );
-  //     return false;
-  //   }
-
-  //   // Validate file size (convert size from bytes to MB)
-  //   const fileSizeInMB = file.size / (1024 * 1024);
-  //   if (fileSizeInMB > MAX_FILE_SIZE_MB) {
-  //     void displayjsx.showErrorMsg(
-  //       `Image "${file.name}" exceeds the size limit of ${MAX_FILE_SIZE_MB} MB.`
-  //     );
-  //     return false;
-  //   }
-
-  //   // Validate file type using `some` instead of `includes`
-  //   const isAllowedFileType = ALLOWED_FILE_TYPES.some(
-  //     (type) => type === file.type
-  //   );
-
-  //   if (!isAllowedFileType) {
-  //     void displayjsx.showErrorMsg(
-  //       `Image type not supported. Allowed types are: JPG,JPEG and PNG.`
-  //     );
-  //     return false;
-  //   }
-
-  //   if (isEditMode) {
-  //     const folderName = reportNo;
-  //     const uploadFileItem = file; // Process only the new file
-
-  //     if (uploadFileItem && folderName) {
-  //       try {
-
-  //         // Check and create folder if necessary
-  //         const isValidFolder = await checkAndCreateFolder(
-  //           webPartContext,
-  //           "TechnicalSheetDocs",
-  //           folderName
-  //         );
-
-  //         console.log(isValidFolder);
-  //         // Upload the file
-  //         await uploadFile(
-  //           webPartContext,
-  //           "TechnicalSheetDocs",
-  //           folderName,
-  //           uploadFileItem,
-  //           uploadFileItem.name
-  //         );
-
-  //         // Add a record in the technical attachments
-  //         await createTechnicalAttachment({
-  //           TechnicalId: id,
-  //           DocumentName: uploadFileItem.name,
-  //           CreatedBy: user?.employeeId,
-  //         });
-
-  //         // Refresh the technical instruction to get the updated file list
-  //         const data = await getTechnicalInstructionById(id!);
-  //         const returnValue = data.ReturnValue;
-  //         setFileList(
-  //           mapTechnicalAttachments(returnValue.technicalAttachmentAdds)
-  //         );
-  //         void displayjsx.showSuccess(
-  //           `${uploadFileItem.name} saved successfully.`
-  //         );
-  //       } catch (error) {
-  //         void displayjsx.showErrorMsg(
-  //           `Failed to saved ${uploadFileItem.name}.`
-  //         );
-  //         //console.error("Error uploading files:", error);
-  //       } finally {
-  //       }
-  //     }
-  //   } else {
-  //     if (intialFolderName == "") {
-  //       setIntialFolderName(
-  //         `${user?.employeeId}_${Date.now().toString().slice(-6)}`
-  //       );
-  //     } else {
-  //     }
-
-  //     const folderName = intialFolderName;
-
-  //     const uploadFileItem = file; // Process only the new file
-  //     if (uploadFileItem) {
-  //       try {
-  //         // Check and create folder if necessary
-  //         const isValidFolder = await checkAndCreateFolder(
-  //           webPartContext,
-  //           "AdjustmentReportDocs",
-  //           folderName
-  //         );
-
-  //         console.log(isValidFolder);
-  //         // Upload the file
-  //         await uploadFile(
-  //           webPartContext,
-  //           "AdjustmentReportDocs",
-  //           folderName,
-  //           uploadFileItem,
-  //           uploadFileItem.name
-  //         );
-
-  //         // If no duplicate, add the file to the fileList directly
-  //         setFileList([...fileList, file]);
-  //       } catch (error) {
-  //         void displayjsx.showErrorMsg(
-  //           `Failed to saved ${uploadFileItem.name}.`
-  //         );
-  //       } finally {
-  //       }
-  //     }
-  //   }
-
-  //   // Return false to prevent the default upload behavior
-  //   return false;
-  // };
-
-  // Forward form instance to parent component
-  // React.useImperativeHandle(ref, () => ({
-  //   submit: () => {
-  //     form.submit();
-  //   },
-  // }));
-
+ 
   return (
     <>
       <div
@@ -1145,7 +1006,7 @@ const RequestForm = React.forwardRef(() => {
         onFinish={onFinish}
         initialValues={initialData}
       >
-        <Row gutter={48}>
+        <Row gutter={48} className="mb-3">
           <Col span={6}>
             <Form.Item label="Report No" name="reportNo">
               <Input disabled />
@@ -1166,7 +1027,7 @@ const RequestForm = React.forwardRef(() => {
             <Form.Item
               label="Date & Time"
               name="dateTime"
-              rules={[{ required: true, message: "Please Select Date" }]}
+              rules={validationRules.When}
             >
               <DatePicker
                 disabled={
@@ -1192,7 +1053,7 @@ const RequestForm = React.forwardRef(() => {
                 placeholder="Select Checked By"
                 loading={checkedloading}
                 options={[
-                  ...(checkedByResult?.ReturnValue?.map((checkedBy) => ({
+                  ...(employeesResult?.ReturnValue?.map((checkedBy) => ({
                     label: checkedBy.employeeName,
                     value: checkedBy.employeeId,
                   })) || []),
@@ -1201,8 +1062,8 @@ const RequestForm = React.forwardRef(() => {
                     : []),
                 ]}
               >
-                {checkedByResult?.ReturnValue &&
-                  checkedByResult.ReturnValue.map((checkedBy) => (
+                {employeesResult?.ReturnValue &&
+                  employeesResult.ReturnValue.map((checkedBy) => (
                     <Option
                       key={checkedBy.employeeId}
                       value={checkedBy.employeeId}
@@ -1214,14 +1075,15 @@ const RequestForm = React.forwardRef(() => {
             </Form.Item>
           </Col>
         </Row>
-        <Row gutter={48}>
+        <Row gutter={48} className="mb-3">
           <Col span={6}>
             <Form.Item
               label={<span className="text-muted w-95">Section Name</span>}
               name="SectionId"
-              rules={[{ required: true }]}
+              rules={validationRules.Section}
             >
               <Select
+              placeholder="Select Section Name"
                 disabled={isViewMode}
                 showSearch
                 // onChange={handleSectionChange}
@@ -1254,9 +1116,7 @@ const RequestForm = React.forwardRef(() => {
             <Form.Item
               label="Area"
               name="area"
-              rules={[
-                { required: true, message: "Please select at least one area" },
-              ]}
+              rules={validationRules.Area}
             >
               <Select
                 disabled={isViewMode}
@@ -1322,7 +1182,7 @@ const RequestForm = React.forwardRef(() => {
             </Form.Item>
 
             {showOtherMachine && (
-              <Form.Item label="Other Machine Name" name="OtherMachine">
+              <Form.Item label="Other Machine Name" name="OtherMachine" rules={validationRules.OtherMachine}>
                 <TextArea
                   disabled={
                     isViewMode || (!isAdmin && submitted && !underamendment)
@@ -1338,12 +1198,7 @@ const RequestForm = React.forwardRef(() => {
             <Form.Item
               label="Sub-Machine Name"
               name="subMachineName"
-              rules={[
-                {
-                  required: true,
-                  message: "Please select at least one sub-machine name",
-                },
-              ]}
+              rules={validationRules.SubMachine}
             >
               <Select
                 disabled={
@@ -1372,7 +1227,7 @@ const RequestForm = React.forwardRef(() => {
             </Form.Item>
 
             {showOtherSubMachine && (
-              <Form.Item label="Other SubMachine Name " name="OtherSubMachine">
+              <Form.Item label="Other SubMachine Name " name="OtherSubMachine" rules={validationRules.OtherSubMachine}>
                 <TextArea
                   disabled={
                     isViewMode || (!isAdmin && submitted && !underamendment)
@@ -1385,12 +1240,12 @@ const RequestForm = React.forwardRef(() => {
             )}
           </Col>
         </Row>
-        <Row gutter={48}>
+        <Row gutter={48} className="mb-3">
           <Col span={6}>
             <Form.Item
               label="Describe Problem"
               name="describeProblem"
-              rules={[{ required: true }]}
+              rules={validationRules.DescribeProblem}
             >
               <TextArea
                 disabled={
@@ -1407,7 +1262,7 @@ const RequestForm = React.forwardRef(() => {
             <Form.Item
               label="Observation"
               name="observation"
-              rules={[{ required: true }]}
+              rules={validationRules.Observation}
             >
               <TextArea
                 disabled={
@@ -1423,7 +1278,7 @@ const RequestForm = React.forwardRef(() => {
             <Form.Item
               label="Root Cause"
               name="rootCause"
-              rules={[{ required: true }]}
+              rules={validationRules.RootCause}
             >
               <TextArea
                 disabled={
@@ -1439,7 +1294,7 @@ const RequestForm = React.forwardRef(() => {
             <Form.Item
               label="Adjustment Description"
               name="adjustmentDescription"
-              rules={[{ required: true }]}
+              rules={validationRules.AdjustmentDescription}
             >
               <TextArea
                 disabled={
@@ -1452,17 +1307,12 @@ const RequestForm = React.forwardRef(() => {
             </Form.Item>
           </Col>
         </Row>
-        <Row gutter={48}>
+        <Row gutter={48} className="mb-3">
           <Col span={6}>
             <Form.Item
               label="Condition After Adjustment"
               name="conditionAfterAdjustment"
-              rules={[
-                {
-                  required: true,
-                  message: "Please upload before images!",
-                },
-              ]}
+              rules={validationRules.ConditionAfterAdj}
             >
               <TextArea
                 disabled={
@@ -1478,6 +1328,7 @@ const RequestForm = React.forwardRef(() => {
             <Form.Item
               label={<span className="text-muted">Before Attachments</span>}
               name="BeforeImages"
+              rules={validationRules.attachment}
             >
               {/* all types except exe  ,  max size -30MB  , no-10*/}
               {console.log("USERID", user?.employeeId.toString())}
@@ -1506,12 +1357,13 @@ const RequestForm = React.forwardRef(() => {
                   let imageBytes: string | null = null;
 
                   if (file.type.startsWith("image")) {
+                    debugger
                     // Use FileReader to read the file as a Base64-encoded string
-                    const base64String = await getBase64(file);
-                    imageBytes = base64String.split(",")[1];
+                     imageBytes = await getBase64(file);
                   } else {
                     console.error("The file is not an image:", file.type);
                   }
+                  debugger
                   const newAttachment: IBeforeImages = {
                     AdjustmentBeforeImageId: 0,
                     AdjustmentreportId: parseInt(id),
@@ -1554,6 +1406,7 @@ const RequestForm = React.forwardRef(() => {
             <Form.Item
               label={<span className="text-muted">After Attachments</span>}
               name="AfterImages"
+              rules={validationRules.attachment}
             >
               <FileUpload
                 key={`file-upload-after-images`}
@@ -1585,12 +1438,11 @@ const RequestForm = React.forwardRef(() => {
                   if (file.type.startsWith("image")) {
                     // Use FileReader to read the file as a Base64-encoded string
 
-                    const base64String = await getBase64(file);
-                    imageBytes = base64String.split(",")[1];
+                     imageBytes = await getBase64(file);
                   } else {
                     console.error("The file is not an image:", file.type);
                   }
-
+                  debugger
                   const newAttachment: IAfterImages = {
                     AdjustmentAfterImageId: 0,
                     AdjustmentreportId: parseInt(id),
@@ -1653,50 +1505,7 @@ const RequestForm = React.forwardRef(() => {
             </Radio.Group>
           </div>
         </div>
-        {/* Render multiple form sections */}
-        {/* {cRMRequired && (
-          <div className="flex justify-end items-center my-3">
-            <div className="flex items-center gap-x-4">
-              <Button type="primary" onClick={addFormSection}>
-                Add
-              </Button>
-            </div>
-          </div>
-        )} */}
-        {/* {cRMRequired &&
-          formSections.map((sectionIndex) => (
-            <>
-            <ChangeRiskManagementForm
-              key={sectionIndex}
-              index={sectionIndex}
-              form={form}
-              initialData={cRM[sectionIndex]} // Pass each section's data directly
-            />
-            <span>
-                <FontAwesomeIcon icon={faTrash} />
-              </span>
-            </>
-          ))} */}
-        {/* {cRMRequired &&
-          formSections.map((sectionIndex) => (
-            <div key={sectionIndex}>
-              <ChangeRiskManagementForm
-                index={sectionIndex}
-                form={form}
-                initialData={cRM[sectionIndex]}
-                isModeview={isViewMode} // Pass each section's data directly
-              />
-              <span
-                style={{
-                  cursor: "pointer", // Optional: Indicates that the icon is clickable
-                  marginLeft: "10px", // Optional: Adds space between the form and the trash icon
-                }}
-                onClick={() => deleteFormSection(sectionIndex)} // Add your delete handler here
-              >
-                <FontAwesomeIcon icon={faTrash} />
-              </span>
-            </div>
-          ))} */}
+       
         {console.log("CHANGE RISK DATA", ChangeRiskManagementDetails)}{" "}
         {cRMRequired ? (
           <div>
@@ -1735,19 +1544,7 @@ const RequestForm = React.forwardRef(() => {
         ) : (
           <></>
         )}
-        {/* 
-        <Button
-          onClick={handleAdditionalApprovalClick}
-          icon={<FileExcelOutlined />}
-        //style={{ display: isRequestorDeptHead ? 'inline' : 'none' }}
-        >
-          Additional Approval
-        </Button>
-        <AdditionalApprovalModal
-          visible={isApprovalModalVisible}
-          onClose={() => setApprovalModalVisible(false)}
-          onProceed={handleProceed}
-        /> */}
+       
       </Form>
     </>
   );

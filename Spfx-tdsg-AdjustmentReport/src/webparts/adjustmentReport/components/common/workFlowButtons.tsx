@@ -95,16 +95,9 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
     );
   }, [currentApproverTask]);
 
-  const handleApprovalButtonClick = () => {
-    setApprovalSectionVisible(!isApprovalSectionVisible);
-  };
 
-  const handleProceed = () => {
-    const approvalSequenceValues = form.getFieldsValue(["approvalSequence"]);
-    console.log("Submitted approval sequence:", approvalSequenceValues);
 
-    // Handle form submission, e.g., send data to an API or update the state
-  };
+
 
   const handleCancel = () => {
     // Reset or close the approval section
@@ -147,15 +140,15 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
     };
     
 console.log("Approve a to a payload ",data)
-    // approveAskToAmend(data, {
-    //   onSuccess: () => {
-    //     navigate("/", {
-    //       state: {
-    //         currentTabState: "myapproval-tab",
-    //       },
-    //     });
-    //   },
-    // });
+    approveAskToAmend(data, {
+      onSuccess: () => {
+        navigate("/", {
+          state: {
+            currentTabState: "myapproval-tab",
+          },
+        });
+      },
+    });
   };
   const handleAskToAmend = async (comment: string): Promise<void> => {
     const data: IApproveAskToAmendPayload = {
@@ -199,8 +192,9 @@ console.log("Approve a to a payload ",data)
   };
   // Handle the submit action after getting the comment
   const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields(); // Validate form fields
+    try {debugger
+      await form.validateFields();
+      const values = await form.getFieldsValue(); // Validate form fields
       setLoading(true);
 
       const comment = values.comment; // Get the validated comment
@@ -213,12 +207,14 @@ console.log("Approve a to a payload ",data)
       } else if (actionType === "pullback") {
         await handlePullBack(comment);
       }
+      setIsModalVisible(false);
+      form.resetFields(); 
     } catch (errorInfo) {
-      console.log("Validation Failed:", errorInfo); // Handle validation failure
+      debugger
+      console.log("Validation Failed:", errorInfo);
+      throw errorInfo; 
     } finally {
       setLoading(false);
-      setIsModalVisible(false);
-      form.resetFields(); // Clear form after submission
     }
   };
 
@@ -537,7 +533,7 @@ console.log("Approve a to a payload ",data)
           <Form.Item
             label="Comments"
             name="comment"
-            rules={[{ required: true }]} // Validation rule
+            rules={[{ required: true , message:"Please enter Comments"}]} // Validation rule
           >
             <Input.TextArea
               rows={4}

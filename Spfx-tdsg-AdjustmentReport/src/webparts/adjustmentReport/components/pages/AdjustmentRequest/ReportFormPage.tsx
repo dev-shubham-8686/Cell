@@ -2,7 +2,7 @@ import { Button, Form, Modal, Tabs, TabsProps } from "antd";
 import * as React from "react";
 import History from "./History";
 import { LeftCircleFilled } from "@ant-design/icons";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import RequestForm from "./RequestForm";
 import { getMessage, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
 import * as dayjs from "dayjs";
@@ -53,6 +53,8 @@ const ReportFormPage = () => {
   const { mutate: getCurrentApprover } = useGetCurrentApprover();
   const { data : approvalData} = useGetApprorverFlowData(id ? parseInt(id, 10) : 0);
   const {data: head} = useGetSectionHead(id ? parseInt(id, 10) : 0);
+  const location = useLocation();
+  const { isApproverRequest, currentTabState, allReq } =location.state || {};
 
   const {data: departmentHead} = useGetDepartmentHead(id ? parseInt(id, 10) : 0);
   console.log("approval data",approvalData)
@@ -61,7 +63,11 @@ const ReportFormPage = () => {
   };
 
   const goBack = () => {
-    navigate(-1);
+    navigate("/", {
+      state: {
+        currentTabState: isApproverRequest ? "myapproval-tab": allReq? "allrequest-tab": "myrequest-tab",
+      },
+    });
   };
 
   const loadData = async () => {
@@ -130,61 +136,7 @@ const ReportFormPage = () => {
 
   const extraContent = (
     <div>
-      {/* {!isViewMode &&
-        activeTabKey === "1" &&
-        !submitted && ( //||
-          //(currentApproverTask?.userId == user?.employeeId //&& currentApproverTask?.seqNumber != 3)
-          <Form.Item
-            style={{
-              display: "inline-block", // Ensure inline layout
-              marginRight: "10px", // Add some space between the buttons
-            }}
-          >
-            <Button
-              type="primary"
-              onClick={() => handleSave(true, "onSave")}
-              className="request-button"
-              style={{ marginRight: "10px" }}
-            >
-              Save
-            </Button>
-          </Form.Item>  
-        )} */}
-
-      {/* {!isViewMode && activeTabKey === "1" && !submitted && (
-        <Form.Item
-          style={{
-            display: "inline-block", // Inline display for second button as well
-            marginRight: "10px",
-          }}
-        >
-          <Button
-            type="primary"
-            onClick={() => handleSave(false, "onSubmit")}
-            className="request-button"
-          >
-            Submit
-          </Button>
-        </Form.Item>
-      )} */}
-
-      {/* {!isViewMode && activeTabKey === "1" && underAmmendment && (
-        <Form.Item
-          style={{
-            display: "inline-block", // Inline display for second button as well
-            marginRight: "10px",
-          }}
-        >
-          <Button
-            type="primary"
-            onClick={() => handleSave(false, "onReSubmit")}
-            className="request-button"
-          >
-            Resubmit
-          </Button>
-        </Form.Item>
-      )} */}
-
+      
       {true && (
         <WorkFlowButtons
           currentApproverTask={currentApproverTask}
