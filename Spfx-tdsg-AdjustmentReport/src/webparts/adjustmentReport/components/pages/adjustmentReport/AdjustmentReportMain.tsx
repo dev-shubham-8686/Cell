@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import MyRequest from "./MyRequest";
 import MyApproval from "./MyApproval";
 import AllRequest from "./AllRequest";
+import PageLayout from "../../pageLayout/PageLayout";
 
 const AdjustmentReportMain: React.FC = () => {
   const navigate = useNavigate();
@@ -46,11 +47,11 @@ const AdjustmentReportMain: React.FC = () => {
   const operations = (
     <Button
       type="primary"
-      className="request-button"
+      className="btn btn-primary mb-8"
       onClick={() => onAddRequest()}
-      icon={<PlusCircleOutlined />}
+      icon={<PlusCircleOutlined style={{ marginRight: "10px" }}/>}
     >
-      New Request
+     New Request
     </Button>
   );
 
@@ -75,6 +76,9 @@ const AdjustmentReportMain: React.FC = () => {
     },
   ];
   return (
+    // <Page title="Equipment Improvement Dashboard">
+    <PageLayout title={"Adjustment Report Dashboard"}>
+      <div>
     <div className="p-6">
       <Tabs
         tabBarExtraContent={operations}
@@ -83,6 +87,8 @@ const AdjustmentReportMain: React.FC = () => {
         activeKey={getKeyFromTabState(currentTabState)}
       />
     </div>
+    </div>
+    </PageLayout>
   );
 };
 

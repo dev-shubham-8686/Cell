@@ -157,28 +157,28 @@ export  const create_UUID = (): string => {
   };
 
   export const downloadPDF = (value: any,reportNo:string): void => {
-  debugger
+  
     if (value && value !== "") {
-      debugger
+      
       const base64String = value;
       const byteCharacters = atob(base64String);
       const byteNumbers = new Array(byteCharacters.length);
-      debugger       
+             
       for (let i = 0; i < byteCharacters.length; i++) {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
-      debugger
+      
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], {
         type: "application/pdf",
       });
-      debugger
+      
       const todayDate = new Date().toISOString().split("T")[0];
       const filename = `${reportNo}_${todayDate}.pdf`;
-      debugger
+      
       saveAs(blob, filename);
     } else {
-      debugger
+      
       console.error("Failed to download file:");
     }
   };

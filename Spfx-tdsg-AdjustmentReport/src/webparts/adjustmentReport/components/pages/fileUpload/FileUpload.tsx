@@ -193,7 +193,7 @@ console.log("FILES",files)
         throw new Error("SharePoint context is not available.");
       }
 
-      const url = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}')/Files/Add(url='${fileName}', overwrite=true)?$expand=ListItemAllFields`;
+      const url = `${WEB_URL}/_api/Web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}')/Files/Add(url='${fileName}', overwrite=true)?$expand=ListItemAllFields`;
       const response = await webPartContext.spHttpClient.post(
         url,
         SPHttpClient.configurations.v1,
@@ -254,7 +254,7 @@ console.log("FILES",files)
             },
           }
         );
-
+        
         if (checkFolderResponse.status === 404) {
           // Folder does not exist, create it
           await webPartContext.spHttpClient.post(
@@ -267,14 +267,15 @@ console.log("FILES",files)
               },
             }
           );
+          
         }
       };
       
       // check if folder exists
-      const checkFolderUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Lists/getByTitle('${libraryName}')/RootFolder/Folders('${folderName}')`;
+      const checkFolderUrl = `${WEB_URL}/_api/Web/Lists/getByTitle('${libraryName}')/RootFolder/Folders('${folderName}')`;
       await checkOrCreateFolder(checkFolderUrl);
 
-      const subfolderUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}'))`;
+      const subfolderUrl = `${WEB_URL}/_api/Web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}'))`;
       const checkSubFolderResponse = await webPartContext.spHttpClient.get(
         subfolderUrl,
         SPHttpClient.configurations.v1,
@@ -289,7 +290,7 @@ console.log("FILES",files)
       if (checkSubFolderResponse.status >= 400) {
         
         // Folder does not exist, create it
-        const subFolderCreateUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Folders/add('${libraryName}/${folderName}/${subFolderName}')`;
+        const subFolderCreateUrl = `${WEB_URL}/_api/Web/Folders/add('${libraryName}/${folderName}/${subFolderName}')`;
         await webPartContext.spHttpClient
           .post(subFolderCreateUrl, SPHttpClient.configurations.v1, {
             headers: {

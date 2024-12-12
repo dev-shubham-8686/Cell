@@ -59,6 +59,11 @@ p.text-cell {
   background-color: green;
 }
 
+.ant-tabs .ant-tabs-nav {
+  // margin: 0px !important;
+  margin-bottom: 1px !important;
+}
+
 .ant-table-wrapper {
   .ant-table-container {
     table {
@@ -132,6 +137,7 @@ p.text-cell {
   // overflow-y: auto;
 }
 .workflow-table {
+  margin-top: 40px;
   width: 100%;
   border-collapse: collapse;
   font-family: $theme-font-family, sans-serif;

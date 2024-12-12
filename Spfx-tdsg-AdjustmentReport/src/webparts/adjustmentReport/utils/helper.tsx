@@ -5,3 +5,8 @@ export const disabledDate: RangePickerProps["disabledDate"] = (current) => {
   // Can not select days before today and today
   return current && current < dayjs().endOf("day");
 };
+
+export const disabledfutureDate: RangePickerProps["disabledDate"] = (current) => {
+  // Can not select days before today and today
+  return current && current < dayjs().endOf("day");
+};

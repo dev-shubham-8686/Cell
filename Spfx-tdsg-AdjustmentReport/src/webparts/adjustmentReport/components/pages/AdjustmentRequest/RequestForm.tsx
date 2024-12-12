@@ -12,7 +12,7 @@ import {
   Table,
 } from "antd";
 import * as React from "react";
-import { disabledDate } from "../../../utils/helper";
+import { disabledDate, disabledfutureDate } from "../../../utils/helper";
 import * as dayjs from "dayjs";
 import ChangeRiskManagementForm from "./ChangeRiskManagementForm";
 import { useGetAllMachines } from "../../../hooks/useGetAllMachines";
@@ -327,7 +327,7 @@ const RequestForm = React.forwardRef(() => {
     ],
     SubMachine: [{ required: true, message: "Please select Sub Machine Name" }],
     OtherSubMachine: [
-      { required: true, message: "Please enter other Machine Name" },
+      { required: true, message: "Please enter other Sub Machine Name" },
     ],
     ConditionAfterAdj: [
       { required: true, message: "Please enter Condition After Adjustment" },
@@ -335,12 +335,8 @@ const RequestForm = React.forwardRef(() => {
     AdjustmentDescription: [
       { required: true, message: "Please enter Adjustment Description" },
     ],
-    RootCause: [
-      { required: true, message: "Please enter Root Cause" },
-    ],
-    Observation: [
-      { required: true, message: "Please enter Observation" },
-    ],
+    RootCause: [{ required: true, message: "Please enter Root Cause" }],
+    Observation: [{ required: true, message: "Please enter Observation" }],
     DescribeProblem: [
       { required: true, message: "Please enter Describe Problem" },
     ],
@@ -520,12 +516,11 @@ const RequestForm = React.forwardRef(() => {
       okButtonProps: { className: "btn btn-primary mb-1" },
       cancelButtonProps: { className: "btn-outline-primary" },
       onOk: async () => {
-        try {debugger
+        try {
           const advisorId = form.getFieldValue("AdvisorId");
-          debugger
-            await form.validateFields();
- 
-          debugger
+
+          await form.validateFields();
+
           const payload = CreatePayload(values, operation);
 
           payload.AdvisorId = advisorId;
@@ -954,7 +949,7 @@ const RequestForm = React.forwardRef(() => {
       sorter: false,
     },
   ];
- 
+
   return (
     <>
       <div
@@ -999,7 +994,7 @@ const RequestForm = React.forwardRef(() => {
           </div>
         </>
       </div>
-
+<div className="bg-white p-4 form">
       <Form
         layout="vertical"
         form={form}
@@ -1033,7 +1028,7 @@ const RequestForm = React.forwardRef(() => {
                 disabled={
                   isViewMode || (!isAdmin && submitted && !underamendment)
                 }
-                disabledDate={disabledDate}
+                disabledDate={disabledfutureDate}
                 showTime
                 placeholder="Date & Time"
                 format={DATE_TIME_FORMAT}
@@ -1083,7 +1078,7 @@ const RequestForm = React.forwardRef(() => {
               rules={validationRules.Section}
             >
               <Select
-              placeholder="Select Section Name"
+                placeholder="Select Section Name"
                 disabled={isViewMode}
                 showSearch
                 // onChange={handleSectionChange}
@@ -1113,11 +1108,7 @@ const RequestForm = React.forwardRef(() => {
           </Col>
 
           <Col span={6}>
-            <Form.Item
-              label="Area"
-              name="area"
-              rules={validationRules.Area}
-            >
+            <Form.Item label="Area" name="area" rules={validationRules.Area}>
               <Select
                 disabled={isViewMode}
                 mode="multiple"
@@ -1182,7 +1173,11 @@ const RequestForm = React.forwardRef(() => {
             </Form.Item>
 
             {showOtherMachine && (
-              <Form.Item label="Other Machine Name" name="OtherMachine" rules={validationRules.OtherMachine}>
+              <Form.Item
+                label="Other Machine Name"
+                name="OtherMachine"
+                rules={validationRules.OtherMachine}
+              >
                 <TextArea
                   disabled={
                     isViewMode || (!isAdmin && submitted && !underamendment)
@@ -1196,7 +1191,7 @@ const RequestForm = React.forwardRef(() => {
           </Col>
           <Col span={6}>
             <Form.Item
-              label="Sub-Machine Name"
+              label="Sub Machine Name"
               name="subMachineName"
               rules={validationRules.SubMachine}
             >
@@ -1205,7 +1200,7 @@ const RequestForm = React.forwardRef(() => {
                   isViewMode || (!isAdmin && submitted && !underamendment)
                 }
                 mode="multiple"
-                placeholder="Select Sub-Machine Name"
+                placeholder="Select Sub Machine Name"
                 onChange={handleSubMachineChange}
                 options={[
                   ...(selectedMachine !== 0 && selectedMachine !== -1
@@ -1227,7 +1222,11 @@ const RequestForm = React.forwardRef(() => {
             </Form.Item>
 
             {showOtherSubMachine && (
-              <Form.Item label="Other SubMachine Name " name="OtherSubMachine" rules={validationRules.OtherSubMachine}>
+              <Form.Item
+                label="Other Sub Machine Name "
+                name="OtherSubMachine"
+                rules={validationRules.OtherSubMachine}
+              >
                 <TextArea
                   disabled={
                     isViewMode || (!isAdmin && submitted && !underamendment)
@@ -1251,7 +1250,7 @@ const RequestForm = React.forwardRef(() => {
                 disabled={
                   isViewMode || (!isAdmin && submitted && !underamendment)
                 }
-                rows={1}
+                rows={4}
                 maxLength={2000}
                 placeholder="Describe the problem"
               />
@@ -1270,7 +1269,7 @@ const RequestForm = React.forwardRef(() => {
                 }
                 rows={4}
                 maxLength={2000}
-                placeholder="Enter your observation"
+                placeholder="Enter the observation"
               />
             </Form.Item>
           </Col>
@@ -1326,9 +1325,22 @@ const RequestForm = React.forwardRef(() => {
           </Col>
           <Col span={6}>
             <Form.Item
-              label={<span className="text-muted">Before Attachments</span>}
+              label={
+                <span>
+                  {beforeImages?.length != 0 ? (
+                    <span style={{ color: "#CF1919", fontSize: "1.3rem" }}>
+                      *{" "}
+                    </span>
+                  ) : (
+                    ""
+                  )}
+                  <span className="text-muted">Before Attachments</span>
+                </span>
+              }
               name="BeforeImages"
-              rules={validationRules.attachment}
+              rules={
+                beforeImages?.length == 0 ? validationRules.attachment : null
+              }
             >
               {/* all types except exe  ,  max size -30MB  , no-10*/}
               {console.log("USERID", user?.employeeId.toString())}
@@ -1357,13 +1369,12 @@ const RequestForm = React.forwardRef(() => {
                   let imageBytes: string | null = null;
 
                   if (file.type.startsWith("image")) {
-                    debugger
                     // Use FileReader to read the file as a Base64-encoded string
-                     imageBytes = await getBase64(file);
+                    imageBytes = await getBase64(file);
                   } else {
                     console.error("The file is not an image:", file.type);
                   }
-                  debugger
+                  debugger;
                   const newAttachment: IBeforeImages = {
                     AdjustmentBeforeImageId: 0,
                     AdjustmentreportId: parseInt(id),
@@ -1373,13 +1384,13 @@ const RequestForm = React.forwardRef(() => {
                     ModifiedBy: user?.employeeId,
                     BeforeImgBytes: imageBytes,
                   };
-
+                  debugger;
                   const updatedAttachments: IBeforeImages[] = [
                     ...existingAttachments,
                     newAttachment,
                   ];
-
                   void form.validateFields(["BeforeImages"]);
+
                   setbeforeImages(updatedAttachments);
                 }}
                 onRemoveFile={async (documentName: string) => {
@@ -1404,9 +1415,20 @@ const RequestForm = React.forwardRef(() => {
           </Col>
           <Col span={6}>
             <Form.Item
-              label={<span className="text-muted">After Attachments</span>}
+              label={<span>
+                {afterImages?.length != 0 ? (
+                  <span style={{ color: "#CF1919", fontSize: "1.3rem" }}>
+                    *{" "}
+                  </span>
+                ) : (
+                  ""
+                )}
+                <span className="text-muted">After Attachments</span>
+              </span>}
               name="AfterImages"
-              rules={validationRules.attachment}
+              rules={
+                afterImages?.length == 0 ? validationRules.attachment : null
+              }
             >
               <FileUpload
                 key={`file-upload-after-images`}
@@ -1438,11 +1460,11 @@ const RequestForm = React.forwardRef(() => {
                   if (file.type.startsWith("image")) {
                     // Use FileReader to read the file as a Base64-encoded string
 
-                     imageBytes = await getBase64(file);
+                    imageBytes = await getBase64(file);
                   } else {
                     console.error("The file is not an image:", file.type);
                   }
-                  debugger
+
                   const newAttachment: IAfterImages = {
                     AdjustmentAfterImageId: 0,
                     AdjustmentreportId: parseInt(id),
@@ -1505,7 +1527,6 @@ const RequestForm = React.forwardRef(() => {
             </Radio.Group>
           </div>
         </div>
-       
         {console.log("CHANGE RISK DATA", ChangeRiskManagementDetails)}{" "}
         {cRMRequired ? (
           <div>
@@ -1544,8 +1565,8 @@ const RequestForm = React.forwardRef(() => {
         ) : (
           <></>
         )}
-       
       </Form>
+      </div>
     </>
   );
 });

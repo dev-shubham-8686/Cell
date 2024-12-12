@@ -105,7 +105,7 @@ const AllRequest: React.FC<{}> = ({}) => {
       ),
     },
     {
-      title: "Date and Time",
+      title: "Date",
       dataIndex: "IssueDate",
       key: "IssueDate",
       width: 140,
@@ -273,7 +273,7 @@ const AllRequest: React.FC<{}> = ({}) => {
   ];
   return (
     <>
-      <div>
+      <div className="tab-content">
      
         <Table
           columns={columns}

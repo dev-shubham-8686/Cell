@@ -12,9 +12,10 @@ import * as strings from "AdjustmentReportWebPartStrings";
 import AdjustmentReport from "./components/AdjustmentReport";
 import { IAdjustmentReportProps } from "./components/IAdjustmentReportProps";
 
-import "../../styles/dist/tailwind.css";
+ import "../../styles/dist/tailwind.css";
 // import "../../styles/index.scss";
-// import "./assets/scss/style.scss";
+import "./assets/scss/style.scss";
+// import "../../styles/scss/style.scss";
 
 
 export interface IAdjustmentReportWebPartProps {

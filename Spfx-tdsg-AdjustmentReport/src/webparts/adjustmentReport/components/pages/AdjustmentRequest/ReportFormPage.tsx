@@ -23,6 +23,7 @@ import { useGetDepartmentHead } from "../../../hooks/useGetDepartmentHead";
 import WorkFlowButtons from "../../common/workFlowButtons";
 import { IAdjustmentReportPhoto } from "../../../interface";
 import { useEffect } from "react";
+import PageLayout from "../../pageLayout/PageLayout";
 // import { useEffect } from "react";
 // import { useGetApprorverFlowData } from "../../../hooks/useGetApprorverFlowData";
 
@@ -151,12 +152,13 @@ const ReportFormPage = () => {
   );
 
   return (
+    <PageLayout title="Adjustment Report Form">
     <div>
       <Button
         icon={<LeftCircleFilled />}
         onClick={goBack}
         type="text"
-        className="btn-back no-styles"
+        className="btn-back"
       >
         Back
       </Button>
@@ -167,6 +169,7 @@ const ReportFormPage = () => {
         items={items}
       />
     </div>
+    </PageLayout>
   );
 };
 

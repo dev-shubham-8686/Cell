@@ -42,13 +42,13 @@ export default class AdjustmentReport extends React.Component<
             }}
           >
             <Router>
-              <PageLayout title="Adjustment Report">
+              
                 <Routes>
                   <Route path="/" element={<AdjustmentReportMain />} />
                   <Route path="/test" element={<Test />} />
                   <Route path="/form/:mode/:id?" element={<ReportFormPage />} />
                 </Routes>
-              </PageLayout>
+              
             </Router>
             {/* <h1>HELLO</h1> */}
           </ConfigProvider>

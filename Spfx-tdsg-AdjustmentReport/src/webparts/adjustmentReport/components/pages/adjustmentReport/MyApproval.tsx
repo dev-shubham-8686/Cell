@@ -105,7 +105,7 @@ console.log("location",location.state)
       ),
     },
     {
-      title: "Date and Time",
+      title: "Date",
       dataIndex: "IssueDate",
       key: "IssueDate",
       width: 140,
@@ -232,7 +232,7 @@ console.log("location",location.state)
   ];
   return (
     <>
-      <div>
+      <div className="tab-content">
      
         <Table
           columns={columns}

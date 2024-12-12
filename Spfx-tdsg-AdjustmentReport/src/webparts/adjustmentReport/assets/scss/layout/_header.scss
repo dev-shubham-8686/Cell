@@ -4,11 +4,14 @@
   padding-left: 0px !important;
 
   .title {
-    margin: 0px !important;
+    color: #c50017;
+    font-family: Segoe UI, "Segoe UI Web (West European)", -apple-system,
+      BlinkMacSystemFont, Roboto, Helvetica Neue, sans-serif;
     font-size: 1.5rem;
     font-weight: 600;
-    font-family: $theme-font-family, sans-serif;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
+    //   margin: 0 !important;
+    text-transform: uppercase;
   }
 
   .toggler {

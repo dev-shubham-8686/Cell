@@ -192,7 +192,7 @@ console.log("Approve a to a payload ",data)
   };
   // Handle the submit action after getting the comment
   const handleSubmit = async () => {
-    try {debugger
+    try {
       await form.validateFields();
       const values = await form.getFieldsValue(); // Validate form fields
       setLoading(true);
@@ -210,7 +210,7 @@ console.log("Approve a to a payload ",data)
       setIsModalVisible(false);
       form.resetFields(); 
     } catch (errorInfo) {
-      debugger
+      
       console.log("Validation Failed:", errorInfo);
       throw errorInfo; 
     } finally {
@@ -486,7 +486,7 @@ console.log("Approve a to a payload ",data)
                               onClick={() => add()}
                               block
                               icon={<i className="anticon anticon-plus" />}
-                              disabled={fields.length >= 3} // Disable Add button if there are 3 or more fields
+                              disabled={fields?.length >= 3} // Disable Add button if there are 3 or more fields
                             >
                               Add Department Head
                             </Button>
