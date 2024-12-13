@@ -604,7 +604,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             existingAttachData.CurrSituationDocName = attach.CurrSituationDocName;
                             existingAttachData.CurrSituationDocFilePath = attach.CurrSituationDocFilePath;
-                            existingAttachData.CurrImageBytes = attach.CurrentImgBytes;
+                            //existingAttachData.CurrImageBytes = attach.CurrentImgBytes;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -642,7 +642,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             existingAttachData.ImprovementDocName = attach.ImprovementDocName;
                             existingAttachData.ImprovementDocFilePath = attach.ImprovementDocFilePath;
-                            existingAttachData.ImpImageBytes = attach.ImprovementImgBytes;
+                           // existingAttachData.ImpImageBytes = attach.ImprovementImgBytes;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -1856,7 +1856,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 string templateFile = "EquipmentPDF.html";
 
-                string templateFilePath = Path.Combine(baseDirectory, htmlTemplatePath, templateFile);
+                string templateFilePath = Path.Combine(projectRootDirectory, htmlTemplatePath, templateFile);
 
                 string? htmlTemplate = System.IO.File.ReadAllText(templateFilePath);
                 sb.Append(htmlTemplate);
@@ -1914,7 +1914,10 @@ namespace TDSGCellFormat.Implementation.Repository
                                  url1.CurrImageBytes.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
                     {
                         // Add image tag
-                        currentSituationAttachments.AppendLine($"<img src=\"{url1.CurrImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
+                        currentSituationAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                        currentSituationAttachments.AppendLine($"<img src=\"{url1.CurrImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                        currentSituationAttachments.AppendLine("</div>");
+                        //currentSituationAttachments.AppendLine($"<img src=\"{url1.CurrImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
                     }
                     else
                     {
@@ -1933,7 +1936,10 @@ namespace TDSGCellFormat.Implementation.Repository
                                  url2.ImpImageBytes.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
                     {
                         // Add image tag
-                        improvementAttachments.AppendLine($"<img src=\"{url2.ImpImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
+                        improvementAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                        improvementAttachments.AppendLine($"<img src=\"{url2.ImpImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                        improvementAttachments.AppendLine("</div>");
+                        //improvementAttachments.AppendLine($"<img src=\"{url2.ImpImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
                     }
                     else
                     {
