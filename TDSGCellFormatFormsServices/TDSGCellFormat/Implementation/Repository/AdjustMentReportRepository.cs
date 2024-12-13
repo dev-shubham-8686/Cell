@@ -1206,6 +1206,9 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     await _context.SaveChangesAsync();
 
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.SendAdjustmentEmail(data.AdjustmentReportId, EmailNotificationAction.PullBack, string.Empty, 0);
+
                     var approverTaskDetails = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == data.AdjustmentReportId).ToList();
                     approverTaskDetails.ForEach(a =>
                     {
@@ -1227,8 +1230,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     //InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
 
-                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.SendAdjustmentEmail(data.AdjustmentReportId, EmailNotificationAction.PullBack, string.Empty, 0);
+                   
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.AdjustMentPullback;
                 }
