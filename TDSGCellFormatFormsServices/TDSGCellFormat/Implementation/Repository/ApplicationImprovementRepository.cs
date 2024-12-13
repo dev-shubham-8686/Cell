@@ -1907,11 +1907,11 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 foreach (var url1 in currAttachmentUrl)
                 {
-                    string bfrUrl = $"{baseUrl}{url1.CurrImageBytes}";
-                    if (url1.CurrImageBytes.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrImageBytes.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrImageBytes.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrImageBytes.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    string bfrUrl = $"{baseUrl}{url1.CurrSituationDocFilePath}";
+                    if (url1.CurrSituationDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                 url1.CurrSituationDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                 url1.CurrSituationDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                                 url1.CurrSituationDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
                     {
                         // Add image tag
                         currentSituationAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
@@ -1929,11 +1929,11 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 foreach (var url2 in impAttachmentUrl)
                 {
-                    string bfrUrl = $"{baseUrl}{url2.ImpImageBytes}";
-                    if (url2.ImpImageBytes.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImpImageBytes.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImpImageBytes.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImpImageBytes.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    string bfrUrl = $"{baseUrl}{url2.ImprovementDocFilePath}";
+                    if (url2.ImprovementDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                 url2.ImprovementDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                 url2.ImprovementDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                                 url2.ImprovementDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
                     {
                         // Add image tag
                         improvementAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
