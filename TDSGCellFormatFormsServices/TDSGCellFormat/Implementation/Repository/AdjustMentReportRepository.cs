@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using System.Buffers;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using Microsoft.VisualBasic;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -409,7 +410,8 @@ namespace TDSGCellFormat.Implementation.Repository
                                 RisksWithChanges = changeReport.RiskAssociated,
                                 Factors = changeReport.Factor,
                                 CounterMeasures = changeReport.CounterMeasures,
-                                DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null,
+                                DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null,
+                                //!string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null,
                                 PersonInCharge = changeReport.PersonInCharge,
                                 Results = changeReport.Results,
                                 CreatedBy = changeReport.CreatedBy,
@@ -562,7 +564,8 @@ namespace TDSGCellFormat.Implementation.Repository
                                 existingChange.RisksWithChanges = changeReport.RiskAssociated;
                                 existingChange.Factors = changeReport.Factor;
                                 existingChange.CounterMeasures = changeReport.CounterMeasures;
-                                existingChange.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null;
+                                existingChange.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null;
+                                //existingChange.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null;
                                 existingChange.PersonInCharge = changeReport.PersonInCharge;
                                 existingChange.Results = changeReport.Results;
                                 existingChange.ModifiedBy = changeReport.ModifiedBy;
@@ -579,7 +582,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                     RisksWithChanges = changeReport.RiskAssociated,
                                     Factors = changeReport.Factor,
                                     CounterMeasures = changeReport.CounterMeasures,
-                                    DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null,
+                                    DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null,
                                     PersonInCharge = changeReport.PersonInCharge,
                                     Results = changeReport.Results,
                                     CreatedBy = changeReport.CreatedBy,
@@ -1206,6 +1209,9 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     await _context.SaveChangesAsync();
 
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.SendAdjustmentEmail(data.AdjustmentReportId, EmailNotificationAction.PullBack, string.Empty, 0);
+
                     var approverTaskDetails = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == data.AdjustmentReportId).ToList();
                     approverTaskDetails.ForEach(a =>
                     {
@@ -1227,8 +1233,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     //InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
 
-                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.SendAdjustmentEmail(data.AdjustmentReportId, EmailNotificationAction.PullBack, string.Empty, 0);
+                   
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.AdjustMentPullback;
                 }
