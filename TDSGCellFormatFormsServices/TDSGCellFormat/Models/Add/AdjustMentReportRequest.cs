@@ -159,7 +159,7 @@ namespace TDSGCellFormat.Models.Add
     {
         public int? AdjustmentAdvisorId { get; set; }
         public int? AdvisorId {  get; set; }
-        public int? AdjustmentReportId { get; set; }
+        public int AdjustmentReportId { get; set; }
         public string? Comment { get; set; }
     }
 }

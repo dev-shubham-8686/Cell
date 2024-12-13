@@ -120,7 +120,9 @@ namespace TDSGCellFormat.Common
             ResultReject = 31,
             ToshibaTeamDiscussion = 32,
             ToshibaTeamApproval = 33,
-            PcrnRequired = 34
+            PcrnRequired = 34,
+            AdvisorData = 35,
+            SubmitAdvsior = 36
 
 
         }
