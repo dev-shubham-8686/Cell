@@ -38,7 +38,7 @@ import useSubMachineMaster, {
 import useSectionMaster from "../../apis/masters/useSectionMaster";
 import useFunctionMaster from "../../apis/masters/useFunctionMaster";
 import FileUpload from "../fileUpload/FileUpload";
-import { renameFolder } from "../../utility/utility";
+import { getBase64, renameFolder } from "../../utility/utility";
 import { WebPartContext } from "../../context/webpartContext";
 import OptionalReviewModal from "../common/OptionalReviewModal";
 import useAreaMaster from "../../apis/masters/useAreaMaster";
@@ -1554,14 +1554,23 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       // setIsLoading(loading);
                     }}
                     isLoading={false}
-                    onAddFile={(name: string, url: string) => {
+                    onAddFile={async (name: string, url: string,file:File) => {
                       const existingAttachments = currSituationAttchments ?? [];
                       console.log("FILES", existingAttachments);
+                      let imageBytes: string | null = null;
+
+                      if (file.type.startsWith("image")) {
+                        // Use FileReader to read the file as a Base64-encoded string
+                        imageBytes = await getBase64(file);
+                      } else {
+                        console.error("The file is not an image:", file.type);
+                      }
                       const newAttachment: ICurrentSituationAttachments = {
                         EquipmentCurrSituationAttachmentId: 0,
                         EquipmentImprovementId: parseInt(id),
                         CurrSituationDocName: name,
                         CurrSituationDocFilePath: url,
+                        CurrentImgBytes:imageBytes,
                         CreatedBy: user?.employeeId,
                         ModifiedBy: user?.employeeId,
                       };
@@ -1706,14 +1715,22 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       // setIsLoading(loading);
                     }}
                     isLoading={false}
-                    onAddFile={(name: string, url: string) => {
+                    onAddFile={async(name: string, url: string,file:File) => {
                       const existingAttachments = improvementAttchments ?? [];
                       console.log("FILES", existingAttachments);
+                      let imageBytes: string | null = null;
+
+                      if (file.type.startsWith("image")) {
+                        imageBytes = await getBase64(file);
+                      } else {
+                        console.error("The file is not an image:", file.type);
+                      }
                       const newAttachment: IImprovementAttachments = {
                         EquipmentImprovementAttachmentId: 0,
                         EquipmentImprovementId: parseInt(id),
                         ImprovementDocName: name,
                         ImprovementDocFilePath: url,
+                        ImprovementImgBytes:imageBytes,
                         CreatedBy: user?.employeeId,
                         ModifiedBy: user?.employeeId,
                       };
