@@ -1824,7 +1824,7 @@ namespace TDSGCellFormat.Helper
             return emailSent;
         }
 
-        public async Task<bool> SendAdjustmentEmai(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0)
+        public async Task<bool> SendAdjustmentEmail(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0)
         {
             bool emailSent = false;
             try
@@ -1845,14 +1845,17 @@ namespace TDSGCellFormat.Helper
                 bool isDepartMentHead = false;
                 bool isIsAmendTask = false , isPullBacked = false;
                 string? requesterUserName = null, requesterUserEmail = null;
+                string? advisorName = null, advisorEmail = null;
                 string? departmentHeadName = null, departmentHeadEmail = null;
                 bool approvelink = false;
                 bool isEditable = false, allApprover = false;
-                bool cpcDeptPeople = false;
+                bool cpcDeptPeople = false, isAdvisor = false;
                 int reqDeptId = 0;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? documentLink = _configuration["SPSiteUrl"] +
-                "/SitePages/TechInstructionSheet.aspx#/";
+                "/SitePages/AdjustmentReport.aspx#/form/";
+
+                //https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA/SitePages/AdjustmentReport.aspx#/
 
                 if (requestId > 0)
                 {
@@ -1882,16 +1885,31 @@ namespace TDSGCellFormat.Helper
                             reqDeptId = requestorUserDetails.DepartmentID;
                         }
 
+                        var advisorId = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == adjustmentData.AdjustMentReportId && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
+                        if(advisorId > 0)
+                        {
+                            EmployeeMaster? advisorDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == advisorId && x.IsActive == true).FirstOrDefault();
+                            advisorEmail = advisorDetails?.Email;
+
+                        }
+
                         var approverData = await _context.GeAdjustmentReportWorkFlow(requestId);
 
 
                         switch (emailNotification)
                         {
+                            case EmailNotificationAction.AdvisorData:
+                                templateFile = "";
+                                emailSubject = string.Format("[Action required!] Adjustment_{0} Advisor Update the comments", adjustmentData.ReportNo);
+                                isRequestorinToEmail = true;
+                                break;
+
                             case EmailNotificationAction.Submitted:
                                 templateFile = "Adjustment_Submitted.html";
                                 emailSubject = string.Format("[Action required!] Adjustment_{0} has been Submitted for Approval", adjustmentData.ReportNo);
                                 isInReviewTask = true;
                                 approvelink = true;
+                                isAdvisor = true;
                                 break;
 
                             case EmailNotificationAction.ReSubmitted:
@@ -1955,6 +1973,11 @@ namespace TDSGCellFormat.Helper
                         if (isRequestorinToEmail)
                         {
                             emailToAddressList.Add(requesterUserEmail);
+                        }
+
+                        if (isAdvisor)
+                        {
+                            emailToAddressList.Add(advisorEmail);
                         }
 
                         if (isIsAmendTask)
