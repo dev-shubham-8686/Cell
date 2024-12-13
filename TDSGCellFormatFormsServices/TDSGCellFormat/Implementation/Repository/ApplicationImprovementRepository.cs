@@ -599,7 +599,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     foreach (var attach in report.EquipmentCurrSituationAttachmentDetails)
                     {
                         var updatedUrl = attach.CurrSituationDocFilePath.Replace($"/{report.CreatedBy}/", $"/{existingReport.EquipmentImprovementNo}/");
-                        var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == attach.EquipmentCurrSituationAttachmentId).FirstOrDefault();
+                        var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == report.EquipmentImprovementId).FirstOrDefault();
                         if (existingAttachData != null)
                         {
                             existingAttachData.CurrSituationDocName = attach.CurrSituationDocName;
@@ -637,7 +637,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     foreach (var attach in report.EquipmentImprovementAttachmentDetails)
                     {
                         var updatedUrl = attach.ImprovementDocFilePath.Replace($"/{report.CreatedBy}/", $"/{existingReport.EquipmentImprovementNo}/");
-                        var existingAttachData = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentImprovementAttachmentId == attach.EquipmentImprovementAttachmentId).FirstOrDefault();
+                        var existingAttachData = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.EquipmentImprovementAttachmentId == attach.EquipmentImprovementAttachmentId).FirstOrDefault();
                         if (existingAttachData != null)
                         {
                             existingAttachData.ImprovementDocName = attach.ImprovementDocName;
