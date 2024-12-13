@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using System.Buffers;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using Microsoft.VisualBasic;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -409,7 +410,8 @@ namespace TDSGCellFormat.Implementation.Repository
                                 RisksWithChanges = changeReport.RiskAssociated,
                                 Factors = changeReport.Factor,
                                 CounterMeasures = changeReport.CounterMeasures,
-                                DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null,
+                                DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null,
+                                //!string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null,
                                 PersonInCharge = changeReport.PersonInCharge,
                                 Results = changeReport.Results,
                                 CreatedBy = changeReport.CreatedBy,
@@ -562,7 +564,8 @@ namespace TDSGCellFormat.Implementation.Repository
                                 existingChange.RisksWithChanges = changeReport.RiskAssociated;
                                 existingChange.Factors = changeReport.Factor;
                                 existingChange.CounterMeasures = changeReport.CounterMeasures;
-                                existingChange.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null;
+                                existingChange.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null;
+                                //existingChange.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null;
                                 existingChange.PersonInCharge = changeReport.PersonInCharge;
                                 existingChange.Results = changeReport.Results;
                                 existingChange.ModifiedBy = changeReport.ModifiedBy;
@@ -579,7 +582,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                     RisksWithChanges = changeReport.RiskAssociated,
                                     Factors = changeReport.Factor,
                                     CounterMeasures = changeReport.CounterMeasures,
-                                    DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null,
+                                    DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null,
                                     PersonInCharge = changeReport.PersonInCharge,
                                     Results = changeReport.Results,
                                     CreatedBy = changeReport.CreatedBy,

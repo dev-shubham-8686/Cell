@@ -1851,6 +1851,7 @@ namespace TDSGCellFormat.Helper
                 bool isEditable = false, allApprover = false;
                 bool cpcDeptPeople = false, isAdvisor = false;
                 int reqDeptId = 0;
+                string? Role = null;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? documentLink = _configuration["SPSiteUrl"] +
                 "/SitePages/AdjustmentReport.aspx#/form/";
@@ -1861,6 +1862,8 @@ namespace TDSGCellFormat.Helper
                 {
                     var adjustmentData = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == requestId && x.IsDeleted == false).FirstOrDefault();
                     var adjustmentNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == requestId && x.IsDeleted == false).Select(x => x.ReportNo).FirstOrDefault();
+                    var sectionName = _context.SectionMasters.Where(x => x.SectionId == adjustmentData.SectionId && x.IsActive == true).Select(x => x.SectionName).FirstOrDefault();
+
                     var areaIds = adjustmentData.Area.Split(',').Select(id => int.Parse(id)).ToList();
                     var areaNames = new List<string>();
                     foreach (var id in areaIds)
@@ -2058,7 +2061,13 @@ namespace TDSGCellFormat.Helper
                                 }
                             }
                         }
-
+                        if (nextApproverTaskId > 0)
+                        {
+                            var approvalData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == requestId && (x.Status != ApprovalTaskStatus.InReview.ToString() || x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true)
+                                .OrderByDescending(x => x.ApproverTaskId)
+                                .FirstOrDefault();
+                            Role = approvalData?.Role;
+                        }
                         if (!string.IsNullOrEmpty(templateFile))
                         {
                             string baseDirectory = AppContext.BaseDirectory;
@@ -2092,9 +2101,9 @@ namespace TDSGCellFormat.Helper
                                 emailBody = emailBody.Replace("#ApplicationNo#", adjustmentNo);
                                 //emailBody = emailBody.Replace("#Improvement#", equipmentData.ImprovementName);
                                 emailBody = emailBody.Replace("#Area#", areaNamesString);
-                               // emailBody = emailBody.Replace("#Section#", sectionName);
+                                emailBody = emailBody.Replace("#Section#", sectionName);
                                 emailBody = emailBody.Replace("#Comment#", comment);
-                               // emailBody = emailBody.Replace("#Role#", Role);
+                                emailBody = emailBody.Replace("#Role#", Role);
                                 emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
                                 emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
                                 var requestData = new EmailLogMaster()
