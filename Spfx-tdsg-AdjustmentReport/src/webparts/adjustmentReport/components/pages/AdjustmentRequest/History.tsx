@@ -18,14 +18,14 @@ const History: React.FC = () => {
           dataIndex: "actionType",
           key: "actionType",
           render: (text:string) => <p className="text-cell">{text}</p>,
-          width: "15%",
+          width: 150,
         },
         {
           title: "Status",
           dataIndex: "status",
           key: "status",
           render: (text:string) => <p className="text-cell">{text}</p>,
-          width: "15%",
+          width: 150,
         },
         {
           title: "Comments",
@@ -41,7 +41,7 @@ const History: React.FC = () => {
               {text}
             </p>
           ),
-          width: "30%",
+          width: 150,
         },
         {
           title: "Action Taken By",
@@ -57,12 +57,14 @@ const History: React.FC = () => {
         //   render: (value: string) => (
         //     <p className="text-cell">{dayjs(value).format(DATE_FORMAT)}</p>
         //   ),
-          width: "20%",
+          width: 150,
         },
       ];
   return (
     <div>
-       <Table columns={columns} paginationRequired={false} url="/api/AdjustmentReport/GetHistoryData" />
+       <Table
+      //  classname='maximumWidth'
+       columns={columns} paginationRequired={false} url="/api/AdjustmentReport/GetHistoryData" />
     </div>
   )
 }

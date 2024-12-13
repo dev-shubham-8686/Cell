@@ -27,7 +27,8 @@ export interface IRequestDetails extends IRequestStatus {
 interface IProps {
   approverTasks: IWorkflowDetail[];
   advisorId?:number,
-  submitted?:boolean
+  submitted?:boolean,
+  status?:string
 
   // requestStatus?: IRequestDetails;
   // userId: number;
@@ -36,7 +37,8 @@ interface IProps {
 const Workflow: React.FC<IProps> = ({
   approverTasks,
   advisorId,
-  submitted
+  submitted,
+  status
   //   requestStatus,
   //   userId,
 }) => {
@@ -180,12 +182,12 @@ const Workflow: React.FC<IProps> = ({
         </p>
         <TextArea
           value={advisorComments}
-          disabled={user?.isAdmin ? true:!(advisorId==user?.employeeId)}
+          disabled={user?.isAdmin ? false:!(advisorId==user?.employeeId &&status!=REQUEST_STATUS.Completed)}
           onChange={(e) => setAdvisorComments(e.target.value)}
           rows={4}
           placeholder="Enter your comments here"
         />
-       { advisorId == user?.employeeId ? 
+       { (advisorId == user?.employeeId && status!=REQUEST_STATUS.Completed) ? 
        (<Button
           type="primary"
           onClick={()=>handleSave()}

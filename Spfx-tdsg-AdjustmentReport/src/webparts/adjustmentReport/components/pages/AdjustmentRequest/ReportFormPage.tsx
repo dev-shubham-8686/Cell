@@ -131,7 +131,7 @@ const ReportFormPage = () => {
     {
       key: "3",
       label: "Workflow",
-      children: <Workflow submitted={reportData?.ReturnValue?.IsSubmit} approverTasks={approvalData ? approvalData : []} advisorId={reportData?.ReturnValue?.AdvisorId} />,
+      children: <Workflow status = {reportData?.ReturnValue?.Status} submitted={reportData?.ReturnValue?.IsSubmit} approverTasks={approvalData ? approvalData : []} advisorId={reportData?.ReturnValue?.AdvisorId} />,
     },
   ];
 

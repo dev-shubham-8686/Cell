@@ -20,7 +20,7 @@ export const WEB_URL =
 "https://synopsandbox.sharepoint.com/sites/Training2024"
 //  "https://synopsandbox.sharepoint.com/sites/e-app-stage"  // -- local
 //  "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA"  // --QA
-//"https://tdsgj.sharepoint.com/sites/e-app-stage"        // -stage 
+// "https://tdsgj.sharepoint.com/sites/e-app-stage"        // -stage 
 
 //Process Status
 export const ProcessStatus = [

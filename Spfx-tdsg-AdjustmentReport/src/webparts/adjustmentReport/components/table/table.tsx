@@ -18,6 +18,7 @@ interface ITable {
   columns: ColumnsType<AnyObject> | any;
   paginationRequired: boolean;
   refetchKey?: number;
+  classname?:string
 }
 
 interface IColumnFilter {
@@ -33,7 +34,7 @@ export const pageSizeOptions: DefaultOptionType[] = [
   { label: "100 / page", value: 100 },
 ];
 
-const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey}) => {
+const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey,classname}) => {
   const { user } = useUserContext();
   const { isLoading, data, mutate } = useTable();
   const [currentPage, setCurrentPage] = useState(1);
@@ -94,6 +95,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
         | React.MouseEvent<HTMLButtonElement, MouseEvent>
         | React.KeyboardEvent<HTMLInputElement>
     ) => {
+      debugger
       e?.preventDefault();
       const trimmedSearchText = searchText.replace(/\s+/g, '');
       console.log("trimmedtext",trimmedSearchText)
@@ -203,6 +205,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
           />
          {/* <div className="table"> */}
       <AntdTable
+      className={classname??""}
         columns={columns}
         dataSource={data}
         scroll={{ x: "max-content", y:"300px" }}

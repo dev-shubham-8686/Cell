@@ -12,9 +12,8 @@ import {
   Table,
 } from "antd";
 import * as React from "react";
-import { disabledDate, disabledfutureDate } from "../../../utils/helper";
+import {  disabledfutureDate, disabledPastDate } from "../../../utils/helper";
 import * as dayjs from "dayjs";
-import ChangeRiskManagementForm from "./ChangeRiskManagementForm";
 import { useGetAllMachines } from "../../../hooks/useGetAllMachines";
 import { useGetAllSubMachines } from "../../../hooks/useGetAllSubMachines";
 import { ISubMachine } from "../../../api/GetAllSubMachines.api";
@@ -317,7 +316,7 @@ const RequestForm = React.forwardRef(() => {
   };
 
   const validationRules = {
-    When: [{ required: true, message: "Please enter When Date" }],
+    Date: [{ required: true, message: "Please Enter Date & Time" }],
     Area: [{ required: true, message: "Please select Area" }],
     CheckedBy: [{ required: true, message: "Please select Checked By" }],
     Section: [{ required: true, message: "Please select Section Name" }],
@@ -534,6 +533,7 @@ const RequestForm = React.forwardRef(() => {
         }
       },
       onCancel: () => {
+        form.setFieldsValue({AdvisorId:""})
         console.log("Submission cancelled");
       },
     });
@@ -859,6 +859,7 @@ const RequestForm = React.forwardRef(() => {
             rules={validationRules.Person}
           >
             <Select
+            allowClear
               disabled={
                 isViewMode || (!isAdmin && submitted && !underamendment)
               }
@@ -1022,13 +1023,13 @@ const RequestForm = React.forwardRef(() => {
             <Form.Item
               label="Date & Time"
               name="dateTime"
-              rules={validationRules.When}
+              rules={validationRules.Date}
             >
               <DatePicker
                 disabled={
                   isViewMode || (!isAdmin && submitted && !underamendment)
                 }
-                disabledDate={disabledfutureDate}
+                disabledDate={disabledPastDate}
                 showTime
                 placeholder="Date & Time"
                 format={DATE_TIME_FORMAT}
@@ -1044,6 +1045,7 @@ const RequestForm = React.forwardRef(() => {
               rules={[{ required: true }]}
             >
               <Select
+              allowClear
                 disabled={isViewMode}
                 placeholder="Select Checked By"
                 loading={checkedloading}
@@ -1078,6 +1080,7 @@ const RequestForm = React.forwardRef(() => {
               rules={validationRules.Section}
             >
               <Select
+              allowClear
                 placeholder="Select Section Name"
                 disabled={isViewMode}
                 showSearch
@@ -1110,6 +1113,7 @@ const RequestForm = React.forwardRef(() => {
           <Col span={6}>
             <Form.Item label="Area" name="area" rules={validationRules.Area}>
               <Select
+              allowClear
                 disabled={isViewMode}
                 mode="multiple"
                 placeholder="Select Area"
@@ -1176,7 +1180,7 @@ const RequestForm = React.forwardRef(() => {
               <Form.Item
                 label="Other Machine Name"
                 name="OtherMachine"
-                rules={validationRules.OtherMachine}
+                // rules={validationRules.OtherMachine}
               >
                 <TextArea
                   disabled={
@@ -1184,7 +1188,7 @@ const RequestForm = React.forwardRef(() => {
                   }
                   rows={1}
                   maxLength={500}
-                  placeholder="Provide additional details (optional)"
+                  placeholder="Enter Other Machine"
                 />
               </Form.Item>
             )}
@@ -1196,6 +1200,7 @@ const RequestForm = React.forwardRef(() => {
               rules={validationRules.SubMachine}
             >
               <Select
+              allowClear
                 disabled={
                   isViewMode || (!isAdmin && submitted && !underamendment)
                 }
@@ -1225,7 +1230,7 @@ const RequestForm = React.forwardRef(() => {
               <Form.Item
                 label="Other Sub Machine Name "
                 name="OtherSubMachine"
-                rules={validationRules.OtherSubMachine}
+                // rules={validationRules.OtherSubMachine}
               >
                 <TextArea
                   disabled={
@@ -1233,7 +1238,7 @@ const RequestForm = React.forwardRef(() => {
                   }
                   rows={1}
                   maxLength={500}
-                  placeholder="Provide additional details (optional)"
+                  placeholder="Enter Other Sub Machine"
                 />
               </Form.Item>
             )}
@@ -1345,6 +1350,9 @@ const RequestForm = React.forwardRef(() => {
               {/* all types except exe  ,  max size -30MB  , no-10*/}
               {console.log("USERID", user?.employeeId.toString())}
               <FileUpload
+               disabled={
+                isViewMode || (!isAdmin && submitted && !underamendment)
+              }
                 key={`file-upload-before-images`}
                 folderName={
                   form.getFieldValue("reportNo") !== ""
@@ -1431,6 +1439,9 @@ const RequestForm = React.forwardRef(() => {
               }
             >
               <FileUpload
+               disabled={
+                isViewMode || (!isAdmin && submitted && !underamendment)
+              }
                 key={`file-upload-after-images`}
                 folderName={
                   form.getFieldValue("reportNo") !== ""

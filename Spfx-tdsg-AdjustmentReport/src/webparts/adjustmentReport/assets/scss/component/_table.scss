@@ -251,7 +251,9 @@ p.text-cell {
     vertical-align: top;
   }
 }
-
+.maximumWidth{
+  max-width: 100%;
+}
 .dashboard-table {
   & {
     td,

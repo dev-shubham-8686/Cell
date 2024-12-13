@@ -16,6 +16,7 @@ import { ACTION_TYPE, REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
 import { IPullBack } from "../../api/PullBack.api";
 import { usePullBack } from "../../hooks/usePullBack";
 import { useGetCellDepartmentsById } from "../../hooks/useGetCellDepartmentById";
+import { showErrorMsg } from "../../utils/displayjsx";
 
 const { Option } = Select;
 
@@ -115,12 +116,18 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
     comment: string,
     approvalSequence?: any
   ): Promise<void> => {
-    
+    debugger
+    if(isApprovalSectionVisible && approvalSequence?.length==0){
+      void showErrorMsg("Please Select Addition Approvals")
+      setApprovalSectionVisible(false)
+      return ;
+    }
     const updatedApprovalSequence = approvalSequence?.map((sequenceItem:any,index: number) => {
       const employee = departmentHeads.find(
         (head) => head.EmployeeId == sequenceItem.EmployeeId
       );
-      
+      debugger
+      debugger
       return {
         ...sequenceItem,
         DepartmentId: employee?.DepartmentId || null, // Add DepartmentId or null if not found
@@ -128,6 +135,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
       };
       
     });
+   
     const data: IApproveAskToAmendPayload = {
       ApproverTaskId: currentApproverTask.approverTaskId,
       CurrentUserId: user?.employeeId ? user?.employeeId : 0,
@@ -149,6 +157,7 @@ console.log("Approve a to a payload ",data)
         });
       },
     });
+    
   };
   const handleAskToAmend = async (comment: string): Promise<void> => {
     const data: IApproveAskToAmendPayload = {
