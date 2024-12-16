@@ -1902,7 +1902,7 @@ namespace TDSGCellFormat.Helper
                         switch (emailNotification)
                         {
                             case EmailNotificationAction.AdvisorData:
-                                templateFile = "";
+                                templateFile = "Adjustment_Advisor";
                                 emailSubject = string.Format("[Action required!] Adjustment_{0} Advisor Update the comments", adjustmentData.ReportNo);
                                 isRequestorinToEmail = true;
                                 break;
@@ -2061,13 +2061,15 @@ namespace TDSGCellFormat.Helper
                                 }
                             }
                         }
+
                         if (nextApproverTaskId > 0)
                         {
-                            var approvalData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == requestId && (x.Status != ApprovalTaskStatus.InReview.ToString() || x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true)
+                            var approvalData = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == requestId && (x.Status != ApprovalTaskStatus.InReview.ToString() && x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true)
                                 .OrderByDescending(x => x.ApproverTaskId)
                                 .FirstOrDefault();
                             Role = approvalData?.Role;
                         }
+
                         if (!string.IsNullOrEmpty(templateFile))
                         {
                             string baseDirectory = AppContext.BaseDirectory;
