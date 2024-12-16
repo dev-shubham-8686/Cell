@@ -1852,35 +1852,52 @@ namespace TDSGCellFormat.Implementation.Repository
                 //    @"<img\s+[^>]*src\s*=\s*['""]([^'""]+)['""][^>]*>",
                 //    "<a href='$1' target='_blank' rel='noopener noreferrer'>Linked Image</a>");
 
+                // Create PDF using SelectPDF
+                var converter = new SelectPdf.HtmlToPdf();
+                converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
+                SelectPdf.PdfDocument pdfDoc = converter.ConvertHtmlString(sb.ToString());
 
-                var PDF = renderer.RenderHtmlAsPdf(sb.ToString());
-                // Set the paper size to A4 or a custom size
-                // Set paper size, margins, and enable scale to fit
-                renderer.PrintOptions.MarginTop = 0;
-                renderer.PrintOptions.MarginBottom = 0;
-                renderer.PrintOptions.MarginLeft = 0;
-                renderer.PrintOptions.MarginRight = 0;
-                renderer.PrintOptions.PaperSize = PdfPaperSize.A4;
+                // Convert the PDF to a byte array
+                byte[] pdfBytes = pdfDoc.Save();
 
-                // Ensure the HTML content scales to fit the page width
-                renderer.PrintOptions.FitToPaperWidth = true;
-
-                string tempPath = Path.GetTempFileName();
-                PDF.SaveAs(tempPath);
-
-                byte[] PDFBytes = File.ReadAllBytes(tempPath);
-
-                // Clean up the temporary file
-                File.Delete(tempPath);
-
-                string base64StringPDF = Convert.ToBase64String(PDFBytes);
+                // Encode the PDF as a Base64 string
+                string base64String = Convert.ToBase64String(pdfBytes);
 
                 // Set response values
-                res.StatusCode = Status.Success;
-                res.Message = Enums.TechnicalPdf;
-                res.ReturnValue = base64StringPDF; // Send the Base64 string to the frontend
+                res.StatusCode = Enums.Status.Success;
+                res.Message = Enums.MaterialPdf;
+                res.ReturnValue = base64String; // Send the Base64 string to the frontend
 
                 return res;
+
+                //var PDF = renderer.RenderHtmlAsPdf(sb.ToString());
+                //// Set the paper size to A4 or a custom size
+                //// Set paper size, margins, and enable scale to fit
+                //renderer.PrintOptions.MarginTop = 0;
+                //renderer.PrintOptions.MarginBottom = 0;
+                //renderer.PrintOptions.MarginLeft = 0;
+                //renderer.PrintOptions.MarginRight = 0;
+                //renderer.PrintOptions.PaperSize = PdfPaperSize.A4;
+
+                //// Ensure the HTML content scales to fit the page width
+                //renderer.PrintOptions.FitToPaperWidth = true;
+
+                //string tempPath = Path.GetTempFileName();
+                //PDF.SaveAs(tempPath);
+
+                //byte[] PDFBytes = File.ReadAllBytes(tempPath);
+
+                //// Clean up the temporary file
+                //File.Delete(tempPath);
+
+                //string base64StringPDF = Convert.ToBase64String(PDFBytes);
+
+                //// Set response values
+                //res.StatusCode = Status.Success;
+                //res.Message = Enums.TechnicalPdf;
+                //res.ReturnValue = base64StringPDF; // Send the Base64 string to the frontend
+
+                //return res;
 
                 #region old
                 //using (var ms = new MemoryStream())
@@ -2196,7 +2213,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var technicalRevise = new TechnicalInstructionSheet();
                     technicalRevise.TechnicalReviseId = technicalId;
                     technicalRevise.IsReOpen = false;
-                    technicalRevise.Title = technical.Title;
+                    //technicalRevise.Title = technical.Title;
                     technicalRevise.Status = ApprovalTaskStatus.Draft.ToString();
                     technicalRevise.CreatedDate = DateTime.Now;
                     //technicalRevise.IsActive = true;
@@ -2345,7 +2362,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var technicalRevise = new TechnicalInstructionSheet();
                     technicalRevise.TechnicalReviseId = technicalId;
                     technicalRevise.IsReOpen = false;
-                    technicalRevise.Title = technical.Title;
+                    //technicalRevise.Title = technical.Title;
                     technicalRevise.Status = ApprovalTaskStatus.Draft.ToString();
                     technicalRevise.CreatedDate = DateTime.Now;
                     //technicalRevise.IsActive = true;
@@ -2549,6 +2566,9 @@ namespace TDSGCellFormat.Implementation.Repository
             
             return notifyCellDivPartView;
         }
+        #endregion
+
+        #region Master
         #endregion
 
     }
