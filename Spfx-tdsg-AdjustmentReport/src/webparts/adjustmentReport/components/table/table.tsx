@@ -95,7 +95,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey,c
         | React.MouseEvent<HTMLButtonElement, MouseEvent>
         | React.KeyboardEvent<HTMLInputElement>
     ) => {
-      debugger
+      
       e?.preventDefault();
       const trimmedSearchText = searchText.replace(/\s+/g, '');
       console.log("trimmedtext",trimmedSearchText)

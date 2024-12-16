@@ -26,7 +26,11 @@ apiClient.interceptors.response.use(
   (error: any) => {
     console.log("RESSSSS")
     let errorMessage = "An error occurred";
+// if(error.status == 401){
+//   
+//   void message.error(error?.response?.data?.Message);
 
+// }
     if (error.response) {
       
       // Server responded with a status code other than 2xx
@@ -35,12 +39,12 @@ apiClient.interceptors.response.use(
         
         // Attempt to extract the message from different properties
         errorMessage =
-          error.response.data.message ||
+          error.response.data.Message ||
           error.response.data.error ||
           `Error ${statusCode}`;
       } else {
         
-        errorMessage = `Error ${statusCode}: ${error.response.statusText}`;
+        errorMessage = error.response.data.Message || `Error ${statusCode}: ${error.response.statusText}`;
       }
 
       // Display the error message

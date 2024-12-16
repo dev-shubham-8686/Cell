@@ -43,12 +43,12 @@ export const UserProvider: React.FC<IUserProvider> = ({
 }) => {
     const [user, setUser] = useState<IUser | null>(null);
     const { data, isLoading } = useUser(
-    //    userEmail
+       userEmail
         // "j@synoptek.com"                            // ----- shift in charge
         // "shyamkanojia@synopsandbox.onmicrosoft.com" // ----- section head
         // "nityashah@synopsandbox.onmicrosoft.com"       // ----- section head
         // "shubham@synopsandbox.onmicrosoft.com"           // ----- section head
-        "dparikh@synoptek.com"                         // ----- department head
+        // "dparikh@synoptek.com"                         // ----- department head
         // "tdivan@synoptek.com"                  // ----- dep div head
     // "BSankhat@synoptek_11111.com"              // ----- Div Head 
 

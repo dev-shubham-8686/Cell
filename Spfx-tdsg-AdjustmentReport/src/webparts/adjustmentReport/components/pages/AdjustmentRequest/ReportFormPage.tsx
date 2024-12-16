@@ -50,7 +50,7 @@ const ReportFormPage = () => {
   const [currentApproverTask, setcurrentApproverTask] = React.useState<any>(null);
   const [existingAdjustmentReport, setexistingAdjustmentReport] = React.useState<any>(null);
   const { mutate: askToAmend } = useUpdateApproveAskToAmend();
-  const { data: reportData } = useGetAdjustmentReportById(id ? parseInt(id, 10) : 0);
+  const { data: reportData , isLoading:reportisLoading } = useGetAdjustmentReportById(id ? parseInt(id, 10) : 0);
   const { mutate: getCurrentApprover } = useGetCurrentApprover();
   const { data : approvalData} = useGetApprorverFlowData(id ? parseInt(id, 10) : 0);
   const {data: head} = useGetSectionHead(id ? parseInt(id, 10) : 0);
@@ -121,7 +121,7 @@ const ReportFormPage = () => {
     {
       key: "1",
       label: "Form",
-      children: <RequestForm />,
+      children: <RequestForm  reportData={reportData??[]} formisLoading={reportisLoading}/>,
     },
     {
       key: "2",
@@ -163,6 +163,7 @@ const ReportFormPage = () => {
         Back
       </Button>
       <Tabs
+      className="position-relative"
         activeKey={activeTabKey}
         onChange={handleTabChange}
         tabBarExtraContent={extraContent}

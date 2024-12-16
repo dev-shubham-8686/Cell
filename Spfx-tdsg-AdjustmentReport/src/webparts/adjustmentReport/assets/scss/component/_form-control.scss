@@ -11,6 +11,25 @@
   }
 }
 
+.button-wrapper {
+  position: absolute;
+  right:0;
+  top: -5rem;
+  z-index: 1000;
+}
+
+.button-container {
+  display: flex;
+  gap: 1rem;
+}
+
+// .button-container button {
+//   flex: 1 1 auto;
+//   min-width: 120px;
+//   padding: 0.5rem 1rem;
+//   text-align: center;
+// }
+
 .ant-col {
   &.ant-form-item-label {
     font-family: $theme-font-family, sans-serif;
@@ -70,7 +89,7 @@
 .custom-disabled-select.ant-select-disabled
   .ant-select-selector
   span.ant-select-selection-item,
-  .custom-disabled-input.ant-input-number-disabled  {
+.custom-disabled-input.ant-input-number-disabled {
   color: black !important;
 }
 
@@ -202,7 +221,7 @@
   @extend .request-section;
   border: 1px solid #e5eaee !important;
 }
-.form{
+.form {
   max-height: 500px;
   overflow-y: auto;
 }

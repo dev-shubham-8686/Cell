@@ -28,7 +28,17 @@ export default class AdjustmentReport extends React.Component<
       context,
       userEmail,
     } = this.props;
-
+    document.addEventListener('copy', (e) => {
+      if (typeof window !== "undefined" && window !== null) {
+        const selection = window.getSelection()?.toString().trim() || ''; 
+   
+        // Check if clipboardData is not null before using it
+        if (e.clipboardData) {
+          e.clipboardData.setData('text/plain', selection);
+          e.preventDefault();
+        }
+      }
+    });
     return (
       <WebPartContext.Provider value={context}>
         <QueryClientProvider client={queryClient}>

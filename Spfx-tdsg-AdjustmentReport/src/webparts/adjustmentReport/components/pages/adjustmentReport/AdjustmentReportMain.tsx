@@ -7,6 +7,8 @@ import MyRequest from "./MyRequest";
 import MyApproval from "./MyApproval";
 import AllRequest from "./AllRequest";
 import PageLayout from "../../pageLayout/PageLayout";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 
 const AdjustmentReportMain: React.FC = () => {
   const navigate = useNavigate();
@@ -49,7 +51,8 @@ const AdjustmentReportMain: React.FC = () => {
       type="primary"
       className="btn btn-primary mb-8"
       onClick={() => onAddRequest()}
-      icon={<PlusCircleOutlined style={{ marginRight: "10px" }}/>}
+      icon={
+      <span style={{marginRight:"5px"}} ><FontAwesomeIcon className="me-1 mt-50" icon={faCirclePlus} /></span>}
     >
      New Request
     </Button>

@@ -9,10 +9,11 @@ import {
   Radio,
   Row,
   Select,
+  Spin,
   Table,
 } from "antd";
 import * as React from "react";
-import {  disabledfutureDate, disabledPastDate } from "../../../utils/helper";
+import { disabledfutureDate, disabledPastDate } from "../../../utils/helper";
 import * as dayjs from "dayjs";
 import { useGetAllMachines } from "../../../hooks/useGetAllMachines";
 import { useGetAllSubMachines } from "../../../hooks/useGetAllSubMachines";
@@ -61,9 +62,13 @@ const { TextArea } = Input;
 
 interface RequestFormProps {
   reportData?: any;
+  formisLoading?:boolean
 }
 
-const RequestForm = React.forwardRef(() => {
+const RequestForm :React.FC<RequestFormProps> = ({
+ reportData,
+ formisLoading
+}) => {
   const [form] = Form.useForm();
   const currentDateTime = dayjs();
   const { user } = useUserContext();
@@ -121,11 +126,12 @@ const RequestForm = React.forwardRef(() => {
     dateTime: currentDateTime,
     reportNo: reportNo === undefined ? "" : reportNo,
   };
-  const { data: reportData } = useGetAdjustmentReportById(
+  const { data: reportDataa } = useGetAdjustmentReportById(
     id ? parseInt(id) : 0
   );
   console.log("GetByIdData", reportData);
-  const { mutate: addUpdateReport } = useAddUpdateReport();
+  console.log("GetById2", reportDataa);
+  const { mutate: addUpdateReport , isLoading:savingData} = useAddUpdateReport();
   // Use effect to sync files with form field value
   useEffect(() => {
     // Update the beforeImages field with the latest files count
@@ -234,7 +240,7 @@ const RequestForm = React.forwardRef(() => {
         requestedBy: reportData?.ReturnValue.RequestBy,
         checkedBy: reportData?.ReturnValue.CheckedBy,
         dateTime: reportData
-          ? dayjs(reportData?.ReturnValue.CreatedDate)
+          ? dayjs(reportData?.ReturnValue?.When,DATE_TIME_FORMAT)
           : currentDateTime,
         observation: reportData?.ReturnValue.Observation,
         rootCause: reportData?.ReturnValue.RootCause,
@@ -524,16 +530,33 @@ const RequestForm = React.forwardRef(() => {
 
           payload.AdvisorId = advisorId;
 
-          await addUpdateReport(payload);
+          await addUpdateReport(payload,{
+            onSuccess: async (response: any) => {
+              if (mode == "add") {
+                await renameFolder(
+                  DocumentLibraries.Adjustment_Attachments,
+                  WEB_URL,
+                  webPartContext.spHttpClient,
+                  user?.employeeId.toString(),
+                  response?.ReturnValue?.AdjustmentReportNo
+                );
+                navigate("/");
+              }
+              navigate("/");
+            },
+            onError: () => {
+              void message.error("Failed to save . Please try again.");
+            },
+          });
 
-          navigate("/");
+          // navigate("/");
         } catch (error) {
           console.error("Error submitting form:", error);
           throw error;
         }
       },
       onCancel: () => {
-        form.setFieldsValue({AdvisorId:""})
+        form.setFieldsValue({ AdvisorId: null});
         console.log("Submission cancelled");
       },
     });
@@ -542,9 +565,17 @@ const RequestForm = React.forwardRef(() => {
     try {
       //await form.validateFields();
       const payload = CreatePayload(values, operation);
-      await addUpdateReport(payload);
+      await addUpdateReport(payload, {
+        onSuccess: async (response: any) => {
+          console.log("Resubmit Success Res",response)
+          navigate("/");
+        },
+        onError: () => {
+          void message.error("Failed to save . Please try again.");
+        },
+      });
 
-      navigate("/");
+      // navigate("/");
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -859,7 +890,7 @@ const RequestForm = React.forwardRef(() => {
             rules={validationRules.Person}
           >
             <Select
-            allowClear
+              allowClear
               disabled={
                 isViewMode || (!isAdmin && submitted && !underamendment)
               }
@@ -954,15 +985,10 @@ const RequestForm = React.forwardRef(() => {
   return (
     <>
       <div
-        style={{
-          position: "relative",
-          left: "1580px",
-          bottom: "80px",
-          zIndex: "1000",
-        }}
+      className="button-wrapper"
       >
-        <>
-          <div className="d-flex gap-3">
+       
+          <div className="button-container" >
             {!isViewMode && (!submitted || underamendment) && (
               <button
                 className="btn btn-primary"
@@ -993,112 +1019,112 @@ const RequestForm = React.forwardRef(() => {
               </button>
             )}
           </div>
-        </>
+      
       </div>
-<div className="bg-white p-4 form">
-      <Form
-        layout="vertical"
-        form={form}
-        onFinish={onFinish}
-        initialValues={initialData}
-      >
-        <Row gutter={48} className="mb-3">
-          <Col span={6}>
-            <Form.Item label="Report No" name="reportNo">
-              <Input disabled />
-            </Form.Item>
-          </Col>
+      <div className="bg-white p-4 form">
+        <Form
+          layout="vertical"
+          form={form}
+          onFinish={onFinish}
+          initialValues={initialData}
+        >
+          <Row gutter={48} className="mb-3">
+            <Col span={6}>
+              <Form.Item label="Report No" name="reportNo">
+                <Input disabled />
+              </Form.Item>
+            </Col>
 
-          <Col span={6}>
-            <Form.Item
-              label="Adjustment Done By"
-              name="requestedBy"
-              initialValue={user?.employeeName}
-            >
-              <Input placeholder="-" disabled />
-            </Form.Item>
-          </Col>
-
-          <Col span={6}>
-            <Form.Item
-              label="Date & Time"
-              name="dateTime"
-              rules={validationRules.Date}
-            >
-              <DatePicker
-                disabled={
-                  isViewMode || (!isAdmin && submitted && !underamendment)
-                }
-                disabledDate={disabledPastDate}
-                showTime
-                placeholder="Date & Time"
-                format={DATE_TIME_FORMAT}
-                className="bg-antdDisabledBg border-antdDisabledBorder w-full"
-              />
-            </Form.Item>
-          </Col>
-
-          <Col span={6}>
-            <Form.Item
-              label="Checked By"
-              name="checkedBy"
-              rules={[{ required: true }]}
-            >
-              <Select
-              allowClear
-                disabled={isViewMode}
-                placeholder="Select Checked By"
-                loading={checkedloading}
-                options={[
-                  ...(employeesResult?.ReturnValue?.map((checkedBy) => ({
-                    label: checkedBy.employeeName,
-                    value: checkedBy.employeeId,
-                  })) || []),
-                  ...(checkedByResult?.ReturnValue
-                    ? [{ label: "Not Applicable", value: -1 }]
-                    : []),
-                ]}
+            <Col span={6}>
+              <Form.Item
+                label="Adjustment Done By"
+                name="requestedBy"
+                initialValue={user?.employeeName}
               >
-                {employeesResult?.ReturnValue &&
-                  employeesResult.ReturnValue.map((checkedBy) => (
-                    <Option
-                      key={checkedBy.employeeId}
-                      value={checkedBy.employeeId}
-                    >
-                      {checkedBy.employeeName}
-                    </Option>
-                  ))}
-              </Select>
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={48} className="mb-3">
-          <Col span={6}>
-            <Form.Item
-              label={<span className="text-muted w-95">Section Name</span>}
-              name="SectionId"
-              rules={validationRules.Section}
-            >
-              <Select
-              allowClear
-                placeholder="Select Section Name"
-                disabled={isViewMode}
-                showSearch
-                // onChange={handleSectionChange}
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={sections?.ReturnValue?.map((section) => ({
-                  label: section.sectionName,
-                  value: section.sectionId,
-                }))}
-                onChange={handleSectionChange}
-                loading={sectionIsLoading}
-                className="custom-disabled-select"
+                <Input placeholder="-" disabled />
+              </Form.Item>
+            </Col>
+
+            <Col span={6}>
+              <Form.Item
+                label="Date & Time"
+                name="dateTime"
+                rules={validationRules.Date}
               >
-                {/* {troubles?.map((trouble) => (
+                <DatePicker
+                  disabled={
+                    isViewMode || (!isAdmin && submitted && !underamendment)
+                  }
+                  disabledDate={disabledPastDate}
+                  showTime
+                  placeholder="Date & Time"
+                  format={DATE_TIME_FORMAT}
+                  className="bg-antdDisabledBg border-antdDisabledBorder w-full"
+                />
+              </Form.Item>
+            </Col>
+
+            <Col span={6}>
+              <Form.Item
+                label="Checked By"
+                name="checkedBy"
+                rules={[{ required: true }]}
+              >
+                <Select
+                  allowClear
+                  disabled={isViewMode}
+                  placeholder="Select Checked By"
+                  loading={checkedloading}
+                  options={[
+                    ...(employeesResult?.ReturnValue?.map((checkedBy) => ({
+                      label: checkedBy.employeeName,
+                      value: checkedBy.employeeId,
+                    })) || []),
+                    ...(checkedByResult?.ReturnValue
+                      ? [{ label: "Not Applicable", value: -1 }]
+                      : []),
+                  ]}
+                >
+                  {employeesResult?.ReturnValue &&
+                    employeesResult.ReturnValue.map((checkedBy) => (
+                      <Option
+                        key={checkedBy.employeeId}
+                        value={checkedBy.employeeId}
+                      >
+                        {checkedBy.employeeName}
+                      </Option>
+                    ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={48} className="mb-3">
+            <Col span={6}>
+              <Form.Item
+                label={<span className="text-muted w-95">Section Name</span>}
+                name="SectionId"
+                rules={validationRules.Section}
+              >
+                <Select
+                  allowClear
+                  placeholder="Select Section Name"
+                  disabled={isViewMode}
+                  showSearch
+                  // onChange={handleSectionChange}
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  options={sections?.ReturnValue?.map((section) => ({
+                    label: section.sectionName,
+                    value: section.sectionId,
+                  }))}
+                  onChange={handleSectionChange}
+                  loading={sectionIsLoading}
+                  className="custom-disabled-select"
+                >
+                  {/* {troubles?.map((trouble) => (
                       <Select.Option
                         key={trouble.troubleId}
                         value={trouble.troubleId}
@@ -1106,480 +1132,509 @@ const RequestForm = React.forwardRef(() => {
                         {trouble.name}
                       </Select.Option>
                     ))} */}
-              </Select>
-            </Form.Item>
-          </Col>
+                </Select>
+              </Form.Item>
+            </Col>
 
-          <Col span={6}>
-            <Form.Item label="Area" name="area" rules={validationRules.Area}>
-              <Select
-              allowClear
-                disabled={isViewMode}
-                mode="multiple"
-                placeholder="Select Area"
-                showSearch={false}
-                loading={arealoading}
-                onChange={handleAreaChange}
-                // onChange={(selected) => {
-                //   if (selected.includes("all")) {
-                //     const allAreaIds =
-                //       areasResult?.ReturnValue.map(
-                //         (area: IArea) => area.AreaId
-                //       ) || [];
-                //     // If "Select All" is checked, select all items. Otherwise, clear selection.
-                //     form.setFieldValue(
-                //       "area",
-                //       selected.length === allAreaIds.length + 1
-                //         ? []
-                //         : allAreaIds
-                //     );
-                //   }
-                // }}
-              >
-                {/* "Select All" Option */}
-                {/* <Option key="all" value="all">
+            <Col span={6}>
+              <Form.Item label="Area" name="area" rules={validationRules.Area}>
+                <Select
+                  allowClear
+                  disabled={isViewMode}
+                  mode="multiple"
+                  placeholder="Select Area"
+                  showSearch={false}
+                  loading={arealoading}
+                  onChange={handleAreaChange}
+                  // onChange={(selected) => {
+                  //   if (selected.includes("all")) {
+                  //     const allAreaIds =
+                  //       areasResult?.ReturnValue.map(
+                  //         (area: IArea) => area.AreaId
+                  //       ) || [];
+                  //     // If "Select All" is checked, select all items. Otherwise, clear selection.
+                  //     form.setFieldValue(
+                  //       "area",
+                  //       selected.length === allAreaIds.length + 1
+                  //         ? []
+                  //         : allAreaIds
+                  //     );
+                  //   }
+                  // }}
+                >
+                  {/* "Select All" Option */}
+                  {/* <Option key="all" value="all">
                   Select All
                 </Option> */}
-                {/* Other Options */}
-                {areasResult?.ReturnValue &&
-                  areasResult.ReturnValue.map((area: IArea) => (
-                    <Option key={area.AreaId} value={area.AreaId}>
-                      {area.AreaName}
-                    </Option>
-                  ))}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item
-              label="Machine Name"
-              name="machineName"
-              rules={validationRules.Machine}
-            >
-              <Select
-                allowClear
-                disabled={
-                  isViewMode || (!isAdmin && submitted && !underamendment)
-                }
-                placeholder="Select Machine Name"
-                onChange={handleMachineChange}
-                loading={machineloading}
-                options={[
-                  ...(machinesResult?.ReturnValue?.map((machine) => ({
-                    label: machine.MachineName,
-                    value: machine.MachineId,
-                  })) || []),
-                  ...(machinesResult?.ReturnValue
-                    ? [{ label: "Other", value: -1 }]
-                    : []),
-                ]}
-              />
-            </Form.Item>
-
-            {showOtherMachine && (
+                  {/* Other Options */}
+                  {areasResult?.ReturnValue &&
+                    areasResult.ReturnValue.map((area: IArea) => (
+                      <Option key={area.AreaId} value={area.AreaId}>
+                        {area.AreaName}
+                      </Option>
+                    ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={6}>
               <Form.Item
-                label="Other Machine Name"
-                name="OtherMachine"
-                // rules={validationRules.OtherMachine}
+                label="Machine Name"
+                name="machineName"
+                rules={validationRules.Machine}
               >
-                <TextArea
+                <Select
+                  allowClear
                   disabled={
                     isViewMode || (!isAdmin && submitted && !underamendment)
                   }
-                  rows={1}
-                  maxLength={500}
-                  placeholder="Enter Other Machine"
+                  placeholder="Select Machine Name"
+                  onChange={handleMachineChange}
+                  loading={machineloading}
+                  options={[
+                    ...(machinesResult?.ReturnValue?.map((machine) => ({
+                      label: machine.MachineName,
+                      value: machine.MachineId,
+                    })) || []),
+                    ...(machinesResult?.ReturnValue
+                      ? [{ label: "Other", value: -1 }]
+                      : []),
+                  ]}
                 />
               </Form.Item>
-            )}
-          </Col>
-          <Col span={6}>
-            <Form.Item
-              label="Sub Machine Name"
-              name="subMachineName"
-              rules={validationRules.SubMachine}
-            >
-              <Select
-              allowClear
-                disabled={
-                  isViewMode || (!isAdmin && submitted && !underamendment)
-                }
-                mode="multiple"
-                placeholder="Select Sub Machine Name"
-                onChange={handleSubMachineChange}
-                options={[
-                  ...(selectedMachine !== 0 && selectedMachine !== -1
-                    ? [{ label: "All", value: -1 }]
-                    : []),
-                  ...(subMachinesResult?.ReturnValue?.filter(
-                    (submachine: ISubMachine) =>
-                      submachine.MachineId === selectedMachine
-                  )?.map((subdevice: ISubMachine) => ({
-                    label: subdevice.SubMachineName,
-                    value: subdevice.SubMachineId,
-                  })) || []),
-                  ...(selectedMachine !== 0
-                    ? [{ label: "Other", value: -2 }]
-                    : []),
-                ]}
-                loading={submachineloading}
-              />
-            </Form.Item>
 
-            {showOtherSubMachine && (
-              <Form.Item
-                label="Other Sub Machine Name "
-                name="OtherSubMachine"
-                // rules={validationRules.OtherSubMachine}
-              >
-                <TextArea
-                  disabled={
-                    isViewMode || (!isAdmin && submitted && !underamendment)
-                  }
-                  rows={1}
-                  maxLength={500}
-                  placeholder="Enter Other Sub Machine"
-                />
-              </Form.Item>
-            )}
-          </Col>
-        </Row>
-        <Row gutter={48} className="mb-3">
-          <Col span={6}>
-            <Form.Item
-              label="Describe Problem"
-              name="describeProblem"
-              rules={validationRules.DescribeProblem}
-            >
-              <TextArea
-                disabled={
-                  isViewMode || (!isAdmin && submitted && !underamendment)
-                }
-                rows={4}
-                maxLength={2000}
-                placeholder="Describe the problem"
-              />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            {/* Observation */}
-            <Form.Item
-              label="Observation"
-              name="observation"
-              rules={validationRules.Observation}
-            >
-              <TextArea
-                disabled={
-                  isViewMode || (!isAdmin && submitted && !underamendment)
-                }
-                rows={4}
-                maxLength={2000}
-                placeholder="Enter the observation"
-              />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item
-              label="Root Cause"
-              name="rootCause"
-              rules={validationRules.RootCause}
-            >
-              <TextArea
-                disabled={
-                  isViewMode || (!isAdmin && submitted && !underamendment)
-                }
-                rows={4}
-                maxLength={2000}
-                placeholder="Describe the root cause"
-              />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item
-              label="Adjustment Description"
-              name="adjustmentDescription"
-              rules={validationRules.AdjustmentDescription}
-            >
-              <TextArea
-                disabled={
-                  isViewMode || (!isAdmin && submitted && !underamendment)
-                }
-                rows={4}
-                maxLength={2000}
-                placeholder="Describe the adjustment made"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={48} className="mb-3">
-          <Col span={6}>
-            <Form.Item
-              label="Condition After Adjustment"
-              name="conditionAfterAdjustment"
-              rules={validationRules.ConditionAfterAdj}
-            >
-              <TextArea
-                disabled={
-                  isViewMode || (!isAdmin && submitted && !underamendment)
-                }
-                rows={2}
-                maxLength={2000}
-                placeholder="Describe the condition after adjustment"
-              />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item
-              label={
-                <span>
-                  {beforeImages?.length != 0 ? (
-                    <span style={{ color: "#CF1919", fontSize: "1.3rem" }}>
-                      *{" "}
-                    </span>
-                  ) : (
-                    ""
-                  )}
-                  <span className="text-muted">Before Attachments</span>
-                </span>
-              }
-              name="BeforeImages"
-              rules={
-                beforeImages?.length == 0 ? validationRules.attachment : null
-              }
-            >
-              {/* all types except exe  ,  max size -30MB  , no-10*/}
-              {console.log("USERID", user?.employeeId.toString())}
-              <FileUpload
-               disabled={
-                isViewMode || (!isAdmin && submitted && !underamendment)
-              }
-                key={`file-upload-before-images`}
-                folderName={
-                  form.getFieldValue("reportNo") !== ""
-                    ? form.getFieldValue("reportNo")
-                    : user?.employeeId.toString()
-                }
-                subFolderName={"Before Images"}
-                libraryName={DocumentLibraries.Adjustment_Attachments}
-                files={beforeImages?.map((a) => ({
-                  ...a,
-                  uid: a.AdjustmentBeforeImageId?.toString() ?? "",
-                  name: a.BeforeImgName,
-                  url: `${WEB_URL}/${a.BeforeImgPath}`,
-                }))}
-                setIsLoading={(loading: boolean) => {
-                  // setIsLoading(loading);
-                }}
-                isLoading={false}
-                onAddFile={async (name: string, url: string, file: File) => {
-                  const existingAttachments = beforeImages ?? [];
-                  console.log("FILES", existingAttachments);
-                  let imageBytes: string | null = null;
-
-                  if (file.type.startsWith("image")) {
-                    // Use FileReader to read the file as a Base64-encoded string
-                    imageBytes = await getBase64(file);
-                  } else {
-                    console.error("The file is not an image:", file.type);
-                  }
-                  debugger;
-                  const newAttachment: IBeforeImages = {
-                    AdjustmentBeforeImageId: 0,
-                    AdjustmentreportId: parseInt(id),
-                    BeforeImgName: name,
-                    BeforeImgPath: url,
-                    CreatedBy: user?.employeeId,
-                    ModifiedBy: user?.employeeId,
-                    BeforeImgBytes: imageBytes,
-                  };
-                  debugger;
-                  const updatedAttachments: IBeforeImages[] = [
-                    ...existingAttachments,
-                    newAttachment,
-                  ];
-                  void form.validateFields(["BeforeImages"]);
-
-                  setbeforeImages(updatedAttachments);
-                }}
-                onRemoveFile={async (documentName: string) => {
-                  const existingAttachments = beforeImages ?? [];
-
-                  const updatedAttachments = existingAttachments?.filter(
-                    (doc) => doc.BeforeImgName !== documentName
-                  );
-
-                  setbeforeImages(updatedAttachments);
-
-                  console.log("Validation successful after file removal");
-                  if (updatedAttachments?.length == 0) {
-                    form.setFieldValue("BeforeImages", []);
-                  }
-                  await form.validateFields(["BeforeImages"]);
-
-                  console.log("File Removed");
-                }}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={6}>
-            <Form.Item
-              label={<span>
-                {afterImages?.length != 0 ? (
-                  <span style={{ color: "#CF1919", fontSize: "1.3rem" }}>
-                    *{" "}
-                  </span>
-                ) : (
-                  ""
-                )}
-                <span className="text-muted">After Attachments</span>
-              </span>}
-              name="AfterImages"
-              rules={
-                afterImages?.length == 0 ? validationRules.attachment : null
-              }
-            >
-              <FileUpload
-               disabled={
-                isViewMode || (!isAdmin && submitted && !underamendment)
-              }
-                key={`file-upload-after-images`}
-                folderName={
-                  form.getFieldValue("reportNo") !== ""
-                    ? form.getFieldValue("reportNo")
-                    : user?.employeeId.toString()
-                }
-                subFolderName={"After Images"}
-                libraryName={DocumentLibraries.Adjustment_Attachments}
-                files={afterImages?.map((a) => ({
-                  ...a,
-                  uid: a.AdjustmentAfterImageId?.toString() ?? "",
-                  name: a.AfterImgName,
-                  url: `${WEB_URL}/${a.AfterImgPath}`,
-                }))}
-                setIsLoading={(loading: boolean) => {
-                  // setIsLoading(loading);
-                }}
-                isLoading={false}
-                onAddFile={async (name: string, url: string, file: File) => {
-                  const existingAttachments = afterImages ?? [];
-
-                  console.log("FileObject", file);
-                  console.log("After Files", existingAttachments);
-
-                  let imageBytes: string | null = null;
-
-                  if (file.type.startsWith("image")) {
-                    // Use FileReader to read the file as a Base64-encoded string
-
-                    imageBytes = await getBase64(file);
-                  } else {
-                    console.error("The file is not an image:", file.type);
-                  }
-
-                  const newAttachment: IAfterImages = {
-                    AdjustmentAfterImageId: 0,
-                    AdjustmentreportId: parseInt(id),
-                    AfterImgName: name,
-                    AfterImgBytes: imageBytes,
-                    AfterImgPath: url,
-                    CreatedBy: user?.employeeId,
-                    ModifiedBy: user?.employeeId,
-                  };
-
-                  const updatedAttachments: IAfterImages[] = [
-                    ...existingAttachments,
-                    newAttachment,
-                  ];
-
-                  void form.validateFields(["AfterImages"]);
-                  setafterImages(updatedAttachments);
-                }}
-                onRemoveFile={async (documentName: string) => {
-                  const existingAttachments = afterImages ?? [];
-
-                  const updatedAttachments = existingAttachments?.filter(
-                    (doc) => doc.AfterImgName !== documentName
-                  );
-
-                  setafterImages(updatedAttachments);
-
-                  console.log("Validation successful after file removal");
-                  if (updatedAttachments?.length == 0) {
-                    form.setFieldValue("AfterImages", []);
-                  }
-                  await form.validateFields(["AfterImages"]);
-
-                  console.log("After File Removed");
-                }}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <div>
-          <div
-            style={{ display: "flex", alignItems: "center", marginTop: "8px" }}
-          >
-            <span style={{ marginRight: 16 }}>
-              Change Risk Management Required ?
-            </span>
-            <Radio.Group
-              onChange={(e: any) => {
-                setCRMRequired(e.target.value);
-                setChangeRiskManagementDetails([]);
-              }}
-              value={cRMRequired}
-              name="cRMRequired"
-              disabled={isViewMode}
-            >
-              <Radio value={true} style={{ marginRight: 16 }}>
-                Yes
-              </Radio>
-              <Radio value={false}>No</Radio>
-            </Radio.Group>
-          </div>
-        </div>
-        {console.log("CHANGE RISK DATA", ChangeRiskManagementDetails)}{" "}
-        {cRMRequired ? (
-          <div>
-            <div className="d-flex justify-content-between my-3">
-              <p
-                className="mb-0"
-                style={{ fontSize: "20px", color: "#C50017" }}
-              >
-                Change Risk Management
-              </p>
-              {console.log("Mode", mode)}
-              {(mode == "add" || !isViewMode) && (
-                <button
-                  className="btn btn-primary mt-3"
-                  type="button"
-                  onClick={handleAdd}
+              {showOtherMachine && (
+                <Form.Item
+                  label="Other Machine Name"
+                  name="OtherMachine"
+                  // rules={validationRules.OtherMachine}
                 >
-                  <i className="fa-solid fa-circle-plus" /> Add
-                </button>
+                  <TextArea
+                    disabled={
+                      isViewMode || (!isAdmin && submitted && !underamendment)
+                    }
+                    rows={1}
+                    maxLength={500}
+                    placeholder="Enter Other Machine"
+                  />
+                </Form.Item>
               )}
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                label="Sub Machine Name"
+                name="subMachineName"
+                rules={validationRules.SubMachine}
+              >
+                <Select
+                  allowClear
+                  disabled={
+                    isViewMode || (!isAdmin && submitted && !underamendment)
+                  }
+                  mode="multiple"
+                  placeholder="Select Sub Machine Name"
+                  onChange={handleSubMachineChange}
+                  options={[
+                    ...(selectedMachine !== 0 && selectedMachine !== -1
+                      ? [{ label: "All", value: -1 }]
+                      : []),
+                    ...(subMachinesResult?.ReturnValue?.filter(
+                      (submachine: ISubMachine) =>
+                        submachine.MachineId === selectedMachine
+                    )?.map((subdevice: ISubMachine) => ({
+                      label: subdevice.SubMachineName,
+                      value: subdevice.SubMachineId,
+                    })) || []),
+                    ...(selectedMachine !== 0
+                      ? [{ label: "Other", value: -2 }]
+                      : []),
+                  ]}
+                  loading={submachineloading}
+                />
+              </Form.Item>
+
+              {showOtherSubMachine && (
+                <Form.Item
+                  label="Other Sub Machine Name "
+                  name="OtherSubMachine"
+                  // rules={validationRules.OtherSubMachine}
+                >
+                  <TextArea
+                    disabled={
+                      isViewMode || (!isAdmin && submitted && !underamendment)
+                    }
+                    rows={1}
+                    maxLength={500}
+                    placeholder="Enter Other Sub Machine"
+                  />
+                </Form.Item>
+              )}
+            </Col>
+          </Row>
+          <Row gutter={48} className="mb-3">
+            <Col span={6}>
+              <Form.Item
+                label="Describe Problem"
+                name="describeProblem"
+                rules={validationRules.DescribeProblem}
+              >
+                <TextArea
+                  disabled={
+                    isViewMode || (!isAdmin && submitted && !underamendment)
+                  }
+                  rows={4}
+                  maxLength={2000}
+                  placeholder="Describe the problem"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              {/* Observation */}
+              <Form.Item
+                label="Observation"
+                name="observation"
+                rules={validationRules.Observation}
+              >
+                <TextArea
+                  disabled={
+                    isViewMode || (!isAdmin && submitted && !underamendment)
+                  }
+                  rows={4}
+                  maxLength={2000}
+                  placeholder="Enter the observation"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                label="Root Cause"
+                name="rootCause"
+                rules={validationRules.RootCause}
+              >
+                <TextArea
+                  disabled={
+                    isViewMode || (!isAdmin && submitted && !underamendment)
+                  }
+                  rows={4}
+                  maxLength={2000}
+                  placeholder="Describe the root cause"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                label="Adjustment Description"
+                name="adjustmentDescription"
+                rules={validationRules.AdjustmentDescription}
+              >
+                <TextArea
+                  disabled={
+                    isViewMode || (!isAdmin && submitted && !underamendment)
+                  }
+                  rows={4}
+                  maxLength={2000}
+                  placeholder="Describe the adjustment made"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={48} className="mb-3">
+            <Col span={6}>
+              <Form.Item
+                label="Condition After Adjustment"
+                name="conditionAfterAdjustment"
+                rules={validationRules.ConditionAfterAdj}
+              >
+                <TextArea
+                  disabled={
+                    isViewMode || (!isAdmin && submitted && !underamendment)
+                  }
+                  rows={2}
+                  maxLength={2000}
+                  placeholder="Describe the condition after adjustment"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                label={
+                  <span>
+                    {beforeImages?.length != 0 ? (
+                      <span style={{ color: "#CF1919", fontSize: "1.3rem" }}>
+                        *{" "}
+                      </span>
+                    ) : (
+                      ""
+                    )}
+                    <span className="text-muted">Before Attachments</span>
+                  </span>
+                }
+                name="BeforeImages"
+                rules={
+                  beforeImages?.length == 0 ? validationRules.attachment : null
+                }
+              >
+                {/* all types except exe  ,  max size -30MB  , no-10*/}
+                {console.log("USERID", user?.employeeId.toString())}
+                <FileUpload
+                  disabled={
+                    isViewMode || (!isAdmin && submitted && !underamendment)
+                  }
+                  key={`file-upload-before-images`}
+                  folderName={
+                    form.getFieldValue("reportNo") !== ""
+                      ? form.getFieldValue("reportNo")
+                      : user?.employeeId.toString()
+                  }
+                  subFolderName={"Before Images"}
+                  libraryName={DocumentLibraries.Adjustment_Attachments}
+                  files={beforeImages?.map((a) => ({
+                    ...a,
+                    uid: a.AdjustmentBeforeImageId?.toString() ?? "",
+                    name: a.BeforeImgName,
+                    url: "",
+                  }))}
+                  setIsLoading={(loading: boolean) => {
+                    // setIsLoading(loading);
+                  }}
+                  isLoading={false}
+                  onAddFile={async (name: string, url: string, file: File) => {
+                    const existingAttachments = beforeImages ?? [];
+                    console.log("FILES", existingAttachments);
+                    let imageBytes: string | null = null;
+
+                    if (file.type.startsWith("image")) {
+                      // Use FileReader to read the file as a Base64-encoded string
+                      imageBytes = await getBase64(file);
+                    } else {
+                      console.error("The file is not an image:", file.type);
+                    }
+                    
+                    const newAttachment: IBeforeImages = {
+                      AdjustmentBeforeImageId: 0,
+                      AdjustmentreportId: parseInt(id),
+                      BeforeImgName: name,
+                      BeforeImgPath: url,
+                      CreatedBy: user?.employeeId,
+                      ModifiedBy: user?.employeeId,
+                      BeforeImgBytes: imageBytes,
+                    };
+                    
+                    const updatedAttachments: IBeforeImages[] = [
+                      ...existingAttachments,
+                      newAttachment,
+                    ];
+                    void form.validateFields(["BeforeImages"]);
+
+                    setbeforeImages(updatedAttachments);
+                  }}
+                  onRemoveFile={async (documentName: string) => {
+                    const existingAttachments = beforeImages ?? [];
+
+                    const updatedAttachments = existingAttachments?.filter(
+                      (doc) => doc.BeforeImgName !== documentName
+                    );
+
+                    setbeforeImages(updatedAttachments);
+
+                    console.log("Validation successful after file removal");
+                    if (updatedAttachments?.length == 0) {
+                      form.setFieldValue("BeforeImages", []);
+                    }
+                    await form.validateFields(["BeforeImages"]);
+
+                    console.log("File Removed");
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                label={
+                  <span>
+                    {afterImages?.length != 0 ? (
+                      <span style={{ color: "#CF1919", fontSize: "1.3rem" }}>
+                        *{" "}
+                      </span>
+                    ) : (
+                      ""
+                    )}
+                    <span className="text-muted">After Attachments</span>
+                  </span>
+                }
+                name="AfterImages"
+                rules={
+                  afterImages?.length == 0 ? validationRules.attachment : null
+                }
+              >
+                <FileUpload
+                  disabled={
+                    isViewMode || (!isAdmin && submitted && !underamendment)
+                  }
+                  key={`file-upload-after-images`}
+                  folderName={
+                    form.getFieldValue("reportNo") !== ""
+                      ? form.getFieldValue("reportNo")
+                      : user?.employeeId.toString()
+                  }
+                  subFolderName={"After Images"}
+                  libraryName={DocumentLibraries.Adjustment_Attachments}
+                  files={afterImages?.map((a) => ({
+                    ...a,
+                    uid: a.AdjustmentAfterImageId?.toString() ?? "",
+                    name: a.AfterImgName,
+                    url: "",
+                  }))}
+                  setIsLoading={(loading: boolean) => {
+                    // setIsLoading(loading);
+                  }}
+                  isLoading={false}
+                  onAddFile={async (name: string, url: string, file: File) => {
+                    const existingAttachments = afterImages ?? [];
+
+                    console.log("FileObject", file);
+                    console.log("After Files", existingAttachments);
+
+                    let imageBytes: string | null = null;
+
+                    if (file.type.startsWith("image")) {
+                      // Use FileReader to read the file as a Base64-encoded string
+
+                      imageBytes = await getBase64(file);
+                    } else {
+                      console.error("The file is not an image:", file.type);
+                    }
+
+                    const newAttachment: IAfterImages = {
+                      AdjustmentAfterImageId: 0,
+                      AdjustmentreportId: parseInt(id),
+                      AfterImgName: name,
+                      AfterImgBytes: imageBytes,
+                      AfterImgPath: url,
+                      CreatedBy: user?.employeeId,
+                      ModifiedBy: user?.employeeId,
+                    };
+
+                    const updatedAttachments: IAfterImages[] = [
+                      ...existingAttachments,
+                      newAttachment,
+                    ];
+
+                    void form.validateFields(["AfterImages"]);
+                    setafterImages(updatedAttachments);
+                  }}
+                  onRemoveFile={async (documentName: string) => {
+                    const existingAttachments = afterImages ?? [];
+
+                    const updatedAttachments = existingAttachments?.filter(
+                      (doc) => doc.AfterImgName !== documentName
+                    );
+
+                    setafterImages(updatedAttachments);
+
+                    console.log("Validation successful after file removal");
+                    if (updatedAttachments?.length == 0) {
+                      form.setFieldValue("AfterImages", []);
+                    }
+                    await form.validateFields(["AfterImages"]);
+
+                    console.log("After File Removed");
+                  }}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginTop: "8px",
+              }}
+            >
+              <span style={{ marginRight: 16 }}>
+                Change Risk Management Required ?
+              </span>
+              {console.log(
+                "Radio Group",
+                form.getFieldValue("cRMRequired"),
+                cRMRequired
+              )}
+              <Radio.Group
+                onChange={(e: any) => {
+                  setCRMRequired(e.target.value);
+                  setChangeRiskManagementDetails([]);
+                }}
+                value={cRMRequired}
+                name="cRMRequired"
+                // disabled={isViewMode}
+              >
+                <Radio
+                  disabled={
+                    isViewMode || (!isAdmin && submitted && !underamendment)
+                      ? !cRMRequired
+                      : false
+                  }
+                  value={true}
+                  style={{ marginRight: 16 }}
+                >
+                  Yes
+                </Radio>
+                <Radio
+                  disabled={
+                    isViewMode || (!isAdmin && submitted && !underamendment)
+                      ? cRMRequired
+                      : false
+                  }
+                  value={false}
+                >
+                  No
+                </Radio>
+              </Radio.Group>
             </div>
-            <Table
-              className="change-risk-table"
-              dataSource={ChangeRiskManagementDetails}
-              columns={nestedTableColumns}
-              scroll={{ x: "max-content" }}
-              // locale={{
-              //   emptyText: (
-              //     <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              //       <Empty description="No Data Available" />
-              //     </div>
-              //   ),
-              // }}
-            />
           </div>
-        ) : (
-          <></>
-        )}
-      </Form>
+          {console.log("CHANGE RISK DATA", ChangeRiskManagementDetails)}{" "}
+          {cRMRequired ? (
+            <div>
+              <div className="d-flex justify-content-between my-3">
+                <p
+                  className="mb-0"
+                  style={{ fontSize: "20px", color: "#C50017" }}
+                >
+                  Change Risk Management
+                </p>
+                {console.log("Mode", mode)}
+                {(mode == "add" || !isViewMode) && (
+                  <button
+                    className="btn btn-primary mt-3"
+                    type="button"
+                    onClick={handleAdd}
+                  >
+                    <i className="fa-solid fa-circle-plus" /> Add
+                  </button>
+                )}
+              </div>
+              <Table
+                className="change-risk-table"
+                dataSource={ChangeRiskManagementDetails}
+                columns={nestedTableColumns}
+                scroll={{ x: "max-content" }}
+                // locale={{
+                //   emptyText: (
+                //     <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                //       <Empty description="No Data Available" />
+                //     </div>
+                //   ),
+                // }}
+              />
+            </div>
+          ) : (
+            <></>
+          )}
+        </Form>
+        <Spin spinning={formisLoading || savingData} fullscreen />
       </div>
     </>
   );
-});
+};
 
 export default RequestForm;

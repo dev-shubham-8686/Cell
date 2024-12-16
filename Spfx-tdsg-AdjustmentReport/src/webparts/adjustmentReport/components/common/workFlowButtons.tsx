@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Modal, Input, Form, Select, Row, Col, Radio } from "antd";
+import { Button, Modal, Input, Form, Select, Row, Col, Radio, Spin } from "antd";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import * as React from "react";
 import { useUserContext } from "../../context/UserContext";
@@ -25,7 +25,7 @@ interface WorkFlowButtonsProps {
   existingAdjustmentReport: any;
   isFormModified: boolean;
   departmentHead: boolean;
-  depDivHead?:boolean
+  depDivHead?: boolean;
 }
 
 const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
@@ -33,7 +33,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   existingAdjustmentReport,
   isFormModified,
   departmentHead,
-  depDivHead
+  depDivHead,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -48,11 +48,15 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   const [form] = Form.useForm();
   const { user } = useUserContext();
   const { id, mode } = useParams();
-  const { mutate: approveAskToAmend } = useUpdateApproveAskToAmend();
-  const { mutate: pullback } = usePullBack();
+  const { mutate: approveAskToAmend ,isLoading:approving } = useUpdateApproveAskToAmend();
+  const { mutate: pullback , isLoading:pullingBack } = usePullBack();
   const { data: advisors = [] } = useGetAllAdvisors();
-  const { data: departmentHeads  } = useGetAdditionalDepartmentHeads(user?.departmentId ?? 0);
-  const { data: cellDepartments  } = useGetCellDepartmentsById(user?.departmentId ?? 0);
+  const { data: departmentHeads } = useGetAdditionalDepartmentHeads(
+    user?.departmentId ?? 0
+  );
+  const { data: cellDepartments } = useGetCellDepartmentsById(
+    user?.departmentId ?? 0
+  );
 
   console.log({ departmentHeads });
   const [isApprovalSectionVisible, setApprovalSectionVisible] = useState(false);
@@ -96,10 +100,6 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
     );
   }, [currentApproverTask]);
 
-
-
-
-
   const handleCancel = () => {
     // Reset or close the approval section
     setApprovalSectionVisible(false);
@@ -116,26 +116,27 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
     comment: string,
     approvalSequence?: any
   ): Promise<void> => {
-    debugger
-    if(isApprovalSectionVisible && approvalSequence?.length==0){
-      void showErrorMsg("Please Select Addition Approvals")
-      setApprovalSectionVisible(false)
-      return ;
+    
+    if (isApprovalSectionVisible && approvalSequence?.length == 0) {
+      void showErrorMsg("Please Select Addition Approvals");
+      setApprovalSectionVisible(false);
+      return;
     }
-    const updatedApprovalSequence = approvalSequence?.map((sequenceItem:any,index: number) => {
-      const employee = departmentHeads.find(
-        (head) => head.EmployeeId == sequenceItem.EmployeeId
-      );
-      debugger
-      debugger
-      return {
-        ...sequenceItem,
-        DepartmentId: employee?.DepartmentId || null, // Add DepartmentId or null if not found
-        ApprovalSequence: index + 1,
-      };
-      
-    });
-   
+    const updatedApprovalSequence = approvalSequence?.map(
+      (sequenceItem: any, index: number) => {
+        const employee = departmentHeads.find(
+          (head) => head.EmployeeId == sequenceItem.EmployeeId
+        );
+        
+        
+        return {
+          ...sequenceItem,
+          DepartmentId: employee?.DepartmentId || null, // Add DepartmentId or null if not found
+          ApprovalSequence: index + 1,
+        };
+      }
+    );
+
     const data: IApproveAskToAmendPayload = {
       ApproverTaskId: currentApproverTask.approverTaskId,
       CurrentUserId: user?.employeeId ? user?.employeeId : 0,
@@ -143,11 +144,11 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
       Comment: comment,
       AdjustmentId: id ? parseInt(id) : 0,
       AdditionalDepartmentHeads:
-      updatedApprovalSequence as IAdditionalDepartmentHeads[],
-      IsDivHeadRequired:form.getFieldValue("DivisionHeadApprovalRequired") 
+        updatedApprovalSequence as IAdditionalDepartmentHeads[],
+      IsDivHeadRequired: form.getFieldValue("DivisionHeadApprovalRequired"),
     };
-    
-console.log("Approve a to a payload ",data)
+
+    console.log("Approve a to a payload ", data);
     approveAskToAmend(data, {
       onSuccess: () => {
         navigate("/", {
@@ -157,7 +158,6 @@ console.log("Approve a to a payload ",data)
         });
       },
     });
-    
   };
   const handleAskToAmend = async (comment: string): Promise<void> => {
     const data: IApproveAskToAmendPayload = {
@@ -167,22 +167,18 @@ console.log("Approve a to a payload ",data)
       Comment: comment,
       AdjustmentId: id ? parseInt(id, 10) : 0,
     };
-    
-    approveAskToAmend(
-      data,
-      {
-        onSuccess: () => {
-          navigate("/", {
-            state: {
-              currentTabState: "myapproval-tab",
-            },
-          });
 
-        }
-      }
-    );
+    approveAskToAmend(data, {
+      onSuccess: () => {
+        navigate("/", {
+          state: {
+            currentTabState: "myapproval-tab",
+          },
+        });
+      },
+    });
   };
-  
+
   const handlePullBack = async (comment: string): Promise<void> => {
     const data: IPullBack = {
       AdjustmentReportId: id ? parseInt(id, 10) : 0,
@@ -190,14 +186,11 @@ console.log("Approve a to a payload ",data)
       comment: comment,
     };
 
-    pullback(
-      data,
-      {
-        onSuccess: (data) => {
-          navigate("/");
-        }
-      }
-    );
+    pullback(data, {
+      onSuccess: (data) => {
+        navigate("/");
+      },
+    });
   };
   // Handle the submit action after getting the comment
   const handleSubmit = async () => {
@@ -207,8 +200,7 @@ console.log("Approve a to a payload ",data)
       setLoading(true);
 
       const comment = values.comment; // Get the validated comment
-     
-      
+
       if (actionType === "approve") {
         await handleApprove(comment, values.approvalSequence);
       } else if (actionType === "amend") {
@@ -217,11 +209,10 @@ console.log("Approve a to a payload ",data)
         await handlePullBack(comment);
       }
       setIsModalVisible(false);
-      form.resetFields(); 
+      form.resetFields();
     } catch (errorInfo) {
-      
       console.log("Validation Failed:", errorInfo);
-      throw errorInfo; 
+      throw errorInfo;
     } finally {
       setLoading(false);
     }
@@ -263,10 +254,11 @@ console.log("Approve a to a payload ",data)
         </>
       ) : null}
       {existingAdjustmentReport?.IsSubmit &&
-      existingAdjustmentReport?.Status !== REQUEST_STATUS.UnderAmendment &&
+      (existingAdjustmentReport?.Status !== REQUEST_STATUS.UnderAmendment &&
+        existingAdjustmentReport?.Status !== REQUEST_STATUS.Completed) &&
       user?.employeeId === existingAdjustmentReport?.CreatedBy ? (
         <Button
-        className="btn btn-primary"        
+          className="btn btn-primary"
           onClick={() => handleClick("pullback")}
         >
           Pull Back
@@ -291,15 +283,9 @@ console.log("Approve a to a payload ",data)
           layout="vertical"
           initialValues={{ approvalSequence: [] }}
         >
-          
-
-         
-
           {/* Conditional Approval Section */}
-          {
-            isApprovalSectionVisible && <></>
-          }
-          {(departmentHead && actionType==ACTION_TYPE.Approve) && (
+          {isApprovalSectionVisible && <></>}
+          {departmentHead && actionType == ACTION_TYPE.Approve && (
             <>
               <Form.Item
                 label="Additional Approval Required?"
@@ -360,28 +346,32 @@ console.log("Approve a to a payload ",data)
                                     },
                                   ]}
                                 >
-                                  <Select placeholder="Select Department Head"
-                                  onChange={(value) => {
-                                    // Get the selected department for the chosen head
-                                    const selectedHead = departmentHeads.find(
-                                      (head) => head.EmployeeId === value
-                                    );
-                                    const departmentId = selectedHead?.DepartmentId || null;
-              
-                                    // Update both EmployeeId and DepartmentId in the form
-                                    form.setFieldsValue({
-                                      approvalSequence: form.getFieldValue("approvalSequence").map(
-                                        (sequence:any, index:any) =>
-                                          index === name
-                                            ? {
-                                                ...sequence,
-                                                EmployeeId: value,
-                                                DepartmentId: departmentId,
-                                              }
-                                            : sequence
-                                      ),
-                                    });
-                                  }}>
+                                  <Select
+                                    placeholder="Select Department Head"
+                                    onChange={(value) => {
+                                      // Get the selected department for the chosen head
+                                      const selectedHead = departmentHeads.find(
+                                        (head) => head.EmployeeId === value
+                                      );
+                                      const departmentId =
+                                        selectedHead?.DepartmentId || null;
+
+                                      // Update both EmployeeId and DepartmentId in the form
+                                      form.setFieldsValue({
+                                        approvalSequence: form
+                                          .getFieldValue("approvalSequence")
+                                          .map((sequence: any, index: any) =>
+                                            index === name
+                                              ? {
+                                                  ...sequence,
+                                                  EmployeeId: value,
+                                                  DepartmentId: departmentId,
+                                                }
+                                              : sequence
+                                          ),
+                                      });
+                                    }}
+                                  >
                                     {departmentHeads
                                       .filter(
                                         (departmentHead) =>
@@ -413,58 +403,69 @@ console.log("Approve a to a payload ",data)
                                   rules={[
                                     {
                                       required: true,
-                                      message:
-                                        "Please select Department",
+                                      message: "Please select Department",
                                     },
                                   ]}
                                 >
-                                  <Select placeholder="Select Sequence"
-                                  onChange={(value) => {
-                                    // Update only the DepartmentId for the specific row
-                                    form.setFieldsValue({
-                                      approvalSequence: form.getFieldValue("approvalSequence").map(
-                                        (sequence:any, index:any) =>
-                                          index === name
-                                            ? { ...sequence, DepartmentId: value }
-                                            : sequence
-                                      ),
-                                    });
-              
-                                    // Check if this DepartmentId maps to a Department Head
-                                    const departmentHead = departmentHeads.find(
-                                      (head) => head.DepartmentId === value
-                                    );
-              
-                                    // Update EmployeeId if a matching head exists
-                                    if (departmentHead) {
+                                  <Select
+                                    placeholder="Select Sequence"
+                                    onChange={(value) => {
+                                      // Update only the DepartmentId for the specific row
                                       form.setFieldsValue({
-                                        approvalSequence: form.getFieldValue("approvalSequence").map(
-                                          (sequence:any, index:any) =>
+                                        approvalSequence: form
+                                          .getFieldValue("approvalSequence")
+                                          .map((sequence: any, index: any) =>
                                             index === name
                                               ? {
                                                   ...sequence,
-                                                  EmployeeId: departmentHead.EmployeeId,
+                                                  DepartmentId: value,
                                                 }
                                               : sequence
-                                        ),
+                                          ),
                                       });
-                                    }
-                                  }}>
+
+                                      // Check if this DepartmentId maps to a Department Head
+                                      const departmentHead =
+                                        departmentHeads.find(
+                                          (head) => head.DepartmentId === value
+                                        );
+
+                                      // Update EmployeeId if a matching head exists
+                                      if (departmentHead) {
+                                        form.setFieldsValue({
+                                          approvalSequence: form
+                                            .getFieldValue("approvalSequence")
+                                            .map((sequence: any, index: any) =>
+                                              index === name
+                                                ? {
+                                                    ...sequence,
+                                                    EmployeeId:
+                                                      departmentHead.EmployeeId,
+                                                  }
+                                                : sequence
+                                            ),
+                                        });
+                                      }
+                                    }}
+                                  >
                                     {cellDepartments
-                                     .filter(
-                                      (department) =>
-                                        !selectedDpartments.includes(
-                                          department.DepartmentId
-                                        ) ||
-                                        department.DepartmentId ===
-                                          form.getFieldValue([
-                                            "approvalSequence",
-                                            name,
-                                            "DepartmentId",
-                                          ])
-                                    )
+                                      .filter(
+                                        (department) =>
+                                          !selectedDpartments.includes(
+                                            department.DepartmentId
+                                          ) ||
+                                          department.DepartmentId ===
+                                            form.getFieldValue([
+                                              "approvalSequence",
+                                              name,
+                                              "DepartmentId",
+                                            ])
+                                      )
                                       .map((department) => (
-                                        <Option key={department.DepartmentId} value={department.DepartmentId}>
+                                        <Option
+                                          key={department.DepartmentId}
+                                          value={department.DepartmentId}
+                                        >
                                           {department.DepartmentName}
                                         </Option>
                                       ))}
@@ -495,7 +496,7 @@ console.log("Approve a to a payload ",data)
                               onClick={() => add()}
                               block
                               icon={<i className="anticon anticon-plus" />}
-                              disabled={fields?.length >= 3} // Disable Add button if there are 3 or more fields
+                              disabled={fields?.length >= 2} // Disable Add button if there are 3 or more fields
                             >
                               Add Department Head
                             </Button>
@@ -528,7 +529,7 @@ console.log("Approve a to a payload ",data)
               )}
             </>
           )}
-          { (depDivHead  && actionType==ACTION_TYPE.Approve) &&
+          {depDivHead && actionType == ACTION_TYPE.Approve && (
             <Form.Item
               label="Divison Head approval required ?"
               name={"DivisionHeadApprovalRequired"}
@@ -538,19 +539,21 @@ console.log("Approve a to a payload ",data)
                 <Radio value={false}>No</Radio>
               </Radio.Group>
             </Form.Item>
-          }
+          )}
           <Form.Item
             label="Comments"
             name="comment"
-            rules={[{ required: true , message:"Please enter Comments"}]} // Validation rule
+            rules={[{ required: true, message: "Please enter Comments" }]} // Validation rule
           >
             <Input.TextArea
+            maxLength={500}
               rows={4}
               placeholder="Please provide your comment"
             />
           </Form.Item>
         </Form>
       </Modal>
+      <Spin spinning={approving || pullingBack} fullscreen />
     </>
   );
 };
