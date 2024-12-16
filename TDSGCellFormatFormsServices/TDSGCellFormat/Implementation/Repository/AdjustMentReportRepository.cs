@@ -1233,7 +1233,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     //InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
 
-                   
+
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.AdjustMentPullback;
                 }
@@ -1370,7 +1370,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     var worksheet = workbook.Worksheets.Add("Adjustment Report");
 
                     // Get properties and determine columns to exclude
-                    var properties = excelData.GetType().GetGenericArguments()[0].GetProperties();
+                    // var properties = excelData.GetType().GetGenericArguments()[0].GetProperties();
+
+                    var properties = (type == 1 || type == 2)
+                                        ? typeof(AdjustmentReportExcelView).GetProperties()
+                                        : typeof(AdjustmentReportApprovalExcelView).GetProperties();
+
                     var columnsToExclude = new List<int>(); // Adjust this list based on your exclusion logic
 
                     // Write header, excluding specified columns
@@ -1532,8 +1537,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     subMachineString = string.Join(", ", subMachineNames);
                 }
-                
-                
+
+
 
                 sb.Replace("#submachineName#", subMachineString);
                 sb.Replace("#area#", areaNamesString);
@@ -1590,9 +1595,9 @@ namespace TDSGCellFormat.Implementation.Repository
                                  url1.BeforeImageDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
                     {
                         // Add image to a grid container
-                       // beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
-                       // beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto;\" />");
-                       // beforeImages.AppendLine("</div>");
+                        // beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                        // beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto;\" />");
+                        // beforeImages.AppendLine("</div>");
 
                         beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
                         beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
@@ -1608,7 +1613,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 }
                 // Wrap the images in a container for the grid structure
-               // string finalHtml = $"<div style=\"display: flex; flex-wrap: wrap; justify-content: space-between;\">{beforeImages}</div>";
+                // string finalHtml = $"<div style=\"display: flex; flex-wrap: wrap; justify-content: space-between;\">{beforeImages}</div>";
 
                 foreach (var url2 in afterImageUrl)
                 {
@@ -1631,7 +1636,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     }
                 }
-               // string afterhtml = $"<div style=\"display: flex; flex-wrap: wrap; justify-content: space-between;\">{afterImages}</div>";
+                // string afterhtml = $"<div style=\"display: flex; flex-wrap: wrap; justify-content: space-between;\">{afterImages}</div>";
                 // Replace placeholders in the HTML template
 
                 sb.Replace("#BeforeImg#", beforeImages.ToString());
