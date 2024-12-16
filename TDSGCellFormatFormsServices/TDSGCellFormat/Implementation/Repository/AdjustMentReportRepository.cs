@@ -20,6 +20,8 @@ using Microsoft.Graph.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using System.Buffers;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using Microsoft.VisualBasic;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -69,28 +71,98 @@ namespace TDSGCellFormat.Implementation.Repository
         #endregion
 
         #region Listing screen 
-
-        public async Task<List<AdjustmentReportView>> GetAllAdjustmentData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        public async Task<List<AdjustmentReportView>> GetAllAdjustmentData(
+    int createdBy,
+    int skip,
+    int take,
+    string? order,
+    string? orderBy,
+    string? searchColumn,
+    string? searchValue)
         {
-            //var admin = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+            var admin = _context.AdminApprovers
+                .Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true)
+                .Select(x => x.AdminId)
+                .FirstOrDefault();
+
+            // Fetch all the data from the database
             var listData = await _context.GetAdjustmentReportList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
-            var adjustmentData = new List<AdjustmentReportView>();
-            foreach (var item in listData)
+
+            // Check if the user is an admin
+            if (createdBy == admin)
             {
-                //  if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
-                adjustmentData.Add(item);
+                // Admin sees all records (including Draft status)
+                foreach (var item in listData)
+                {
+                    item.totalCount = listData.Count;  // Set totalCount to the total number of records
+                }
             }
-            return adjustmentData;
+            else
+            {
+                // Non-admin users: Exclude Draft status records
+                var filteredData = listData
+                    .Where(item => item.Status != ApprovalTaskStatus.Draft.ToString())
+                    .ToList();
+
+                // Set totalCount to the number of records excluding Draft status
+                foreach (var item in filteredData)
+                {
+                    item.totalCount = filteredData.Count;  // Set totalCount to the filtered count
+                }
+
+                return filteredData;  // Return filtered data for non-admin users
+            }
+
+            return listData;  // Return all data for admin users
         }
+
+        //public async Task<List<AdjustmentReportView>> GetAllAdjustmentData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        //{
+        //    var admin = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+        //    //var listData = await _context.GetAdjustmentReportList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+        //    //var adjustmentData = new List<AdjustmentReportView>();
+        //    //foreach (var item in listData)
+        //    //{
+        //    //    if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
+        //    //    {
+        //    //        adjustmentData.Add(item);
+        //    //    }
+        //    //}
+        //    //return adjustmentData;
+        //    // Fetch all the data from the database using your stored procedure or query
+        //    var listData = await _context.GetAdjustmentReportList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
+
+        //    // Step 1: Count the total records (filtered if the user is not admin)
+        //    int totalCount;
+
+        //    if (createdBy == admin)
+        //    {
+        //        // Admin sees all records, including Drafts
+        //        totalCount = listData.Count();
+        //    }
+        //    else
+        //    {
+        //        // Non-admin user only sees records that are not in Draft status
+        //        totalCount = listData.Count(item => item.Status != ApprovalTaskStatus.Draft.ToString());
+        //    }
+
+        //    // Step 2: Filter the list of records for non-admins (if needed)
+        //    if (createdBy != admin)
+        //    {
+        //        // Remove records that have Draft status if the user is not an admin
+        //        listData = listData.Where(item => item.Status != ApprovalTaskStatus.Draft.ToString()).ToList();
+        //    }
+
+        //    // Return the filtered list (admin sees everything, non-admins see non-Draft records)
+        //    return listData;
+        //}
 
         public async Task<List<AdjustmentReportView>> GetAllAdjustmentDataMyReq(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
-            //var admin = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
             var listData = await _context.GetAdjustmentReportMyReqList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
             var adjustmentData = new List<AdjustmentReportView>();
             foreach (var item in listData)
             {
-                //  if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
                 adjustmentData.Add(item);
             }
             return adjustmentData;
@@ -103,7 +175,6 @@ namespace TDSGCellFormat.Implementation.Repository
             var adjustmentData = new List<AdjustmentReportApproverView>();
             foreach (var item in listData)
             {
-                //  if (createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
                 adjustmentData.Add(item);
             }
             return adjustmentData;
@@ -243,7 +314,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     AdjustmentAfterImageId = attach.AdjustmentAfterImageId,
                     AfterImgName = attach.AfterImageDocName,
-                    AfterImgPath = attach.AfterImageDocFilePath
+                    AfterImgPath = attach.AfterImageDocFilePath,
+                    // AfterImgBytes = attach.
                 }).ToList();
             }
 
@@ -338,7 +410,8 @@ namespace TDSGCellFormat.Implementation.Repository
                                 RisksWithChanges = changeReport.RiskAssociated,
                                 Factors = changeReport.Factor,
                                 CounterMeasures = changeReport.CounterMeasures,
-                                DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null,
+                                DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null,
+                                //!string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null,
                                 PersonInCharge = changeReport.PersonInCharge,
                                 Results = changeReport.Results,
                                 CreatedBy = changeReport.CreatedBy,
@@ -491,7 +564,8 @@ namespace TDSGCellFormat.Implementation.Repository
                                 existingChange.RisksWithChanges = changeReport.RiskAssociated;
                                 existingChange.Factors = changeReport.Factor;
                                 existingChange.CounterMeasures = changeReport.CounterMeasures;
-                                existingChange.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null;
+                                existingChange.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null;
+                                //existingChange.DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null;
                                 existingChange.PersonInCharge = changeReport.PersonInCharge;
                                 existingChange.Results = changeReport.Results;
                                 existingChange.ModifiedBy = changeReport.ModifiedBy;
@@ -508,7 +582,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                     RisksWithChanges = changeReport.RiskAssociated,
                                     Factors = changeReport.Factor,
                                     CounterMeasures = changeReport.CounterMeasures,
-                                    DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateOnly.FromDateTime(DateTime.Parse(changeReport.DueDate)) : (DateOnly?)null,
+                                    DueDate = !string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null,
                                     PersonInCharge = changeReport.PersonInCharge,
                                     Results = changeReport.Results,
                                     CreatedBy = changeReport.CreatedBy,
@@ -535,7 +609,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             {
                                 existingAttachData.AfterImageDocName = attach.AfterImgName;
                                 existingAttachData.AfterImageDocFilePath = attach.AfterImgPath;
-                                existingAttachData.AfterImageBytes = attach.AfterImgBytes;
+                                //existingAttachData.AfterImageBytes = attach.AfterImgBytes;
                                 existingAttachData.IsDeleted = false;
                                 existingAttachData.ModifiedBy = attach.ModifiedBy;
                                 existingAttachData.ModifiedDate = DateTime.Now;
@@ -573,7 +647,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             {
                                 existingAttachData.BeforeImageDocName = attach.BeforeImgName;
                                 existingAttachData.BeforeImageDocFilePath = attach.BeforeImgPath;
-                                existingAttachData.BeforeImageBytes = attach.BeforeImgBytes;
+                                //existingAttachData.BeforeImageBytes = attach.BeforeImgBytes;
                                 existingAttachData.IsDeleted = false;
                                 existingAttachData.ModifiedBy = attach.ModifiedBy;
                                 existingAttachData.ModifiedDate = DateTime.Now;
@@ -723,7 +797,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 await _context.CallAdjustmentReportApproverMaterix(createdBy, adjustmentReportId);
 
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                await notificationHelper.SendAdjustmentEmai(adjustmentReportId, EmailNotificationAction.Submitted, string.Empty, 0);
+                await notificationHelper.SendAdjustmentEmail(adjustmentReportId, EmailNotificationAction.Submitted, string.Empty, 0);
+
+                //await notificationHelper.SendAdjustmentEmail(adjustmentReportId, EmailNotificationAction.SubmitAdvsior, string.Empty, 0);
 
                 res.Message = Enums.AdjustMentSubmit;
                 res.StatusCode = Enums.Status.Success;
@@ -769,7 +845,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
 
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                await notificationHelper.SendAdjustmentEmai(adjustmentReportId, EmailNotificationAction.ReSubmitted, string.Empty, 0);
+                await notificationHelper.SendAdjustmentEmail(adjustmentReportId, EmailNotificationAction.ReSubmitted, string.Empty, 0);
                 res.Message = Enums.AdjustMentReSubmit;
                 res.StatusCode = Enums.Status.Success;
             }
@@ -1062,6 +1138,8 @@ namespace TDSGCellFormat.Implementation.Repository
                             nextApproveTask.ModifiedDate = DateTime.Now;
                             await _context.SaveChangesAsync();
 
+                            var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                            await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Approved, asktoAmend.Comment, nextApproveTask.ApproverTaskId);
                         }
                         else
                         {
@@ -1071,11 +1149,13 @@ namespace TDSGCellFormat.Implementation.Repository
                                 adjustmentData.Status = ApprovalTaskStatus.Completed.ToString();
                                 await _context.SaveChangesAsync();
                             }
+
+
+                            var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                            await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Completed, asktoAmend.Comment);
                         }
                     }
 
-                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.SendEquipmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Approved, asktoAmend.Comment, asktoAmend.ApproverTaskId);
                 }
 
 
@@ -1099,7 +1179,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     InsertHistoryData(asktoAmend.AdjustmentId, FormType.EquipmentImprovement.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.UnderAmendment.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.UnderAmendment.ToString(), 0);
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.SendEquipmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Amended, asktoAmend.Comment, asktoAmend.ApproverTaskId);
+                    await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Amended, asktoAmend.Comment, asktoAmend.ApproverTaskId);
                 }
 
 
@@ -1129,6 +1209,9 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     await _context.SaveChangesAsync();
 
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.SendAdjustmentEmail(data.AdjustmentReportId, EmailNotificationAction.PullBack, string.Empty, 0);
+
                     var approverTaskDetails = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == data.AdjustmentReportId).ToList();
                     approverTaskDetails.ForEach(a =>
                     {
@@ -1150,8 +1233,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     //InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
 
-                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.SendAdjustmentEmai(data.AdjustmentReportId, EmailNotificationAction.PullBack, string.Empty, 0);
+
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.AdjustMentPullback;
                 }
@@ -1216,6 +1298,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Enums.Status.Success;
 
                 InsertHistoryData((int)request.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Advisor", request.Comment, adj.Status, Convert.ToInt32(request.AdvisorId), HistoryAction.Update.ToString(), 0);
+
+                var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                await notificationHelper.SendAdjustmentEmail(request.AdjustmentReportId, EmailNotificationAction.AdvisorData, string.Empty, 0);
             }
 
             catch (Exception ex)
@@ -1239,7 +1324,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
             var advisorData = new AdjustmentAdvisor();
             advisorData.AdjustmentAdvisorId = res.AdjustmentAdvisorId;
-            advisorData.AdjustmentReportId = res.AdjustmentReportId;
+            advisorData.AdjustmentReportId = (int)res.AdjustmentReportId;
             advisorData.Comment = res.Comment;
 
             return advisorData;
@@ -1255,20 +1340,42 @@ namespace TDSGCellFormat.Implementation.Repository
 
             try
             {
-                var excelData = await _sprocRepository.GetStoredProcedure("[dbo].[GetAdjustmentReportExcel]")
-                .WithSqlParams(
-                    ("@FromDate", fromDate),
-                    ("@ToDate", todate),
-                    ("@EmployeeId", employeeId),
-                    ("@Type", type)
-                ).ExecuteStoredProcedureAsync<AdjustmentReportExcelView>();
+                var excelData = await _context.GetAdjustmentExcel(fromDate, todate, employeeId, type);
+
+
+                // Check if data is returned
+                if (excelData == null || excelData.Count == 0)
+                {
+                    res.StatusCode = Enums.Status.Error;
+                    res.Message = "No data found for the specified parameters.";
+                    return res;
+                }
+
+                // Additional filtering for Type = 3
+                if (type == 2)
+                {
+                    var adminId = _context.AdminApprovers
+                        .Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true)
+                        .Select(x => x.AdminId)
+                        .FirstOrDefault();
+
+                    excelData = excelData
+                        .Where(item => employeeId == adminId ||
+                                       item.GetType().GetProperty("Status")?.GetValue(item)?.ToString() != ApprovalTaskStatus.Draft.ToString())
+                        .ToList<object>();
+                }
 
                 using (var workbook = new XLWorkbook())
                 {
                     var worksheet = workbook.Worksheets.Add("Adjustment Report");
 
                     // Get properties and determine columns to exclude
-                    var properties = excelData.GetType().GetGenericArguments()[0].GetProperties();
+                    // var properties = excelData.GetType().GetGenericArguments()[0].GetProperties();
+
+                    var properties = (type == 1 || type == 2)
+                                        ? typeof(AdjustmentReportExcelView).GetProperties()
+                                        : typeof(AdjustmentReportApprovalExcelView).GetProperties();
+
                     var columnsToExclude = new List<int>(); // Adjust this list based on your exclusion logic
 
                     // Write header, excluding specified columns
@@ -1346,8 +1453,13 @@ namespace TDSGCellFormat.Implementation.Repository
 
         private static readonly Dictionary<string, string> ColumnHeaderMapping = new Dictionary<string, string>
         {
-            {"CreatedDate", "When" },
-            {"AreaName","Area" },
+            {"ReportNo", "Report No" },
+            {"AreaName","Area Name" },
+             {"IssueDate", "Date" },
+            {"MachineName","Machine Name" },
+            {"SubMachineName", "Sub-Machine Name" },
+            {"Requestor","Adjustment Done By" },
+                {"CurrentApprover","Current Approver" },
         };
 
         private string CapitalizeFirstLetter(string input)
@@ -1380,7 +1492,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 string templateFile = "AdjustmentReportPDF.html";
 
-                string templateFilePath = Path.Combine(projectRootDirectory, htmlTemplatePath, templateFile);
+                string templateFilePath = Path.Combine(baseDirectory, htmlTemplatePath, templateFile);
 
                 string? htmlTemplate = System.IO.File.ReadAllText(templateFilePath);
                 sb.Append(htmlTemplate);
@@ -1402,20 +1514,46 @@ namespace TDSGCellFormat.Implementation.Repository
                         areaNames.Add(areaName);
                     }
                 }
-
                 var areaNamesString = string.Join(", ", areaNames);
 
+                var subMachineId = adjustMentReportData.SubMachineName.Split(',').Select(id => int.Parse(id)).ToList();
+                var subMachineNames = new List<string>();
+                var subMachineString = string.Empty;
+
+                if (subMachineId.Contains(-1))
+                {
+                    subMachineString = "All";
+                }
+                else
+                {
+                    foreach (var id in subMachineId)
+                    {
+                        // Query database or use a dictionary/cache to get the name
+                        var subMachineName = _context.SubMachines.Where(x => x.SubMachineId == id && x.IsDeleted == false).Select(x => x.SubMachineName).FirstOrDefault(); // Replace this with your actual DB logic
+                        if (!string.IsNullOrEmpty(subMachineName))
+                        {
+                            subMachineNames.Add(subMachineName);
+                        }
+                    }
+                    subMachineString = string.Join(", ", subMachineNames);
+                }
+
+
+
+                sb.Replace("#submachineName#", subMachineString);
                 sb.Replace("#area#", areaNamesString);
                 sb.Replace("#reportno#", adjustMentReportData.ReportNo);
                 sb.Replace("#requestor#", applicant);
                 sb.Replace("#machinename#", machineName);
                 sb.Replace("#checkedby#", checkedBy);
-                sb.Replace("#when#", adjustMentReportData.When?.ToString("dd-MM-yyyy") ?? "N/A");
+                sb.Replace("#when#", adjustMentReportData.When?.ToString("dd-MM-yyyy HH:mm") ?? "N/A");
                 sb.Replace("#describeproblem#", adjustMentReportData.DescribeProblem);
                 sb.Replace("#observation#", adjustMentReportData.Observation);
                 sb.Replace("#rootcause#", adjustMentReportData.RootCause);
                 sb.Replace("#adjustmentdesciption#", adjustMentReportData.AdjustmentDescription);
                 sb.Replace("#conditionafteradjustment#", adjustMentReportData.ConditionAfterAdjustment);
+                sb.Replace("#preparedby#", applicant);
+                //preparedby
                 //sb.Replace("#Remarks#", data.FirstOrDefault()?.Remarks);
 
                 StringBuilder tableBuilder = new StringBuilder();
@@ -1429,9 +1567,11 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#divisionhead#", approvedByDivisionHead);
 
                 //local
-                var baseUrl = "https://synopsandbox.sharepoint.com/sites/Training2024";
+                //var baseUrl = "https://synopsandbox.sharepoint.com/sites/Training2024";
                 //stage
-                //var baseUrl = "https://tdsgj.sharepoint.com/sites/e-app-stage";
+                // var baseUrl = "https://tdsgj.sharepoint.com/sites/e-app-stage";
+                //QA
+                var baseUrl = "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA/";
                 var beforeImageUrl = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == adjustMentReportId
                          && x.IsDeleted == false)
                           // .Select(x => $"{baseUrl}{x.BeforeImageDocFilePath}")
@@ -1454,8 +1594,17 @@ namespace TDSGCellFormat.Implementation.Repository
                                  url1.BeforeImageDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
                                  url1.BeforeImageDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
                     {
+                        // Add image to a grid container
+                        // beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                        // beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto;\" />");
+                        // beforeImages.AppendLine("</div>");
+
+                        beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                        beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                        beforeImages.AppendLine("</div>");
+
                         // Add image tag
-                        beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
+                        //beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
                     }
                     else
                     {
@@ -1463,7 +1612,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
 
                 }
-
+                // Wrap the images in a container for the grid structure
+                // string finalHtml = $"<div style=\"display: flex; flex-wrap: wrap; justify-content: space-between;\">{beforeImages}</div>";
 
                 foreach (var url2 in afterImageUrl)
                 {
@@ -1473,8 +1623,12 @@ namespace TDSGCellFormat.Implementation.Repository
                                  url2.AfterImageDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
                                  url2.AfterImageDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
                     {
+                        // Add image to a grid container
+                        afterImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                        afterImages.AppendLine($"<img src=\"{url2.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                        afterImages.AppendLine("</div>");
                         // Add image tag
-                        afterImages.AppendLine($"<img src=\"{url2.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
+                        //afterImages.AppendLine($"<img src=\"{url2.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
                     }
                     else
                     {
@@ -1482,8 +1636,9 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     }
                 }
-
+                // string afterhtml = $"<div style=\"display: flex; flex-wrap: wrap; justify-content: space-between;\">{afterImages}</div>";
                 // Replace placeholders in the HTML template
+
                 sb.Replace("#BeforeImg#", beforeImages.ToString());
                 sb.Replace("#AfterImg#", afterImages.ToString());
 
