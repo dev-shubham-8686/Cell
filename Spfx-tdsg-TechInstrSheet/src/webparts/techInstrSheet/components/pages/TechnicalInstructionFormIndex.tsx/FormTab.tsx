@@ -389,7 +389,7 @@ const FormTab: React.FC<any> = ({
           </Col>
           <Col span={8}>
             <Form.Item
-              label="Target Closure Date"
+              label="Closure Date"
               name="targetClosureDate"
               rules={[{ required: true }]}
             >
