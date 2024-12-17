@@ -1902,7 +1902,7 @@ namespace TDSGCellFormat.Helper
                         switch (emailNotification)
                         {
                             case EmailNotificationAction.AdvisorData:
-                                templateFile = "Adjustment_Advisor";
+                                templateFile = "Adjustment_Advisor.html";
                                 emailSubject = string.Format("[Action required!] Adjustment_{0} Advisor Update the comments", adjustmentData.ReportNo);
                                 isRequestorinToEmail = true;
                                 break;
@@ -1917,7 +1917,7 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.ReSubmitted:
                                 templateFile = "Adjustment_Resubmitted.html";
-                                emailSubject = string.Format("[Action required!] Adjustment_{0}} has been Resubmitted", adjustmentData.ReportNo);
+                                emailSubject = string.Format("[Action required!] Adjustment_{0} has been Resubmitted", adjustmentData.ReportNo);
                                 isInReviewTask = true;
                                 approvelink = true;
                                 isRequestorinCCEmail = true;

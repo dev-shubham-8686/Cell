@@ -1121,7 +1121,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     //equipment.WorkFlowStatus = ApprovalTaskStatus.UnderAmendment.ToString();
                     await _context.SaveChangesAsync();
 
-                    InsertHistoryData(asktoAmend.AdjustmentId, FormType.EquipmentImprovement.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.UnderAmendment.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.UnderAmendment.ToString(), 0);
+                    InsertHistoryData(asktoAmend.AdjustmentId, FormType.EquipmentImprovement.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.UnderAmendment.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.AskToAmend.ToString(), 0);
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Amended, asktoAmend.Comment, asktoAmend.ApproverTaskId);
@@ -1242,7 +1242,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = Enums.AdjustmentUdpated;
                 res.StatusCode = Enums.Status.Success;
 
-                InsertHistoryData((int)request.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Advisor", request.Comment, adj.Status, Convert.ToInt32(request.AdvisorId), HistoryAction.Update.ToString(), 0);
+                InsertHistoryData((int)request.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Advisor", request.Comment, adj.Status, Convert.ToInt32(request.AdvisorId), HistoryAction.AdvisorUpdate.ToString(), 0);
 
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 await notificationHelper.SendAdjustmentEmail(request.AdjustmentReportId, EmailNotificationAction.AdvisorData, string.Empty, 0);
@@ -1483,7 +1483,47 @@ namespace TDSGCellFormat.Implementation.Repository
                     subMachineString = string.Join(", ", subMachineNames);
                 }
 
+                StringBuilder tableBuilder = new StringBuilder();
+                int serialNumber = 1;
 
+                if (data.Any() && data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
+
+                        // Add the serial number to the first column
+                        tableBuilder.Append("<td style=\"width: 3%; border: 1px solid black; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
+
+                        // Add the rest of the data to the respective columns
+                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Changes + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.FunctionId + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.RiskAssociatedWithChanges + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Factor + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.CounterMeasures + "</td>");
+                        //tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + (item.DueDate.HasValue ? item.DueDate.Value.ToString("dd-MM-yyyy") : "") + "</td>");
+                        //tableBuilder.Append($"<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">{(string.IsNullOrEmpty(item.DueDate) ? "" : item.DueDate)}</td>");
+                        DateTime parsedDate;
+                        tableBuilder.Append($"<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">{(DateTime.TryParse(item.DueDate, out parsedDate) ? parsedDate.ToString("dd-MM-yyyy") : "")}</td>");
+
+                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.PersonInCharge + "</td>");
+                        tableBuilder.Append("<td style=\"width: 20%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Results + "</td>");
+
+                        tableBuilder.Append("</tr>");
+                    }
+                }
+
+                // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
+                if (adjustMentReportData?.ChangeRiskManagementRequired == true)
+                {
+                    sb.Replace("#YesAsscociated#", "checked");
+                    sb.Replace("#NoAssociated#", "");
+                }
+                else
+                {
+                    sb.Replace("#YesAsscociated#", "");
+                    sb.Replace("#NoAssociated#", "checked");
+                }
 
                 sb.Replace("#submachineName#", subMachineString);
                 sb.Replace("#area#", areaNamesString);
@@ -1501,7 +1541,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 //preparedby
                 //sb.Replace("#Remarks#", data.FirstOrDefault()?.Remarks);
 
-                StringBuilder tableBuilder = new StringBuilder();
+                //StringBuilder tableBuilder = new StringBuilder();
 
                 string approvedBySectionHead = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByDepartmentHead = approverData.FirstOrDefault(a => a.SequenceNo == 3)?.employeeNameWithoutCode ?? "N/A";
