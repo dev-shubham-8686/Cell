@@ -280,7 +280,7 @@ const FormTab: React.FC<any> = ({
             <Form.Item
               label="Quantity"
               name="quantity"
-              rules={[{ required: true }]}
+              //rules={[{ required: true }]}
             >
               <InputNumber
                 style={{ width: "95%" }}
