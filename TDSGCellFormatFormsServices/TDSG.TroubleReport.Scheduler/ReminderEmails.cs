@@ -91,7 +91,7 @@ namespace TDSG.TroubleReport.Scheduler
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendEmailNotification");
                 return false;
             }
@@ -148,7 +148,7 @@ namespace TDSG.TroubleReport.Scheduler
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendEmailBySharePoint");
                 return false;
             }
@@ -289,7 +289,7 @@ namespace TDSG.TroubleReport.Scheduler
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendEmail");
                 return false;
             }

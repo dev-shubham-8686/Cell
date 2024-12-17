@@ -102,7 +102,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendEmailNotification");
                 return false;
             }
@@ -164,7 +164,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendEmailBySharePoint");
                 return false;
             }
@@ -741,7 +741,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendEmail");
                 return false;
             }
@@ -1021,7 +1021,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendMaterialConsumptionEmail");
                 return false;
             }
@@ -1517,7 +1517,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendEquipmentEmail");
                 return false;
             }
@@ -1816,7 +1816,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendTechnicalInstructionEmail");
                 return false;
             }
@@ -2131,7 +2131,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Send Adjustment");
                 return false;
             }
