@@ -671,7 +671,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Adjustment AddOrUpdate");
 
             }
@@ -754,7 +754,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Adjustment SubmitRequest");
                 //return res;
             }
@@ -798,7 +798,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Adjustment Resubmit");
                 //return res;
             }
@@ -1133,7 +1133,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Adjustment UpdateApproveAskToAmend");
             }
             return res;
@@ -1187,7 +1187,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Adjustment PullBack");
                 // return res;
             }
@@ -1252,7 +1252,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "AddOrUpdateAdvisorData");
             }
             return res;
@@ -1390,7 +1390,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "GetAdjustmentReportExcel");
                 return res;
             }
@@ -1512,6 +1512,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         tableBuilder.Append("</tr>");
                     }
                 }
+                sb.Replace("#ChangeriskTable#", tableBuilder.ToString());
 
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
                 if (adjustMentReportData?.ChangeRiskManagementRequired == true)
@@ -1680,7 +1681,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Enums.Status.Error;
 
                 // Log the exception using your logging mechanism
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ExportToPdf");
 
                 return res;

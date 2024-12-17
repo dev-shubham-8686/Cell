@@ -68,7 +68,7 @@ namespace TDSG.CellForms.SubstituteScheduler.Scheduler
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_cellContext);
+                var commonHelper = new CommonHelper(_cellContext, _dbContext);
                 commonHelper.LogException(ex, "Equipment Substitute Scheduler");
                 //return false;
                 Console.WriteLine("error" + ex.Message);
