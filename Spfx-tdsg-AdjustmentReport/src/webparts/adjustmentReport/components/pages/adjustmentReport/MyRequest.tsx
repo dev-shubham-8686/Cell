@@ -237,7 +237,7 @@ console.log("location",location.state)
             </button>
           )}
 {console.log("My Req Data",record)}
-          {record.Status === REQUEST_STATUS.Completed ||true && (
+          {record.Status === REQUEST_STATUS.Completed && (
             <button
               type="button"
               style={{ background: "none", border: "none" }}
