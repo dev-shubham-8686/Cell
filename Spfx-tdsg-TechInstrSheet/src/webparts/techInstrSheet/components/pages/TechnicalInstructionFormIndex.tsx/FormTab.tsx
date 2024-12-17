@@ -186,7 +186,7 @@ const FormTab: React.FC<any> = ({
                 format="DD-MM-YYYY"
                 placeholder="Select Date"
                 disabledDate={(current) =>
-                  current && current < dayjs().endOf("day")
+                  current && current < dayjs().startOf("day") // Disable past dates
                 }
                 disabled={isViewMode}
               />
@@ -381,7 +381,7 @@ const FormTab: React.FC<any> = ({
                 format="DD-MM-YYYY"
                 placeholder="Select Date"
                 disabledDate={(current) =>
-                  current && current < dayjs().endOf("day")
+                  current && current < dayjs().startOf("day") // Disable past dates
                 }
                 disabled={isViewMode}
               />
