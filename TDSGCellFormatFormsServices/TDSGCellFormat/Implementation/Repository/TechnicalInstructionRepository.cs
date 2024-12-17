@@ -2090,8 +2090,12 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     // Get properties and determine columns to exclude
                     var properties = excelData.GetType().GetGenericArguments()[0].GetProperties();
-                    var columnsToExclude = new List<int>(); // Adjust this list based on your exclusion logic
+                    var columnsToExclude = new List<int>() { 9 }; // Adjust this list based on your exclusion logic
 
+                    if(type == 2)
+                    {
+                        columnsToExclude.Add(6);
+                    }
                     // Write header, excluding specified columns
                     int columnIndex = 1;
 
@@ -2172,6 +2176,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {"HasAttachments","Attachment" },
             {"TargetClosureDate","Closure Date" },
             {"EquipmentNames","Equipment" },
+            {"CurrentApprover", "Current Approver" }
             //{"ClosedDate","Closed Date" }
         };
 

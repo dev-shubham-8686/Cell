@@ -206,6 +206,8 @@ namespace TDSGCellFormat.Models.Add
 
         public string? Requestor { get; set; }
 
+        public string? CurrentApprover { get; set; }
+
         //public string? IssuedBy { get; set; }
         //public string? Department { get; set; }
 
