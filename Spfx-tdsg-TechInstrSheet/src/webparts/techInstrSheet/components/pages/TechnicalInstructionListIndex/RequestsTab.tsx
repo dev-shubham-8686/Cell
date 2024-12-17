@@ -125,7 +125,8 @@ const RequestsTab: React.FC = () => {
     notifyCellDivPart(mailTriggerTechnicalId)
       .then(async (response) => {
         setMailLoading(false);
-        const emailList = response.ReturnValue.emails; // Comma-separated emails
+        //const emailList = response.ReturnValue.emails; // Comma-separated emails
+        const emailList = "digital-team@tdsg.co.in";
         const pdfBase64 = response.ReturnValue.pdf; // Base64 string of PDF
         const subject = `Notification for ${mailTriggerCtinumber}`;
         let pdf_url_link = "";
@@ -522,10 +523,20 @@ const RequestsTab: React.FC = () => {
       title: "Requestor",
       dataIndex: "IssuedBy",
       key: "IssuedBy",
-      width: "20%",
+      width: "10%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
       ...getColumnSearchProps("IssuedBy", "Requestor"),
+    },
+    {
+      title: "Current Approver",
+      dataIndex: "CurrentApprover",
+      key: "CurrentApprover",
+      width: "10%",
+      sorter: true,
+      sortDirections: ["ascend", "descend"],
+      render: (text) => <span>{text ?? "-"}</span>,
+      ...getColumnSearchProps("CurrentApprover", "Current Approver"),
     },
     {
       title: "Closure Date",
@@ -728,7 +739,13 @@ const RequestsTab: React.FC = () => {
       {
         dataIndex: "IssuedBy",
         key: "IssuedBy",
-        width: "20%",
+        width: "10%",
+        render: (text) => <span className="m-0">{text ?? "-"}</span>,
+      },
+      {
+        dataIndex: "CurrentApprover",
+        key: "CurrentApprover",
+        width: "10%",
         render: (text) => <span className="m-0">{text ?? "-"}</span>,
       },
       {

@@ -25,7 +25,7 @@ interface IFileUpload {
   subFolderName?: string;
   files: UploadFile<any>[];
   setIsLoading: (isLoading: boolean) => void;
-  onAddFile: (documentName: string, documentFilePath: string) => void;
+  onAddFile: (documentName: string, documentFilePath: string ,file:File) => void;
   onRemoveFile: (documentName: string) => void;
   disabled?: boolean; // disabled when mode is view and submitted
   isLoading?: boolean;
@@ -221,9 +221,9 @@ debugger
         
         onAddFile(
           jsonResponse.Name,
-          fullPath.substring(fullPath.indexOf(`/${libraryName}`))
+          fullPath.substring(fullPath.indexOf(`/${libraryName}`)),
+          file
         );
-        // onAddFile("name","path")
         return true;
       }
     } catch (error) {

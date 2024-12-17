@@ -57,6 +57,7 @@ export interface ICurrentSituationAttachments{
   EquipmentCurrSituationAttachmentId:number;
   EquipmentImprovementId:number;
   CurrSituationDocName:string;
+  CurrentImgBytes?:string
   CurrSituationDocFilePath:string;
   CreatedBy?:number;
   ModifiedBy?:number;
@@ -66,6 +67,7 @@ export interface IImprovementAttachments{
   EquipmentImprovementId:number;
   ImprovementDocName:string;
   ImprovementDocFilePath:string;
+  ImprovementImgBytes?:string;
   CreatedBy:number;
   ModifiedBy:number;
 }
