@@ -588,7 +588,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Material SubmitRequest");
                 //return res;
             }
@@ -685,7 +685,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Material UpdateApproveAskToAmend");
 
             }
@@ -733,7 +733,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Material ReSubmitRequest");
                 //return res;
             }
@@ -785,7 +785,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Material PullbackRequest");
                 return res;
             }
@@ -902,7 +902,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "CloseMaterial");
                 return res;
             }
@@ -1047,7 +1047,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Enums.Status.Error;
 
                 // Log the exception using your logging mechanism
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ExportMaterialConsumptionToExcel");
 
                 return res;
@@ -1160,7 +1160,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Enums.Status.Error;
 
                 // Log the exception using your logging mechanism
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Material ExportToPdf");
 
                 return res;
@@ -1250,7 +1250,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "GetMaterialConsumptionExcel");
                 return res;
             }
