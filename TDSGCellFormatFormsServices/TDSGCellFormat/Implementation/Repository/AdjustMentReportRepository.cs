@@ -439,7 +439,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     else
                     {
-                        InsertHistoryData(adjustMentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Update Status as Draft", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
+                        InsertHistoryData(adjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update Status as Draft", ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
                     }
 
 
@@ -653,12 +653,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         if (request.ModifiedBy == adminId)
                         {
-                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AjustmentReport.ToString(), "Admin", "Update the Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
+                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Admin", "Update the Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
 
                         }
                         else
                         {
-                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
+                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
 
                         }
                     }
@@ -730,12 +730,12 @@ namespace TDSGCellFormat.Implementation.Repository
                 var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
                 if (createdBy == adminId)
                 {
-                    InsertHistoryData(adjustmentReportId, FormType.AjustmentReport.ToString(), "Admin", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.Submit.ToString(), 0);
+                    InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Admin", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.Submit.ToString(), 0);
 
                 }
                 else
                 {
-                    InsertHistoryData(adjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.Submit.ToString(), 0);
+                    InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.Submit.ToString(), 0);
 
                 }
 
@@ -780,12 +780,12 @@ namespace TDSGCellFormat.Implementation.Repository
                 var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
                 if (createdBy == adminId)
                 {
-                    InsertHistoryData(adjustmentReportId, FormType.AjustmentReport.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.ReSubmitted.ToString(), 0);
+                    InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.ReSubmitted.ToString(), 0);
 
                 }
                 else
                 {
-                    InsertHistoryData(adjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
+                    InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
 
                 }
 
@@ -947,6 +947,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             var res = new AjaxResult();
             ///bool result = false;
+            var commonHelper = new CommonHelper(_context, _cloneContext);
             try
             {
                 var requestTaskData = _context.AdjustmentReportApproverTaskMasters.Where(x => x.ApproverTaskId == asktoAmend.ApproverTaskId && x.IsActive == true
@@ -971,7 +972,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     res.Message = Enums.AdjustMentApprove;
 
-                    InsertHistoryData(asktoAmend.AdjustmentId, FormType.EquipmentImprovement.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.Approved.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.Approved.ToString(), 0);
+                    InsertHistoryData(asktoAmend.AdjustmentId, FormType.AdjustmentReport.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.Approved.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.Approved.ToString(), 0);
 
                     if (asktoAmend.IsDivHeadRequired == true)
                     {
@@ -984,15 +985,6 @@ namespace TDSGCellFormat.Implementation.Repository
                             await _context.SaveChangesAsync();
                         }
                     }
-                    //if (asktoAmend.AdvisorId != null && asktoAmend.AdvisorId > 0)
-                    //{
-                    //    var advisorData = new AdjustmentAdvisorMaster();
-                    //    advisorData.EmployeeId = asktoAmend.AdvisorId;
-                    //    advisorData.IsActive = true;
-                    //    advisorData.AdjustmentReportId = asktoAmend.AdjustmentId;
-                    //    _context.AdjustmentAdvisorMasters.Add(advisorData);
-                    //    await _context.SaveChangesAsync();
-                    //}
 
                     if (asktoAmend.AdditionalDepartmentHeads != null && asktoAmend.AdditionalDepartmentHeads.Count > 0)
                     {
@@ -1014,14 +1006,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         var departmentHead1 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 1 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
                         var departmentId1 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 1 && x.IsActive == true).Select(x => x.DepartmentId).FirstOrDefault();
                         var departMentName1 = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID == departmentId1).Select(x => x.Name).FirstOrDefault();
-                        //var departmentName1 = (from aad in _context.AdjustmentAdditionalDepartmentHeadMasters
-                        //                       join dm in _cloneContext.DepartmentMasters
-                        //                       on aad.DepartmentId equals dm.DepartmentID
-                        //                       where aad.AdjustmentReportId == asktoAmend.AdjustmentId
-                        //                             && aad.ApprovalSequence == 1
-                        //                             && aad.IsActive == true
-                        //                       select dm.Name).FirstOrDefault();
-
+                       
                         if (otherdepartmenthead1 != null && departmentHead1 > 0)
                         {
                             otherdepartmenthead1.AssignedToUserId = departmentHead1;
@@ -1067,8 +1052,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     if (currentApproverTask != null)
                     {
-                        // var nextApproveTask = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == requestTaskData.AdjustmentReportId && x.IsActive == true
-                        //&& x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (requestTaskData.SequenceNo) + 1).ToList();
                         var nextApproveTask = _context.AdjustmentReportApproverTaskMasters
                                                       .Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId
                                                        && x.IsActive == true
@@ -1078,7 +1061,11 @@ namespace TDSGCellFormat.Implementation.Repository
                                                              .FirstOrDefault();
                         if (nextApproveTask != null)
                         {
-
+                           // int substituteUserId = 0;
+                           // int substitutePer = nextApproveTask.AssignedToUserId ?? 0;
+                           // substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
+                           // 
+                           // nextApproveTask.AssignedToUserId = substituteUserId;
                             nextApproveTask.Status = ApprovalTaskStatus.InReview.ToString();
                             nextApproveTask.ModifiedDate = DateTime.Now;
                             await _context.SaveChangesAsync();
@@ -1094,7 +1081,6 @@ namespace TDSGCellFormat.Implementation.Repository
                                 adjustmentData.Status = ApprovalTaskStatus.Completed.ToString();
                                 await _context.SaveChangesAsync();
                             }
-
 
                             var notificationHelper = new NotificationHelper(_context, _cloneContext);
                             await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Completed, asktoAmend.Comment);
@@ -1121,7 +1107,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     //equipment.WorkFlowStatus = ApprovalTaskStatus.UnderAmendment.ToString();
                     await _context.SaveChangesAsync();
 
-                    InsertHistoryData(asktoAmend.AdjustmentId, FormType.EquipmentImprovement.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.UnderAmendment.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.AskToAmend.ToString(), 0);
+                    InsertHistoryData(asktoAmend.AdjustmentId, FormType.AdjustmentReport.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.UnderAmendment.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.AskToAmend.ToString(), 0);
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Amended, asktoAmend.Comment, asktoAmend.ApproverTaskId);
@@ -1133,7 +1119,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context, _cloneContext);
+                //var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Adjustment UpdateApproveAskToAmend");
             }
             return res;
@@ -1173,10 +1159,10 @@ namespace TDSGCellFormat.Implementation.Repository
                         await _context.SaveChangesAsync();
                     }
 
-                    InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor", data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
+                    InsertHistoryData(data.AdjustmentReportId, FormType.AdjustmentReport.ToString(), "Requestor", data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
 
 
-                    //InsertHistoryData(data.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
+                    //InsertHistoryData(data.AdjustmentReportId, FormType.AdjustmentReport.ToString(), "Requestor",data.comment, ApprovalTaskStatus.Draft.ToString(), Convert.ToInt32(data.userId), HistoryAction.PullBack.ToString(), 0);
 
 
                     res.StatusCode = Enums.Status.Success;
@@ -1242,7 +1228,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = Enums.AdjustmentUdpated;
                 res.StatusCode = Enums.Status.Success;
 
-                InsertHistoryData((int)request.AdjustmentReportId, FormType.AjustmentReport.ToString(), "Advisor", request.Comment, adj.Status, Convert.ToInt32(request.AdvisorId), HistoryAction.AdvisorUpdate.ToString(), 0);
+                InsertHistoryData((int)request.AdjustmentReportId, FormType.AdjustmentReport.ToString(), "Advisor", request.Comment, adj.Status, Convert.ToInt32(request.AdvisorId), HistoryAction.AdvisorUpdate.ToString(), 0);
 
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 await notificationHelper.SendAdjustmentEmail(request.AdjustmentReportId, EmailNotificationAction.AdvisorData, string.Empty, 0);
@@ -1872,22 +1858,30 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public List<TroubleReportHistoryView> GetHistoryData(int adjustmentId)
         {
-            var troubleHistorydata = _context.AdjustmentHistoryMasters.Where(x => x.FormID == adjustmentId && x.IsActive == true).ToList();
-
-            return troubleHistorydata.Select(x => new TroubleReportHistoryView()
+            if(adjustmentId != 0)
             {
-                historyID = x.HistoryID,
-                formID = x.FormID,
-                status = x.Status,
-                actionTakenDateTime = x.ActionTakenDateTime?.ToString("dd-MM-yyyy HH:mm:ss"),
-                actionType = x.ActionType,
-                role = x.Role,
-                comment = x.Comment,
-                actionTakenBy = _cloneContext.EmployeeMasters
-                                  .Where(emp => emp.EmployeeID == x.ActionTakenByUserID)
-                                  .Select(emp => emp.EmployeeName)
-                                  .FirstOrDefault() ?? "Unknown"
-            }).ToList();
+                var troubleHistorydata = _context.AdjustmentHistoryMasters.Where(x => x.FormID == adjustmentId && x.IsActive == true).ToList();
+
+                return troubleHistorydata.Select(x => new TroubleReportHistoryView()
+                {
+                    historyID = x.HistoryID,
+                    formID = x.FormID,
+                    status = x.Status,
+                    actionTakenDateTime = x.ActionTakenDateTime?.ToString("dd-MM-yyyy HH:mm:ss"),
+                    actionType = x.ActionType,
+                    role = x.Role,
+                    comment = x.Comment,
+                    actionTakenBy = _cloneContext.EmployeeMasters
+                                      .Where(emp => emp.EmployeeID == x.ActionTakenByUserID)
+                                      .Select(emp => emp.EmployeeName)
+                                      .FirstOrDefault() ?? "Unknown"
+                }).ToList();
+            }
+            else
+            {
+                return null;
+            }
+            
         }
         #endregion
 
