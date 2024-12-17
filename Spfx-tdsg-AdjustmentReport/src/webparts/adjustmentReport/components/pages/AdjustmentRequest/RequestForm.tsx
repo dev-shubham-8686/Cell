@@ -132,6 +132,8 @@ const RequestForm :React.FC<RequestFormProps> = ({
   console.log("GetByIdData", reportData);
   console.log("GetById2", reportDataa);
   const { mutate: addUpdateReport , isLoading:savingData} = useAddUpdateReport();
+  console.log("Loaders",savingData,formisLoading)
+ 
   // Use effect to sync files with form field value
   useEffect(() => {
     // Update the beforeImages field with the latest files count
@@ -174,7 +176,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
             };
           }
         );
-
+        
       setChangeRiskManagementDetails(changeRiskData);
       form.setFieldsValue({
         ...reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport,
@@ -1072,8 +1074,10 @@ const RequestForm :React.FC<RequestFormProps> = ({
               >
                 <Select
                   allowClear
-                  disabled={isViewMode}
-                  placeholder="Select Checked By"
+                  disabled={
+                    isViewMode || (!isAdmin && submitted )
+                  }              
+                      placeholder="Select Checked By"
                   loading={checkedloading}
                   options={[
                     ...(employeesResult?.ReturnValue?.map((checkedBy) => ({
@@ -1108,8 +1112,10 @@ const RequestForm :React.FC<RequestFormProps> = ({
                 <Select
                   allowClear
                   placeholder="Select Section Name"
-                  disabled={isViewMode}
-                  showSearch
+                  disabled={
+                    isViewMode || (!isAdmin && submitted )
+                  }             
+                       showSearch
                   // onChange={handleSectionChange}
                   filterOption={(input, option) =>
                     (option?.label ?? "")
@@ -1140,7 +1146,9 @@ const RequestForm :React.FC<RequestFormProps> = ({
               <Form.Item label="Area" name="area" rules={validationRules.Area}>
                 <Select
                   allowClear
-                  disabled={isViewMode}
+                  disabled={
+                    isViewMode || (!isAdmin && submitted)
+                  }
                   mode="multiple"
                   placeholder="Select Area"
                   showSearch={false}
@@ -1603,7 +1611,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
                   Change Risk Management
                 </p>
                 {console.log("Mode", mode)}
-                {(mode == "add" || !isViewMode) && (
+                {(mode == "add" ||( !isViewMode && (isAdmin || (!isAdmin && (!submitted || underamendment))) ) )&& (
                   <button
                     className="btn btn-primary mt-3"
                     type="button"
@@ -1631,7 +1639,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
             <></>
           )}
         </Form>
-        <Spin spinning={formisLoading || savingData} fullscreen />
+       { mode == "add" ?(<></>):<Spin spinning={formisLoading || savingData} fullscreen />}
       </div>
     </>
   );

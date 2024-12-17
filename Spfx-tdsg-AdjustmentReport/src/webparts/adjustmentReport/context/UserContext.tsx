@@ -2,6 +2,7 @@ import * as React from "react";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { Spin } from "antd";
 import useUser, { IUser } from "../api/User/useUser";
+import UnAuthorized from "../components/common/UnAuthorized";
 
 // import useUser from "../apis/user/useUser";
 
@@ -50,8 +51,7 @@ export const UserProvider: React.FC<IUserProvider> = ({
         // "shubham@synopsandbox.onmicrosoft.com"           // ----- section head
         // "dparikh@synoptek.com"                         // ----- department head
         // "tdivan@synoptek.com"                  // ----- dep div head
-    // "BSankhat@synoptek_11111.com"              // ----- Div Head 
-
+        // "BSankhat@synoptek_11111.com"              // ----- Div Head 
         //"Ebrahim@synopsandbox.onmicrosoft.com"
         // "sarpatel@synoptek.com"
         // "smpatel@synoptek.com"
@@ -68,7 +68,9 @@ export const UserProvider: React.FC<IUserProvider> = ({
     }
     return (
         <UserContext.Provider value={{ user, setUser }}>
-            {children}
+            {isLoading && <Spin spinning fullscreen />}
+            {!isLoading && user && children}
+            {!isLoading && !user && <UnAuthorized />}
         </UserContext.Provider>
     );
 };
