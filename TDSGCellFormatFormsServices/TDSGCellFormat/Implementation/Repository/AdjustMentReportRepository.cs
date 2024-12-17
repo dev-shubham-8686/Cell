@@ -1498,8 +1498,8 @@ namespace TDSGCellFormat.Implementation.Repository
                         // Add the rest of the data to the respective columns
                         tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Changes + "</td>");
                         tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.FunctionId + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.RiskAssociatedWithChanges + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Factor + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.RisksWithChanges + "</td>");
+                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Factors + "</td>");
                         tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.CounterMeasures + "</td>");
                         //tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + (item.DueDate.HasValue ? item.DueDate.Value.ToString("dd-MM-yyyy") : "") + "</td>");
                         //tableBuilder.Append($"<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">{(string.IsNullOrEmpty(item.DueDate) ? "" : item.DueDate)}</td>");
