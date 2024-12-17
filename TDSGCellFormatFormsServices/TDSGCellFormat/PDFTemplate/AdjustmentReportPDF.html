@@ -65,9 +65,40 @@
             height: 40px;
             text-align: center;
         }
+
+        input[type="checkbox"] {
+            -webkit-appearance: none; /* Remove default browser appearance */
+            -moz-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            border: 1px solid black;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 5px;
+            position: relative;
+        }
+
+            input[type="checkbox"]:checked {
+                background-color: black; /* Fill checked box */
+            }
+
+            input[type="checkbox"]:after {
+                content: '✔';
+                font-size: 12px;
+                color: white;
+                position: absolute;
+                top: 0;
+                left: 3px;
+                display: none;
+            }
+
+            input[type="checkbox"]:checked:after {
+                display: block;
+            }
     </style>
 </head>
-<body>
+<body style="font-weight: 600; max-width: 1300px; font-size: 10px;">
     <div class="container">
         <h2>Adjustment Report</h2>
         <table class="table">
@@ -144,6 +175,27 @@
     </table>-->
 
         <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                <!-- Title Row -->
+                <tr>
+                    <th style="font-weight: bold; font-size: 15px; text-align: left;">
+                        Is there any risk associated with the adjustment?
+                    </th>
+                </tr>
+            </table>
+
+            <!-- Checkboxes Section -->
+            <div>
+                <input type='checkbox' id='Yes' #YesAsscociated# disabled />
+                <label for='Yes'>Yes</label>
+            </div>
+            <div>
+                <input type='checkbox' id='No' #NoAssociated# disabled />
+                <label for='No'>No</label>
+            </div>
+
+        </div>
+        <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
             <!-- Heading -->
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 5px;">
                 Before Images:
@@ -176,22 +228,57 @@
             </tr>
         </table>
 
-        <table class="sign-off-table">
-            <tr>
-                <th>Prepared By :</th>
-                <th>Section Head :</th>
-                <th>Department Head :</th>
-                <th>Division Head :</th>
-                
-            </tr>
-            <tr>
-                <td>#preparedby#</td>
-                <td>#sectionhead#</td>
-                <td>#departmenthead#</td>
-                <td>#divisionhead#</td>
-                
-            </tr>
-        </table>
+        <div style="margin-top: 5px; padding: 10px; border: 1px solid black;">
+            <table style="border-color: black; border-collapse: collapse; font-size: 10px;  text-align: left; width: 100%;">
+                <tr style="padding: 10px;">
+                    <th style="border: 1px solid black; padding: 5px; text-align: center;">Prepared By :</th>
+                    <th rowspan="2" style="border: 1px solid black; padding: 5px; text-align: center; font-size: 12px; font-weight: bold;">Approved By : </th>
+                    <th style="border: 1px solid black; padding: 5px; text-align: center;">Section Head</th>
+                    <th style="border: 1px solid black; padding: 5px; text-align: center;">Department Head</th>
+                    <th style="border: 1px solid black; padding: 5px; text-align: center;">Division Head</th>
+                    <!--<th style="border: 0.25px; padding: 5px; text-align: center;">Remarks</th>-->
+                </tr>
+                <tr style="padding: 10px; ">
+                    <td style="border: 1px solid black ; height: 20px; padding: 5px; text-align: center;">#preparedby#</td>
+                    <!--<td style="border: 0.25px; height: 20px; padding: 5px; text-align: center;"></td>--> <!-- Empty cell for Approved By -->
+                    <td style="border: 1px solid black ; height: 20px; padding: 5px; text-align: center;">#sectionhead#</td>
+                    <td style="border: 1px solid black; height: 20px; padding: 5px; text-align: center;">#departmenthead#</td>
+                    <td style="border: 1px solid black; height: 20px; padding: 5px; text-align: center;">#divisionhead#</td>
+                    <!--<td style="border: 0.25px; height: 20px; padding: 5px; text-align: center;">#Remarks#</td>-->
+                </tr>
+            </table>
+        </div>
+
+
+        <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
+            <table style="border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%;" align='center'>
+
+                <!-- Title Row -->
+                <tr>
+                    <th colspan="9" style="border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px;">
+                        Change Risk Management
+                    </th>
+                </tr>
+
+                <tr style='padding: 10px; height: 20px;'>
+                    <td style='width: 3%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Sr. No</b></td>
+                    <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Changes</b></td>
+                    <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Functions</b></td>
+                    <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Risk associated with changes</b></td>
+                    <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Factors/ Causes</b></td>
+                    <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Counter measures</b></td>
+                    <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Due Date</b></td>
+                    <td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Person in charge</b></td>
+                    <td style='width: 20%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Results</b></td>
+                </tr>
+                #ChangeriskTable#
+
+
+            </table>
+        </div>
+
+
+
     </div>
 </body>
 </html>

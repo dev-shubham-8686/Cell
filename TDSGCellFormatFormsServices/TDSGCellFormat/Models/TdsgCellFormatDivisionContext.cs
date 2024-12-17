@@ -26,7 +26,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
     {
     }
     //EquipmentEmailAttachment
-
+    public virtual DbSet<CellSubstituteMaster> CellSubstituteMasters { get; set; }
     public virtual DbSet<EquipmentEmailAttachment> EquipmentEmailAttachments { get; set; }
 
     public virtual DbSet<SectionHeadEmpMaster> SectionHeadEmpMasters { get; set; }
