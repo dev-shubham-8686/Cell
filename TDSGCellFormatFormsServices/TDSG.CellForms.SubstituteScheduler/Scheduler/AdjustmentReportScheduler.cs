@@ -5,6 +5,7 @@ using System.Data;
 using System.Text;
 using TDSGCellFormat.Common;
 using static TDSGCellFormat.Common.Enums;
+using Microsoft.Graph.Models;
 
 namespace TDSG.CellForms.SubstituteScheduler.Scheduler
 {
@@ -35,6 +36,8 @@ namespace TDSG.CellForms.SubstituteScheduler.Scheduler
                 {
                     foreach (var item in substitutes)
                     {
+                        string EmailAddress = "";
+
                         DateTime? fromDate = item.DateFrom?.ToDateTime(TimeOnly.MinValue);
                         DateTime? toDate = item.DateTo?.ToDateTime(TimeOnly.MinValue);
 
@@ -59,6 +62,20 @@ namespace TDSG.CellForms.SubstituteScheduler.Scheduler
                             approverTask.DelegateBy = null;
                             approverTask.ModifiedDate = DateTime.Now;
                             _cellContext.SaveChanges();
+
+                            string formName = item.FormName;
+
+                            if (item.EmployeedID > 0)
+                            {
+                                var requesterUserDetail = _dbContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == item.EmployeedID);
+                                if (requesterUserDetail != null)
+                                {
+                                    EmailAddress = requesterUserDetail?.Email ?? "";
+                                }
+                            }
+
+                            string documentationLink = _configuration["SPSiteUrl"] + _configuration["AdjustmentURL"];
+                            string docLink = documentationLink + "edit/" + approverTask.AdjustmentReportId;
                         }
                     }
                 }

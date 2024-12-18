@@ -316,17 +316,17 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     else if (request.SectionId == 2)
                     {
-                        newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 2 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); ;
+                        newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 2 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); 
                     }
                     else if (request.SectionId == 3)
                     {
                         if (request.Area != null && request.Area.Contains(1))
                         {
-                            newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 3 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); ;
+                            newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 3 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); 
                         }
                         else if (request.Area != null && (request.Area.Contains(2) || request.Area.Contains(3)))
                         {
-                            newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 4 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); ;
+                            newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 4 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); 
                         }
                     }
 
