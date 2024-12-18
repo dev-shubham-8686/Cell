@@ -1225,7 +1225,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     advisor.Comment = request.Comment;
                     await _context.SaveChangesAsync();
                 }
-                res.Message = Enums.AdjustmentUdpated;
+                res.Message = Enums.AdvisorComment;
                 res.StatusCode = Enums.Status.Success;
 
                 InsertHistoryData((int)request.AdjustmentReportId, FormType.AdjustmentReport.ToString(), "Advisor", request.Comment, adj.Status, Convert.ToInt32(request.AdvisorId), HistoryAction.AdvisorUpdate.ToString(), 0);
@@ -1339,7 +1339,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             if (!columnsToExclude.Contains(Array.IndexOf(properties, property)))
                             {
                                 var value = property.GetValue(item, null);
-                                string stringValue = value != null ? value.ToString() : string.Empty;
+                                string stringValue = value != null ? value.ToString() : "N/A";
 
                                 worksheet.Cell(i + 2, columnIndex).Value = stringValue;
                                 columnIndex++;
@@ -1391,6 +1391,14 @@ namespace TDSGCellFormat.Implementation.Repository
             {"SubMachineName", "Sub-Machine Name" },
             {"Requestor","Adjustment Done By" },
                 {"CurrentApprover","Current Approver" },
+                 {"ShiftinCharge_ActionTaken","Shift InCharge Approval Date" },
+                 {"SectionHead_ActionTaken","Section Head Approval Date" },
+                  {"DepartmentHead_ActionTaken","Requestor Department Head Approval Date" },
+                 {"DepartmentHead1_ActionTaken","Other Department Head 1 Approval Date" },
+                  {"DepartmentHead2_ActionTaken","Other Department Head 2 Approval Date" },
+                 {"DeputyDivisionHead_ActionTaken","Deputy Division Head Approval Date" },
+                   {"DivisionHead_ActionTaken","Division Head Approval Date" }
+
         };
 
         private string CapitalizeFirstLetter(string input)

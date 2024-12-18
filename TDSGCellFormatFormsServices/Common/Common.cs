@@ -297,6 +297,7 @@ namespace TDSGCellFormat.Common
         public const string AdjustMentPdf = "PDF file downloaded successfully";
         public const string AdjustMentNotFound = "Please complete the approval process to download the excel";
         public const string AdjustmentUdpated = "Adjustment Report form record updated";
+        public const string AdvisorComment = "Advisor Comments Updated Successfully";
 
         public const string MaterialSave = "Material Consumption form saved successfully";
         public const string MaterialSubmit = "Material Consumption form submitted successfully";
