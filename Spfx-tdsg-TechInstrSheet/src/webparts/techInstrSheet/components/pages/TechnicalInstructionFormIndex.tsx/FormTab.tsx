@@ -186,7 +186,7 @@ const FormTab: React.FC<any> = ({
                 format="DD-MM-YYYY"
                 placeholder="Select Date"
                 disabledDate={(current) =>
-                  current && current < dayjs().endOf("day")
+                  current && current < dayjs().startOf("day") // Disable past dates
                 }
                 disabled={isViewMode}
               />
@@ -280,7 +280,7 @@ const FormTab: React.FC<any> = ({
             <Form.Item
               label="Quantity"
               name="quantity"
-              rules={[{ required: true }]}
+              //rules={[{ required: true }]}
             >
               <InputNumber
                 style={{ width: "95%" }}
@@ -381,7 +381,7 @@ const FormTab: React.FC<any> = ({
                 format="DD-MM-YYYY"
                 placeholder="Select Date"
                 disabledDate={(current) =>
-                  current && current < dayjs().endOf("day")
+                  current && current < dayjs().startOf("day") // Disable past dates
                 }
                 disabled={isViewMode}
               />
@@ -389,7 +389,7 @@ const FormTab: React.FC<any> = ({
           </Col>
           <Col span={8}>
             <Form.Item
-              label="Target Closure Date"
+              label="Closure Date"
               name="targetClosureDate"
               rules={[{ required: true }]}
             >
