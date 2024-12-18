@@ -170,7 +170,7 @@ namespace TDSGCellFormat.Common
         {
             TroubleReport = 1,
             MaterialConsumption = 2,
-            AjustmentReport = 3,
+            AdjustmentReport = 3,
             TechnicalInstruction = 4,
             EquipmentImprovement = 5,
         }

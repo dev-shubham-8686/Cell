@@ -1864,6 +1864,8 @@ namespace TDSGCellFormat.Helper
                     var adjustmentNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == requestId && x.IsDeleted == false).Select(x => x.ReportNo).FirstOrDefault();
                     var sectionName = _context.SectionMasters.Where(x => x.SectionId == adjustmentData.SectionId && x.IsActive == true).Select(x => x.SectionName).FirstOrDefault();
 
+                    var advisorComments = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == requestId && x.IsActive == true).Select(x => x.Comment).FirstOrDefault();
+
                     var areaIds = adjustmentData.Area.Split(',').Select(id => int.Parse(id)).ToList();
                     var areaNames = new List<string>();
                     foreach (var id in areaIds)
@@ -2105,6 +2107,7 @@ namespace TDSGCellFormat.Helper
                                 emailBody = emailBody.Replace("#Area#", areaNamesString);
                                 emailBody = emailBody.Replace("#Section#", sectionName);
                                 emailBody = emailBody.Replace("#Comment#", comment);
+                                emailBody = emailBody.Replace("#AdvComment#", advisorComments);
                                 emailBody = emailBody.Replace("#Role#", Role);
                                 emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
                                 emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
