@@ -5,6 +5,7 @@ using System.Data;
 using System.Text;
 using TDSGCellFormat.Common;
 using static TDSGCellFormat.Common.Enums;
+using Microsoft.Graph.Models;
 
 namespace TDSG.CellForms.SubstituteScheduler.Scheduler
 {
@@ -35,6 +36,8 @@ namespace TDSG.CellForms.SubstituteScheduler.Scheduler
                 {
                     foreach (var item in substitutes)
                     {
+                        string EmailAddress = "";
+
                         DateTime? fromDate = item.DateFrom?.ToDateTime(TimeOnly.MinValue);
                         DateTime? toDate = item.DateTo?.ToDateTime(TimeOnly.MinValue);
 
@@ -53,12 +56,43 @@ namespace TDSG.CellForms.SubstituteScheduler.Scheduler
                         foreach (var approverTask in approverTasks)
                         {
                             int sequneceNo = 1;
-                            approverTask.AssignedToUserId = item.EmployeedID ?? 0;
+                            approverTask.AssignedToUserId = item.EmployeeID ?? 0;
                             approverTask.DelegateUserId = null;
                             approverTask.DelegateOn = null;
                             approverTask.DelegateBy = null;
                             approverTask.ModifiedDate = DateTime.Now;
                             _cellContext.SaveChanges();
+
+                            string formName = item.FormName;
+                            string reqNo = "";
+                            string requestDate = "";
+                            string requestBy = "";
+
+                            if (item.EmployeeID > 0)
+                            {
+                                var requesterUserDetail = _dbContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == item.EmployeeID);
+                                if (requesterUserDetail != null)
+                                {
+                                    EmailAddress = requesterUserDetail?.Email ?? "";
+                                }
+                            }
+
+                            string documentationLink = _configuration["SPSiteUrl"] + _configuration["AdjustmentURL"];
+                            string docLink = documentationLink + "edit/" + approverTask.AdjustmentReportId;
+
+                            var adjustmentDetails = _cellContext.AdjustmentReports.Where(x => x.AdjustMentReportId == approverTask.AdjustmentReportId).FirstOrDefault();
+                            if(adjustmentDetails != null)
+                            {
+                                reqNo = adjustmentDetails.ReportNo ?? "";
+                                requestDate = adjustmentDetails.CreatedDate?.ToString("dd-MM-yyyy");
+
+                                if(adjustmentDetails.CreatedBy != null)
+                                {
+                                    var requesterUserDetail = _dbContext.EmployeeMasters.FirstOrDefault(x => x.EmployeeID == adjustmentDetails.CreatedBy);
+                                    requestBy = requesterUserDetail?.EmployeeName ?? "";
+                                }
+
+                            }
                         }
                     }
                 }

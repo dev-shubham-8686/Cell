@@ -1854,7 +1854,7 @@ namespace TDSGCellFormat.Helper
                 string? Role = null;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? documentLink = _configuration["SPSiteUrl"] +
-                "/SitePages/AdjustmentReport.aspx#/form/";
+                      _configuration["AdjustmentURL"];
 
                 //https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA/SitePages/AdjustmentReport.aspx#/
 

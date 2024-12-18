@@ -10,7 +10,7 @@ namespace TDSGCellFormat.Models
     {
         [Key]
         public int SubstituteID { get; set; }
-        public int? EmployeedID { get; set; }
+        public int? EmployeeID { get; set; }
         public int? SubstituteUserID { get; set; }
         public bool? IsSubstitute { get; set; }
             
