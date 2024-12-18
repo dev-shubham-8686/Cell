@@ -50,11 +50,13 @@ export const UserProvider: React.FC<IUserProvider> = ({
         // "nityashah@synopsandbox.onmicrosoft.com"       // ----- section head
         // "shubham@synopsandbox.onmicrosoft.com"           // ----- section head
         // "dparikh@synoptek.com"                         // ----- department head
+        // "bdavawala@synoptek.com"                   // other dep head 01 
         // "tdivan@synoptek.com"                  // ----- dep div head
         // "BSankhat@synoptek_11111.com"              // ----- Div Head 
         //"Ebrahim@synopsandbox.onmicrosoft.com"
         // "sarpatel@synoptek.com"
         // "smpatel@synoptek.com"
+ 
     );
 
     useEffect(() => {

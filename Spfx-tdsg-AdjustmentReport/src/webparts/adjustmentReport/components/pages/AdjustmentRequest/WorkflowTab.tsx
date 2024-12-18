@@ -65,7 +65,7 @@ const Workflow: React.FC<IProps> = ({
     
     addUpdateAdvisorComment(payload, {
       onSuccess: () => {
-        void message.success("Comments updated successfully!");
+        // void message.success("Comments updated successfully!");
         console.log("Advisor Comments saved:", advisorComments);
       },
       onError: () => {

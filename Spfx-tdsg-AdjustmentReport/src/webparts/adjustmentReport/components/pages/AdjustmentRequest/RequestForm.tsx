@@ -126,13 +126,10 @@ const RequestForm :React.FC<RequestFormProps> = ({
     dateTime: currentDateTime,
     reportNo: reportNo === undefined ? "" : reportNo,
   };
-  const { data: reportDataa } = useGetAdjustmentReportById(
-    id ? parseInt(id) : 0
-  );
-  console.log("GetByIdData", reportData);
-  console.log("GetById2", reportDataa);
+  // const { data: reportDataa } = useGetAdjustmentReportById(
+  //   id ? parseInt(id) : 0
+  // );
   const { mutate: addUpdateReport , isLoading:savingData} = useAddUpdateReport();
-  console.log("Loaders",savingData,formisLoading)
  
   // Use effect to sync files with form field value
   useEffect(() => {
@@ -860,8 +857,8 @@ const RequestForm :React.FC<RequestFormProps> = ({
               //     ? dayjs(record?.DueDate).format(DATE_FORMAT) // Pass the date in correct format to dayjs
               //     : undefined
               // }
-              format="DD-MM-YYYY"
-              disabled={
+              format={DATE_FORMAT}
+                            disabled={
                 isViewMode || (!isAdmin && submitted && !underamendment)
               }
               onChange={(date, dateString) => {
@@ -1639,7 +1636,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
             <></>
           )}
         </Form>
-       { mode == "add" ?(<></>):<Spin spinning={formisLoading || savingData} fullscreen />}
+       { mode == "add" ?(<></>):<Spin spinning={(formisLoading??false )|| savingData} fullscreen />}
       </div>
     </>
   );

@@ -12,7 +12,7 @@ import {
 import { useUpdateApproveAskToAmend } from "../../hooks/useUpdateApproveAskToAmend";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { ACTION_TYPE, REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
+import { ACTION_TYPE, LEVELS, REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
 import { IPullBack } from "../../api/PullBack.api";
 import { usePullBack } from "../../hooks/usePullBack";
 import { useGetCellDepartmentsById } from "../../hooks/useGetCellDepartmentById";
@@ -35,9 +35,9 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   departmentHead,
   depDivHead,
 }) => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { isApproverRequest } = location.state || {};
+  const location = useLocation();
+  const { isApproverRequest,allReq } = location.state || {};
   const [approverRequest, setApproverRequest] =
     React.useState(isApproverRequest);
   const [showWorkflowBtns, setShowWorkflowBtns] =
@@ -61,7 +61,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   console.log({ departmentHeads });
   const [isApprovalSectionVisible, setApprovalSectionVisible] = useState(false);
   const [isDivHeadRequired, setisDivHeadRequired] = useState(false);
-
+console.log("ALLREQUEST",allReq)
   React.useEffect(() => {
     // Check if this is an approver request based on the `isApproverRequest` variable
     if (isApproverRequest) {
@@ -81,7 +81,9 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
       params.delete("CID");
 
       // Update component state to indicate this is an approver request
+      if(!allReq){
       setApproverRequest(true);
+      }
 
       // Use `navigate` to replace the URL with the cleaned parameters, and set tab state
       navigate(location.pathname, {
@@ -285,7 +287,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
         >
           {/* Conditional Approval Section */}
           {isApprovalSectionVisible && <></>}
-          {departmentHead && actionType == ACTION_TYPE.Approve && (
+          {departmentHead && currentApproverTask?.seqNumber==LEVELS.Level3&& actionType == ACTION_TYPE.Approve && (
             <>
               <Form.Item
                 label="Additional Approval Required?"
@@ -529,10 +531,11 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
               )}
             </>
           )}
-          {depDivHead && actionType == ACTION_TYPE.Approve && (
+          {depDivHead && currentApproverTask?.seqNumber==LEVELS.Level7 && actionType == ACTION_TYPE.Approve && (
             <Form.Item
-              label="Divison Head approval required ?"
+              label="Division Head approval required ?"
               name={"DivisionHeadApprovalRequired"}
+              rules={[{ required: true, message: "Please select Yes/No" }]}
             >
               <Radio.Group>
                 <Radio value={true}>Yes</Radio>

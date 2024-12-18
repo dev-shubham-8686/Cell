@@ -49,13 +49,15 @@ apiClient.interceptors.response.use(
 
       // Display the error message
       void message.error(errorMessage);
-    } else if (error.request) {
+    } 
+    // else if (error.request) {
       
-      // Request was made but no response was received
-      void message.error(
-        "No response from the server. Please try again later."
-      );
-    } else {
+    //   // Request was made but no response was received
+    //   void message.error(
+    //     "No response from the server. Please try again later."
+    //   );
+    // } 
+    else {
       
       // Something else happened while setting up the request
       void message.error("An unexpected error occurred. Please try again.");
