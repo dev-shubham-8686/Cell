@@ -288,7 +288,7 @@ namespace TDSGCellFormat.Helper
             catch (Exception ex)
             {
                 
-                var commonHelper = new CommonHelper(_db);
+                var commonHelper = new CommonHelper(_db, _masterDb);
                 commonHelper.LogException(ex, "createAuth session");
                 // return false;
                 result.StatusCode = Status.Error;
