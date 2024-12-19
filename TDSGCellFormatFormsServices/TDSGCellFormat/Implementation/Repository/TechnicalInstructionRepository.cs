@@ -2174,7 +2174,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {"RequestedDate", "Requested Date" },
             {"CTINumber","Request No" },
             {"HasAttachments","Attachment" },
-            {"TargetClosureDate","Closure Date" },
+            {"TargetClosureDate","Target Closure Date" },
             {"EquipmentNames","Equipment" },
             {"CurrentApprover", "Current Approver" }
             //{"ClosedDate","Closed Date" }
