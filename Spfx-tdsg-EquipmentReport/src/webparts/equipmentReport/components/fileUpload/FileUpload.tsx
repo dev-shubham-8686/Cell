@@ -78,14 +78,14 @@ console.log("FILES",files)
     if (files.length >= VALIDATIONS.attachment.maxFileCount) {
       description = ` ${VALIDATIONS.attachment.noOfFiles}`;
     }
-debugger
+
     if (file.size && file.size > maxSize) {
       description = ` ${VALIDATIONS.attachment.fileSizeErrMsg}`;
     } else if (/[*'",%&#^@]/.test(file.name)) {
       description = `${VALIDATIONS.attachment.fileNamingErrMsg}`;
     }
    // Check file type
-   debugger
+   
     if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.includes(fileExtension)){
       description= "Only Email Attachments are allowed. "
     }
@@ -106,10 +106,10 @@ debugger
   };
 
   const onDelete = async (file: UploadFile<any>) => {
-    debugger
+    
     const confirm = await DeleteFileModal(file.name);
     if (confirm) {
-      debugger
+      
       const url = `${webPartContext.pageContext.web.absoluteUrl}/_api/web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}/${file.name}')/ListItemAllFields`;
       const response = await webPartContext.spHttpClient.post(
         url,
@@ -122,10 +122,10 @@ debugger
           },
         }
       );
-      debugger
+      
       const fileData = await response.json();
       const itemId = fileData.d.Id;
-      debugger
+      
       if (itemId) {
         const deleteResponse = await webPartContext.spHttpClient.post(
           `${webPartContext.pageContext.web.absoluteUrl}/_api/web/lists/getbytitle('${libraryName}')/items(${itemId})`,
@@ -140,12 +140,12 @@ debugger
             },
           }
         );
-        debugger
+        
         if (!deleteResponse.ok) {
           console.error(`Error deleting file: ${deleteResponse.statusText}`);
         } else {
           
-          debugger 
+           
           onRemoveFile(file.name);
           
            void displayjsx.showSuccess("File deleted successfully ");
@@ -170,15 +170,15 @@ debugger
   };
 
   const onPreviewFile = async (file: UploadFile): Promise<void> => {
-    debugger
+    
     if (file.url) {
-      debugger
+      
       const sharePointUrl = file.url.startsWith(WEB_URL)
         ? file.url
         : `${WEB_URL}/${file.url}`;
       window.open(sharePointUrl, "_blank");
     } else {
-      debugger
+      
       const fileName = encodeURIComponent(file.name);
       const sharePointUrl = `${WEB_URL}/${libraryName}/${folderName}/${subFolderName}/${fileName}`;
 
@@ -188,7 +188,7 @@ debugger
 
   const uploadFile = async (file: File, fileName: string): Promise<boolean> => {
     try {
-      debugger
+      
       setItemLoading(true);
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
