@@ -18,7 +18,7 @@ import {
   REQUEST_STATUS,
   STATUS_COLOUR_CLASS,
 } from "../../../GLOBAL_CONSTANT";
-import { Button, Modal } from "antd";
+import { Button, Modal, Spin } from "antd";
 import dayjs from "dayjs";
 import { IAdjustmentReportInfo } from "../../../interface";
 import { useUserContext } from "../../../context/UserContext";
@@ -216,7 +216,7 @@ const AllRequest: React.FC<{}> = ({}) => {
             style={{ background: "none", border: "none" }}
             onClick={() =>
               navigate(`/form/view/${record.AdjustmentReportId}`,{
-                state: { allReq: true },
+                state: { allReq: true , currentTabState:"allrequest-tab"},
               })
             }
           >
@@ -281,6 +281,8 @@ const AllRequest: React.FC<{}> = ({}) => {
           url="/api/AdjustmentReport/GetAllAdjustmentData"
           refetchKey={refetchKey}
         />
+                      <Spin spinning={pdfLoading} fullscreen />
+
       </div>
       
     </>

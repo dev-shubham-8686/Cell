@@ -88,7 +88,7 @@ console.log("ALLREQUEST",allReq)
       // Use `navigate` to replace the URL with the cleaned parameters, and set tab state
       navigate(location.pathname, {
         state: {
-          currentTabState: "myapproval-tab",
+          currentTabState: allReq?"allrequest-tab":"myapproval-tab",
         },
         replace: true, // Replace history to avoid re-adding these parameters on back navigation
       });
@@ -120,7 +120,7 @@ console.log("ALLREQUEST",allReq)
   ): Promise<void> => {
     
     if (isApprovalSectionVisible && approvalSequence?.length == 0) {
-      void showErrorMsg("Please Select Addition Approvals");
+      void showErrorMsg("Please Select Additional Approvals");
       setApprovalSectionVisible(false);
       return;
     }
@@ -294,8 +294,18 @@ console.log("ALLREQUEST",allReq)
                 name={"AdditionalApprovalRequired"}
               >
                 <Radio.Group
-                  onChange={(e) =>
+                  onChange={(e) =>{
+                    const isYesSelected = e.target.value === "yes";
                     setApprovalSectionVisible(e.target.value === "yes")
+                    if (isYesSelected) {
+                      form.setFieldsValue({
+                        approvalSequence: [{ EmployeeId: null, DepartmentId: null }],
+                      });
+                    } else {
+                      form.resetFields(); // Reset all fields -- for removing comments
+                      handleCancel();
+                    }
+                    }
                   }
                   defaultValue="no"
                 >
@@ -481,7 +491,9 @@ console.log("ALLREQUEST",allReq)
                                   alignItems: "center",
                                 }}
                               >
-                                <Button onClick={() => remove(name)}>
+                                <Button 
+                                disabled={(form.getFieldValue("AdditionalApprovalRequired")=="yes" && fields?.length==1)} 
+                                onClick={() => remove(name)}>
                                   <FontAwesomeIcon
                                     title="Remove"
                                     icon={faTrash}
@@ -504,25 +516,7 @@ console.log("ALLREQUEST",allReq)
                             </Button>
                           </Form.Item>
 
-                          {/* Proceed and Cancel buttons */}
-                          {/* <Form.Item>
-                            <Button
-                              type="primary"
-                              onClick={handleProceed}
-                              style={{ marginRight: "8px" }}
-                            >
-                              Proceed
-                            </Button>
-                            <Button
-                              onClick={() => {
-                                
-                                form.resetFields(); // Reset all fields -- for removing comments
-                                handleCancel();
-                              }}
-                            >
-                              Cancel
-                            </Button>
-                          </Form.Item> */}
+                         
                         </>
                       );
                     }}

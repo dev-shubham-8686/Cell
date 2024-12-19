@@ -507,6 +507,13 @@ const RequestForm :React.FC<RequestFormProps> = ({
                 label: advisor.employeeName,
                 value: advisor.employeeId,
               }))}
+              showSearch
+              filterOption={(input, option) =>
+                option?.label
+                  .toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
               onChange={(e) => {
                 setselectedAdvisor(e);
                 console.log("Advisor", selectedAdvisor);
@@ -1073,7 +1080,13 @@ const RequestForm :React.FC<RequestFormProps> = ({
                   allowClear
                   disabled={
                     isViewMode || (!isAdmin && submitted )
-                  }              
+                  }       
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }       
                       placeholder="Select Checked By"
                   loading={checkedloading}
                   options={[
@@ -1085,6 +1098,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
                       ? [{ label: "Not Applicable", value: -1 }]
                       : []),
                   ]}
+                 
                 >
                   {employeesResult?.ReturnValue &&
                     employeesResult.ReturnValue.map((checkedBy) => (
@@ -1148,9 +1162,18 @@ const RequestForm :React.FC<RequestFormProps> = ({
                   }
                   mode="multiple"
                   placeholder="Select Area"
-                  showSearch={false}
+                  showSearch
                   loading={arealoading}
                   onChange={handleAreaChange}
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  options={areasResult?.ReturnValue.map((area) => ({
+                    label: area.AreaName,
+                    value: area.AreaId,
+                  }))}
                   // onChange={(selected) => {
                   //   if (selected.includes("all")) {
                   //     const allAreaIds =
@@ -1172,12 +1195,12 @@ const RequestForm :React.FC<RequestFormProps> = ({
                   Select All
                 </Option> */}
                   {/* Other Options */}
-                  {areasResult?.ReturnValue &&
+                  {/* {areasResult?.ReturnValue &&
                     areasResult.ReturnValue.map((area: IArea) => (
                       <Option key={area.AreaId} value={area.AreaId}>
                         {area.AreaName}
                       </Option>
-                    ))}
+                    ))} */}
                 </Select>
               </Form.Item>
             </Col>
@@ -1191,6 +1214,12 @@ const RequestForm :React.FC<RequestFormProps> = ({
                   allowClear
                   disabled={
                     isViewMode || (!isAdmin && submitted && !underamendment)
+                  }
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
                   }
                   placeholder="Select Machine Name"
                   onChange={handleMachineChange}
@@ -1234,6 +1263,12 @@ const RequestForm :React.FC<RequestFormProps> = ({
                   allowClear
                   disabled={
                     isViewMode || (!isAdmin && submitted && !underamendment)
+                  }
+                  showSearch
+                  filterOption={(input, option) =>
+                    (option?.label ?? "")
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
                   }
                   mode="multiple"
                   placeholder="Select Sub Machine Name"

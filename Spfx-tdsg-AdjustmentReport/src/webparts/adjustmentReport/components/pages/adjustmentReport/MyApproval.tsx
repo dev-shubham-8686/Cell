@@ -18,7 +18,7 @@ import {
   REQUEST_STATUS,
   STATUS_COLOUR_CLASS,
 } from "../../../GLOBAL_CONSTANT";
-import { Button, Modal } from "antd";
+import { Button, Modal, Spin } from "antd";
 import dayjs from "dayjs";
 import {  useUserContext } from "../../../context/UserContext";
 import { useDeleteAdjustmentReport } from "../../../hooks/useDeleteAdjustmentReport";
@@ -240,6 +240,8 @@ console.log("location",location.state)
           url="/api/AdjustmentReport/AdjustmentApprovalList"
           refetchKey={refetchKey}
         />
+                      <Spin spinning={pdfLoading} fullscreen />
+
       </div>
       
     </>
