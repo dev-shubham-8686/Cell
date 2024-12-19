@@ -498,7 +498,7 @@ const AllRequestsTab: React.FC = () => {
       ...getColumnSearchProps("CurrentApprover", "Current Approver"),
     },
     {
-      title: "Closure Date",
+      title: "Target Closure Date",
       dataIndex: "TargetClosureDate",
       key: "TargetClosureDate",
       width: "10%",

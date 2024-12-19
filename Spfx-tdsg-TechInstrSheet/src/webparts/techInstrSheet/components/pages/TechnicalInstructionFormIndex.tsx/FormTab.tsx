@@ -389,7 +389,7 @@ const FormTab: React.FC<any> = ({
           </Col>
           <Col span={8}>
             <Form.Item
-              label="Closure Date"
+              label="Target Closure Date"
               name="targetClosureDate"
               rules={[{ required: true }]}
             >
@@ -466,11 +466,15 @@ const FormTab: React.FC<any> = ({
         </h3>
         <Row gutter={1}>
           <Col span={8}>
-            <Form.Item label="Application Date" name="applicationStartDate">
+            <Form.Item label="Application Date" name="applicationStartDate"  rules={[{ required: true }]}>
               <DatePicker
                 style={{ width: "95%" }}
                 format="DD-MM-YYYY"
-                disabled={true}
+                placeholder="Select Date"
+                disabledDate={(current) =>
+                  current && current < dayjs().startOf("day") // Disable past dates
+                }
+                disabled={isViewMode}
               />
             </Form.Item>
           </Col>
