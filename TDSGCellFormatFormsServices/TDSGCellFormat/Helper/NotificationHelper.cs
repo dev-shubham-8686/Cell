@@ -2060,6 +2060,14 @@ namespace TDSGCellFormat.Helper
                                     {
                                         emailToAddressList.Add(item.email);
                                     }
+
+                                    var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1 && (x.HRMSDeptName == "CP01-DP-1003" || x.HRMSDeptName == "CP01-DP-1004" || x.HRMSDeptName == "CP01-DP-1002")).Select(x => x.Head).ToList();
+                                    foreach (var dept in userOtherDepId)
+                                    {
+                                        var deptEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == dept && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                        emailCCAddressList.Add(deptEmail);
+                                    }
                                 }
                             }
                         }
