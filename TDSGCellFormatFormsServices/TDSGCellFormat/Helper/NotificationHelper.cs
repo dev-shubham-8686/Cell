@@ -1121,6 +1121,14 @@ namespace TDSGCellFormat.Helper
                                 isRequestorinCCEmail = true;
                                 break;
 
+                            case EmailNotificationAction.AutoApproved:
+                                templateFile = "Equipment_AutoApprove.html";
+                                emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Auto Approved", equipmentNo);
+                                
+                                approvelink = true;
+                                isRequestorinCCEmail = true;
+                                break;
+
                             case EmailNotificationAction.Amended:
                                 templateFile = "Equipment_Amend.html";
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Asked for Amendment", equipmentNo);
@@ -1220,6 +1228,17 @@ namespace TDSGCellFormat.Helper
                             foreach (var item in approverData)
                             {
                                 if (item.Status != ApprovalTaskStatus.Pending.ToString())
+                                {
+                                    emailToAddressList.Add(item.email);
+                                }
+                            }
+                        }
+
+                        if(emailNotification == EmailNotificationAction.AutoApproved)
+                        {
+                            foreach (var item in approverData)
+                            {
+                                if (item.Status != ApprovalTaskStatus.AutoApproved.ToString())
                                 {
                                     emailToAddressList.Add(item.email);
                                 }
