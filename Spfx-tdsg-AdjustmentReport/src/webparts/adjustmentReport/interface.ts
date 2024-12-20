@@ -1,3 +1,6 @@
+import { AxiosRequestConfig } from "axios";
+import dayjs from "dayjs";
+
 export interface IAdjustmentReportPhoto {
   AdjustmentReportPhotoId: number;
   AdjustmentReportId: number;
@@ -26,6 +29,17 @@ export interface IAdjustmentReportInfo {
   EmployeeId: number;
 }
 
+export interface IChangeRiskData {
+  key:number;
+  Changes: string;
+  FunctionId : string;
+  RiskAssociated : string;
+  Factor : string;
+  CounterMeasures : string;
+  DueDate :  dayjs.Dayjs;
+  PersonInCharge :number;
+  Results :string
+}
 
 export interface IWorkflowDetail {
   ApproverTaskId: number;
@@ -51,6 +65,26 @@ export interface IWorkflowDetail {
   email: string;
 }
 
+export interface IBeforeImages{
+  AdjustmentBeforeImageId:number;
+  AdjustmentreportId:number;
+  BeforeImgName:string;
+  BeforeImgBytes?:string;
+  BeforeImgPath:string;
+  CreatedBy:number;
+  ModifiedBy:number;
+}
+
+export interface IAfterImages{
+  AdjustmentAfterImageId:number;
+  AdjustmentreportId:number;
+  AfterImgName:string;
+  AfterImgBytes?:string;
+  AfterImgPath:string;
+  CreatedBy:number;
+  ModifiedBy:number;
+}
+
 export interface IAjaxResult {
   ResultType?: number;
   StatusCode?: number;
@@ -62,4 +96,12 @@ export interface IEmployee {
   employeeId: number;
   employeeName?: string;
   Email?: string;
+}
+
+
+export type ObjectType = { [key: string]: string | number | undefined };
+
+
+export interface ICustomAxiosConfig extends AxiosRequestConfig<any> {
+  SHOW_NOTIFICATION?: boolean;
 }

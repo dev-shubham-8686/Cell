@@ -1,11 +1,17 @@
 import * as React from "react";
 
 import { format } from "date-fns";
-import { MY_DATE_TIME_FORMAT, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
-import { Tooltip } from "antd";
+import {  DATE_TIME_FORMAT, DATETIME, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
+import { Button, message, Tooltip } from "antd";
 import { displayRequestStatus } from "../../../utils/utility";
 import { useUserContext } from "../../../context/UserContext";
 import { IWorkflowDetail } from "../../../interface";
+import TextArea from "antd/es/input/TextArea";
+import { useEffect, useState } from "react";
+import { useGetAdvisorCommentsById } from "../../../hooks/useGetAdvisorCommentsById";
+import { useParams } from "react-router-dom";
+import { useAddOrUpdateAdvisorComment } from "../../../hooks/useAddOrUpdateAdvisorCommentData";
+import { IAdvisorCommentsData } from "../../../api/AddorUpdateAdvisorComments.api";
 
 export interface IRequestStatus {
   formStatus: string;
@@ -20,84 +26,62 @@ export interface IRequestDetails extends IRequestStatus {
 
 interface IProps {
   approverTasks: IWorkflowDetail[];
+  advisorId?:number,
+  submitted?:boolean,
+  status?:string
+
   // requestStatus?: IRequestDetails;
   // userId: number;
 }
 
-// const approverTasks = [
-//   {
-//     ApproverTaskId: 1,
-//     FormType: "Type1",
-//     TroubleReportId: 101,
-//     AssignedToUserId: 1,
-//     DelegateUserId: 0,
-//     DelegateBy: 0,
-//     Status: REQUEST_STATUS.Approved,
-//     Role: "Approver",
-//     DisplayName: "John Doe",
-//     SequenceNo: 1,
-//     ActionTakenDate: "2024-09-06",
-//     Comments: "Looks good",
-//     CreatedBy: 1,
-//     CreatedDate: "2024-09-01",
-//     processName: "Department Head",
-//     IsActive: true,
-//     employeeName: "Raj",
-//     employeeNameWithoutCode: "John",
-//     email: "john.doe@example.com",
-//   },
-//   {
-//     ApproverTaskId: 1,
-//     FormType: "Type1",
-//     TroubleReportId: 101,
-//     AssignedToUserId: 1,
-//     DelegateUserId: 0,
-//     DelegateBy: 0,
-//     Status: REQUEST_STATUS.Approved,
-//     Role: "Approver",
-//     DisplayName: "John Doe",
-//     SequenceNo: 1,
-//     ActionTakenDate: "2024-09-06",
-//     Comments: "Looks great",
-//     CreatedBy: 1,
-//     CreatedDate: "2024-09-01",
-//     processName: "CPC Department Head",
-//     IsActive: true,
-//     employeeName: "Raj Parmar",
-//     employeeNameWithoutCode: "John",
-//     email: "john.doe@example.com",
-//   },
-//   {
-//     ApproverTaskId: 2,
-//     FormType: "Type2",
-//     TroubleReportId: 102,
-//     AssignedToUserId: 2,
-//     DelegateUserId: 0,
-//     DelegateBy: 0,
-//     Status: REQUEST_STATUS.UnderApproval,
-//     Role: "Reviewer",
-//     DisplayName: "Jane Smith",
-//     SequenceNo: 2,
-//     ActionTakenDate: "",
-//     Comments: "",
-//     CreatedBy: 1,
-//     CreatedDate: "2024-09-01T",
-//     processName: "Division Head",
-//     IsActive: true,
-//     employeeName: "Jinal Panchal",
-//     employeeNameWithoutCode: "Jane",
-//     email: "jane.smith@example.com",
-//   },
-// ];
-
-// Define static data for requestStatus
-
 const Workflow: React.FC<IProps> = ({
   approverTasks,
+  advisorId,
+  submitted,
+  status
   //   requestStatus,
   //   userId,
 }) => {
   const { user } = useUserContext();
+  const [advisorComments, setAdvisorComments] = useState<string>("");
+  const {id}=useParams();
+  const { mutate: addUpdateAdvisorComment } = useAddOrUpdateAdvisorComment();
+  const { data: advisorCommentData } = useGetAdvisorCommentsById(
+    id ? parseInt(id) : 0
+  );
+  console.log("Advisor Comment Data",advisorCommentData,advisorId,user?.employeeId)
+  const handleSave =async () => {
+    
+    if (advisorComments.trim() === "") {
+      await message.warning("Advisor Comments cannot be empty.");
+      return;
+    }
+    const payload:IAdvisorCommentsData={
+      AdjustmentReportId:parseInt(id),
+      AdjustmentAdvisorId:advisorCommentData?.ReturnValue?.AdjustmentAdvisorId,
+      AdvisorId:advisorId,
+      Comment:advisorComments
+    }
+    
+    addUpdateAdvisorComment(payload, {
+      onSuccess: () => {
+        // void message.success("Comments updated successfully!");
+        console.log("Advisor Comments saved:", advisorComments);
+      },
+      onError: () => {
+       void  message.error("Failed to update comments. Please try again.");
+      },
+    }
+    )
+  };
+
+  useEffect(() => {
+    
+    if (advisorCommentData?.ReturnValue?.Comment) {
+      setAdvisorComments(advisorCommentData.ReturnValue.Comment);
+    }
+  }, [advisorCommentData]);
+  
   const workflowTableBody: {
     head: string;
     cellValues: string[];
@@ -124,7 +108,7 @@ const Workflow: React.FC<IProps> = ({
           if (item.Status !== REQUEST_STATUS.Pending) {
             className = `status-cell-${item.Status.toLowerCase()} ${
               item.Status === REQUEST_STATUS.InReview &&
-              item.AssignedToUserId === user?.EmployeeId
+              item.AssignedToUserId === user?.employeeId
                 ? "active-approver"
                 : ""
             }`;
@@ -141,7 +125,7 @@ const Workflow: React.FC<IProps> = ({
       cellValues:
         approverTasks?.map((item) =>
           item.ActionTakenDate
-            ? format(item.ActionTakenDate, MY_DATE_TIME_FORMAT)
+            ? format(item.ActionTakenDate, DATETIME)
             : // ?item.ActionTakenDate
               ""
         ) ?? [],
@@ -192,6 +176,26 @@ const Workflow: React.FC<IProps> = ({
           </table>
         )}
       </div>
+     { submitted ? <div className="advisor-comments-section">
+        <p className="mb-0" style={{ fontSize: "20px" }}>
+          Advisor Comments
+        </p>
+        <TextArea
+          value={advisorComments}
+          disabled={user?.isAdmin ? false:!(advisorId==user?.employeeId &&status!=REQUEST_STATUS.Completed)}
+          onChange={(e) => setAdvisorComments(e.target.value)}
+          rows={4}
+          placeholder="Enter your comments here"
+        />
+       { (advisorId == user?.employeeId && status!=REQUEST_STATUS.Completed) ? 
+       (<Button
+          type="primary"
+          onClick={()=>handleSave()}
+          style={{ marginTop: "10px" }}
+        >
+          Save
+        </Button>):(<></>)}
+      </div>:<></>}
     </div>
   );
 };

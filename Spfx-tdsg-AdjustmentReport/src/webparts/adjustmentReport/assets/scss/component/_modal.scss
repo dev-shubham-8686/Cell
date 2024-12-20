@@ -1,0 +1,10 @@
+.msg-modal {
+  min-height: 15rem;
+}
+
+.success-custom-modal {
+  .ant-modal-confirm-body {
+    margin-top: 1rem;
+    gap: 0.5rem;
+  }
+}

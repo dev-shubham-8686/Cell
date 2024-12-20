@@ -1,5 +1,8 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import { getAllAdjustmentReports, IAdjustmentReportListing } from "../api/AdjustmentReportListing.api";
+import {
+  getAllAdjustmentReports,
+  IAdjustmentReportListing,
+} from "../api/AdjustmentReportListing.api";
 
 export const useGetAllAdjustmentReports = (
   pageIndex: number,

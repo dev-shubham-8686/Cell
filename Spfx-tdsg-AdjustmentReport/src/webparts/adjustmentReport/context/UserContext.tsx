@@ -1,19 +1,20 @@
 import * as React from "react";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { Spin } from "antd";
-import useUser from "../api/User/useUser";
+import useUser, { IUser } from "../api/User/useUser";
+import UnAuthorized from "../components/common/UnAuthorized";
 
 // import useUser from "../apis/user/useUser";
 
-export interface IUser {
-    EmployeeId: number;
-    EmployeeCode: string;
-    Email: string;
-    EmployeeName: string;
-    DepartmentName: string;
-    DivisionName: string;
-    IsAdmin: number;
-}
+// export interface IUser {
+//     EmployeeId: number;
+//     EmployeeCode: string;
+//     Email: string;
+//     EmployeeName: string;
+//     DepartmentName: string;
+//     DivisionName: string;
+//     IsAdmin: number;
+// }
 
 interface IUserProvider {
     userEmail: string;
@@ -43,13 +44,19 @@ export const UserProvider: React.FC<IUserProvider> = ({
 }) => {
     const [user, setUser] = useState<IUser | null>(null);
     const { data, isLoading } = useUser(
-       // userEmail
-        //"j@synoptek.com"
+       userEmail
+        // "j@synoptek.com"                            // ----- shift in charge
+        // "shyamkanojia@synopsandbox.onmicrosoft.com" // ----- section head
+        // "nityashah@synopsandbox.onmicrosoft.com"       // ----- section head
+        // "shubham@synopsandbox.onmicrosoft.com"           // ----- section head
+        // "dparikh@synoptek.com"                         // ----- department head
+        // "bdavawala@synoptek.com"                   // other dep head 01 
+        // "tdivan@synoptek.com"                  // ----- dep div head
+        // "BSankhat@synoptek_11111.com"              // ----- Div Head 
         //"Ebrahim@synopsandbox.onmicrosoft.com"
-        //"shubham@synopsandbox.onmicrosoft.com"
-        //"dparikh@synoptek.com"
-        //"sarpatel@synoptek.com"
-        "smpatel@synoptek.com"
+        // "sarpatel@synoptek.com"
+        // "smpatel@synoptek.com"
+ 
     );
 
     useEffect(() => {
@@ -63,7 +70,9 @@ export const UserProvider: React.FC<IUserProvider> = ({
     }
     return (
         <UserContext.Provider value={{ user, setUser }}>
-            {children}
+            {isLoading && <Spin spinning fullscreen />}
+            {!isLoading && user && children}
+            {!isLoading && !user && <UnAuthorized />}
         </UserContext.Provider>
     );
 };
