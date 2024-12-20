@@ -1,4 +1,5 @@
-﻿using TDSGCellFormat.Models;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
 using TDSGCellFormat.Models.View;
 using static TDSGCellFormat.Common.Enums;
@@ -43,6 +44,16 @@ namespace TDSGCellFormat.Interface.Repository
 
         Task<AjaxResult> GetDepartmentHead(int adjustmentReportId);
 
-        Task<AjaxResult> GetAdditionalDepartmentHeads();
+        Task<List<DepartmentHeadsView>> GetAdditionalDepartmentHeads(int departmentId);
+
+        Task<GetEquipmentUser> GetUserRole(string email);
+
+        List<TroubleReportHistoryView> GetHistoryData(int adjustmentId);
+
+        Task<AjaxResult> AddOrUpdateAdvisorData(AdjustmentAdvisor request);
+
+        AdjustmentAdvisor GetAdvisorData(int adjustmentReportId);
+
+        Task<List<CellDepartment>> GetAdditionalDepartments(int departmentId);
     }
 }
