@@ -3,7 +3,11 @@ import Table from "../../table/table";
 import { useNavigate } from "react-router-dom";
 import { SearchOutlined } from "@ant-design/icons";
 import ColumnFilter from "../../table/columnFilter/columnFilter";
-import { DATE_FORMAT, REQUEST_STATUS, STATUS_COLOUR_CLASS } from "../../../GLOBAL_CONSTANT";
+import {
+  DATE_FORMAT,
+  REQUEST_STATUS,
+  STATUS_COLOUR_CLASS,
+} from "../../../GLOBAL_CONSTANT";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faEye, faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { AnyObject } from "antd/es/_util/type";
@@ -47,7 +51,7 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       key: "EquipmentImprovementNo",
       width: 160,
       sorter: true,
-       filterDropdown: ColumnFilter,
+      filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -66,7 +70,9 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
       render: (text) => (
-        <p className="text-cell">{text? dayjs(text).format(DATE_FORMAT):"-"}</p>
+        <p className="text-cell">
+          {text ? dayjs(text, DATE_FORMAT).format(DATE_FORMAT) : "-"}
+        </p>
       ),
     },
     {
@@ -86,13 +92,13 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       key: "MachineName",
       width: 200,
       sorter: true,
-       filterDropdown: ColumnFilter,
+      filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
       render: (text) => {
         return <p className="text-cell">{text}</p>;
-     },
+      },
     },
     {
       title: "Sub Machine Name",
@@ -100,13 +106,13 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       key: "SubMachineName",
       width: 200,
       sorter: true,
-       //filterDropdown: ColumnFilter,
+      //filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
       render: (text) => {
         return <p className="text-cell">{text}</p>;
-     },
+      },
     },
     {
       title: "Section Name",
@@ -114,7 +120,7 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       key: "SectionName",
       width: 200,
       sorter: true,
-       filterDropdown: ColumnFilter,
+      filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -125,7 +131,7 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       key: "ImprovementName",
       width: 200,
       sorter: true,
-       filterDropdown: ColumnFilter,
+      filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -201,12 +207,18 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
           {
-          // row.IsSubmit &&
-           ( (user?.isQcTeamHead &&
-            (row.ApproverTaskStatus == REQUEST_STATUS.InReview ||
-              row.ApproverTaskStatus ==
-                REQUEST_STATUS.UnderToshibaApproval))|| (row.Status ==
-                  REQUEST_STATUS.Completed)) && (
+            // row.IsSubmit &&
+            (
+              (user?.isQcTeamHead &&
+              (row.ApproverTaskStatus == REQUEST_STATUS.InReview ||
+                row.ApproverTaskStatus ==
+                  REQUEST_STATUS.UnderToshibaApproval))
+                   ||
+              row.Status == REQUEST_STATUS.Completed
+               ||
+              (user?.employeeId == row.AdvisorId &&
+                row.ApproverTaskStatus == REQUEST_STATUS.InReview)
+              ) && (
               <button
                 type="button"
                 style={{ background: "none", border: "none" }}
@@ -219,7 +231,8 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
               >
                 <FontAwesomeIcon title="PDF" icon={faFilePdf} />
               </button>
-            )}
+            )
+          }
         </div>
       ),
       sorter: false,
