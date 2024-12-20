@@ -76,11 +76,10 @@ namespace TDSGCellFormat.Common
             ToshibaDiscussionRequired = 26,
             UpdateTargetDate = 27,
             Reject = 28,
-<<<<<<< HEAD
-            AdvisorUpdate = 29
-=======
-            AutoApproved = 29
->>>>>>> 929f10d5a3763fc454c3766d46c4d2730c251066
+
+            AdvisorUpdate = 29,
+
+            AutoApproved = 30
         }
         public enum ApprovalStatus
         {
