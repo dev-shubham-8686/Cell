@@ -76,7 +76,6 @@ const ReportFormPage = () => {
   };
 
   const goBack = () => {
-    debugger;
     navigate("/", {
       state: {
         currentTabState:
