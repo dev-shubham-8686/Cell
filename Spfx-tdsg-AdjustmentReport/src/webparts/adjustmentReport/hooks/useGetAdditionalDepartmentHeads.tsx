@@ -4,11 +4,12 @@ import { getAdditionalDepartmentHeads } from "../api/GetAdditionalDepartmentHead
 export interface IEmployee {
     EmployeeId: number;
     EmployeeName?: string;
+    DepartmentId?:number;
     Email?: string;
 }
 
-export const useGetAdditionalDepartmentHeads = (): UseQueryResult<IEmployee[]> => {
-    return useQuery(["get-additional-department-head"], () => getAdditionalDepartmentHeads(), {
+export const useGetAdditionalDepartmentHeads = (id: number): UseQueryResult<IEmployee[]> => {
+    return useQuery(["get-additional-department-head",id], () => getAdditionalDepartmentHeads(id), {
         keepPreviousData: true,
     });
 };

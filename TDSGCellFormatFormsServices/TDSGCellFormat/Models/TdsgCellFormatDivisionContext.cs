@@ -26,11 +26,14 @@ public partial class TdsgCellFormatDivisionContext : DbContext
     {
     }
     //EquipmentEmailAttachment
-
+    public virtual DbSet<CellSubstituteMaster> CellSubstituteMasters { get; set; }
     public virtual DbSet<EquipmentEmailAttachment> EquipmentEmailAttachments { get; set; }
 
     public virtual DbSet<SectionHeadEmpMaster> SectionHeadEmpMasters { get; set; }
     public virtual DbSet<TroubleReportReviewerTaskMaster> TroubleReportReviewerTaskMasters { get; set; }
+
+    public virtual DbSet<AdjustmentAfterImage> AdjustmentAfterImages { get; set; }
+    public virtual DbSet<AdjustmentBeforeImage> AdjustmentBeforeImages { get; set; }
 
     public virtual DbSet<AdjustmentReport> AdjustmentReports { get; set; }
     public virtual DbSet<AdjustmentHistoryMaster> AdjustmentHistoryMasters { get; set; }
@@ -160,8 +163,14 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         modelBuilder.Entity<EquipmentExcelViewForType1>().HasNoKey();
         modelBuilder.Entity<EquipmentExcelViewForType2>().HasNoKey();
 
+        modelBuilder.Entity<AdjustmentReportExcelView>().HasNoKey();
+        modelBuilder.Entity<AdjustmentReportApprovalExcelView>().HasNoKey();
+
         modelBuilder.Entity<AdjustmentReportView>().HasNoKey();
         modelBuilder.Entity<AdjustmentReportApproverView>().HasNoKey();
+        modelBuilder.Entity<DepartmentHeadsView>().HasNoKey();
+        modelBuilder.Entity<CellDepartment>().HasNoKey();
+        //CellDepartment
         modelBuilder.Ignore<Property>();
         //modelBuilder.Entity<AdjustmentReport>(entity =>
         //{
@@ -500,6 +509,27 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         }
     }
 
+    public async Task<List<object>> GetAdjustmentExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
+    {
+        var fromDateParam = new Microsoft.Data.SqlClient.SqlParameter("@FromDate", fromDate.ToString("yyyy-MM-dd"));
+        var toDateParam = new Microsoft.Data.SqlClient.SqlParameter("@ToDate", toDate.ToString("yyyy-MM-dd"));
+        var employeeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@EmployeeId", employeeId);
+        var typeIdParam = new Microsoft.Data.SqlClient.SqlParameter("@Type", type);
+
+        if (type == 1 || type == 2)
+        {
+            return await this.Set<AdjustmentReportExcelView>()
+                .FromSqlRaw("EXEC [dbo].[GetAdjustmentReportExcel] @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
+                .ToListAsync<object>();
+        }
+        else
+        {
+            return await this.Set<AdjustmentReportApprovalExcelView>()
+                .FromSqlRaw("EXEC [dbo].[GetAdjustmentReportExcel] @FromDate, @ToDate , @EmployeeId,@Type", fromDateParam, toDateParam, employeeIdParam, typeIdParam)
+                .ToListAsync<object>();
+        }
+    }
+    
 
     public async Task<List<EquipmentImprovementView>> GetEquipmentImprovementApplication(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
     {
@@ -588,6 +618,24 @@ public partial class TdsgCellFormatDivisionContext : DbContext
 
         return await this.Set<AdjustmentReportApproverView>()
             .FromSqlRaw("EXEC GetAdjustmentReportApproverList @createdOne,@skip,@take,@order,@orderBy,@searchColumn,@searchValue", createdParam, skipParam, takeParam, orderParam, orderByParam, columnParam, valueParam)
+            .ToListAsync();
+    }
+
+    public async Task<List<DepartmentHeadsView>> GetAdditionalDepartmenthead(int departmentId)
+    {
+        var depId = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
+        return await this.Set<DepartmentHeadsView>()
+
+            .FromSqlRaw("EXEC SPP_GetAdditionalDepartmentHeads @DepartmentId", depId)
+            .ToListAsync();
+    }
+
+    public async Task<List<CellDepartment>> GetAdditionalDepartments(int departmentId)
+    {
+        var depId = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
+        return await this.Set<CellDepartment>()
+
+            .FromSqlRaw("EXEC SPP_GetCellDepartment @DepartmentId", depId)
             .ToListAsync();
     }
 

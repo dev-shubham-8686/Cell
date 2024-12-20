@@ -19,6 +19,8 @@
 
         public int? CreatedBy { get; set; }
 
+        public DateTime? ModifiedDate { get; set; }
+
         public bool? IsSubmit { get; set; }
 
         public int? totalCount { get; set; }
@@ -42,5 +44,8 @@
         public int? CreatedBy { get; set; }
 
         public int? totalCount { get; set; }
+
+        public DateTime? ModifiedDate { get; set; }
+
     }
 }

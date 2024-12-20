@@ -22,7 +22,7 @@ namespace TDSGCellFormat.Models
 
         public string? CounterMeasures { get; set; }
 
-        public DateOnly? DueDate { get; set; }
+        public DateTime? DueDate { get; set; }
 
         public int? PersonInCharge { get; set; }
 

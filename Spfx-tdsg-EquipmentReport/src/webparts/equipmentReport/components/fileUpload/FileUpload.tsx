@@ -86,9 +86,9 @@ console.log("FILES",files)
     }
    // Check file type
    
-    if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.includes(fileExtension)){
-      description= "Only Email Attachments are allowed. "
-    }
+    // if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.includes(fileExtension)){
+    //   description= "Only Email Attachments are allowed. "
+    // }
     
     else if (
       file.type &&
