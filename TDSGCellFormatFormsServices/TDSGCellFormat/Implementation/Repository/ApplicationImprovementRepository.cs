@@ -227,7 +227,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.Status = ApprovalTaskStatus.Draft.ToString();
                     newReport.WorkFlowLevel = 0;
                     newReport.IsLogicalAmend = false;
-                    newReport.ToshibaApprovalRequired = false;
+                  //  newReport.ToshibaApprovalRequired = null;
                     newReport.WorkFlowStatus = ApprovalTaskStatus.Draft.ToString();
 
                     // Assign SectionHeadId based on the conditions
@@ -298,6 +298,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 EquipmentImprovementId = applicationImprovementId,
                                 CurrSituationDocName = attach.CurrSituationDocName,
                                 CurrSituationDocFilePath = updatedUrl,
+                                CurrImageBytes = attach.CurrentImgBytes,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
                                 CreatedDate = DateTime.Now,
@@ -317,6 +318,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 EquipmentImprovementId = newReport.EquipmentImprovementId,
                                 ImprovementDocFilePath = updatedUrl,
                                 ImprovementDocName = attach.ImprovementDocName,
+                                ImpImageBytes = attach.ImprovementImgBytes,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
                                 CreatedDate = DateTime.Now,
@@ -466,6 +468,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 if (equipmentApproverTask.SequenceNo == 5 && equipment.ToshibaApprovalRequired == true)
                 {
                     equipmentApproverTask.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
+                    equipmentApproverTask.Comments = string.Empty;
                     equipment.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
                     await _context.SaveChangesAsync();
                     InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.UnderToshibaApproval.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
@@ -473,6 +476,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 else
                 {
                     equipmentApproverTask.Status = ApprovalTaskStatus.InReview.ToString();
+                    equipmentApproverTask.Comments = string.Empty;
                     equipment.Status = ApprovalTaskStatus.InReview.ToString();
                     await _context.SaveChangesAsync();
                     InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
@@ -597,11 +601,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     foreach (var attach in report.EquipmentCurrSituationAttachmentDetails)
                     {
                         var updatedUrl = attach.CurrSituationDocFilePath.Replace($"/{report.CreatedBy}/", $"/{existingReport.EquipmentImprovementNo}/");
-                        var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == attach.EquipmentCurrSituationAttachmentId).FirstOrDefault();
+                        var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == report.EquipmentImprovementId).FirstOrDefault();
                         if (existingAttachData != null)
                         {
                             existingAttachData.CurrSituationDocName = attach.CurrSituationDocName;
                             existingAttachData.CurrSituationDocFilePath = attach.CurrSituationDocFilePath;
+                            //existingAttachData.CurrImageBytes = attach.CurrentImgBytes;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -614,6 +619,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 EquipmentImprovementId = existingReport.EquipmentImprovementId,
                                 CurrSituationDocName = attach.CurrSituationDocName,
                                 CurrSituationDocFilePath = updatedUrl,
+                                CurrImageBytes = attach.CurrentImgBytes,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
                                 CreatedDate = DateTime.Now,
@@ -633,11 +639,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     foreach (var attach in report.EquipmentImprovementAttachmentDetails)
                     {
                         var updatedUrl = attach.ImprovementDocFilePath.Replace($"/{report.CreatedBy}/", $"/{existingReport.EquipmentImprovementNo}/");
-                        var existingAttachData = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentImprovementAttachmentId == attach.EquipmentImprovementAttachmentId).FirstOrDefault();
+                        var existingAttachData = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.EquipmentImprovementAttachmentId == attach.EquipmentImprovementAttachmentId).FirstOrDefault();
                         if (existingAttachData != null)
                         {
                             existingAttachData.ImprovementDocName = attach.ImprovementDocName;
                             existingAttachData.ImprovementDocFilePath = attach.ImprovementDocFilePath;
+                            // existingAttachData.ImpImageBytes = attach.ImprovementImgBytes;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -649,6 +656,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 EquipmentImprovementId = existingReport.EquipmentImprovementId,
                                 ImprovementDocName = attach.ImprovementDocName,
                                 ImprovementDocFilePath = updatedUrl,
+                                ImpImageBytes = attach.ImprovementImgBytes,
                                 IsDeleted = false,
                                 CreatedBy = attach.CreatedBy,
                                 CreatedDate = DateTime.Now,
@@ -707,7 +715,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     res.Message = Enums.EquipmentResubmit;
 
                     await _context.CallEquipmentApproverMaterix(existingReport.CreatedBy, existingReport.EquipmentImprovementId);
-                    if(report.ModifiedBy == adminId)
+                    if (report.ModifiedBy == adminId)
                     {
                         InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.LogicalAmendmentInReview.ToString(), Convert.ToInt32(adminId), HistoryAction.ReSubmitted.ToString(), 0);
 
@@ -902,7 +910,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-               // var equipmentApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentId && x.IsActive == true && x.Status == ApprovalTaskStatus.LogicalAmendment.ToString()).FirstOrDefault();
+                // var equipmentApproverTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentId && x.IsActive == true && x.Status == ApprovalTaskStatus.LogicalAmendment.ToString()).FirstOrDefault();
 
                 var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == equipmentId && x.IsDeleted == false).FirstOrDefault();
 
@@ -1024,7 +1032,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var equpmentData = new List<EquipmentImprovementView>();
             foreach (var item in listData)
             {
-               // if(createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
+                // if(createdBy == admin || item.Status != ApprovalTaskStatus.Draft.ToString())
                 equpmentData.Add(item);
             }
             return equpmentData;
@@ -1064,7 +1072,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var equipmentTask = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.equipmentId && x.IsDeleted == false).FirstOrDefault();
                 if (equipmentTask != null)
                 {
-                    if(equipmentTask.WorkFlowLevel == 1)
+                    if (equipmentTask.WorkFlowLevel == 1)
                     {
                         equipmentTask.IsSubmit = false;
                         equipmentTask.IsResultSubmit = false;
@@ -1140,6 +1148,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
+                var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 var equipmentData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.ApproverTaskId == data.ApproverTaskId && x.IsActive == true
                                      && x.EquipmentImprovementId == data.EquipmentId
                                      && (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString()
@@ -1172,7 +1181,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     // InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, requestTaskData.Comments, requestTaskData.Status, Convert.ToInt32(requestTaskData.ModifiedBy), ApprovalTaskStatus.UnderAmendment.ToString(), 0);
                     //
-                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    //var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.Rejected, data.Comment, data.ApproverTaskId);
                     //equipmentData.WorkFlowSta = ApprovalTaskStatus.Reject.ToString();
                 }
@@ -1198,7 +1207,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     // InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, requestTaskData.Comments, requestTaskData.Status, Convert.ToInt32(requestTaskData.ModifiedBy), ApprovalTaskStatus.UnderAmendment.ToString(), 0);
                     //
-                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    //var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.Amended, data.Comment, data.ApproverTaskId);
                     //equipmentData.WorkFlowSta = ApprovalTaskStatus.Reject.ToString();
                 }
@@ -1222,14 +1231,14 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
                     InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, ApprovalTaskStatus.LogicalAmendment.ToString(), Convert.ToInt32(data.CurrentUserId), HistoryAction.LogicalAmendment.ToString(), 0);
 
-                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    //var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.LogicalAmend, data.Comment, data.ApproverTaskId);
                 }
 
                 if (data.Type == ApprovalStatus.Approved)
                 {
                     bool approvalHistory = true;
-                       
+
                     equipmentData.Status = ApprovalTaskStatus.Approved.ToString();
                     equipmentData.ModifiedBy = data.CurrentUserId;
                     equipmentData.ActionTakenBy = data.CurrentUserId;
@@ -1293,7 +1302,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             equipment.ToshibaApprovalRequired = true;
                             equipment.ToshibaApprovalComment = approvalData.Comment;
                             //equipment.ToshibaApprovalTargetDate = !string.IsNullOrEmpty(approvalData.TargetDate) ? DateTime.Parse(approvalData.TargetDate) : (DateTime?)null;
-                            equipment.ToshibaApprovalTargetDate = !string.IsNullOrEmpty(approvalData.TargetDate)?
+                            equipment.ToshibaApprovalTargetDate = !string.IsNullOrEmpty(approvalData.TargetDate) ?
                                                      DateTime.ParseExact(approvalData.TargetDate, "dd-MM-yyyy", CultureInfo.InvariantCulture)
                                                     : (DateTime?)null;
                             equipment.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
@@ -1302,7 +1311,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                             InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.ToshibaApprovalRequired.ToString(), 0);
 
-                            var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                            //var notificationHelper = new NotificationHelper(_context, _cloneContext);
                             await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.ToshibaTeamApproval, data.Comment, 0);
                         }
 
@@ -1317,18 +1326,63 @@ namespace TDSGCellFormat.Implementation.Repository
                                                && x.ApproverTaskId == data.ApproverTaskId && x.Status == ApprovalTaskStatus.Approved.ToString()).FirstOrDefault();
                     if (currentApproverTask != null)
                     {
-                        var nextApproveTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentData.EquipmentImprovementId && x.IsActive == true
-                                 && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (equipmentData.SequenceNo) + 1).ToList();
+                        //var nextTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentData.EquipmentImprovementId && x.IsActive == true
+                        // && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (equipmentData.SequenceNo) + 1).FirstOrDefault();
 
-                        if (nextApproveTask.Any())
+                        var nextTask = _context.EquipmentImprovementApproverTaskMasters
+                                        .Where(x => x.EquipmentImprovementId == equipmentData.EquipmentImprovementId && x.IsActive == true
+                                         && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (equipmentData.SequenceNo) + 1)
+                                        .FirstOrDefault();
+
+
+                        if (nextTask != null)
                         {
-                            foreach (var nextTask in nextApproveTask)
+                            if (currentApproverTask.AssignedToUserId == nextTask.AssignedToUserId)
+                            {
+                                //nextTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
+                                nextTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
+                                nextTask.ModifiedDate = DateTime.Now;
+                                await _context.SaveChangesAsync();
+
+                                InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.AutoApproved.ToString(), 0);
+
+                                //var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                                await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.AutoApproved, data.Comment, nextTask.ApproverTaskId);
+
+                                var nextPendingTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentData.EquipmentImprovementId
+                                        && x.IsActive == true
+                                      && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (nextTask.SequenceNo) + 1).FirstOrDefault();
+
+                                if (nextPendingTask != null)
+                                {
+                                    nextPendingTask.Status = ApprovalTaskStatus.InReview.ToString();
+                                    nextPendingTask.ModifiedDate = DateTime.Now;
+                                    await _context.SaveChangesAsync();
+
+                                    if (nextTask.WorkFlowlevel == 1)
+                                    {
+                                        await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.Approved, data.Comment, nextPendingTask.ApproverTaskId);
+                                    }
+                                    else
+                                    {
+                                        await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.ResultApprove, data.Comment, nextPendingTask.ApproverTaskId);
+                                    }
+                                }
+                                else
+                                {
+                                    await CompleteFormTask(data);
+                                }
+
+
+
+                            }
+                            else
                             {
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
 
-                                var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                                //var notificationHelper = new NotificationHelper(_context, _cloneContext);
                                 if (nextTask.WorkFlowlevel == 1)
                                 {
                                     await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.Approved, data.Comment, nextTask.ApproverTaskId);
@@ -1337,8 +1391,6 @@ namespace TDSGCellFormat.Implementation.Repository
                                 {
                                     await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.ResultApprove, data.Comment, nextTask.ApproverTaskId);
                                 }
-                                //var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                                //await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.Approved, data.Comment, data.ApproverTaskId);
 
                                 var equipmentForm = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false && x.IsDeleted == false).FirstOrDefault();
 
@@ -1360,64 +1412,14 @@ namespace TDSGCellFormat.Implementation.Repository
                                     }
 
                                 }
-                                //await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Approved, null, nextTask.ApproverTaskId);
-
                             }
-                            // Notification code (if applicable)
+
                         }
 
                         else
                         {
-                            var equipmentForm = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false && x.IsDeleted == false).FirstOrDefault();
-                            if (equipmentForm != null)
-                            {
-                                if (equipmentForm.WorkFlowLevel == 1)
-                                {
-                                    equipmentForm.Status = ApprovalTaskStatus.Approved.ToString();
-                                    equipmentForm.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
-                                    await _context.SaveChangesAsync();
-
-                                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                                    await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.W1Completed, data.Comment, data.ApproverTaskId);
-
-                                    if (equipmentForm.IsPcrnRequired == true)
-                                    {
-                                        //var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                                        await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.PcrnRequired, string.Empty, 0);
-                                    }
-                                }
-                                else
-                                {
-                                    if (equipmentForm.IsLogicalAmend == true)
-                                    {
-                                        equipmentForm.Status = ApprovalTaskStatus.ResultMonitoring.ToString();
-                                        equipmentForm.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
-                                        equipmentForm.IsLogicalAmend = false;
-                                        equipmentForm.ResultMonitoring = null;
-                                        equipmentForm.ResultStatus = null;
-                                        equipmentForm.ResultMonitorDate = null;
-                                        equipmentForm.IsResultSubmit = false;
-                                        equipmentForm.TargetDate = null;
-                                        equipmentForm.ActualDate = null;
-                                        await _context.SaveChangesAsync();
-                                        var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                                        await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.ResultApprove, data.Comment, data.ApproverTaskId);
-
-                                    }
-                                    else
-                                    {
-                                        equipmentForm.Status = ApprovalTaskStatus.Completed.ToString();
-                                        equipmentForm.WorkFlowStatus = ApprovalTaskStatus.Completed.ToString();
-                                        await _context.SaveChangesAsync();
-
-                                        var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                                        await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.Completed, data.Comment, data.ApproverTaskId);
-                                    }
-
-                                }
-
-                                //await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Completed, null, 0);
-                            }
+                            // Call the HandleElsePart function here
+                            await CompleteFormTask(data);
                         }
                     }
                 }
@@ -1428,10 +1430,79 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Equipment UpdateApproveAskToAmend");
-
+                
             }
             return res;
 
+        }
+
+
+        private async Task CompleteFormTask(EquipmentApproveAsktoAmend data)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                var equipmentForm = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false && x.IsDeleted == false).FirstOrDefault();
+                if (equipmentForm != null)
+                {
+                    if (equipmentForm.WorkFlowLevel == 1)
+                    {
+                        equipmentForm.Status = ApprovalTaskStatus.Approved.ToString();
+                        equipmentForm.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
+                        await _context.SaveChangesAsync();
+
+                        //var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                        await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.W1Completed, data.Comment, data.ApproverTaskId);
+
+                        if (equipmentForm.IsPcrnRequired == true)
+                        {
+                            //var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                            await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.PcrnRequired, string.Empty, 0);
+                        }
+                    }
+                    else
+                    {
+                        if (equipmentForm.IsLogicalAmend == true)
+                        {
+                            equipmentForm.Status = ApprovalTaskStatus.ResultMonitoring.ToString();
+                            equipmentForm.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
+                            equipmentForm.IsLogicalAmend = false;
+                            equipmentForm.ResultMonitoring = null;
+                            equipmentForm.ResultStatus = null;
+                            equipmentForm.ResultMonitorDate = null;
+                            equipmentForm.IsResultSubmit = false;
+                            equipmentForm.TargetDate = null;
+                            equipmentForm.ActualDate = null;
+                            await _context.SaveChangesAsync();
+                            //var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                            await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.ResultApprove, data.Comment, data.ApproverTaskId);
+
+                        }
+                        else
+                        {
+                            equipmentForm.Status = ApprovalTaskStatus.Completed.ToString();
+                            equipmentForm.WorkFlowStatus = ApprovalTaskStatus.Completed.ToString();
+                            await _context.SaveChangesAsync();
+
+                            //var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                            await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.Completed, data.Comment, data.ApproverTaskId);
+                        }
+
+                    }
+
+                    //await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Completed, null, 0);
+                }
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context);
+                commonHelper.LogException(ex, "CompleteFormTask");
+
+            }
+            //return res;
         }
 
         public async Task<AjaxResult> UpdateTargetDates(EquipmentApprovalData data)
@@ -1466,7 +1537,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.ToshibaTeamDiscussion, data.Comment, 0);
-               
+
                 }
                 else if (data.IsToshibaDiscussion == true)
                 {
@@ -1546,7 +1617,7 @@ namespace TDSGCellFormat.Implementation.Repository
             if (toshibaDiscussion == true)
             {
                 equipmentTargetData.TargetDate = res.ToshibaDiscussionTargetDate.HasValue ? res.ToshibaDiscussionTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty;
-               
+
             }
             else
             {
@@ -1851,7 +1922,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 string templateFile = "EquipmentPDF.html";
 
                 string templateFilePath = Path.Combine(baseDirectory, htmlTemplatePath, templateFile);
-               
+
                 string? htmlTemplate = System.IO.File.ReadAllText(templateFilePath);
                 sb.Append(htmlTemplate);
 
@@ -1861,7 +1932,15 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     var machineName = _context.Machines.Where(x => x.MachineId == equipmentData.MachineId).Select(x => x.MachineName).FirstOrDefault();
                     var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == equipmentData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
-                    sb.Replace("#MachineName#", machineName);
+                    if (!string.IsNullOrEmpty(machineName))
+                    {
+                        sb.Replace("#MachineName#", machineName);
+                    }
+                    else if (!string.IsNullOrEmpty(equipmentData.OtherMachineName))
+                    {
+                        sb.Replace("#MachineName#", "Other - " + equipmentData.OtherMachineName);
+                    }
+
                     sb.Replace("#ApplicantName#", applicant);
                     sb.Replace("#clsReq#", applicant);
                 }
@@ -1875,7 +1954,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     sb.Replace("#ToshibaApprovalRequiredChecked#", "checked");
                     sb.Replace("#NoToshibaApprovalRequiredChecked#", "");
                 }
-                else
+                if (equipmentData?.ToshibaApprovalRequired == false)
                 {
                     sb.Replace("#ToshibaApprovalRequiredChecked#", "");
                     sb.Replace("#NoToshibaApprovalRequiredChecked#", "checked");
@@ -1885,14 +1964,15 @@ namespace TDSGCellFormat.Implementation.Repository
                 //var baseUrl = "https://synopsandbox.sharepoint.com/sites/Training2024";
                 //stage
                 var baseUrl = "https://tdsgj.sharepoint.com/sites/e-app-stage";
+
                 var currAttachmentUrl = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == equipmentId
                          && x.IsDeleted == false)
-                          .Select(x => $"{baseUrl}{x.CurrSituationDocFilePath}")
+                          // .Select(x => $"{baseUrl}{x.CurrSituationDocFilePath}")
                           .ToList();
 
                 var impAttachmentUrl = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == equipmentId
                                  && x.IsDeleted == false)
-                                  .Select(x => $"{baseUrl}{x.ImprovementDocFilePath}")
+                                  // .Select(x => $"{baseUrl}{x.ImprovementDocFilePath}")
                                   .ToList();
 
                 StringBuilder currentSituationAttachments = new StringBuilder();
@@ -1900,37 +1980,45 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 foreach (var url1 in currAttachmentUrl)
                 {
-                    //if (url1.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                    //             url1.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                    //             url1.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                    //             url1.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
-                    //{
-                    //    // Add image tag
-                    //    currentSituationAttachments.AppendLine($"<img src=\"{url1}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
-                    //}
-                    //else
-                    //{
-                        currentSituationAttachments.Append($"<a href=\"{url1}\" target=\"_blank\">{Path.GetFileName(url1)}</a><br>");
-                   // }
-                    
+                    string bfrUrl = $"{baseUrl}{url1.CurrSituationDocFilePath}";
+                    if (url1.CurrSituationDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                 url1.CurrSituationDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                 url1.CurrSituationDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                                 url1.CurrSituationDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Add image tag
+                        currentSituationAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                        currentSituationAttachments.AppendLine($"<img src=\"{url1.CurrImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                        currentSituationAttachments.AppendLine("</div>");
+                        //currentSituationAttachments.AppendLine($"<img src=\"{url1.CurrImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
+                    }
+                    else
+                    {
+                        currentSituationAttachments.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
+                    }
+
                 }
 
 
                 foreach (var url2 in impAttachmentUrl)
                 {
-                    //if (url2.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                    //             url2.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                    //             url2.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                    //             url2.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
-                    //{
-                    //    // Add image tag
-                    //    improvementAttachments.AppendLine($"<img src=\"{url2}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
-                    //}
-                    //else
-                    //{
-                        improvementAttachments.Append($"<a href=\"{url2}\" target=\"_blank\">{Path.GetFileName(url2)}</a><br>");
+                    string bfrUrl = $"{baseUrl}{url2.ImprovementDocFilePath}";
+                    if (url2.ImprovementDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                 url2.ImprovementDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                 url2.ImprovementDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                                 url2.ImprovementDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Add image tag
+                        improvementAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                        improvementAttachments.AppendLine($"<img src=\"{url2.ImpImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                        improvementAttachments.AppendLine("</div>");
+                        //improvementAttachments.AppendLine($"<img src=\"{url2.ImpImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
+                    }
+                    else
+                    {
+                        improvementAttachments.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
 
-                   // }
+                    }
                 }
 
                 // Replace placeholders in the HTML template
@@ -1940,7 +2028,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 StringBuilder tableBuilder = new StringBuilder();
                 int serialNumber = 1;
 
-                if(data.Any())
+                if (data.Any())
                 {
                     foreach (var item in data)
                     {
@@ -1966,30 +2054,36 @@ namespace TDSGCellFormat.Implementation.Repository
                         tableBuilder.Append("</tr>");
                     }
                 }
-                
+
 
                 sb.Replace("#ChangeriskTable#", tableBuilder.ToString());
 
-                string approveSectioneHead = approvalData.FirstOrDefault(a => a.SequenceNo == 1)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDepHead = approvalData.FirstOrDefault(a => a.SequenceNo == 3)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 4)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByAdvisor = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.employeeNameWithoutCode ?? "N/A";
+                string approveSectioneHead = approvalData.FirstOrDefault(a => a.SequenceNo == 1 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByDepHead = approvalData.FirstOrDefault(a => a.SequenceNo == 3 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 5 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+
+                string approvedByAdvisor = approvalData.FirstOrDefault(a => a.SequenceNo == 2 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string advisorComment = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.Comments ?? "N/A";
                 string advisorDate = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? "N/A";
-                string approverByQT = approvalData.FirstOrDefault(a => a.SequenceNo == 5)?.Comments ?? "N/A";
-                string QtTeamDate = approvalData.FirstOrDefault(a => a.SequenceNo == 5)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? "N/A";
-                string approvedByQT = approvalData.FirstOrDefault(a => a.SequenceNo == 5)?.employeeNameWithoutCode ?? "N/A";
+                //string approverByQT = approvalData.FirstOrDefault(a => a.SequenceNo == 5)?.Comments ?? "N/A";
+                //string QtTeamDate = approvalData.FirstOrDefault(a => a.SequenceNo == 5)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? "N/A";
+                //string approvedByQT = approvalData.FirstOrDefault(a => a.SequenceNo == 5)?.employeeNameWithoutCode ?? "N/A";
 
                 sb.Replace("#SectionHeadName#", approveSectioneHead);
                 sb.Replace("#DepartmentHeadName#", approvedByDepHead);
                 sb.Replace("#DivisionHeadName#", approvedByDivHead);
+
                 sb.Replace("#AdvisorName#", approvedByAdvisor);
                 sb.Replace("#AdvisorComment#", advisorComment);
-                sb.Replace("#AdvisorDate#", advisorDate);
-                sb.Replace("#QTOneComment#", approverByQT);
-                sb.Replace("#QTOneDate#", QtTeamDate);
-                sb.Replace("#QCmanagername#",approvedByQT);
-                sb.Replace("#clsSectionHead#", approveSectioneHead);
+                 sb.Replace("#AdvisorDate#", advisorDate);
+                // sb.Replace("#QTOneComment#", approverByQT);
+                //sb.Replace("#QTOneDate#", QtTeamDate);
+                //sb.Replace("#QCmanagername#", approvedByQT);
+
+                if (equipmentData.WorkFlowLevel == 2 && equipmentData.Status == ApprovalTaskStatus.InReview.ToString())
+                {
+                    sb.Replace("#clsSectionHead#", approveSectioneHead);
+                }
 
                 sb.Replace("#ResultStatus#", equipmentData?.ResultStatus);
                 sb.Replace("#TargetDate#", equipmentData?.TargetDate?.ToString("dd-MM-yyyy") ?? "N/A");
