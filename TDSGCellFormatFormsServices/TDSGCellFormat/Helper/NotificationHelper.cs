@@ -1058,7 +1058,8 @@ namespace TDSGCellFormat.Helper
 
                 //stage link
                 string? documentLink = _configuration["SPSiteUrl"] +
-                 "/SitePages/EquipmentReport.aspx#/form/";
+                     _configuration["EquipmentURL"];
+                
 
                 //prod link
                 //string? documentLink = _configuration["SPSiteUrl"] +
@@ -1570,7 +1571,8 @@ namespace TDSGCellFormat.Helper
                 bool cpcDeptPeople = false;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? documentLink = _configuration["SPSiteUrl"] +
-                "/SitePages/Technical-Instruction-Sheet.aspx#/";
+                    _configuration["TISURL"];
+                //"/SitePages/Technical-Instruction-Sheet.aspx#/";
                 bool allPersonInCc = false;
                 //string? documentLink = _configuration["SPSiteUrl"] +
                 //"/SitePages/TechInstructionSheet.aspx#/";
@@ -1845,7 +1847,7 @@ namespace TDSGCellFormat.Helper
                 string? documentLink = _configuration["SPSiteUrl"] +
                       _configuration["AdjustmentURL"];
 
-                //https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA/SitePages/AdjustmentReport.aspx#/
+                
 
                 if (requestId > 0)
                 {
