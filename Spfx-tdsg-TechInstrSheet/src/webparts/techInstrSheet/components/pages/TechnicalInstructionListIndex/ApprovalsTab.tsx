@@ -270,7 +270,7 @@ const ApprovalsTab: React.FC = () => {
       ...getColumnSearchProps("IssuedBy", "Requestor"),
     },
     {
-      title: "Closure Date",
+      title: "Target Closure Date",
       dataIndex: "TargetClosureDate",
       key: "TargetClosureDate",
       width: "10%",

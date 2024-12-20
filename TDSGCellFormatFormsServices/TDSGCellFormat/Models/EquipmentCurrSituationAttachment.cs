@@ -17,6 +17,8 @@ public class EquipmentCurrSituationAttachment
     public int? EquipmentImprovementId { get; set; }
     public string? CurrSituationDocName { get; set; }
     public string? CurrSituationDocFilePath { get; set; }
+
+    public string? CurrImageBytes { get; set; }
     public bool? IsDeleted { get; set; }
     public int? CreatedBy { get; set; }
     public DateTime? CreatedDate { get; set; }

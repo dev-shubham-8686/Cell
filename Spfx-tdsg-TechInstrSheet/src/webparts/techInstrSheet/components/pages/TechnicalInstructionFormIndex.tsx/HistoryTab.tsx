@@ -49,6 +49,9 @@ const HistoryTab: React.FC<{ technicalId: string }> = ({ technicalId }) => {
       dataIndex: "actionType",
       key: "actionType",
       width: "15%",
+      render: (text:any) => (
+         text ? (text === "UnderAmendment"? "Ask to Amend" : text) : text
+      )
     },
     {
       title: "Comment",

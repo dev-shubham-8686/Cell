@@ -1121,6 +1121,14 @@ namespace TDSGCellFormat.Helper
                                 isRequestorinCCEmail = true;
                                 break;
 
+                            case EmailNotificationAction.AutoApproved:
+                                templateFile = "Equipment_AutoApprove.html";
+                                emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Auto Approved", equipmentNo);
+                                
+                                approvelink = true;
+                                isRequestorinCCEmail = true;
+                                break;
+
                             case EmailNotificationAction.Amended:
                                 templateFile = "Equipment_Amend.html";
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Asked for Amendment", equipmentNo);
@@ -1220,6 +1228,17 @@ namespace TDSGCellFormat.Helper
                             foreach (var item in approverData)
                             {
                                 if (item.Status != ApprovalTaskStatus.Pending.ToString())
+                                {
+                                    emailToAddressList.Add(item.email);
+                                }
+                            }
+                        }
+
+                        if(emailNotification == EmailNotificationAction.AutoApproved)
+                        {
+                            foreach (var item in approverData)
+                            {
+                                if (item.Status != ApprovalTaskStatus.AutoApproved.ToString())
                                 {
                                     emailToAddressList.Add(item.email);
                                 }
@@ -1534,7 +1553,6 @@ namespace TDSGCellFormat.Helper
 
                 string? templateDirectory = _configuration["TemplateSettings:Normal_Mail"];
 
-                //TroubleReports troubleReports = new TroubleReports();
                 List<string?> emailToAddressList = new List<string?>();
                 List<string?> emailCCAddressList = new List<string?>();
                 string? emailSubject = null;
@@ -1561,6 +1579,7 @@ namespace TDSGCellFormat.Helper
                 {
                     var materialData = _context.TechnicalInstructionSheets.Where(x => x.TechnicalId == requestId && x.IsDeleted == false).FirstOrDefault();
                     var materialNum = _context.TechnicalInstructionSheets.Where(x => x.TechnicalId == requestId && x.IsDeleted == false).Select(x => x.CTINumber).FirstOrDefault();
+                    var Title = materialData.Title;
                     if (materialData != null)
                     {
                         if (materialData.CreatedBy > 0)
@@ -1575,6 +1594,7 @@ namespace TDSGCellFormat.Helper
                             departmentHeadName = departMentHeadDetails?.EmployeeName;
                             departmentHeadEmail = departMentHeadDetails?.Email;
                         }
+
                         var approverData = await _context.GetTechnicalWorkFlowData(requestId);
 
                         switch (emailNotification)
@@ -1651,43 +1671,11 @@ namespace TDSGCellFormat.Helper
                             emailToAddressList.Add(requesterUserEmail);
                             emailCCAddressList.Remove(requesterUserEmail);
                         }
+
                         if (isRequestorinCCEmail)
                         {
                             emailCCAddressList.Add(requesterUserEmail);
                         }
-
-                        //if (cpcDeptPeople)
-                        //{
-                        //    var cpcDeptPeopleList = _context.CPCGroupMasters.Where(x => x.IsActive == true).Select(x => x.Email).ToList();
-
-                        //    foreach (var cepDept in cpcDeptPeopleList)
-                        //    {
-                        //        emailCCAddressList.Add(cepDept);
-                        //    }
-
-                        //}
-
-                        //if (isDepartMentHead)
-                        //{
-                        //    var cpcDeptPeopleList = _context.CPCGroupMasters.Where(x => x.IsActive == true).Select(x => x.Email).ToList();
-
-                        //    if (nextApproverTaskId == materialData.CreatedBy)
-                        //    {
-                        //        foreach (var cepDept in cpcDeptPeopleList)
-                        //        {
-                        //            emailToAddressList.Add(cepDept);
-                        //        }
-                        //    }
-                        //    else
-                        //    {
-                        //        // all cpc people will be in to and req in cc
-                        //        emailCCAddressList.Add(requesterUserEmail);
-                        //        foreach (var cepDept in cpcDeptPeopleList)
-                        //        {
-                        //            emailToAddressList.Add(cepDept);
-                        //        }
-                        //    }
-                        //}
 
                         if (isInReviewTask)
                         {
@@ -1790,6 +1778,7 @@ namespace TDSGCellFormat.Helper
 
                                 emailBody = emailBody.Replace("#TechnicalLink#", docLink);
                                 emailBody = emailBody.Replace("#CTINumber#", materialNum);
+                                emailBody = emailBody.Replace("#Title#", Title);
                                 emailBody = emailBody.Replace("#Requestor#", requesterUserName);
                                 emailBody = emailBody.Replace("#Comment#", comment);
                                 emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
