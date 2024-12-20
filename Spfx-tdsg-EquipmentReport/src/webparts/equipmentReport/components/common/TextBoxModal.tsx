@@ -246,7 +246,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
                   );
                   setEmailAttachments(updatedAttachments);
                   if (updatedAttachments?.length == 0) {
-                    debugger
+                    
                     form.setFieldValue("emailAttachments", []);
                   }
                   await form.validateFields(["emailAttachments"]); 
