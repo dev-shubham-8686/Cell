@@ -56,7 +56,7 @@ namespace TDSG.CellForms.SubstituteScheduler.Scheduler
                         foreach (var approverTask in approverTasks)
                         {
                             int sequneceNo = 1;
-                            approverTask.AssignedToUserId = item.EmployeedID ?? 0;
+                            approverTask.AssignedToUserId = item.EmployeeID ?? 0;
                             approverTask.DelegateUserId = null;
                             approverTask.DelegateOn = null;
                             approverTask.DelegateBy = null;

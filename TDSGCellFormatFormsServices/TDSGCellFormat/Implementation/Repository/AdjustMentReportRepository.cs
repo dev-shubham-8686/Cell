@@ -741,6 +741,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 await _context.CallAdjustmentReportApproverMaterix(createdBy, adjustmentReportId);
 
+                //var approverTaskId = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsActive == true && x.Status == ApprovalTaskStatus.InReview.ToString()).Select(x => x.ApproverTaskId).FirstOrDefault();
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 await notificationHelper.SendAdjustmentEmail(adjustmentReportId, EmailNotificationAction.Submitted, string.Empty, 0);
 
