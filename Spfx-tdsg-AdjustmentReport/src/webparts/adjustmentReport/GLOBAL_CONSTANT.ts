@@ -1,8 +1,8 @@
 export const DATE_FORMAT = "DD-MM-YYYY";
 export const basePath = 
-// `https://localhost:44353`;                      //    ---  local
+`https://localhost:44353`;                      //    ---  local
 // `https://cellformservice-qa.tdsgj.co.in`;         //   ---  QA
-"https://cellformservice-stage.tdsgj.co.in";      //  ----- stage
+// "https://cellformservice-stage.tdsgj.co.in";      //  ----- stage
 
 
 
@@ -18,10 +18,10 @@ export const DATETIME = "dd-MM-yyyy HH:mm:ss";
 export const EXCEL_DATE_FORMAT = "YYYY-MM-DD";
 
 export const WEB_URL = 
-// "https://synopsandbox.sharepoint.com/sites/Training2024"
+"https://synopsandbox.sharepoint.com/sites/Training2024"
 //  "https://synopsandbox.sharepoint.com/sites/e-app-stage"  // -- local
 //  "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA"    // --QA
-"https://tdsgj.sharepoint.com/sites/e-app-stage"        // -stage 
+// "https://tdsgj.sharepoint.com/sites/e-app-stage"        // -stage 
 //Process Status
 export const ProcessStatus = [
   "approved",
@@ -103,7 +103,7 @@ export const REQUEST_STATUS = {
 };
 
 export const MESSAGES = {
-  approvalInfoMsg:
+  approvalInfoMsg:  
     "Kindly ensure the Effectiveness Monitoring and Horizontal Deployment (if Any) before approval.",
   notifyManager:
     "Do you wish to proceed with notifying your reporting manager?",
