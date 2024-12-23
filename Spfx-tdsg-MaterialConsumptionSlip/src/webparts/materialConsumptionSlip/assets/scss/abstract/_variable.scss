@@ -1,0 +1,112 @@
+// @import url("https://fonts.googleapis.com/css2?family=Lato&display=swap");
+
+/* latin-ext */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/lato/v24/S6uyw4BMUTPHjxAwXjeu.woff2) format('woff2');
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/lato/v24/S6uyw4BMUTPHjx4wXg.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+// sass/scss variables
+
+// font family
+$font-family-sans-serif: "Lato", Helvetica, sans-serif,
+  // Emoji fonts
+  "Apple Color Emoji",
+  "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+$lato: "Lato", serif;
+$font-family:'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+
+
+
+// colors
+
+// color variable overrides
+$body-bg: white;
+$body-color: #000000; //old origiinal #212529;
+$primary: #c50017;
+$secondary: #3ea7ab;
+$success: #1ab55f;
+$danger: #cf1919;
+$warning: #ab4400;
+$info: #69d3d6;
+$light: #f1f5f9;
+$dark: #6f6f6f;
+
+//blue-shades
+$blue-1: #3762ea;
+$blue-bg: #e1e7fc;
+$blue-2: #16aaee;
+$blue-2-bg: #d0d6d8;
+
+// red shades
+$red-bg: #ffe9e9;
+$red-1: #ff2e2e;
+
+// yelllow shades
+$yellow-bg: #f9e9cd;
+$yellow-1: #e9a121;
+$yellow-highlight: #fff11e;
+
+// green shades
+$green-bg: #e0f7ea;
+$green-1: #1ab55f;
+
+$white: #ffffff;
+$black: #000000;
+$darkgrey: #333333;
+$grey-1: #d9d9d9;
+
+// color map
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark,
+  "darkgrey": $darkgrey,
+);
+
+$menu-link: #56e9ef;
+
+// buttons
+$input-btn-font-size: 0.875rem;
+$input-btn-padding-x: 14px;
+$btn-border-radius: 4px;
+$btn-font-weight: 400;
+
+// navs
+$nav-underline-gap: 0;
+$nav-underline-border-width: 0.1875rem;
+$nav-underline-link-active-color: $primary;
+
+// table
+$table-color: #333;
+$table-bg: $white;
+$table-th-font-weight: 600;
+$table-cell-padding-y: 1.1875rem;
+$table-cell-padding-x: 0.75rem;
+$table-striped-color: #333;
+$table-striped-bg: $white;
+
+//label
+$form-label-margin-bottom: 0.3125rem;
+$form-label-font-size: 14px;
+$form-label-font-style: null;
+$form-label-font-weight: 400;
+$form-label-color: #898989;
