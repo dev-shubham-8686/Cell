@@ -300,23 +300,29 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Issue Date",
       dataIndex: "IssueDate",
       key: "IssueDate",
-       width: 150,
+      width: 150,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
-      render: (text) => (
-        <p className="text-cell">{text? dayjs(text).format(DATE_FORMAT):"-"}</p>
-      ),
+      render: (text) => {
+        console.log("DATTEEE",text ? dayjs(text,DATE_FORMAT).format(DATE_FORMAT):"-",text)
+        return (
+          
+          <p className="text-cell">
+            {text ? dayjs(text,DATE_FORMAT).format(DATE_FORMAT) : "-"}
+          </p>
+        );
+      },
     },
     {
       title: "Area",
       dataIndex: "Area",
       key: "Area",
-       width: 150,
+      width: 150,
       sorter: true,
-     // filterDropdown: ColumnFilter,
+      // filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
@@ -325,21 +331,21 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Machine Name",
       dataIndex: "MachineName",
       key: "MachineName",
-       width: 200,
+      width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
       render: (text) => {
-         return <p className="text-cell">{text}</p>;
+        return <p className="text-cell">{text}</p>;
       },
     },
     {
       title: "Sub Machine Name",
       dataIndex: "SubMachineName",
       key: "SubMachineName",
-       width: 200,
+      width: 200,
       sorter: true,
       //filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -347,13 +353,13 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       ),
       render: (text) => {
         return <p className="text-cell">{text}</p>;
-     },
+      },
     },
     {
       title: "Section Name",
       dataIndex: "SectionName",
       key: "SectionName",
-       width: 200,
+      width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -364,7 +370,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Improvement Name",
       dataIndex: "ImprovementName",
       key: "ImprovementName",
-       width: 200,
+      width: 200,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -375,7 +381,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Requestor",
       dataIndex: "Requestor",
       key: "Requestor",
-       width: 120,
+      width: 120,
       sorter: true,
       render: (text) => <p className="text-cell">{text ?? "-"}</p>,
       filterDropdown: ColumnFilter,
@@ -387,7 +393,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Current Approver",
       dataIndex: "CurrentApprover",
       key: "CurrentApprover",
-       width: 200,
+      width: 200,
       sorter: true,
       render: (text) => <p className="text-cell">{text ?? "-"}</p>,
       filterDropdown: ColumnFilter,
@@ -399,7 +405,7 @@ const EquipmentReportTable: React.FC<{}> = ({}) => {
       title: "Status",
       dataIndex: "Status",
       key: "Status",
-       width: 230,
+      width: 230,
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (

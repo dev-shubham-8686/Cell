@@ -29,6 +29,7 @@
         public int? totalCount { get; set; }
 
         public DateTime? ModifiedDate { get; set; }
+        public int? AdvisorId { get; set; }
 
     }
 
@@ -53,6 +54,8 @@
         public int? totalCount { get; set; }
 
         public DateTime? ModifiedDate { get; set; }
+
+        public int? AdvisorId { get; set; }
     }
 
     public class EquipmentExcelViewForType1

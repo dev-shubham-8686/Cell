@@ -253,15 +253,22 @@ namespace TDSGCellFormat.Helper
                         result.StatusCode = Status.Success;
                         result.Message = model.APIKeyId;
                         return JsonConvert.SerializeObject(result);
-                    }
-                    if (type == ProjectType.TechnicalInstruction.ToString().ToUpper())
+                    }   
+                    if (type == ProjectType.AdjustMentReport.ToString().ToUpper())
                     {
                         result.ResultType = (int)MessageType.Success;
                         result.StatusCode = Status.Success;
                         result.Message = model.APIKeyId;
                         return JsonConvert.SerializeObject(result);
                     }
-                    return model.APIKeyId;
+
+                    if (type == ProjectType.TechnicalInstruction.ToString().ToUpper())
+                    {
+                        result.ResultType = (int)MessageType.Success;
+                        result.StatusCode = Status.Success;
+                        result.Message = model.APIKeyId;
+                        return JsonConvert.SerializeObject(result);
+                    }                       
                 }
 
                 var getPrevLoginDetail = _masterDb.AuthSessions.Where(x => x.UserId == empId).ToList();
@@ -288,7 +295,7 @@ namespace TDSGCellFormat.Helper
             catch (Exception ex)
             {
                 
-                var commonHelper = new CommonHelper(_db);
+                var commonHelper = new CommonHelper(_db, _masterDb);
                 commonHelper.LogException(ex, "createAuth session");
                 // return false;
                 result.StatusCode = Status.Error;

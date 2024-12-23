@@ -75,7 +75,7 @@ const ExportToExcel = forwardRef(({ type }: ExportToExcelProps, ref) => {
         {
           fromDate,
           toDate,
-          employeeId: user?.user?.EmployeeId?.toString() ?? "",
+          employeeId: user?.user?.employeeId?.toString() ?? "",
           type,
         },
         {

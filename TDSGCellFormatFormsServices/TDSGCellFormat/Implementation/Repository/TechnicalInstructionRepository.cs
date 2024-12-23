@@ -761,7 +761,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical SubmitRequest");
                 //return res;
             }
@@ -799,7 +799,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical ReSubmitRequest");
                 //return res;
             }
@@ -841,7 +841,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical ReSubmitRequest");
                 //return res;
             }
@@ -935,7 +935,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical UpdateApproveAskToAmend");
 
             }
@@ -977,7 +977,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical PullbackRequest");
                 return res;
             }
@@ -1105,7 +1105,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "CloseTechnical");
                 return res;
             }
@@ -1261,7 +1261,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Status.Error;
 
                 // Log the exception using your logging mechanism
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ExportTechnicalInstructionToExcel");
 
                 return res;
@@ -1450,7 +1450,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Status.Error;
 
                 // Log the exception using your logging mechanism
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ExportToPdf");
 
                 return res;
@@ -1676,7 +1676,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Status.Error;
 
                 // Log the exception using your logging mechanism
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ExportToPdf_v2");
 
                 return res;
@@ -1970,7 +1970,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Status.Error;
 
                 // Log the exception using your logging mechanism
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ExportToPdf_v3");
 
                 return res;
@@ -2157,7 +2157,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "GetTechnicalInstructionExcel");
                 return res;
             }
@@ -2293,7 +2293,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ReOpenTechnicalForm");
                 // return res;
             }
@@ -2447,7 +2447,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ChangeRequestOwner");
                 // return res;
             }
@@ -2480,7 +2480,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ChangeRequestOwner_V0");
             }
 
