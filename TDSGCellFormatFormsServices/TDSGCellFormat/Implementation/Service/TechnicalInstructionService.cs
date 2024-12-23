@@ -179,5 +179,10 @@ namespace TDSGCellFormat.Implementation.Service
             return await _technicalRepository.ExportToPdf_v3(technicalId);
         }
 
+        public async Task<GetTechnicalUser> GetUserRole(string userEmail)
+        {
+            return await _technicalRepository.GetUserRole(userEmail);
+        }
+
     }
 }
