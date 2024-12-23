@@ -34,6 +34,35 @@ namespace TDSGCellFormat.Controllers
             this._cloneContext = cloneContext;
             _httpContextAccessor = httpContextAccessor;
         }
+
+        [HttpGet("GetUserRole")]
+        public async Task<IActionResult> GetUserRole(string email)
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
+
+            var userDetails = await _technicalService.GetUserRole(email);
+            if (userDetails == null)
+            {
+                AjaxResult result = new AjaxResult();
+                result.ResultType = (int)MessageType.NotAuthorize;
+                result.StatusCode = Status.NotAuthorize;
+                result.Message = Enums.TroubleAuthorization;
+
+                return NotFound(result);
+            }
+            return Ok(userDetails);
+        }
+
         [HttpGet("Get")]
         public async Task<IActionResult> Get(int createdBy, int skip, int take, string order = "", string orderBy = "", string searchColumn = "", string searchValue = "")
         {
@@ -359,17 +388,17 @@ namespace TDSGCellFormat.Controllers
         [HttpGet("GetCurrentApprover")]
         public IActionResult GetCurrentApproverTask(int technicalId, int userId)
         {
-            //var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
-            //// Call the IsValidAuthentication method
-            //AjaxResult authResult;
-            //bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
 
-            //if (!isValidAuth)
-            //{
-            //    // Return unauthorized response if authentication fails
-            //    Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
-            //    return Unauthorized(Ajaxresponse);
-            //}
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
             var result = _technicalService.GetCurrentApproverTask(technicalId, userId);
             if (result != null)
             {

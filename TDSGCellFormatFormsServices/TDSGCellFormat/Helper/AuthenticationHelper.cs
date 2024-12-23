@@ -254,6 +254,13 @@ namespace TDSGCellFormat.Helper
                         result.Message = model.APIKeyId;
                         return JsonConvert.SerializeObject(result);
                     }
+                    if (type == ProjectType.TechnicalInstruction.ToString().ToUpper())
+                    {
+                        result.ResultType = (int)MessageType.Success;
+                        result.StatusCode = Status.Success;
+                        result.Message = model.APIKeyId;
+                        return JsonConvert.SerializeObject(result);
+                    }
                     return model.APIKeyId;
                 }
 

@@ -2576,5 +2576,26 @@ namespace TDSGCellFormat.Implementation.Repository
         #region Master
         #endregion
 
+        #region GetUserRole
+        public async Task<GetTechnicalUser> GetUserRole(string userEmail)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserEmail", userEmail, DbType.String, ParameterDirection.Input, 150);
+
+                var result = await connection.QueryFirstOrDefaultAsync<GetTechnicalUser>(
+                    "dbo.SPP_GetUserDetails_Technical",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                return result;
+            }
+        }
+        #endregion
+
     }
 }
