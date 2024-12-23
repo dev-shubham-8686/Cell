@@ -268,7 +268,9 @@ namespace TDSGCellFormat.Helper
                         result.StatusCode = Status.Success;
                         result.Message = model.APIKeyId;
                         return JsonConvert.SerializeObject(result);
-                    }                       
+                    }
+
+                    return model.APIKeyId;
                 }
 
                 var getPrevLoginDetail = _masterDb.AuthSessions.Where(x => x.UserId == empId).ToList();
