@@ -19,8 +19,17 @@ Short summary on functionality and used technologies.
 > Get your own free development tenant by subscribing to [Microsoft 365 developer program](http://aka.ms/o365devprogram)
 
 ## Prerequisites
+> Node version: 18.20.2
+> Gulp version: 4.0.2
+> Gulp CLI version: 3.0.0
 
-> Any special pre-requisites?
+## Used technologies
+
+> Sharepoint Framework version: 1.18.2 
+> Typescript version: 4.7.4
+> React version: 17.0.1
+> Bootstrap version: 5.3.3 
+> React Query: 4.0.0
 
 ## Solution
 
