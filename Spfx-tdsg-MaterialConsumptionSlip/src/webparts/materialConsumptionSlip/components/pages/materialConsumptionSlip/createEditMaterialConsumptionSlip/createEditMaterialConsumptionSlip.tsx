@@ -188,7 +188,7 @@ const CreateEditMaterialConsumptionSlip: React.FC<
 
     console.log("FormData", formData);
     console.log("CURRENTAPPROVERTASKBEFORESUBMISSION", currentApproverTask);
-    debugger;
+    
     createUpdateMaterialConsumptionSlip.mutate(
       {
         ...formData,
@@ -213,7 +213,7 @@ const CreateEditMaterialConsumptionSlip: React.FC<
               `/form/edit/${Response?.ReturnValue.MaterialConsumptionId}`
             );
           }
-          debugger;
+          
           setIsFormModified(false);
           console.log("On save Response: ", Response);
         },

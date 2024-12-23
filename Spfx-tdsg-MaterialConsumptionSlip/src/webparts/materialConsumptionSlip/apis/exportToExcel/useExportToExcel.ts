@@ -7,7 +7,7 @@ import { downloadExcelFile } from "../../utility/utility";
 
 const exportToExcel = async ({ id, materialNo }: { id: number; materialNo: any }) => {
  
-  debugger
+  
   const response = await http.get<any>(EXPORT_TO_EXCEL,{ params: {materialConsumptionId: id } });
   
   const data = response.data.ReturnValue;

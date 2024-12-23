@@ -13,13 +13,13 @@ const createMaterialConsumptionSlip = async (
   const config: ICustomAxiosConfig = {
     SHOW_NOTIFICATION: true,
   };
-debugger
+
   const response = await http.post<string>(
     CREATE_EDIT_MATERIAL_CONSUMPTION_SLIP,
     materialConsumptionSlip,
     config
   );
-  debugger
+  
   return response.data;
 };
 

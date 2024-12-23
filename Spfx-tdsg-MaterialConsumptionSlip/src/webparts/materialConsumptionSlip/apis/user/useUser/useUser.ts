@@ -44,12 +44,12 @@ const getUser = async (email: string) => {
   
   const res = await authenticateUser(email);
   if(res){
-    debugger
+    
     const response = await http.get<IUser>(GET_USER, { params: { email } });
-debugger
+
         // Format the response using MCSAdminFormatter
         const formattedUser = MCSAdminFormatter(response.data);
-        debugger
+        
         return formattedUser;
   }
   return null;
