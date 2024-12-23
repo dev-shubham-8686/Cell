@@ -1,16 +1,12 @@
-﻿using Castle.Components.DictionaryAdapter.Xml;
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using Dapper;
-using DocumentFormat.OpenXml.Bibliography;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
-using Org.BouncyCastle.Asn1.X509;
 using System.Data;
 using System.Data.SqlClient;
 using System.Net;
-using System.Net.Mail;
 using System.Text;
 using TDSGCellFormat.Common;
 using TDSGCellFormat.Helper;
@@ -20,10 +16,8 @@ using TDSGCellFormat.Models.Add;
 using TDSGCellFormat.Models.View;
 using IronPdf;
 using static TDSGCellFormat.Common.Enums;
-using PnP.Framework.Modernization.Cache;
 using System.Text.RegularExpressions;
 using static IronPdf.PdfPrintOptions;
-using PnP.Framework.Extensions;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
