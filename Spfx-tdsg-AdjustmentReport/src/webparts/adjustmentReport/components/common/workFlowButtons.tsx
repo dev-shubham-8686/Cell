@@ -19,6 +19,7 @@ import { useGetCellDepartmentsById } from "../../hooks/useGetCellDepartmentById"
 import { showErrorMsg } from "../../utils/displayjsx";
 import { IDeligate } from "../../api/DeligateUser.api";
 import { useGetAllEmployees } from "../../hooks/useGetAllEmployees";
+import { useDeligate } from "../../hooks/useDeligate";
 
 const { Option } = Select;
 
@@ -52,6 +53,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   const { id, mode } = useParams();
   const { mutate: approveAskToAmend ,isLoading:approving } = useUpdateApproveAskToAmend();
   const { mutate: pullback , isLoading:pullingBack } = usePullBack();
+  const { mutate: deligate , isLoading:deligating } = useDeligate();
   const { data: advisors = [] } = useGetAllAdvisors();
     const { data: employeesResult } = useGetAllEmployees();
 
@@ -199,14 +201,19 @@ console.log("ALLREQUEST",allReq)
     });
   };
 
-  const handleDeligate = async (comment: string): Promise<void> => {
+  const handleDeligate = async (comment: string , deligateUserId:number): Promise<void> => {
     const data: IDeligate = {
       FormId: id ? parseInt(id, 10) : 0,
-
+      UserId:deligateUserId,
       DelegateUserId: user?.employeeId ? user?.employeeId : 0,
       ApproverTaskId:currentApproverTask?.approverTaskId,
       comment: comment,
     };
+    deligate(data, {
+      onSuccess: (data) => {
+        navigate("/");
+      },
+    });
   }
   // Handle the submit action after getting the comment
   const handleSubmit = async () => {
@@ -217,7 +224,7 @@ console.log("ALLREQUEST",allReq)
 
       const comment = values.comment; // Get the validated comment
 if(actionType==="deligate"){
-  await handleDeligate(comment)
+  await handleDeligate(comment, values.DeligateUserId)
 }
       if (actionType === "approve") {
         await handleApprove(comment, values.approvalSequence);
