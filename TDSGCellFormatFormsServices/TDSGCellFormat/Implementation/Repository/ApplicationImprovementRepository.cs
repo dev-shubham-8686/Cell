@@ -1953,6 +1953,30 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#currentSituations#", equipmentData?.CurrentSituation);
                 sb.Replace("#Improvement#", equipmentData?.Imrovement);
 
+                var impCategoryId = equipmentData.ImprovementCategory.Split(',').Select(id => int.Parse(id)).ToList();
+                var impCategoryNames = new List<string>();
+                var impCategoryString = string.Empty;
+
+                if (impCategoryId.Contains(-1))
+                {
+                    impCategoryString = "Other - "+ equipmentData.OtherImprovementCategory;
+                }
+                else
+                {
+                    foreach (var id in impCategoryId)
+                    {
+                        // Query database or use a dictionary/cache to get the name
+                        var impCatName = _context.ImprovementCategoryMasters.Where(x => x.ImprovementCategoryId == id && x.IsDeleted == false).Select(x => x.ImprovementCategoryName).FirstOrDefault(); // Replace this with your actual DB logic
+                        if (!string.IsNullOrEmpty(impCatName))
+                        {
+                            impCategoryNames.Add(impCatName);
+                        }
+                    }
+                    impCategoryString = string.Join(", ", impCategoryNames);
+                }
+
+                sb.Replace("#ImpCategory#", impCategoryString);
+
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
                 if (equipmentData?.ToshibaApprovalRequired == true)
                 {
@@ -2088,6 +2112,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 if (equipmentData.WorkFlowLevel == 2 && equipmentData.Status == ApprovalTaskStatus.InReview.ToString())
                 {
                     sb.Replace("#clsSectionHead#", approveSectioneHead);
+                }
+                else
+                {
+                    sb.Replace("#clsSectionHead#", "N/A");
                 }
 
                 sb.Replace("#ResultStatus#", equipmentData?.ResultStatus);
