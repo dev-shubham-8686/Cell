@@ -1,16 +1,12 @@
-﻿using Castle.Components.DictionaryAdapter.Xml;
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using Dapper;
-using DocumentFormat.OpenXml.Bibliography;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
-using Org.BouncyCastle.Asn1.X509;
 using System.Data;
 using System.Data.SqlClient;
 using System.Net;
-using System.Net.Mail;
 using System.Text;
 using TDSGCellFormat.Common;
 using TDSGCellFormat.Helper;
@@ -20,10 +16,8 @@ using TDSGCellFormat.Models.Add;
 using TDSGCellFormat.Models.View;
 using IronPdf;
 using static TDSGCellFormat.Common.Enums;
-using PnP.Framework.Modernization.Cache;
 using System.Text.RegularExpressions;
 using static IronPdf.PdfPrintOptions;
-using PnP.Framework.Extensions;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -767,7 +761,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical SubmitRequest");
                 //return res;
             }
@@ -805,7 +799,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical ReSubmitRequest");
                 //return res;
             }
@@ -847,7 +841,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical ReSubmitRequest");
                 //return res;
             }
@@ -941,7 +935,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical UpdateApproveAskToAmend");
 
             }
@@ -983,7 +977,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical PullbackRequest");
                 return res;
             }
@@ -1111,7 +1105,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "CloseTechnical");
                 return res;
             }
@@ -1267,7 +1261,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Status.Error;
 
                 // Log the exception using your logging mechanism
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ExportTechnicalInstructionToExcel");
 
                 return res;
@@ -1456,7 +1450,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Status.Error;
 
                 // Log the exception using your logging mechanism
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ExportToPdf");
 
                 return res;
@@ -1682,7 +1676,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Status.Error;
 
                 // Log the exception using your logging mechanism
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ExportToPdf_v2");
 
                 return res;
@@ -1976,7 +1970,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Status.Error;
 
                 // Log the exception using your logging mechanism
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ExportToPdf_v3");
 
                 return res;
@@ -2163,7 +2157,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "GetTechnicalInstructionExcel");
                 return res;
             }
@@ -2299,7 +2293,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ReOpenTechnicalForm");
                 // return res;
             }
@@ -2453,7 +2447,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ChangeRequestOwner");
                 // return res;
             }
@@ -2486,7 +2480,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ChangeRequestOwner_V0");
             }
 
@@ -2574,6 +2568,27 @@ namespace TDSGCellFormat.Implementation.Repository
         #endregion
 
         #region Master
+        #endregion
+
+        #region GetUserRole
+        public async Task<GetTechnicalUser> GetUserRole(string userEmail)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserEmail", userEmail, DbType.String, ParameterDirection.Input, 150);
+
+                var result = await connection.QueryFirstOrDefaultAsync<GetTechnicalUser>(
+                    "dbo.SPP_GetUserDetails_Technical",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                return result;
+            }
+        }
         #endregion
 
     }

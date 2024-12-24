@@ -1,4 +1,5 @@
 import { basePathwithprefix } from "../GLOBAL_CONSTANT";
+import { ICustomAxiosConfig } from "../interface";
 import apiClient from "../utils/axiosInstance";
 
 export interface IApproveAskToAmendPayload {
@@ -8,19 +9,24 @@ export interface IApproveAskToAmendPayload {
     Comment: string;
     AdjustmentId: number;
     AdvisorId?: number;
-    additionalDepartmentHeads?: IAdditionalDepartmentHeads[]
+    AdditionalDepartmentHeads?: IAdditionalDepartmentHeads[];
+    IsDivHeadRequired?:boolean;
 }
 
 export interface IAdditionalDepartmentHeads {
-    departmentHead: number;
-    approvalSequence: number;
+    EmployeeId: number;
+    DepartmentId: number;
+    ApprovalSequence: number;
 }
 
 export const updateApproveAskToAmend = async (
     payload: IApproveAskToAmendPayload
 ): Promise<boolean> => {
+    const config: ICustomAxiosConfig = {
+        SHOW_NOTIFICATION: true,
+      };
     const url = `${basePathwithprefix}/AdjustmentReport/UpdateApproveAskToAmend`; // need to change
     console.log(JSON.stringify(payload))
-    const response = await apiClient.post<boolean>(url, payload);
+    const response = await apiClient.post<boolean>(url, payload,config);
     return response.data;
 };

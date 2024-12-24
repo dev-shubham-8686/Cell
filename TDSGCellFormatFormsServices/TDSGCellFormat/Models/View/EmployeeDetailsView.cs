@@ -14,10 +14,20 @@
 
     public class DepartmentHeadsView
     {
+
+        public int? EmployeeId { get; set; }
+
+        public int? DepartmentId { get; set; }
+
         public string? EmployeeName { get; set; }
+    }
 
-        public int EmployeeId { get; set; }
+    public class CellDepartment
+    {
 
-        public string? Email { get; set; }
+
+        public int? DepartmentId { get; set; }
+
+        public string? DepartmentName { get; set; }
     }
 }

@@ -36,14 +36,14 @@ namespace TDSGCellFormat.Models.Add
 
         public string? AdjustmentDescription { get; set; }
 
-        public Photos? Photos { get; set; }
+       
 
         public bool? ChangeRiskManagementRequired { get; set; }
         public string? ConditionAfterAdjustment { get; set; }
 
         public List<ChangeRiskManagement_AdjustmentReports>? ChangeRiskManagement_AdjustmentReport { get; set; }
 
-
+        public int? AdvisorId { get; set; }
         public string? WorkFlowStatus { get; set; }
 
         public string? Status { get; set; }
@@ -61,6 +61,13 @@ namespace TDSGCellFormat.Models.Add
         public int? ModifiedBy { get; set; }
 
         public bool? IsDeleted { get; set; }
+
+        public int? DepartmentHeadId { get; set; }
+
+        public int? DeputyDivHead {  get; set; }
+
+        public List<AdjustmentAfterImageData>? AfterImages { get; set; }
+        public List<AdjustmentBeforeImageData>? BeforeImages { get; set; }
     }
 
     public class ChangeRiskManagement_AdjustmentReports
@@ -80,9 +87,34 @@ namespace TDSGCellFormat.Models.Add
 
     }
 
+    public class AdjustmentAfterImageData
+    {
+        public int AdjustmentAfterImageId { get; set; }
+        public int? AdjustmentreportId { get; set; }
+        public string? AfterImgName { get; set; }
+        public string? AfterImgPath { get; set; }
+        public string? AfterImgBytes { get; set; }
+        public int? CreatedBy { get; set; }
+        public int? ModifiedBy { get; set; }
+
+    }
+
+
+    public class AdjustmentBeforeImageData
+    {
+        public int AdjustmentBeforeImageId { get; set; }
+        public int? AdjustmentreportId { get; set; }
+        public string? BeforeImgName { get; set; }
+        public string? BeforeImgPath { get; set; }
+        public string? BeforeImgBytes { get; set; }
+        public int? CreatedBy { get; set; }
+        public int? ModifiedBy { get; set; }
+
+    }
+
     public class ApproveAsktoAmend
     {
-        public int? ApproverTaskId { get; set; }
+        public int ApproverTaskId { get; set; }
 
         public int? CurrentUserId { get; set; }
 
@@ -92,9 +124,8 @@ namespace TDSGCellFormat.Models.Add
 
         public int AdjustmentId { get; set; }
 
-        public int? AdvisorId { get; set; }
+        public bool? IsDivHeadRequired { get; set; }
 
-        
         public List<AdditionalDepartmentHeads>? AdditionalDepartmentHeads { get; set; } = new List<AdditionalDepartmentHeads>();
     }
 
@@ -121,6 +152,14 @@ namespace TDSGCellFormat.Models.Add
         public int? AdjustmentReportId { get; set; }
         public int? userId { get; set; }
         public int? EmployeeId { get; set; }
+        public string? Comment { get; set; }
+    }
+
+    public class AdjustmentAdvisor
+    {
+        public int? AdjustmentAdvisorId { get; set; }
+        public int? AdvisorId {  get; set; }
+        public int AdjustmentReportId { get; set; }
         public string? Comment { get; set; }
     }
 }

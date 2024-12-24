@@ -21,6 +21,10 @@ namespace TDSGCellFormat.Implementation.Service
             this._adjustMentRepository = tdsgRepository;
         }
 
+        public Task<GetEquipmentUser> GetUserRole(string email)
+        {
+            return _adjustMentRepository.GetUserRole(email);
+        }
 
         public async Task<List<AdjustmentReportView>> GetAllAdjustmentData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
@@ -110,9 +114,29 @@ namespace TDSGCellFormat.Implementation.Service
             return await _adjustMentRepository.GetDepartmentHead(adjustmentReportId);
         }
 
-        public async Task<AjaxResult> GetAdditionalDepartmentHeads()
+        public async Task<List<DepartmentHeadsView>> GetAdditionalDepartmentHeads(int departmentId)
         {
-            return await _adjustMentRepository.GetAdditionalDepartmentHeads();
+            return await _adjustMentRepository.GetAdditionalDepartmentHeads(departmentId);
+        }
+
+        public async Task<List<CellDepartment>> GetAdditionalDepartments(int departmentId)
+        {
+            return await _adjustMentRepository.GetAdditionalDepartments(departmentId);
+        }
+
+        public List<TroubleReportHistoryView> GetHistoryData(int adjustmentId)
+        {
+            return  _adjustMentRepository.GetHistoryData(adjustmentId);
+        }
+
+        public async Task<AjaxResult> AddOrUpdateAdvisorData(AdjustmentAdvisor request)
+        {
+            return await _adjustMentRepository.AddOrUpdateAdvisorData(request);
+        }
+
+        public AdjustmentAdvisor GetAdvisorData(int adjustmentReportId)
+        {
+            return _adjustMentRepository.GetAdvisorData(adjustmentReportId);
         }
     }
 }
