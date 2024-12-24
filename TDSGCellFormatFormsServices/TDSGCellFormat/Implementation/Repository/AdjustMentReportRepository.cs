@@ -1166,14 +1166,26 @@ namespace TDSGCellFormat.Implementation.Repository
         public async Task<AjaxResult> GetCurrentApproverTask(int Id, int userId)
         {
             var res = new AjaxResult();
-            var materialApprovers = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.AssignedToUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
             var data = new ApproverTaskId_dto();
-            if (materialApprovers != null)
+
+            var adjustmentDelegateApprover = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.DelegateUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+
+            if (adjustmentDelegateApprover != null)
             {
-                data.approverTaskId = materialApprovers.ApproverTaskId;
-                data.userId = materialApprovers.AssignedToUserId ?? 0;
-                data.status = materialApprovers.Status;
-                data.seqNumber = materialApprovers.SequenceNo;
+                data.approverTaskId = adjustmentDelegateApprover.ApproverTaskId;
+                data.userId = adjustmentDelegateApprover.AssignedToUserId ?? 0;
+                data.status = adjustmentDelegateApprover.Status;
+                data.seqNumber = adjustmentDelegateApprover.SequenceNo;
+            }
+
+            var adjustmentApprover = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.AssignedToUserId == userId  && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+           
+            if (adjustmentApprover != null)
+            {
+                data.approverTaskId = adjustmentApprover.ApproverTaskId;
+                data.userId = adjustmentApprover.AssignedToUserId ?? 0;
+                data.status = adjustmentApprover.Status;
+                data.seqNumber = adjustmentApprover.SequenceNo;
             }
             res.ReturnValue = data;
             return res;

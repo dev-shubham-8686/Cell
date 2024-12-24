@@ -22,9 +22,6 @@ namespace TDSGCellFormat.Models.Add
 
         public string? OtherSubMachineName { get; set; }
 
-        public List<int>? ImprovementCategory { get; set; }
-        public string? OtherImprovementCategory { get; set; }
-
         public string? RequestBy { get; set; }
 
         public int? EmployeeId { get; set; }
