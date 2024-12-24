@@ -2113,6 +2113,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     sb.Replace("#clsSectionHead#", approveSectioneHead);
                 }
+                else
+                {
+                    sb.Replace("#clsSectionHead#", "N/A");
+                }
 
                 sb.Replace("#ResultStatus#", equipmentData?.ResultStatus);
                 sb.Replace("#TargetDate#", equipmentData?.TargetDate?.ToString("dd-MM-yyyy") ?? "N/A");
