@@ -102,6 +102,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 SubMachineName = !string.IsNullOrEmpty(res.SubMachineId) ? res.SubMachineId.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
                 otherSubMachine = res.OtherSubMachine,
                 OtherMachineName = res.OtherMachineName,
+                ImprovementCategory = !string.IsNullOrEmpty(res.ImprovementCategory) ? res.ImprovementCategory.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
+                OtherImprovementCategory = res.OtherImprovementCategory,
                 Purpose = res.Purpose,
                 SectionId = res.SectionId,
                 SectionHeadId = res.SectionHeadId,
@@ -204,6 +206,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.OtherSubMachine = report.SubMachineName != null && report.SubMachineName.Contains(-2)
                            ? report.otherSubMachine
                            : "";
+                    newReport.ImprovementCategory = report.ImprovementCategory != null ? string.Join(",", report.ImprovementCategory) : string.Empty;
+                    newReport.OtherImprovementCategory = report.ImprovementCategory != null && report.ImprovementCategory.Contains(-2)
+                           ? report.OtherImprovementCategory
+                           : "";
                     newReport.SectionId = report.SectionId;
                     //newReport.SectionHeadId = report.SectionHeadId;
                     newReport.AreaId = report.AreaId != null ? string.Join(",", report.AreaId) : string.Empty;
@@ -211,11 +217,6 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.Purpose = report.Purpose;
                     newReport.CurrentSituation = report.CurrentSituation;
                     newReport.Imrovement = report.Improvement;
-                    // newReport.PCRNDocName = report.PcrnDocName;
-                    // newReport.PCRNDocFilePath = report.PcrnFilePath;
-                    //newReport.ResultStatus = report.ResultStatus;
-                    // newReport.ActualDate = !string.IsNullOrEmpty(report.ActualDate) ? DateTime.Parse(report.ActualDate) : (DateTime?)null;
-                    // newReport.TargetDate = !string.IsNullOrEmpty(report.TargetDate) ? DateTime.Parse(report.TargetDate) : (DateTime?)null;
                     newReport.IsDeleted = false;
                     newReport.CreatedDate = DateTime.Now;
                     newReport.CreatedBy = report.CreatedBy;
@@ -513,6 +514,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.OtherSubMachine = report.SubMachineName != null && report.SubMachineName.Contains(-2)
                            ? report.otherSubMachine
                            : "";
+                existingReport.ImprovementCategory = report.ImprovementCategory != null ? string.Join(",", report.ImprovementCategory) : string.Empty;
+                existingReport.OtherImprovementCategory = report.ImprovementCategory != null && report.ImprovementCategory.Contains(-2)
+                       ? report.OtherImprovementCategory
+                       : "";
                 existingReport.SectionId = report.SectionId;
                 existingReport.SectionHeadId = report.SectionHeadId;
                 existingReport.AreaId = report.AreaId != null ? string.Join(",", report.AreaId) : string.Empty;

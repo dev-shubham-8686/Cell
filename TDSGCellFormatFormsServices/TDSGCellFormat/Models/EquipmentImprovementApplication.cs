@@ -22,6 +22,10 @@ public partial class EquipmentImprovementApplication
     public string? SubMachineId  { get; set; }
 
     public string? OtherSubMachine { get; set; }
+
+    public string? ImprovementCategory { get; set; }
+
+    public string? OtherImprovementCategory { get; set; }
     public string? ImprovementName { get; set; }
     public string? Purpose { get; set; }
 
