@@ -187,6 +187,12 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
                   label: advisor.employeeName,
                   value: advisor.employeeId,
                 }))}
+                filterOption={(input, option) =>
+                  option?.label
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
                 loading={advisorIsLoading}
                 className="custom-disabled-select"
               />

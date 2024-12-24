@@ -25,7 +25,7 @@ interface IFileUpload {
   subFolderName?: string;
   files: UploadFile<any>[];
   setIsLoading: (isLoading: boolean) => void;
-  onAddFile: (documentName: string, documentFilePath: string) => void;
+  onAddFile: (documentName: string, documentFilePath: string ,file:File) => void;
   onRemoveFile: (documentName: string) => void;
   disabled?: boolean; // disabled when mode is view and submitted
   isLoading?: boolean;
@@ -86,9 +86,9 @@ console.log("FILES",files)
     }
    // Check file type
    
-    if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.includes(fileExtension)){
-      description= "Only Email Attachments are allowed. "
-    }
+    // if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.includes(fileExtension)){
+    //   description= "Only Email Attachments are allowed. "
+    // }
     
     else if (
       file.type &&
@@ -221,9 +221,9 @@ console.log("FILES",files)
         
         onAddFile(
           jsonResponse.Name,
-          fullPath.substring(fullPath.indexOf(`/${libraryName}`))
+          fullPath.substring(fullPath.indexOf(`/${libraryName}`)),
+          file
         );
-        // onAddFile("name","path")
         return true;
       }
     } catch (error) {

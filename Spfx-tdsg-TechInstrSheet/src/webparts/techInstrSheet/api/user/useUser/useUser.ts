@@ -20,7 +20,7 @@ const authenticateUser = async (email: string): Promise<boolean> => {
   
   const body={
     parameter: base64.encode(JSON.stringify(token)),
-    type: "MATERIALCONSUMPTION",
+    type: "TECHNICALINSTRUCTION",
   }
   //debugger
   const response = await http.post<AuthResponse>(GET_LOGIN_SESSION, JSON.stringify(body));
@@ -45,13 +45,22 @@ const getUser = async (email: string) => {
   return null;
 };
 
+// const useUser = (email: string) =>
+//   useQuery({
+//     queryKey: ["get-user"],
+//     queryFn: () => getUser(email),
+//     enabled: !!email,  // Ensure the query only runs if an email is provided
+//     staleTime: 1000 * 60 * 10,  // Cache the result for 10 minutes (optional)
+//     cacheTime: 1000 * 60 * 30,  // Keep the data in cache for 30 minutes (optional)
+//   });
+
 const useUser = (email: string) =>
   useQuery({
-    queryKey: ["get-user"],
+    queryKey: ["get-user", email], // Include email in queryKey for proper caching
     queryFn: () => getUser(email),
-    enabled: !!email,  // Ensure the query only runs if an email is provided
-    staleTime: 1000 * 60 * 10,  // Cache the result for 10 minutes (optional)
-    cacheTime: 1000 * 60 * 30,  // Keep the data in cache for 30 minutes (optional)
+    enabled: !!email, // Ensure the query only runs if an email is provided
+    staleTime: 1000 * 60 * 30, // Cache the result for 30 minutes
+    cacheTime: 1000 * 60 * 30, // Keep the data in cache for 30 minutes
   });
 
 

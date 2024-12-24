@@ -125,11 +125,12 @@ const RequestsTab: React.FC = () => {
     notifyCellDivPart(mailTriggerTechnicalId)
       .then(async (response) => {
         setMailLoading(false);
-        const emailList = response.ReturnValue.emails; // Comma-separated emails
+        //const emailList = response.ReturnValue.emails; // Comma-separated emails
+        const emailList = "digital-team@tdsgj.co.in";
         const pdfBase64 = response.ReturnValue.pdf; // Base64 string of PDF
         const subject = `Notification for ${mailTriggerCtinumber}`;
         let pdf_url_link = "";
-        debugger;
+        //debugger;
 
         if (pdfBase64) {
           const isValidFolderOutline = await checkAndCreateFolder(
@@ -522,13 +523,23 @@ const RequestsTab: React.FC = () => {
       title: "Requestor",
       dataIndex: "IssuedBy",
       key: "IssuedBy",
-      width: "20%",
+      width: "10%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
       ...getColumnSearchProps("IssuedBy", "Requestor"),
     },
     {
-      title: "Closure Date",
+      title: "Current Approver",
+      dataIndex: "CurrentApprover",
+      key: "CurrentApprover",
+      width: "10%",
+      sorter: true,
+      sortDirections: ["ascend", "descend"],
+      render: (text) => <span>{text ?? "-"}</span>,
+      ...getColumnSearchProps("CurrentApprover", "Current Approver"),
+    },
+    {
+      title: "Target Closure Date",
       dataIndex: "TargetClosureDate",
       key: "TargetClosureDate",
       width: "10%",
@@ -728,7 +739,13 @@ const RequestsTab: React.FC = () => {
       {
         dataIndex: "IssuedBy",
         key: "IssuedBy",
-        width: "20%",
+        width: "10%",
+        render: (text) => <span className="m-0">{text ?? "-"}</span>,
+      },
+      {
+        dataIndex: "CurrentApprover",
+        key: "CurrentApprover",
+        width: "10%",
         render: (text) => <span className="m-0">{text ?? "-"}</span>,
       },
       {

@@ -113,7 +113,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
       render: (text) => (
-        <p className="text-cell">{text? dayjs(text).format(DATE_FORMAT):"-"}</p>
+        <p className="text-cell">{text? dayjs(text,DATE_FORMAT).format(DATE_FORMAT):"-"}</p>
       ),
     },
     {
@@ -127,6 +127,20 @@ const AllRequestTable: React.FC<{}> = ({}) => {
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
+     {
+          title: "Improvement Category",
+          dataIndex: "ImprovementCategory",
+          key: "ImprovementCategory",
+          width: 200,
+          sorter: true,
+          // filterDropdown: ColumnFilter,
+          filterIcon: (filtered: boolean) => (
+            <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+          ),
+          render: (text) => {
+            return <p className="text-cell">{text??"-"}</p>;
+          },
+        },
     {
       title: "Machine Name",
       dataIndex: "MachineName",

@@ -232,8 +232,15 @@ export  const create_UUID = (): string => {
     console.log("Folder renamed successfully");
   };
   
-  
+  export const getBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
   export default {
+    getBase64,
     redirectToHome,
     downloadPDF,
     downloadExcelFile,

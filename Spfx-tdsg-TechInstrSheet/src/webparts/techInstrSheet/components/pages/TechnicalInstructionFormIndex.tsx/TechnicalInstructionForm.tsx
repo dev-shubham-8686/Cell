@@ -137,7 +137,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
     targetClosureDate: null,
     //lotNo: null,
     relatedDocument: [],
-    applicationStartDate: dayjs(),
+    applicationStartDate: null,//dayjs(),
     applicationLotNo: null,
     applicationEquipment: null,
     equipmentIds: [],

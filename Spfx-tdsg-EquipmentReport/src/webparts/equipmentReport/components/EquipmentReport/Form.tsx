@@ -38,7 +38,7 @@ import useSubMachineMaster, {
 import useSectionMaster from "../../apis/masters/useSectionMaster";
 import useFunctionMaster from "../../apis/masters/useFunctionMaster";
 import FileUpload from "../fileUpload/FileUpload";
-import { renameFolder } from "../../utility/utility";
+import { getBase64, renameFolder } from "../../utility/utility";
 import { WebPartContext } from "../../context/webpartContext";
 import OptionalReviewModal from "../common/OptionalReviewModal";
 import useAreaMaster from "../../apis/masters/useAreaMaster";
@@ -47,6 +47,7 @@ import { IUser, UserContext } from "../../context/userContext";
 import useEmployeeMaster from "../../apis/masters/useEmployeeMaster";
 import displayjsx from "../../utility/displayjsx";
 import useResultMonitorDetails from "../../apis/masters/useResultMonitor";
+import useImpCategoryMaster from "../../apis/masters/useImpCategory";
 
 const { TextArea } = Input;
 
@@ -82,6 +83,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const { data: areas, isLoading: areaIsLoading } = useAreaMaster();
   const { data: subMachines, isLoading: subMachineIsLoading } =
     useSubMachineMaster();
+    const { data: impCategories, isLoading: categoryIsLoading } =
+    useImpCategoryMaster();
   const { data: sections, isLoading: sectionIsLoading } = useSectionMaster();
   const { data: employees, isLoading: employeeIsLoading } = useEmployeeMaster();
   const [improvementAttchments, setImprovementAttchments] = useState<
@@ -98,12 +101,15 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const [resultsubmitted, setresultsubmitted] = useState(false);
   const [showOtherSubMachine, setshowOtherSubMachine] =
     useState<boolean>(false);
+    const [showOtherImpCategory, setshowOtherImpCategory] =
+    useState<boolean>(false);
   const [showOtherMachine, setshowOtherMachine] = useState<boolean>(false);
   // const [pcrnSubmission, setpcrnSubmission] = useState(false);
   const [underAmmendment, setunderAmmendment] = useState(false);
   const [resultUnderAmmendment, setresultUnderAmmendment] = useState(false);
   const [underLogicalAmmendment, setunderLogicalAmmendment] = useState(false);
   const [enableActualDate, setenableActualDate] = useState(false);
+  const [enablRMDate, setenablRMDate] = useState(false);
   const [enableResultStatus, setenableResultStatus] = useState(false);
   const [showResultMonitoringDate, setshowResultMonitoringDate] =
     useState(false);
@@ -155,6 +161,17 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     console.log("OtherSub", showOtherSubMachine, showOtherMachine);
   };
 
+  const handleImpCategoryChange = (values: any) => {
+  if (values.includes(-1)) {
+      setshowOtherImpCategory(true);
+    } 
+    else {
+      setshowOtherImpCategory(false);
+      form.setFieldsValue({
+        OtherImprovementCategory: "",
+      });
+    }
+  };
   // const { data: employees, isLoading: employeeisLoading } = useEmployeeMaster();
 
   const handleAreaChange = (values: any) => {
@@ -373,6 +390,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       }
       if (existingEquipmentReport?.IsPcrnRequired) {
       }
+      
       values.ResultAfterImplementation = {
         ...values.ResultAfterImplementation,
         PCRNNumber: form.getFieldValue("PCRNNumber"),
@@ -384,6 +402,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         IsResultSubmit: false,
       };
     }
+    
     
     console.log("form saved as draft data", values);
     if (id) {
@@ -452,6 +471,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     Area: [{ required: true, message: "Please select Area" }],
     Section: [{ required: true, message: "Please select Section Name" }],
     Machine: [{ required: true, message: "Please select Machine Name" }],
+    ImprovementCategory: [{ required: true, message: "Please select Improvement Category" }],
+    OtherImprovementCategory: [
+      { required: true, message: "Please enter Other Improvement Category" },
+    ],
     OtherMachine: [
       { required: true, message: "Please enter other Machine Name" },
     ],
@@ -568,6 +591,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       if (existingEquipmentReport?.ResultAfterImplementation?.TargetDate) {
         setenableActualDate(true);
       }
+      if (existingEquipmentReport?.ResultAfterImplementation?.ActualDate) {
+        setenablRMDate(true);
+      }
       if (
         existingEquipmentReport?.ResultAfterImplementation
           ?.ResultMonitoringId == 2
@@ -615,13 +641,15 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               ?.ResultMonitoringId,
           ResultStatus:
             existingEquipmentReport?.ResultAfterImplementation.ResultStatus,
-          ResultMonitoringDate: dayjs(
+          ResultMonitoringDate: existingEquipmentReport?.ResultAfterImplementation
+          ?.ResultMonitoringDate? dayjs(
             existingEquipmentReport?.ResultAfterImplementation
               ?.ResultMonitoringDate,
             DATE_FORMAT
-          ),
+          ):null,
         });
       }
+      
       
       // form.setFieldValue([""])
       setImprovementAttchments(
@@ -642,6 +670,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       );
       if (existingEquipmentReport?.MachineName == "-1") {
         setshowOtherMachine(true);
+      }
+      if(existingEquipmentReport?.ImprovementCategory.includes(-1)){
+        setshowOtherImpCategory(true)
       }
       if (existingEquipmentReport?.SubMachineName.includes(-2)) {
         setshowOtherSubMachine(true);
@@ -694,12 +725,32 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       form.setFieldValue("ActualDate", null);
     }
   };
+  const handleActualDateChange = (date: Dayjs | null) => {
+    if (date) {
+      setenablRMDate(true);
+      form.setFieldValue("ResultMonitoringDate", null);
+    } else {
+      setenablRMDate(false);
+      form.setFieldValue("ResultMonitoringDate", null);
+    }
+  };
   const disablePastAndNext7Days = (current) => {
-    const today = dayjs();
-    const next7Days = today.add(8, "day");
+    const actualDate = form.getFieldValue("ActualDate");
+    const actualDateDayjs = dayjs(actualDate); // Convert ActualDate to a Day.js object
+    const next7Days = actualDateDayjs.add(8, "day");
     return (
       current &&
-      (current.isBefore(today, "day") || current.isBefore(next7Days, "day"))
+      (current.isBefore(actualDateDayjs, "day") || current.isBefore(next7Days, "day"))
+    );
+  };
+
+  const disableActualDates = (current) => {
+    const CreatedDate = form.getFieldValue("CreatedDate");
+    const actualDateDayjs = dayjs(CreatedDate); // Convert ActualDate to a Day.js object
+    const next7Days = actualDateDayjs.add(8, "day");
+    return (
+      current &&
+      (current.isBefore(actualDateDayjs, "day") || current.isBefore(next7Days, "day"))
     );
   };
 
@@ -722,7 +773,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       setenableResultStatus(true);
       setshowResultMonitoringDate(false);
     } else {
-      const resultDate = dayjs().add(7, "day");
+      const actualDate = form.getFieldValue("ActualDate");
+      const resultDate = actualDate?dayjs(actualDate).add(7, "day"): null;
       form.setFieldValue("ResultMonitoringDate", resultDate);
       setshowResultMonitoringDate(false);
       setenableResultStatus(false);
@@ -1269,7 +1321,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   label={
                     <label className="text-muted mb-0 w-95">When Date</label>
                   }
-                  // name="When"
+                  //  name="When"
                   rules={validationRules.When}
                 >
                   <Input
@@ -1286,6 +1338,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   />
                 </Form.Item>
               </div>
+
+             
 
               <div className="col">
                 <Form.Item
@@ -1326,9 +1380,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     ))} */}
                   </Select>
                 </Form.Item>
+
+                
               </div>
-            </div>
-            <div className="row mb-3">
               <div className="col">
                 <Form.Item
                   label={<span className="text-muted">Area</span>}
@@ -1354,6 +1408,71 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     className="custom-disabled-select"
                   />
                 </Form.Item>
+              </div>
+              
+            </div>
+            
+            
+            
+            <div className="row mb-3">
+             
+
+              <div className="col">
+                <Form.Item
+                  label={
+                    <span className="text-muted w-95">Improvment Category</span>
+                  }
+                  name="ImprovementCategory"
+                  rules={validationRules.ImprovementCategory}
+                >
+                  <Select
+                    allowClear
+                    disabled={
+                      isModeView || (!isAdmin && submitted && !underAmmendment)
+                    }
+                    showSearch
+                    onChange={handleImpCategoryChange}
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    mode="multiple"
+                    options={[
+                      
+                      ...(impCategories
+                        ?.map((cat) => ({
+                          label: cat.ImpCategoryName,
+                          value: cat.ImpCategoryId,
+                        })) || []),
+                        ...(impCategories ? [{ label: "Other", value: -1 }] : []),
+                    ]}
+                    loading={categoryIsLoading}
+                    className="custom-disabled-select"
+                  />
+                </Form.Item>
+
+                {showOtherImpCategory && (
+                  <div>
+                    <Form.Item
+                      label="Other Improvement Category"
+                      name="OtherImprovementCategory"
+                      initialValue={""}
+                      // rules={
+                      //   showOtherSubMachine ? validationRules.SubMachine : null
+                      // }
+                    >
+                      <Input
+                        maxLength={500}
+                        disabled={
+                          isModeView || (!isAdmin && submitted && !underAmmendment)
+                        }
+                        className="w-100"
+                        allowClear
+                      />
+                    </Form.Item>
+                  </div>
+                )}
               </div>
               <div className="col">
                 <Form.Item
@@ -1554,14 +1673,23 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       // setIsLoading(loading);
                     }}
                     isLoading={false}
-                    onAddFile={(name: string, url: string) => {
+                    onAddFile={async (name: string, url: string,file:File) => {
                       const existingAttachments = currSituationAttchments ?? [];
                       console.log("FILES", existingAttachments);
+                      let imageBytes: string | null = null;
+
+                      if (file.type.startsWith("image")) {
+                        // Use FileReader to read the file as a Base64-encoded string
+                        imageBytes = await getBase64(file);
+                      } else {
+                        console.error("The file is not an image:", file.type);
+                      }
                       const newAttachment: ICurrentSituationAttachments = {
                         EquipmentCurrSituationAttachmentId: 0,
                         EquipmentImprovementId: parseInt(id),
                         CurrSituationDocName: name,
                         CurrSituationDocFilePath: url,
+                        CurrentImgBytes:imageBytes,
                         CreatedBy: user?.employeeId,
                         ModifiedBy: user?.employeeId,
                       };
@@ -1577,7 +1705,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       console.log("File Added");
                     }}
                     // onRemoveFile={(documentName: string) => {
-                    //   debugger
+                    //   
                     //   const existingAttachments = currSituationAttchments ?? [];
 
                     //   const updatedAttachments = existingAttachments?.filter(
@@ -1616,6 +1744,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 </Form.Item>
               </div>
             </div>
+
             {console.log("CON", isModeView, submitted, underAmmendment)}
             <div className="row mb-3">
               <div className="col">
@@ -1706,14 +1835,22 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       // setIsLoading(loading);
                     }}
                     isLoading={false}
-                    onAddFile={(name: string, url: string) => {
+                    onAddFile={async(name: string, url: string,file:File) => {
                       const existingAttachments = improvementAttchments ?? [];
                       console.log("FILES", existingAttachments);
+                      let imageBytes: string | null = null;
+
+                      if (file.type.startsWith("image")) {
+                        imageBytes = await getBase64(file);
+                      } else {
+                        console.error("The file is not an image:", file.type);
+                      }
                       const newAttachment: IImprovementAttachments = {
                         EquipmentImprovementAttachmentId: 0,
                         EquipmentImprovementId: parseInt(id),
                         ImprovementDocName: name,
                         ImprovementDocFilePath: url,
+                        ImprovementImgBytes:imageBytes,
                         CreatedBy: user?.employeeId,
                         ModifiedBy: user?.employeeId,
                       };
@@ -1964,6 +2101,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       >
                         <DatePicker
                           format={DATE_FORMAT}
+                          onChange={handleActualDateChange}
+                          disabledDate={disableActualDates}
                           disabled={
                             isModeView ||
                             (!isAdmin &&
@@ -2034,7 +2173,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                             format={DATE_FORMAT}
                             disabled={
                               isModeView ||
-                              (resultsubmitted && !resultUnderAmmendment)
+                              (resultsubmitted && !resultUnderAmmendment) || !enablRMDate
                             }
                             disabledDate={disablePastAndNext7Days}
                             className="w-100"

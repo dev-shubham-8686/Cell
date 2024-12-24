@@ -10,7 +10,9 @@ export  interface IEquipmentImprovementReport {
   When: string;
   MachineName: string;
   OtherMachineName?:string;
-  SubMachineName:number[]
+  SubMachineName:number[];
+  ImprovementCategory?:number[];
+  OtherImprovementCategory?:string;
   otherSubMachine?:string;
   Purpose: string;
   CurrentSituation: string;
@@ -57,6 +59,7 @@ export interface ICurrentSituationAttachments{
   EquipmentCurrSituationAttachmentId:number;
   EquipmentImprovementId:number;
   CurrSituationDocName:string;
+  CurrentImgBytes?:string
   CurrSituationDocFilePath:string;
   CreatedBy?:number;
   ModifiedBy?:number;
@@ -66,6 +69,7 @@ export interface IImprovementAttachments{
   EquipmentImprovementId:number;
   ImprovementDocName:string;
   ImprovementDocFilePath:string;
+  ImprovementImgBytes?:string;
   CreatedBy:number;
   ModifiedBy:number;
 }

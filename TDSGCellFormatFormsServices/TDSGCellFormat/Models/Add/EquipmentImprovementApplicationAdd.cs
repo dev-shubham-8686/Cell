@@ -14,6 +14,10 @@ namespace TDSGCellFormat.Models.Add
         public List<int>? SubMachineName { get; set; }
 
         public string? otherSubMachine { get; set; }
+
+        public List<int>? ImprovementCategory { get; set; }
+
+        public string? OtherImprovementCategory { get; set; }
         public int? SectionId { get; set; }
 
         public int? SectionHeadId  { get; set; }
@@ -92,6 +96,8 @@ namespace TDSGCellFormat.Models.Add
         public int? EquipmentImprovementId { get; set; }
         public string? CurrSituationDocName { get; set; }
         public string? CurrSituationDocFilePath { get; set; }
+
+        public string? CurrentImgBytes { get; set; }
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
 
@@ -104,6 +110,7 @@ namespace TDSGCellFormat.Models.Add
         public int? EquipmentImprovementId { get; set; }
         public string? ImprovementDocName { get; set; }
         public string? ImprovementDocFilePath { get; set; }
+        public string? ImprovementImgBytes { get; set; }
         public int? CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
 

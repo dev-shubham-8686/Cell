@@ -47,5 +47,8 @@ namespace TDSGCellFormat.Interface.Repository
         Task<NotifyCellDivPartView> NotifyCellDivPart(int technicalId);
 
         Task<AjaxResult> ExportToPdf_v3(int technicalId);
+
+        Task<GetTechnicalUser> GetUserRole(string userEmail);
+
     }
 }

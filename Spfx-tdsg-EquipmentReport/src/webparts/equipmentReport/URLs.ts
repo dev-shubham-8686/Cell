@@ -8,6 +8,7 @@ export const CREATE_EDIT_TARGET_DATE = "api/EquipmentImprovement/UpdateTargetDat
 export const GET_MACHINE_MASTER = "GetAllMachines";
 export const GET_AREA_MASTER = "GetAllAreas";
 export const GET_SUB_MACHINE_MASTER = "GetAllSubMachines";
+export const GET_IMP_CATEGORY = "GetImpCategory";
 export const GET_FUNCTION_MASTER = "GetAllFunction";
 export const GET_SECTION_MASTER = "GetAllSection";
 export const GET_ADVISOR_MASTER = "GetAllAdvisor";
