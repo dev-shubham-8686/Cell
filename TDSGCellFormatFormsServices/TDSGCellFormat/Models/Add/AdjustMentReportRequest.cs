@@ -22,6 +22,9 @@ namespace TDSGCellFormat.Models.Add
 
         public string? OtherSubMachineName { get; set; }
 
+        public List<int>? ImprovementCategory { get; set; }
+        public string? OtherImprovementCategory { get; set; }
+
         public string? RequestBy { get; set; }
 
         public int? EmployeeId { get; set; }
@@ -161,5 +164,14 @@ namespace TDSGCellFormat.Models.Add
         public int? AdvisorId {  get; set; }
         public int AdjustmentReportId { get; set; }
         public string? Comment { get; set; }
+    }
+
+    public class DelegateUser
+    {
+        public int FormId { get; set; }
+        public int? UserId { get; set; } 
+        public int DelegateUserId {  get; set; }
+        public int ApproverTaskId { get; set; }
+        public string? Comments {  get; set; }
     }
 }
