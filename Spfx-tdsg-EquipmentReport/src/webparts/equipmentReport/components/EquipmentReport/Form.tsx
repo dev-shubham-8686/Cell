@@ -47,6 +47,7 @@ import { IUser, UserContext } from "../../context/userContext";
 import useEmployeeMaster from "../../apis/masters/useEmployeeMaster";
 import displayjsx from "../../utility/displayjsx";
 import useResultMonitorDetails from "../../apis/masters/useResultMonitor";
+import useImpCategoryMaster from "../../apis/masters/useImpCategory";
 
 const { TextArea } = Input;
 
@@ -82,6 +83,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const { data: areas, isLoading: areaIsLoading } = useAreaMaster();
   const { data: subMachines, isLoading: subMachineIsLoading } =
     useSubMachineMaster();
+    const { data: impCategories, isLoading: categoryIsLoading } =
+    useImpCategoryMaster();
   const { data: sections, isLoading: sectionIsLoading } = useSectionMaster();
   const { data: employees, isLoading: employeeIsLoading } = useEmployeeMaster();
   const [improvementAttchments, setImprovementAttchments] = useState<
@@ -97,6 +100,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const [isAdmin, setisAdmin] = useState(false);
   const [resultsubmitted, setresultsubmitted] = useState(false);
   const [showOtherSubMachine, setshowOtherSubMachine] =
+    useState<boolean>(false);
+    const [showOtherImpCategory, setshowOtherImpCategory] =
     useState<boolean>(false);
   const [showOtherMachine, setshowOtherMachine] = useState<boolean>(false);
   // const [pcrnSubmission, setpcrnSubmission] = useState(false);
@@ -156,6 +161,17 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     console.log("OtherSub", showOtherSubMachine, showOtherMachine);
   };
 
+  const handleImpCategoryChange = (values: any) => {
+  if (values.includes(-1)) {
+      setshowOtherImpCategory(true);
+    } 
+    else {
+      setshowOtherImpCategory(false);
+      form.setFieldsValue({
+        OtherImprovementCategory: "",
+      });
+    }
+  };
   // const { data: employees, isLoading: employeeisLoading } = useEmployeeMaster();
 
   const handleAreaChange = (values: any) => {
@@ -455,6 +471,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     Area: [{ required: true, message: "Please select Area" }],
     Section: [{ required: true, message: "Please select Section Name" }],
     Machine: [{ required: true, message: "Please select Machine Name" }],
+    ImprovementCategory: [{ required: true, message: "Please select Improvement Category" }],
+    OtherImprovementCategory: [
+      { required: true, message: "Please enter Other Improvement Category" },
+    ],
     OtherMachine: [
       { required: true, message: "Please enter other Machine Name" },
     ],
@@ -650,6 +670,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       );
       if (existingEquipmentReport?.MachineName == "-1") {
         setshowOtherMachine(true);
+      }
+      if(existingEquipmentReport?.ImprovementCategory.includes(-1)){
+        setshowOtherImpCategory(true)
       }
       if (existingEquipmentReport?.SubMachineName.includes(-2)) {
         setshowOtherSubMachine(true);
@@ -1316,6 +1339,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 </Form.Item>
               </div>
 
+             
+
               <div className="col">
                 <Form.Item
                   label={<span className="text-muted w-95">Section Name</span>}
@@ -1355,9 +1380,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     ))} */}
                   </Select>
                 </Form.Item>
+
+                
               </div>
-            </div>
-            <div className="row mb-3">
               <div className="col">
                 <Form.Item
                   label={<span className="text-muted">Area</span>}
@@ -1383,6 +1408,71 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                     className="custom-disabled-select"
                   />
                 </Form.Item>
+              </div>
+              
+            </div>
+            
+            
+            
+            <div className="row mb-3">
+             
+
+              <div className="col">
+                <Form.Item
+                  label={
+                    <span className="text-muted w-95">Improvment Category</span>
+                  }
+                  name="ImprovementCategory"
+                  rules={validationRules.ImprovementCategory}
+                >
+                  <Select
+                    allowClear
+                    disabled={
+                      isModeView || (!isAdmin && submitted && !underAmmendment)
+                    }
+                    showSearch
+                    onChange={handleImpCategoryChange}
+                    filterOption={(input, option) =>
+                      (option?.label ?? "")
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    mode="multiple"
+                    options={[
+                      
+                      ...(impCategories
+                        ?.map((cat) => ({
+                          label: cat.ImpCategoryName,
+                          value: cat.ImpCategoryId,
+                        })) || []),
+                        ...(impCategories ? [{ label: "Other", value: -1 }] : []),
+                    ]}
+                    loading={categoryIsLoading}
+                    className="custom-disabled-select"
+                  />
+                </Form.Item>
+
+                {showOtherImpCategory && (
+                  <div>
+                    <Form.Item
+                      label="Other Improvement Category"
+                      name="OtherImprovementCategory"
+                      initialValue={""}
+                      // rules={
+                      //   showOtherSubMachine ? validationRules.SubMachine : null
+                      // }
+                    >
+                      <Input
+                        maxLength={500}
+                        disabled={
+                          isModeView || (!isAdmin && submitted && !underAmmendment)
+                        }
+                        className="w-100"
+                        allowClear
+                      />
+                    </Form.Item>
+                  </div>
+                )}
               </div>
               <div className="col">
                 <Form.Item
@@ -1654,6 +1744,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 </Form.Item>
               </div>
             </div>
+
             {console.log("CON", isModeView, submitted, underAmmendment)}
             <div className="row mb-3">
               <div className="col">
