@@ -390,7 +390,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       }
       if (existingEquipmentReport?.IsPcrnRequired) {
       }
-      debugger
+      
       values.ResultAfterImplementation = {
         ...values.ResultAfterImplementation,
         PCRNNumber: form.getFieldValue("PCRNNumber"),
@@ -402,7 +402,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         IsResultSubmit: false,
       };
     }
-    debugger
+    
     
     console.log("form saved as draft data", values);
     if (id) {
@@ -649,7 +649,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           ):null,
         });
       }
-      debugger
+      
       
       // form.setFieldValue([""])
       setImprovementAttchments(
@@ -1705,7 +1705,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       console.log("File Added");
                     }}
                     // onRemoveFile={(documentName: string) => {
-                    //   debugger
+                    //   
                     //   const existingAttachments = currSituationAttchments ?? [];
 
                     //   const updatedAttachments = existingAttachments?.filter(
