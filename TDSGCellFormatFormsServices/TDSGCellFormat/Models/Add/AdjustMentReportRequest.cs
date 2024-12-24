@@ -162,4 +162,13 @@ namespace TDSGCellFormat.Models.Add
         public int AdjustmentReportId { get; set; }
         public string? Comment { get; set; }
     }
+
+    public class DelegateUser
+    {
+        public int FormId { get; set; }
+        public int? UserId { get; set; } 
+        public int DelegateUserId {  get; set; }
+        public int ApproverTaskId { get; set; }
+        public string? Comments {  get; set; }
+    }
 }
