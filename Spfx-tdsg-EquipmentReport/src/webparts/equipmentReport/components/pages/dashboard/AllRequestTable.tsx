@@ -113,7 +113,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
       render: (text) => (
-        <p className="text-cell">{text? dayjs(text).format(DATE_FORMAT):"-"}</p>
+        <p className="text-cell">{text? dayjs(text,DATE_FORMAT).format(DATE_FORMAT):"-"}</p>
       ),
     },
     {

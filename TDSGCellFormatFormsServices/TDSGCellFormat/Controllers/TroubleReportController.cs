@@ -520,7 +520,7 @@ namespace TDSGCellFormat.Controllers
                 else
                 {
                     Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
-                    //var commonHelper = new CommonHelper(_context);
+                    //var commonHelper = new CommonHelper(_context, _cloneContext);
                     //commonHelper.LogException(ex, "GetTroubleReportExcel");
                 }
                 return Ok(Ajaxresponse);
@@ -529,7 +529,7 @@ namespace TDSGCellFormat.Controllers
             {
                 //res.Message = "Fail " + ex;
                 //res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "GetTroubleReportExcel");
                 Ajaxresponse = new AjaxResult
                 {

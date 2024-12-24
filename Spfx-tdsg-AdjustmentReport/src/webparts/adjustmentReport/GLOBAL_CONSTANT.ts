@@ -1,16 +1,26 @@
 export const DATE_FORMAT = "DD-MM-YYYY";
-export const basePathwithprefix = `https://localhost:44353/api`;
-export const basePath = `https://localhost:44353/`;
-export const GET_LOGIN_SESSION = "https://localhost:44353/api/TroubleReport/GetLoginSession";
-export const GET_USER = "https://localhost:44353/api/AdjustmentReport/GetEmployeeDetailsById";
+export const basePath = 
+// `https://localhost:44353`;                      //    ---  local
+`https://cellformservice-qa.tdsgj.co.in`;         //   ---  stage
 
-export const MY_DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm:ss";
+
+
+export const basePathwithprefix = `${basePath}/api`;
+
+
+
+export const GET_LOGIN_SESSION = `${basePath}/api/TroubleReport/GetLoginSession`;
+export const GET_USER = `${basePath}/api/AdjustmentReport/GetUserRole`;
+
+export const DATE_TIME_FORMAT = "DD-MM-YYYY HH:mm:ss";
+export const DATETIME = "dd-MM-yyyy HH:mm:ss";
+export const EXCEL_DATE_FORMAT = "YYYY-MM-DD";
 
 export const WEB_URL = 
 // "https://synopsandbox.sharepoint.com/sites/Training2024"
- "https://synopsandbox.sharepoint.com/sites/e-app-stage"
-//"https://tdsgj.sharepoint.com/sites/e-app-stage"
-
+//  "https://synopsandbox.sharepoint.com/sites/e-app-stage"  // -- local
+ "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA"    // --QA
+// "https://tdsgj.sharepoint.com/sites/e-app-stage"        // -stage 
 //Process Status
 export const ProcessStatus = [
   "approved",
@@ -28,6 +38,20 @@ export const StatusColors = {
   na: "Gray",
 };
 
+export const LEVELS = {
+  Level1: 1,
+  Level2: 2,
+  Level3: 3,
+  Level4: 4,
+  Level5: 5,
+  Level6: 6,
+  Level7: 7,
+};
+
+export const ACTION_TYPE={
+  Approve:"approve",
+  AskToAmend:"amend"
+}
 // It returns the background colour class for the status
 export const STATUS_COLOUR_CLASS: { [key: string]: string } = {
   InReview: "in-review",
@@ -50,6 +74,11 @@ export const STATUS_COLOUR_CLASS: { [key: string]: string } = {
   Reviewed: "reviewed",
 };
 
+export const OPERATION={
+  Save:"Save",
+  Submit:"Submit",
+  Resubmit:"Resubmit"
+}
 export const REQUEST_STATUS = {
   InReview: "InReview",
   UnderAmendment: "UnderAmendment",

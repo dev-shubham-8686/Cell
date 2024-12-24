@@ -104,6 +104,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const [resultUnderAmmendment, setresultUnderAmmendment] = useState(false);
   const [underLogicalAmmendment, setunderLogicalAmmendment] = useState(false);
   const [enableActualDate, setenableActualDate] = useState(false);
+  const [enablRMDate, setenablRMDate] = useState(false);
   const [enableResultStatus, setenableResultStatus] = useState(false);
   const [showResultMonitoringDate, setshowResultMonitoringDate] =
     useState(false);
@@ -373,6 +374,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       }
       if (existingEquipmentReport?.IsPcrnRequired) {
       }
+      debugger
       values.ResultAfterImplementation = {
         ...values.ResultAfterImplementation,
         PCRNNumber: form.getFieldValue("PCRNNumber"),
@@ -384,6 +386,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         IsResultSubmit: false,
       };
     }
+    debugger
     
     console.log("form saved as draft data", values);
     if (id) {
@@ -568,6 +571,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       if (existingEquipmentReport?.ResultAfterImplementation?.TargetDate) {
         setenableActualDate(true);
       }
+      if (existingEquipmentReport?.ResultAfterImplementation?.ActualDate) {
+        setenablRMDate(true);
+      }
       if (
         existingEquipmentReport?.ResultAfterImplementation
           ?.ResultMonitoringId == 2
@@ -615,13 +621,15 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               ?.ResultMonitoringId,
           ResultStatus:
             existingEquipmentReport?.ResultAfterImplementation.ResultStatus,
-          ResultMonitoringDate: dayjs(
+          ResultMonitoringDate: existingEquipmentReport?.ResultAfterImplementation
+          ?.ResultMonitoringDate? dayjs(
             existingEquipmentReport?.ResultAfterImplementation
               ?.ResultMonitoringDate,
             DATE_FORMAT
-          ),
+          ):null,
         });
       }
+      debugger
       
       // form.setFieldValue([""])
       setImprovementAttchments(
@@ -694,12 +702,32 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       form.setFieldValue("ActualDate", null);
     }
   };
+  const handleActualDateChange = (date: Dayjs | null) => {
+    if (date) {
+      setenablRMDate(true);
+      form.setFieldValue("ResultMonitoringDate", null);
+    } else {
+      setenablRMDate(false);
+      form.setFieldValue("ResultMonitoringDate", null);
+    }
+  };
   const disablePastAndNext7Days = (current) => {
-    const today = dayjs();
-    const next7Days = today.add(8, "day");
+    const actualDate = form.getFieldValue("ActualDate");
+    const actualDateDayjs = dayjs(actualDate); // Convert ActualDate to a Day.js object
+    const next7Days = actualDateDayjs.add(8, "day");
     return (
       current &&
-      (current.isBefore(today, "day") || current.isBefore(next7Days, "day"))
+      (current.isBefore(actualDateDayjs, "day") || current.isBefore(next7Days, "day"))
+    );
+  };
+
+  const disableActualDates = (current) => {
+    const CreatedDate = form.getFieldValue("CreatedDate");
+    const actualDateDayjs = dayjs(CreatedDate); // Convert ActualDate to a Day.js object
+    const next7Days = actualDateDayjs.add(8, "day");
+    return (
+      current &&
+      (current.isBefore(actualDateDayjs, "day") || current.isBefore(next7Days, "day"))
     );
   };
 
@@ -722,7 +750,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       setenableResultStatus(true);
       setshowResultMonitoringDate(false);
     } else {
-      const resultDate = dayjs().add(7, "day");
+      const actualDate = form.getFieldValue("ActualDate");
+      const resultDate = actualDate?dayjs(actualDate).add(7, "day"): null;
       form.setFieldValue("ResultMonitoringDate", resultDate);
       setshowResultMonitoringDate(false);
       setenableResultStatus(false);
@@ -1269,7 +1298,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   label={
                     <label className="text-muted mb-0 w-95">When Date</label>
                   }
-                  // name="When"
+                  //  name="When"
                   rules={validationRules.When}
                 >
                   <Input
@@ -1981,6 +2010,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       >
                         <DatePicker
                           format={DATE_FORMAT}
+                          onChange={handleActualDateChange}
+                          disabledDate={disableActualDates}
                           disabled={
                             isModeView ||
                             (!isAdmin &&
@@ -2051,7 +2082,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                             format={DATE_FORMAT}
                             disabled={
                               isModeView ||
-                              (resultsubmitted && !resultUnderAmmendment)
+                              (resultsubmitted && !resultUnderAmmendment) || !enablRMDate
                             }
                             disabledDate={disablePastAndNext7Days}
                             className="w-100"

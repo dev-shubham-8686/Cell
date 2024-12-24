@@ -13,14 +13,34 @@ export interface AuthResponse {
   ResultType: number;
 }
 
+// export interface IUser {
+//   EmployeeId: number;
+//   EmployeeCode: string;
+//   Email: string;
+//   EmployeeName: string;
+//   DepartmentName: string;
+//   DivisionName: string;
+//   IsAdmin: number;
+// }
+
 export interface IUser {
-  EmployeeId: number;
-  EmployeeCode: string;
-  Email: string;
-  EmployeeName: string;
-  DepartmentName: string;
-  DivisionName: string;
-  IsAdmin: number;
+  employeeId: number;
+  departmentId: number;
+  departmentName: string;
+  divisionId: number;
+  divisionName: string;
+  employeeCode: number;
+  employeeName: string;
+  email: string;
+  empDesignation: string;
+  mobileNo: string;
+  departmentHeadEmpId: number;
+  divisionHeadEmpId: number;
+  costCenter: string;
+  cMRoleId: number;
+  isDivHeadUser: boolean;
+  isAdmin: boolean;
+  isAdminId: number;
 }
 
 const authenticateUser = async (email: string): Promise<boolean> => {
@@ -34,11 +54,13 @@ const authenticateUser = async (email: string): Promise<boolean> => {
 
   const body = {
     parameter: btoa(JSON.stringify(token)),
-    type: "MATERIALCONSUMPTION",
+    type: "ADJUSTMENTREPORT",
   }
   const response = await apiClient.post<any>(GET_LOGIN_SESSION, JSON.stringify(body));
   console.log(response)
+  
   const data = response.data;
+  
   // eslint-disable-next-line require-atomic-updates
   apiClient.defaults.headers.common.Authorization = data.Message;
 
@@ -52,7 +74,8 @@ const getUser = async (email: string) => {
   if (res) {
 
     const response = await apiClient.get<IAjaxResult>(GET_USER, { params: { email } });
-    return response.data.ReturnValue;
+    
+    return response.data;
   }
   return null;
 };

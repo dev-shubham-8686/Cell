@@ -102,7 +102,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendEmailNotification");
                 return false;
             }
@@ -164,7 +164,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendEmailBySharePoint");
                 return false;
             }
@@ -741,7 +741,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendEmail");
                 return false;
             }
@@ -1021,7 +1021,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendMaterialConsumptionEmail");
                 return false;
             }
@@ -1058,7 +1058,8 @@ namespace TDSGCellFormat.Helper
 
                 //stage link
                 string? documentLink = _configuration["SPSiteUrl"] +
-                 "/SitePages/EquipmentReport.aspx#/form/";
+                     _configuration["EquipmentURL"];
+                
 
                 //prod link
                 //string? documentLink = _configuration["SPSiteUrl"] +
@@ -1536,7 +1537,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendEquipmentEmail");
                 return false;
             }
@@ -1570,7 +1571,8 @@ namespace TDSGCellFormat.Helper
                 bool cpcDeptPeople = false;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? documentLink = _configuration["SPSiteUrl"] +
-                "/SitePages/Technical-Instruction-Sheet.aspx#/";
+                    _configuration["TISURL"];
+                //"/SitePages/Technical-Instruction-Sheet.aspx#/";
                 bool allPersonInCc = false;
                 //string? documentLink = _configuration["SPSiteUrl"] +
                 //"/SitePages/TechInstructionSheet.aspx#/";
@@ -1805,7 +1807,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "SendTechnicalInstructionEmail");
                 return false;
             }
@@ -1813,7 +1815,7 @@ namespace TDSGCellFormat.Helper
             return emailSent;
         }
 
-        public async Task<bool> SendAdjustmentEmai(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0)
+        public async Task<bool> SendAdjustmentEmail(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0)
         {
             bool emailSent = false;
             try
@@ -1834,26 +1836,57 @@ namespace TDSGCellFormat.Helper
                 bool isDepartMentHead = false;
                 bool isIsAmendTask = false , isPullBacked = false;
                 string? requesterUserName = null, requesterUserEmail = null;
+                string? advisorName = null, advisorEmail = null;
                 string? departmentHeadName = null, departmentHeadEmail = null;
                 bool approvelink = false;
-                bool cpcDeptPeople = false;
+                bool isEditable = false, allApprover = false;
+                bool cpcDeptPeople = false, isAdvisor = false;
+                int reqDeptId = 0;
+                string? Role = null;
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
                 string? documentLink = _configuration["SPSiteUrl"] +
-                "/SitePages/TechInstructionSheet.aspx#/";
+                      _configuration["AdjustmentURL"];
+
+                
 
                 if (requestId > 0)
                 {
                     var adjustmentData = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == requestId && x.IsDeleted == false).FirstOrDefault();
                     var adjustmentNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == requestId && x.IsDeleted == false).Select(x => x.ReportNo).FirstOrDefault();
+                    var sectionName = _context.SectionMasters.Where(x => x.SectionId == adjustmentData.SectionId && x.IsActive == true).Select(x => x.SectionName).FirstOrDefault();
 
-                    if (adjustmentData != null)
+                    var advisorComments = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == requestId && x.IsActive == true).Select(x => x.Comment).FirstOrDefault();
+
+                    var areaIds = adjustmentData.Area.Split(',').Select(id => int.Parse(id)).ToList();
+                    var areaNames = new List<string>();
+                    foreach (var id in areaIds)
+                    {
+                        // Query database or use a dictionary/cache to get the name
+                        var areaName = _context.Areas.Where(x => x.AreaId == id && x.IsActive == true).Select(x => x.AreaName).FirstOrDefault(); // Replace this with your actual DB logic
+                        if (!string.IsNullOrEmpty(areaName))
+                        {
+                            areaNames.Add(areaName);
+                        }
+                    }
+
+                    var areaNamesString = string.Join(", ", areaNames);
+
+                    if (adjustmentData != null) 
                     {
                         if (adjustmentData.CreatedBy > 0)
                         {
                             EmployeeMaster? requestorUserDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustmentData.CreatedBy && x.IsActive == true).FirstOrDefault();
                             requesterUserName = requestorUserDetails?.EmployeeName;
                             requesterUserEmail = requestorUserDetails?.Email;
-                            //reqDeptId = requestorUserDetails.DepartmentID;
+                            reqDeptId = requestorUserDetails.DepartmentID;
+                        }
+
+                        var advisorId = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == adjustmentData.AdjustMentReportId && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
+                        if(advisorId > 0)
+                        {
+                            EmployeeMaster? advisorDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == advisorId && x.IsActive == true).FirstOrDefault();
+                            advisorEmail = advisorDetails?.Email;
+
                         }
 
                         var approverData = await _context.GeAdjustmentReportWorkFlow(requestId);
@@ -1861,21 +1894,32 @@ namespace TDSGCellFormat.Helper
 
                         switch (emailNotification)
                         {
+                            case EmailNotificationAction.AdvisorData:
+                                templateFile = "Adjustment_Advisor.html";
+                                emailSubject = string.Format("[Action required!] Adjustment_{0} Advisor Update the comments", adjustmentData.ReportNo);
+                                isRequestorinToEmail = true;
+                                break;
 
+                            case EmailNotificationAction.Submitted:
+                                templateFile = "Adjustment_Submitted.html";
+                                emailSubject = string.Format("[Action required!] Adjustment_{0} has been Submitted for Approval", adjustmentData.ReportNo);
+                                isInReviewTask = true;
+                                approvelink = true;
+                                isAdvisor = true;
+                                break;
 
                             case EmailNotificationAction.ReSubmitted:
                                 templateFile = "Adjustment_Resubmitted.html";
-                                emailSubject = string.Format("[Action required!] Adjustment_{0}} has been Resubmitted", adjustmentData.ReportNo);
+                                emailSubject = string.Format("[Action required!] Adjustment_{0} has been Resubmitted", adjustmentData.ReportNo);
                                 isInReviewTask = true;
                                 approvelink = true;
+                                isRequestorinCCEmail = true;
                                 break;
 
                             case EmailNotificationAction.Approved:
                                 templateFile = "Adjustment_Approved.html";
-                                emailSubject = string.Format("[Action required!] Adjustment_{0} has been Submitted for Approval", adjustmentData.ReportNo);
-
+                                emailSubject = string.Format("[Action required!] Adjustment_{0} has been Approved", adjustmentData.ReportNo);
                                 isInReviewTask = true;
-                                isApprovedtask = true;
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
                                 break;
@@ -1884,85 +1928,52 @@ namespace TDSGCellFormat.Helper
                                 templateFile = "Adjustment_Amend.html";
                                 emailSubject = string.Format("[Action taken!] Adjustment_{0} has been Asked for Amendment", adjustmentData.ReportNo);
                                 isRequestorinToEmail = true;
-                                approvelink = true;
+                                isIsAmendTask = true;
+                                isEditable = true;
                                 break;
 
                             case EmailNotificationAction.PullBack:
                                 templateFile = "Adjustment_PullBack.html";
                                 emailSubject = string.Format("[Action taken!] Adjustment_{0} has been Pull Backed", adjustmentData.ReportNo);
-                                isPullBacked = true;
                                 isRequestorinCCEmail = true;
+                                isPullBacked = true;
                                 break;
 
                             case EmailNotificationAction.Completed:
                                 templateFile = "Adjustment_Completed.html";
-                                emailSubject = string.Format("[Action required!] Adjustment_{0} has been Approved and completed", adjustmentData.ReportNo);
+                                emailSubject = string.Format("[Action taken!] Adjustment_{0} has been Approved and completed", adjustmentData.ReportNo);
                                 isRequestorinToEmail = true;
-
-                                break;
+                                allApprover = true;
+                                isDepartMentHead = true;
+                                break; 
 
                             default:
                                 break;
                         }
 
-
-                        if (isRequestorinToEmail)
+                        if (isPullBacked)
                         {
-                            emailToAddressList.Add(requesterUserEmail);
-                            emailCCAddressList.Remove(requesterUserEmail);
+                            foreach (var item in approverData)
+                            {
+                                if (item.Status != ApprovalTaskStatus.Pending.ToString())
+                                {
+                                    emailToAddressList.Add(item.email);
+                                }
+                            }
                         }
+
                         if (isRequestorinCCEmail)
                         {
                             emailCCAddressList.Add(requesterUserEmail);
                         }
-
-
-                        if (isInReviewTask)
+                        if (isRequestorinToEmail)
                         {
-                            if (nextApproverTaskId > 0)
-                            {
-                                foreach (var item in approverData)
-                                {
-                                    if (item.Status == ApprovalTaskStatus.InReview.ToString() && item.ApproverTaskId == nextApproverTaskId)
-                                    {
-                                        emailToAddressList.Add(item.email);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                foreach (var item in approverData)
-                                {
-                                    if (item.Status == ApprovalTaskStatus.InReview.ToString())
-                                    {
-                                        emailToAddressList.Add(item.email);
-                                    }
-                                }
-                            }
+                            emailToAddressList.Add(requesterUserEmail);
                         }
 
-                        if (isApprovedtask)
+                        if (isAdvisor)
                         {
-                            if (nextApproverTaskId > 0)
-                            {
-                                foreach (var item in approverData)
-                                {
-                                    if (item.Status == ApprovalTaskStatus.Approved.ToString() && item.ApproverTaskId == nextApproverTaskId)
-                                    {
-                                        emailCCAddressList.Add(item.email);
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                foreach (var item in approverData)
-                                {
-                                    if (item.Status == ApprovalTaskStatus.Approved.ToString())
-                                    {
-                                        emailCCAddressList.Add(item.email);
-                                    }
-                                }
-                            }
+                            emailToAddressList.Add(advisorEmail);
                         }
 
                         if (isIsAmendTask)
@@ -1979,8 +1990,141 @@ namespace TDSGCellFormat.Helper
                             }
                         }
 
+                        if (allApprover)
+                        {
+                            foreach (var item in approverData)
+                            {
+                                emailCCAddressList.Add(item.email);
+                            }
+                        }
 
+                        if (isDepartMentHead)
+                        {
 
+                            var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1 && (x.HRMSDeptName == "CP01-DP-1003" || x.HRMSDeptName == "CP01-DP-1004" || x.HRMSDeptName == "CP01-DP-1002")).Select(x => x.Head).ToList();
+                            foreach (var dept in userOtherDepId)
+                            {
+                                var deptEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == dept && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                emailCCAddressList.Add(deptEmail);
+                            }
+                        }
+
+                        if (isInReviewTask)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    var task = approverData.FirstOrDefault(item =>
+                                                item.Status == ApprovalTaskStatus.InReview.ToString()
+                                                && item.ApproverTaskId == nextApproverTaskId);
+
+                                    var approved = approverData
+                                                      .Where(item => item.Status == ApprovalTaskStatus.Approved.ToString())
+                                                      .OrderByDescending(item => item.ApproverTaskId)
+                                                      .FirstOrDefault();
+                                    if (task != null)
+                                    {
+                                        if(task.SequenceNo == 1 || approved.SequenceNo == 2 || approved.SequenceNo == 7 || approved.SequenceNo == 8)
+                                        {
+                                            var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1 && (x.HRMSDeptName == "CP01-DP-1003" || x.HRMSDeptName == "CP01-DP-1004" || x.HRMSDeptName == "CP01-DP-1002")).Select(x => x.Head).ToList();
+                                            foreach (var dept in userOtherDepId)
+                                            {
+                                                var deptEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == dept && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                                emailCCAddressList.Add(deptEmail);
+                                            }
+                                        }
+                                    }
+                                    if (item.Status == ApprovalTaskStatus.InReview.ToString() && item.ApproverTaskId == nextApproverTaskId)
+                                    {
+                                        emailToAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.InReview.ToString())
+                                    {
+                                        emailToAddressList.Add(item.email);
+                                    }
+
+                                    var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1 && (x.HRMSDeptName == "CP01-DP-1003" || x.HRMSDeptName == "CP01-DP-1004" || x.HRMSDeptName == "CP01-DP-1002")).Select(x => x.Head).ToList();
+                                    foreach (var dept in userOtherDepId)
+                                    {
+                                        var deptEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == dept && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                        emailCCAddressList.Add(deptEmail);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (nextApproverTaskId > 0)
+                        {
+                            var approvalData = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == requestId && (x.Status != ApprovalTaskStatus.InReview.ToString() && x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true)
+                                .OrderByDescending(x => x.ApproverTaskId)
+                                .FirstOrDefault();
+                            Role = approvalData?.Role;
+                        }
+
+                        if (!string.IsNullOrEmpty(templateFile))
+                        {
+                            string baseDirectory = AppContext.BaseDirectory;
+                            string docLink = documentLink + "view/" + requestId;
+                            templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
+                            if (!string.IsNullOrEmpty(templateFilePath))
+                            {
+                                emailBody.Append(System.IO.File.ReadAllText(templateFilePath));
+                            }
+                            if (emailBody?.Length > 0)
+                            {
+                                if (approvelink)
+                                {
+                                    docLink = documentLink.Replace("#", "?action=approval#") + "edit/" + requestId;
+                                }
+                                else
+                                {
+                                    if (isEditable)
+                                    {
+                                        docLink = documentLink + "edit/" + requestId;
+                                    }
+                                    else
+                                    {
+                                        docLink = documentLink + "view/" + requestId;
+                                    }
+
+                                }
+
+                                emailBody = emailBody.Replace("#Requestor#", requesterUserName);
+                                emailBody = emailBody.Replace("#AdjustmentLink#", docLink);
+                                emailBody = emailBody.Replace("#ApplicationNo#", adjustmentNo);
+                                //emailBody = emailBody.Replace("#Improvement#", equipmentData.ImprovementName);
+                                emailBody = emailBody.Replace("#Area#", areaNamesString);
+                                emailBody = emailBody.Replace("#Section#", sectionName);
+                                emailBody = emailBody.Replace("#Comment#", comment);
+                                emailBody = emailBody.Replace("#AdvComment#", advisorComments);
+                                emailBody = emailBody.Replace("#Role#", Role);
+                                emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
+                                emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
+                                var requestData = new EmailLogMaster()
+                                {
+                                    FormId = requestId,
+                                    EmailBody = emailBody.ToString(),
+                                    EmailCC = string.Join(",", emailCCAddressList.Distinct().ToList()),
+                                    EmailTo = string.Join(",", emailToAddressList.Distinct().ToList()),
+                                    EmailSubject = emailSubject.ToString(),
+                                    EmailSentTime = DateTime.Now,
+                                    isDelete = false,
+                                    IsEmailSent = emailSent,
+                                };
+                                _context.EmailLogMasters.Add(requestData);
+                                await _context.SaveChangesAsync();
+                            }
+                        }
                     }
                 }
 
@@ -1989,7 +2133,7 @@ namespace TDSGCellFormat.Helper
             }
             catch (Exception ex)
             {
-                var commonHelper = new CommonHelper(_context);
+                var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Send Adjustment");
                 return false;
             }

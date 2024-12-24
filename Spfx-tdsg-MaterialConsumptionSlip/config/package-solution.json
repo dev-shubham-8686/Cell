@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "spfx-tdsg-material-consumption-slip-client-side-solution",
+    "id": "2456dc6b-f930-456a-a40a-ef618ff62984",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.19.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "Spfx-tdsg-MaterialConsumptionSlip description"
+      },
+      "longDescription": {
+        "default": "Spfx-tdsg-MaterialConsumptionSlip description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "spfx-tdsg-material-consumption-slip Feature",
+        "description": "The feature that activates elements of the spfx-tdsg-material-consumption-slip solution.",
+        "id": "8df50df6-14f3-402b-aed8-bb5f8c2144f0",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/spfx-tdsg-material-consumption-slip.sppkg"
+  }
+}
