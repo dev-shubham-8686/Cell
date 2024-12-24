@@ -207,7 +207,7 @@ namespace TDSGCellFormat.Implementation.Repository
                            ? report.otherSubMachine
                            : "";
                     newReport.ImprovementCategory = report.ImprovementCategory != null ? string.Join(",", report.ImprovementCategory) : string.Empty;
-                    newReport.OtherImprovementCategory = report.ImprovementCategory != null && report.ImprovementCategory.Contains(-2)
+                    newReport.OtherImprovementCategory = report.ImprovementCategory != null && report.ImprovementCategory.Contains(-1)
                            ? report.OtherImprovementCategory
                            : "";
                     newReport.SectionId = report.SectionId;
@@ -515,7 +515,7 @@ namespace TDSGCellFormat.Implementation.Repository
                            ? report.otherSubMachine
                            : "";
                 existingReport.ImprovementCategory = report.ImprovementCategory != null ? string.Join(",", report.ImprovementCategory) : string.Empty;
-                existingReport.OtherImprovementCategory = report.ImprovementCategory != null && report.ImprovementCategory.Contains(-2)
+                existingReport.OtherImprovementCategory = report.ImprovementCategory != null && report.ImprovementCategory.Contains(-1)
                        ? report.OtherImprovementCategory
                        : "";
                 existingReport.SectionId = report.SectionId;
