@@ -14,6 +14,10 @@ namespace TDSGCellFormat.Models.Add
         public List<int>? SubMachineName { get; set; }
 
         public string? otherSubMachine { get; set; }
+
+        public List<int>? ImprovementCategory { get; set; }
+
+        public string? OtherImprovementCategory { get; set; }
         public int? SectionId { get; set; }
 
         public int? SectionHeadId  { get; set; }
