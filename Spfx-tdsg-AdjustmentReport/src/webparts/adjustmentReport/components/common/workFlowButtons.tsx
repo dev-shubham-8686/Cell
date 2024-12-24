@@ -17,6 +17,8 @@ import { IPullBack } from "../../api/PullBack.api";
 import { usePullBack } from "../../hooks/usePullBack";
 import { useGetCellDepartmentsById } from "../../hooks/useGetCellDepartmentById";
 import { showErrorMsg } from "../../utils/displayjsx";
+import { IDeligate } from "../../api/DeligateUser.api";
+import { useGetAllEmployees } from "../../hooks/useGetAllEmployees";
 
 const { Option } = Select;
 
@@ -51,6 +53,8 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   const { mutate: approveAskToAmend ,isLoading:approving } = useUpdateApproveAskToAmend();
   const { mutate: pullback , isLoading:pullingBack } = usePullBack();
   const { data: advisors = [] } = useGetAllAdvisors();
+    const { data: employeesResult } = useGetAllEmployees();
+
   const { data: departmentHeads } = useGetAdditionalDepartmentHeads(
     user?.departmentId ?? 0
   );
@@ -194,6 +198,16 @@ console.log("ALLREQUEST",allReq)
       },
     });
   };
+
+  const handleDeligate = async (comment: string): Promise<void> => {
+    const data: IDeligate = {
+      FormId: id ? parseInt(id, 10) : 0,
+
+      DelegateUserId: user?.employeeId ? user?.employeeId : 0,
+      ApproverTaskId:currentApproverTask?.approverTaskId,
+      comment: comment,
+    };
+  }
   // Handle the submit action after getting the comment
   const handleSubmit = async () => {
     try {
@@ -202,7 +216,9 @@ console.log("ALLREQUEST",allReq)
       setLoading(true);
 
       const comment = values.comment; // Get the validated comment
-
+if(actionType==="deligate"){
+  await handleDeligate(comment)
+}
       if (actionType === "approve") {
         await handleApprove(comment, values.approvalSequence);
       } else if (actionType === "amend") {
@@ -255,6 +271,16 @@ console.log("ALLREQUEST",allReq)
           </Button>
         </>
       ) : null}
+
+{user?.isAdmin ? (
+        <Button
+          className="btn btn-primary"
+          onClick={() => handleClick("deligate")}
+        >
+          Deligate
+        </Button>
+      ) : (<></>)}
+
       {existingAdjustmentReport?.IsSubmit &&
       (existingAdjustmentReport?.Status !== REQUEST_STATUS.UnderAmendment &&
         existingAdjustmentReport?.Status !== REQUEST_STATUS.Completed) &&
@@ -537,6 +563,32 @@ console.log("ALLREQUEST",allReq)
               </Radio.Group>
             </Form.Item>
           )}
+
+          {
+            user?.isAdmin && actionType == ACTION_TYPE.Deligate ?(
+            <Form.Item
+                        name="DeligateUserId"
+                        label="Select a Deligate User"
+                        rules={[{ required: true, message: "Please select a Deligate User." }]}
+                      >
+                        <Select
+                          allowClear
+                          placeholder="Select a Deligate User"
+                          options={employeesResult.ReturnValue?.map((emp) => ({
+                            label: emp.employeeName,
+                            value: emp.employeeId,
+                          }))}
+                          showSearch
+                          filterOption={(input, option) =>
+                            option?.label
+                              .toString()
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
+                          
+                        />
+                      </Form.Item>):(<></>)
+          }
           <Form.Item
             label="Comments"
             name="comment"

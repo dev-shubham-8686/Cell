@@ -51,7 +51,8 @@ export const LEVELS = {
 
 export const ACTION_TYPE={
   Approve:"approve",
-  AskToAmend:"amend"
+  AskToAmend:"amend",
+  Deligate:"deligate"
 }
 // It returns the background colour class for the status
 export const STATUS_COLOUR_CLASS: { [key: string]: string } = {
