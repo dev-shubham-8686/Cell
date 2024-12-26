@@ -79,7 +79,8 @@ namespace TDSGCellFormat.Common
 
             AdvisorUpdate = 29,
 
-            AutoApproved = 30
+            AutoApproved = 30,
+            PCRNNotRequired = 31
         }
         public enum ApprovalStatus
         {
