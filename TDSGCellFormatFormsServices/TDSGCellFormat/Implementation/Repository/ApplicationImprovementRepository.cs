@@ -1344,7 +1344,11 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             if (currentApproverTask.AssignedToUserId == nextTask.AssignedToUserId)
                             {
-                                //nextTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
+                                nextTask.Comments = currentApproverTask.Comments;
+                                nextTask.ActionTakenBy = currentApproverTask.AssignedToUserId;
+                                nextTask.ActionTakenDate = currentApproverTask.ActionTakenDate;
+                                nextTask.ModifiedBy = data.CurrentUserId;
+                                nextTask.ModifiedDate = DateTime.Now;
                                 nextTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
