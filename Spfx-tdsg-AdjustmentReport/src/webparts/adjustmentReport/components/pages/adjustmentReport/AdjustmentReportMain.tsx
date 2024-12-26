@@ -46,13 +46,13 @@ const AdjustmentReportMain: React.FC = () => {
   };
   const operations = (
     <>
-      <Button
+      {/* <Button
         type="primary"
         onClick={() => navigate("/master")}
         style={{ float: "right" }}
       >
         MASTER
-      </Button>
+      </Button> */}
       <Button
         type="primary"
         className="btn btn-primary mb-8"

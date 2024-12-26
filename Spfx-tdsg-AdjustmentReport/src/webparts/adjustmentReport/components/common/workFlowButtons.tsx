@@ -17,9 +17,9 @@ import { IPullBack } from "../../api/PullBack.api";
 import { usePullBack } from "../../hooks/usePullBack";
 import { useGetCellDepartmentsById } from "../../hooks/useGetCellDepartmentById";
 import { showErrorMsg } from "../../utils/displayjsx";
-import { IDeligate } from "../../api/DeligateUser.api";
+import { IDelegate } from "../../api/DeligateUser.api";
 import { useGetAllEmployees } from "../../hooks/useGetAllEmployees";
-import { useDeligate } from "../../hooks/useDeligate";
+import { useDelegate } from "../../hooks/useDelegate";
 
 const { Option } = Select;
 
@@ -53,7 +53,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   const { id, mode } = useParams();
   const { mutate: approveAskToAmend ,isLoading:approving } = useUpdateApproveAskToAmend();
   const { mutate: pullback , isLoading:pullingBack } = usePullBack();
-  const { mutate: deligate , isLoading:deligating } = useDeligate();
+  const { mutate: delegate , isLoading:deligating } = useDelegate();
   const { data: advisors = [] } = useGetAllAdvisors();
     const { data: employeesResult } = useGetAllEmployees();
 
@@ -202,15 +202,15 @@ console.log("ALLREQUEST",allReq)
   };
 
   const handleDeligate = async (comment: string , deligateUserId:number): Promise<void> => {
-    const data: IDeligate = {
+    const data: IDelegate = {
       FormId: id ? parseInt(id, 10) : 0,
       UserId:deligateUserId,
       DelegateUserId: user?.employeeId ? user?.employeeId : 0,
       ApproverTaskId:currentApproverTask?.approverTaskId,
-      comment: comment,
+      Comments: comment,
     };
-    deligate(data, {
-      onSuccess: (data) => {
+    delegate(data, {
+      onSuccess: (data:any) => {
         navigate("/");
       },
     });
@@ -223,7 +223,7 @@ console.log("ALLREQUEST",allReq)
       setLoading(true);
 
       const comment = values.comment; // Get the validated comment
-if(actionType==="deligate"){
+if(actionType==="delegate"){
   await handleDeligate(comment, values.DeligateUserId)
 }
       if (actionType === "approve") {
@@ -280,12 +280,14 @@ if(actionType==="deligate"){
       ) : null}
 
 {user?.isAdmin ? (
+  <div className="button-container">
         <Button
           className="btn btn-primary"
-          onClick={() => handleClick("deligate")}
+          onClick={() => handleClick("delegate")}
         >
-          Deligate
+          Delegate
         </Button>
+        </div>
       ) : (<></>)}
 
       {existingAdjustmentReport?.IsSubmit &&

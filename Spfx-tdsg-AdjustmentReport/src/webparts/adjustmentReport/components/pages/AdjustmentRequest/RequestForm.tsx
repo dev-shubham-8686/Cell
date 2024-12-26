@@ -62,12 +62,12 @@ const { TextArea } = Input;
 
 interface RequestFormProps {
   reportData?: any;
-  formisLoading?:boolean
+  formisLoading?: boolean;
 }
 
-const RequestForm :React.FC<RequestFormProps> = ({
- reportData,
- formisLoading
+const RequestForm: React.FC<RequestFormProps> = ({
+  reportData,
+  formisLoading,
 }) => {
   const [form] = Form.useForm();
   const currentDateTime = dayjs();
@@ -129,8 +129,9 @@ const RequestForm :React.FC<RequestFormProps> = ({
   // const { data: reportDataa } = useGetAdjustmentReportById(
   //   id ? parseInt(id) : 0
   // );
-  const { mutate: addUpdateReport , isLoading:savingData} = useAddUpdateReport();
- 
+  const { mutate: addUpdateReport, isLoading: savingData } =
+    useAddUpdateReport();
+
   // Use effect to sync files with form field value
   useEffect(() => {
     // Update the beforeImages field with the latest files count
@@ -173,7 +174,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
             };
           }
         );
-        
+
       setChangeRiskManagementDetails(changeRiskData);
       form.setFieldsValue({
         ...reportData?.ReturnValue.ChangeRiskManagement_AdjustmentReport,
@@ -239,7 +240,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
         requestedBy: reportData?.ReturnValue.RequestBy,
         checkedBy: reportData?.ReturnValue.CheckedBy,
         dateTime: reportData
-          ? dayjs(reportData?.ReturnValue?.When,DATE_TIME_FORMAT)
+          ? dayjs(reportData?.ReturnValue?.When, DATE_TIME_FORMAT)
           : currentDateTime,
         observation: reportData?.ReturnValue.Observation,
         rootCause: reportData?.ReturnValue.RootCause,
@@ -536,7 +537,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
 
           payload.AdvisorId = advisorId;
 
-          await addUpdateReport(payload,{
+          await addUpdateReport(payload, {
             onSuccess: async (response: any) => {
               if (mode == "add") {
                 await renameFolder(
@@ -562,7 +563,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
         }
       },
       onCancel: () => {
-        form.setFieldsValue({ AdvisorId: null});
+        form.setFieldsValue({ AdvisorId: null });
         console.log("Submission cancelled");
       },
     });
@@ -573,7 +574,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
       const payload = CreatePayload(values, operation);
       await addUpdateReport(payload, {
         onSuccess: async (response: any) => {
-          console.log("Resubmit Success Res",response)
+          console.log("Resubmit Success Res", response);
           navigate("/");
         },
         onError: () => {
@@ -865,7 +866,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
               //     : undefined
               // }
               format={DATE_FORMAT}
-                            disabled={
+              disabled={
                 isViewMode || (!isAdmin && submitted && !underamendment)
               }
               onChange={(date, dateString) => {
@@ -990,42 +991,40 @@ const RequestForm :React.FC<RequestFormProps> = ({
 
   return (
     <>
-      <div
-      className="button-wrapper"
-      >
-       
-          <div className="button-container" >
-            {!isViewMode && (!submitted || underamendment) && (
-              <button
-                className="btn btn-primary"
-                onClick={() => onFinish(OPERATION.Save)}
-              >
-                <i className="fa-solid fa-floppy-disk" />
-                Save
-              </button>
-            )}
+      <div className="button-wrapper">
+        <div className="button-container">
+          {(mode == "add" ||
+            (user?.isAdmin && !isViewMode) ||
+            (!isViewMode && (!submitted || underamendment))) && (
+            <button
+              className="btn btn-primary"
+              onClick={() => onFinish(OPERATION.Save)}
+            >
+              <i className="fa-solid fa-floppy-disk" />
+              Save
+            </button>
+          )}
 
-            {!isViewMode && !submitted && (
-              <button
-                className="btn btn-darkgrey "
-                onClick={() => onFinish(OPERATION.Submit)}
-              >
-                <i className="fa-solid fa-share-from-square" />
-                Submit
-              </button>
-            )}
+          {(mode == "add" ||(user?.isAdmin && !isViewMode)|| (!isViewMode && !submitted)) && (
+            <button
+              className="btn btn-darkgrey "
+              onClick={() => onFinish(OPERATION.Submit)}
+            >
+              <i className="fa-solid fa-share-from-square" />
+              Submit
+            </button>
+          )}
 
-            {!isViewMode && underamendment && (
-              <button
-                className="btn btn-primary"
-                type="button"
-                onClick={() => onFinish(OPERATION.Resubmit)}
-              >
-                Resubmit
-              </button>
-            )}
-          </div>
-      
+          {!isViewMode && underamendment && (
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={() => onFinish(OPERATION.Resubmit)}
+            >
+              Resubmit
+            </button>
+          )}
+        </div>
       </div>
       <div className="bg-white p-4 form">
         <Form
@@ -1078,16 +1077,14 @@ const RequestForm :React.FC<RequestFormProps> = ({
               >
                 <Select
                   allowClear
-                  disabled={
-                    isViewMode || (!isAdmin && submitted )
-                  }       
+                  disabled={isViewMode || (!isAdmin && submitted)}
                   showSearch
                   filterOption={(input, option) =>
                     (option?.label ?? "")
                       .toLowerCase()
                       .includes(input.toLowerCase())
-                  }       
-                      placeholder="Select Checked By"
+                  }
+                  placeholder="Select Checked By"
                   loading={checkedloading}
                   options={[
                     ...(employeesResult?.ReturnValue?.map((checkedBy) => ({
@@ -1098,7 +1095,6 @@ const RequestForm :React.FC<RequestFormProps> = ({
                       ? [{ label: "Not Applicable", value: -1 }]
                       : []),
                   ]}
-                 
                 >
                   {employeesResult?.ReturnValue &&
                     employeesResult.ReturnValue.map((checkedBy) => (
@@ -1123,10 +1119,8 @@ const RequestForm :React.FC<RequestFormProps> = ({
                 <Select
                   allowClear
                   placeholder="Select Section Name"
-                  disabled={
-                    isViewMode || (!isAdmin && submitted )
-                  }             
-                       showSearch
+                  disabled={isViewMode || (!isAdmin && submitted)}
+                  showSearch
                   // onChange={handleSectionChange}
                   filterOption={(input, option) =>
                     (option?.label ?? "")
@@ -1157,9 +1151,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
               <Form.Item label="Area" name="area" rules={validationRules.Area}>
                 <Select
                   allowClear
-                  disabled={
-                    isViewMode || (!isAdmin && submitted)
-                  }
+                  disabled={isViewMode || (!isAdmin && submitted)}
                   mode="multiple"
                   placeholder="Select Area"
                   showSearch
@@ -1448,7 +1440,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
                     } else {
                       console.error("The file is not an image:", file.type);
                     }
-                    
+
                     const newAttachment: IBeforeImages = {
                       AdjustmentBeforeImageId: 0,
                       AdjustmentreportId: parseInt(id),
@@ -1458,7 +1450,7 @@ const RequestForm :React.FC<RequestFormProps> = ({
                       ModifiedBy: user?.employeeId,
                       BeforeImgBytes: imageBytes,
                     };
-                    
+
                     const updatedAttachments: IBeforeImages[] = [
                       ...existingAttachments,
                       newAttachment,
@@ -1643,7 +1635,10 @@ const RequestForm :React.FC<RequestFormProps> = ({
                   Change Risk Management
                 </p>
                 {console.log("Mode", mode)}
-                {(mode == "add" ||( !isViewMode && (isAdmin || (!isAdmin && (!submitted || underamendment))) ) )&& (
+                {(mode == "add" ||
+                  (!isViewMode &&
+                    (isAdmin ||
+                      (!isAdmin && (!submitted || underamendment))))) && (
                   <button
                     className="btn btn-primary mt-3"
                     type="button"
@@ -1671,7 +1666,11 @@ const RequestForm :React.FC<RequestFormProps> = ({
             <></>
           )}
         </Form>
-       { mode == "add" ?(<></>):<Spin spinning={(formisLoading??false )|| savingData} fullscreen />}
+        {mode == "add" ? (
+          <></>
+        ) : (
+          <Spin spinning={(formisLoading ?? false) || savingData} fullscreen />
+        )}
       </div>
     </>
   );
