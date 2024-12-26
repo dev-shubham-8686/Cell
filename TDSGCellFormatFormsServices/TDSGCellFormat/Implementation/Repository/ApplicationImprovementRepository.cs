@@ -1441,7 +1441,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
         }
 
-
         private async Task CompleteFormTask(EquipmentApproveAsktoAmend data)
         {
             var res = new AjaxResult();
@@ -1657,7 +1656,7 @@ namespace TDSGCellFormat.Implementation.Repository
             // Return the two lists as a tuple
             return (workflowOne, workflowTwo);
         }
-
+       
         public ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId)
         {
             var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId &&
@@ -1674,6 +1673,31 @@ namespace TDSGCellFormat.Implementation.Repository
 
             }
             return data;
+        }
+
+        public async Task<AjaxResult> GetEmailAttachment(int id)
+        {
+            var res = new AjaxResult();
+            var processedDataList = new List<EquipmentAttachment>();
+            var equipment = _context.EquipmentEmailAttachments.Where(x => x.EquipmentImprovementId == id && x.IsDeleted == false).ToList();
+            if(equipment != null)
+            {
+                var processedData = new EquipmentAttachment();
+                foreach (var item in equipment)
+                {
+                    
+                    processedData.EquipmentId = (int)item.EquipmentImprovementId;
+                    processedData.EmailAttachmentId = item.EquipmentEmailAttachmenId;
+                    processedData.EmailDocFilePath = item.EmailFilePath;
+                    processedData.EmailDocName = item.EmailDocName;
+                }
+                processedDataList.Add(processedData);
+
+            }
+
+            res.ReturnValue = processedDataList;
+
+            return res;
         }
         #endregion
 
