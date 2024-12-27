@@ -14,8 +14,10 @@ import useGetApproverFlowData from "../../apis/workflow/useGetApprovalFlowData";
 import useGetCurrentApproverData from "../../apis/workflow/useGetCurrentApprover";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import useGetEmailAttachmentsData from "../../apis/equipmentReport/useEmailAttachments/useEmailAttachmentsData";
+import EmailAttachments from "../equipmentReport/EmailAttachments";
 
-type TabName = "form" | "history" | "workflow";
+type TabName = "form" | "history" | "workflow" | "emailAtachments";
 
 interface EquipmentReportLayoutProps {}
 
@@ -33,6 +35,10 @@ console.log("allReq",equipmentReport?.data,location.state)
 const {data:approverFlowData} = useGetApproverFlowData(
   id ? parseInt(id) : undefined
 );
+const {data:emailAttachmentData} = useGetEmailAttachmentsData(
+  id ? parseInt(id) : undefined
+);
+console.log("EMDTA",emailAttachmentData)
 const currentApprover = useGetCurrentApproverData(
   id ? parseInt(id) : undefined,
   user.employeeId
@@ -62,6 +68,10 @@ const currentApprover = useGetCurrentApproverData(
     {
       id: "workflow",
       name: "Workflow",
+    },
+    emailAttachmentData?.length>0 && {
+      id: "emailAtachments",
+      name: "Toshiba Attachments",
     },
   ];
 
@@ -140,7 +150,11 @@ const currentApprover = useGetCurrentApproverData(
                approverTasks={approverFlowData??{ WorkflowOne: [], WorkflowTwo: [] }}
               />
             </div>
-          ) : (
+          ) :currentTab === "emailAtachments" ? (
+            <div>
+              <EmailAttachments EQReportNo={equipmentReport?.data?.EquipmentImprovementNo} emailAttachments={emailAttachmentData??[]}/>
+            </div>
+          ): (
             <></>
           )}
         </div>
