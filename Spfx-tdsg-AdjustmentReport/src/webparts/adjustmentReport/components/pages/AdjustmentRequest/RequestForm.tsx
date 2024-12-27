@@ -86,7 +86,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
 
   const [showOtherMachine, setshowOtherMachine] = useState(false);
   const [selectedAdvisor, setselectedAdvisor] = useState<number>(null);
-  const [cRMRequired, setCRMRequired] = React.useState<boolean>(false);
+  const [cRMRequired, setCRMRequired] = React.useState<boolean>(true);
   const [formSections, setFormSections] = React.useState<number[]>([0]); // Initially, one form section
   const [selectedMachineId, setSelectedMachineId] = useState<number | null>(
     null
@@ -123,7 +123,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
   const isViewMode = mode === "view";
   const isEditMode = mode === "edit";
   const initialData = {
-    dateTime: currentDateTime,
+    dateTime: "-",
     reportNo: reportNo === undefined ? "" : reportNo,
   };
   // const { data: reportDataa } = useGetAdjustmentReportById(
@@ -241,7 +241,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
         checkedBy: reportData?.ReturnValue.CheckedBy,
         dateTime: reportData
           ? dayjs(reportData?.ReturnValue?.When, DATE_TIME_FORMAT)
-          : currentDateTime,
+          : "-",
         observation: reportData?.ReturnValue.Observation,
         rootCause: reportData?.ReturnValue.RootCause,
         adjustmentDescription: reportData?.ReturnValue.AdjustmentDescription,
@@ -249,7 +249,8 @@ const RequestForm: React.FC<RequestFormProps> = ({
           reportData?.ReturnValue.ConditionAfterAdjustment,
         describeProblem: reportData?.ReturnValue.DescribeProblem,
       });
-
+      
+      console.log("DATE",form.getFieldValue("dateTime"))
       // Pre-filter sub-machines based on the machine from reportData?
       // if (
       //   reportData?.ReturnValue.MachineName &&
@@ -265,6 +266,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
   };
 
   React.useEffect(() => {
+    
     void loadData();
   }, [reportData, isEditMode, isViewMode, subMachinesResult, form]);
 
@@ -322,7 +324,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
   };
 
   const validationRules = {
-    Date: [{ required: true, message: "Please Enter Date & Time" }],
+    Date: [{ required: true, message: "Please enter Date & Time" }],
     Area: [{ required: true, message: "Please select Area" }],
     CheckedBy: [{ required: true, message: "Please select Checked By" }],
     Section: [{ required: true, message: "Please select Section Name" }],
@@ -1031,7 +1033,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
           layout="vertical"
           form={form}
           onFinish={onFinish}
-          initialValues={initialData}
+          // initialValues={initialData}
         >
           <Row gutter={48} className="mb-3">
             <Col span={6}>
@@ -1062,7 +1064,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   }
                   disabledDate={disabledPastDate}
                   showTime
-                  placeholder="Date & Time"
+                  placeholder="Enter Date & Time"
                   format={DATE_TIME_FORMAT}
                   className="bg-antdDisabledBg border-antdDisabledBorder w-full"
                 />
@@ -1087,13 +1089,13 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   placeholder="Select Checked By"
                   loading={checkedloading}
                   options={[
+                    ...(checkedByResult?.ReturnValue
+                      ? [{ label: "Not Applicable", value: -1 }]
+                      : []),
                     ...(employeesResult?.ReturnValue?.map((checkedBy) => ({
                       label: checkedBy.employeeName,
                       value: checkedBy.employeeId,
                     })) || []),
-                    ...(checkedByResult?.ReturnValue
-                      ? [{ label: "Not Applicable", value: -1 }]
-                      : []),
                   ]}
                 >
                   {employeesResult?.ReturnValue &&
