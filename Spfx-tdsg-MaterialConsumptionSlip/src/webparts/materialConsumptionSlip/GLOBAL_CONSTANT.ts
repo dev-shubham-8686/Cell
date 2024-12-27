@@ -1,7 +1,7 @@
 export const SERVICE_URL = 
   // "http://localhost:5246"
-//  "https://localhost:44353"
- "https://cellformservice-stage.tdsgj.co.in"   //stage
+ "https://localhost:44353"
+//  "https://cellformservice-stage.tdsgj.co.in"   //stage
 //  "https://tdsg-eapp-cellforms.tdsgj.co.in" // prod
 ;
 // TODO: change URLs
