@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.Graph.Models;
 using Newtonsoft.Json;
 using static TDSGCellFormat.Common.Enums;
 
@@ -36,7 +37,7 @@ namespace TDSGCellFormat.Models.Add
 
         public string? AdjustmentDescription { get; set; }
 
-       
+
 
         public bool? ChangeRiskManagementRequired { get; set; }
         public string? ConditionAfterAdjustment { get; set; }
@@ -64,7 +65,7 @@ namespace TDSGCellFormat.Models.Add
 
         public int? DepartmentHeadId { get; set; }
 
-        public int? DeputyDivHead {  get; set; }
+        public int? DeputyDivHead { get; set; }
 
         public List<AdjustmentAfterImageData>? AfterImages { get; set; }
         public List<AdjustmentBeforeImageData>? BeforeImages { get; set; }
@@ -142,7 +143,7 @@ namespace TDSGCellFormat.Models.Add
     {
         public int? EmployeeId { get; set; }
         public int? DepartmentId { get; set; }
-        
+
         public int? ApprovalSequence { get; set; }
     }
 
@@ -158,7 +159,7 @@ namespace TDSGCellFormat.Models.Add
     public class AdjustmentAdvisor
     {
         public int? AdjustmentAdvisorId { get; set; }
-        public int? AdvisorId {  get; set; }
+        public int? AdvisorId { get; set; }
         public int AdjustmentReportId { get; set; }
         public string? Comment { get; set; }
     }
@@ -166,9 +167,10 @@ namespace TDSGCellFormat.Models.Add
     public class DelegateUser
     {
         public int FormId { get; set; }
-        public int? UserId { get; set; } 
-        public int DelegateUserId {  get; set; }
-        public int ApproverTaskId { get; set; }
-        public string? Comments {  get; set; }
+        public int? UserId { get; set; }   // who is delegating(admin id)
+        public int activeUserId { get; set; }     // who u want to delegate
+        public int DelegateUserId { get; set; } // with whom u want to delegate
+        public int ApproverTaskId { get; set; }  //not needed
+        public string? Comments { get; set; }
     }
 }

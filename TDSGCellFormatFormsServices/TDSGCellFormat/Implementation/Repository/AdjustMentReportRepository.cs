@@ -1931,11 +1931,11 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var adjustment = _context.AdjustmentReportApproverTaskMasters.FirstOrDefault(x => x.ApproverTaskId == request.ApproverTaskId && x.AdjustmentReportId == request.FormId && x.IsActive == true);
+                var adjustment = _context.AdjustmentReportApproverTaskMasters.FirstOrDefault(x => x.AssignedToUserId == request.activeUserId && x.AdjustmentReportId == request.FormId && x.IsActive == true);
                 if (adjustment != null)
                 {
-                    adjustment.DelegateUserId = request.UserId;
-                    adjustment.DelegateBy = request.DelegateUserId;
+                    adjustment.DelegateUserId = request.DelegateUserId;
+                    adjustment.DelegateBy = request.UserId;
                     adjustment.DelegateOn = DateTime.Now;
                     adjustment.Comments = request.Comments;
                     await _context.SaveChangesAsync();
@@ -1945,7 +1945,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var adjustmentNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == request.FormId && x.IsDeleted == false).FirstOrDefault();
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, adjustment.AssignedToUserId, adjustmentNo.ReportNo, adjustment.FormType);
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, adjustmentNo.ReportNo, adjustment.FormType);
 
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.Delegate;
