@@ -24,8 +24,8 @@ import { useGetApprorverFlowData } from "../../../hooks/useGetApprorverFlowData"
 import { useGetSectionHead } from "../../../hooks/useGetSectionHead";
 import { useGetDepartmentHead } from "../../../hooks/useGetDepartmentHead";
 import WorkFlowButtons from "../../common/workFlowButtons";
-import { IAdjustmentReportPhoto } from "../../../interface";
-import { useEffect } from "react";
+import { IAdjustmentReportPhoto, IWorkflowDetail } from "../../../interface";
+import { useEffect, useState } from "react";
 import PageLayout from "../../pageLayout/PageLayout";
 // import { useEffect } from "react";
 // import { useGetApprorverFlowData } from "../../../hooks/useGetApprorverFlowData";
@@ -59,6 +59,8 @@ const ReportFormPage = () => {
   const { data: reportData, isLoading: reportisLoading } =
     useGetAdjustmentReportById(id ? parseInt(id, 10) : 0);
   const { mutate: getCurrentApprover } = useGetCurrentApprover();
+  const [currentApprover, setCurrentApprover] = useState<IWorkflowDetail | null>(null);
+
   const { data: approvalData } = useGetApprorverFlowData(
     id ? parseInt(id, 10) : 0
   );
@@ -129,12 +131,20 @@ const ReportFormPage = () => {
         { currentApproverTask },
         user?.employeeId ? user?.employeeId : 0
       );
+      
     }
   };
 
   React.useEffect(() => {
     void loadData();
-  }, [reportData, isEditMode, isViewMode]);
+
+    if (approvalData) {
+      const approverInReview = approvalData.find(
+        (approver) => approver.Status === REQUEST_STATUS.InReview
+      );
+      setCurrentApprover(approverInReview || null);
+    }
+  }, [reportData, isEditMode, isViewMode,approvalData]);
 
   console.log("ALLREQUEST123", location.state);
 
@@ -172,6 +182,7 @@ const ReportFormPage = () => {
     <div>
       {true && (
         <WorkFlowButtons
+        currentApprover={currentApprover}
           currentApproverTask={currentApproverTask}
           existingAdjustmentReport={existingAdjustmentReport}
           //isFormModified={isEditMode && isViewMode == false ? true : false}

@@ -6,6 +6,7 @@ export interface IDelegate {
     FormId?: number;
     UserId?: number;   // the person who is new delegate 
     DelegateUserId?:number ;  // who is performing action -- id of admin 
+    activeUserId?:number
     ApproverTaskId?:number ;
     Comments?: string;
 }

@@ -20,6 +20,7 @@ import { showErrorMsg } from "../../utils/displayjsx";
 import { IDelegate } from "../../api/DeligateUser.api";
 import { useGetAllEmployees } from "../../hooks/useGetAllEmployees";
 import { useDelegate } from "../../hooks/useDelegate";
+import { IWorkflowDetail } from "../../interface";
 
 const { Option } = Select;
 
@@ -29,6 +30,7 @@ interface WorkFlowButtonsProps {
   isFormModified: boolean;
   departmentHead: boolean;
   depDivHead?: boolean;
+  currentApprover?:IWorkflowDetail
 }
 
 const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
@@ -37,6 +39,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   isFormModified,
   departmentHead,
   depDivHead,
+  currentApprover
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -203,10 +206,11 @@ console.log("ALLREQUEST",allReq)
 
   const handleDeligate = async (comment: string , deligateUserId:number): Promise<void> => {
     const data: IDelegate = {
-      FormId: id ? parseInt(id, 10) : 0,
-      UserId:deligateUserId,
-      DelegateUserId: user?.employeeId ? user?.employeeId : 0,
-      ApproverTaskId:currentApproverTask?.approverTaskId,
+      FormId: id ? parseInt(id) : 0,
+      UserId:user?.employeeId??0,
+      activeUserId:currentApprover?.AssignedToUserId,
+      DelegateUserId:deligateUserId, 
+      // ApproverTaskId:currentApprover?.ApproverTaskId,
       Comments: comment,
     };
     delegate(data, {
@@ -577,12 +581,12 @@ if(actionType==="delegate"){
             user?.isAdmin && actionType == ACTION_TYPE.Deligate ?(
             <Form.Item
                         name="DeligateUserId"
-                        label="Select a Deligate User"
-                        rules={[{ required: true, message: "Please select a Deligate User." }]}
+                        label="Select a Delegate User"
+                        rules={[{ required: true, message: "Please select a Delegate User." }]}
                       >
                         <Select
                           allowClear
-                          placeholder="Select a Deligate User"
+                          placeholder="Select a Delegate User"
                           options={employeesResult.ReturnValue?.map((emp) => ({
                             label: emp.employeeName,
                             value: emp.employeeId,
