@@ -2087,7 +2087,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 StringBuilder currentSituationAttachments = new StringBuilder();
                 StringBuilder improvementAttachments = new StringBuilder();
 
-                var imageExtensions = new List<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".svg" };
+                var imageExtensions = new List<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".svg",".heif",".heic", ".cr2", ".nef", ".arw",".dng",".psd",".ico",".cur",
+                                ".apng", ".tga",".pcx",".xcf" };
 
                 foreach (var url1 in currAttachmentUrl)
                 {
