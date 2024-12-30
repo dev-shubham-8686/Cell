@@ -1953,7 +1953,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 {"OtherSubMachine","Other Sub Machine Name" },
                  {"SectionName","Section Name" },
                    {"ImprovementName","Improvement Name" },
-                    {"CurrentApprover","Current Approver" }
+                    {"CurrentApprover","Current Approver" },
+                    {"SubMachineName","Sub Machine Name" },
+                {"ImprovementCategory","Improvement Category" },
+                 {"OtherImprovementCategory","Other Improvement Category" }
 
 };
 
@@ -2052,7 +2055,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#currentSituations#", equipmentData?.CurrentSituation);
                 sb.Replace("#Improvement#", equipmentData?.Imrovement);
 
-               
+
 
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
                 if (equipmentData?.ToshibaApprovalRequired == true)
@@ -2084,13 +2087,20 @@ namespace TDSGCellFormat.Implementation.Repository
                 StringBuilder currentSituationAttachments = new StringBuilder();
                 StringBuilder improvementAttachments = new StringBuilder();
 
+                var imageExtensions = new List<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".svg" };
+
                 foreach (var url1 in currAttachmentUrl)
                 {
                     string bfrUrl = $"{baseUrl}{url1.CurrSituationDocFilePath}";
-                    if (url1.CurrSituationDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrSituationDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrSituationDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrSituationDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    // List of image extensions
+
+
+                    //if (url1.CurrSituationDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                    //             url1.CurrSituationDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                    //             url1.CurrSituationDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                    //             url1.CurrSituationDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    // Check if the file path ends with any of the image extensions
+                    if (imageExtensions.Any(ext => url1.CurrSituationDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
                     {
                         // Add image tag
                         currentSituationAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
@@ -2109,10 +2119,11 @@ namespace TDSGCellFormat.Implementation.Repository
                 foreach (var url2 in impAttachmentUrl)
                 {
                     string bfrUrl = $"{baseUrl}{url2.ImprovementDocFilePath}";
-                    if (url2.ImprovementDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImprovementDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImprovementDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImprovementDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    //   if (url2.ImprovementDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                    //                url2.ImprovementDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                    //                url2.ImprovementDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                    //                url2.ImprovementDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    if (imageExtensions.Any(ext => url2.ImprovementDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
                     {
                         // Add image tag
                         improvementAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
