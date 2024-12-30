@@ -15,8 +15,8 @@ import useUnitsOfMeasure from "../../../apis/unitOfMeasure/useUnitsOfMeasure";
 import displayjsx from "../../../utility/displayjsx";
 import { deleteUOMMaster, getAllUOMMaster, uomMasterAddOrUpdate } from "../../../apis/MasterAPIs/UOMMaster";
 interface IUnitOfMeasureMaster {
-    uomid: number;
-    name: string;
+  UOMId: number;
+  Name: string;
     CreatedDate?: string;
   CreatedBy?: number;
   ModifiedBy?: number;
@@ -88,8 +88,8 @@ const UOMMasterPage: React.FC = () => {
   const handleSave = (values: IUnitOfMeasureMaster) => {
     if (editingItem) {
         uomMasterAddOrUpdate({
-        UomId: editingItem.uomid,
-        UOMName: values.name,
+        UomId: editingItem.UOMId,
+        Name: values.Name,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
       })
@@ -107,7 +107,7 @@ const UOMMasterPage: React.FC = () => {
       // Create new record
       uomMasterAddOrUpdate({
         UomId: 0,
-        UOMName: values.name,
+        Name: values.Name,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
       })
@@ -139,8 +139,8 @@ const UOMMasterPage: React.FC = () => {
   const columns = [
     {
       title: "UOM Name",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "Name",
+      key: "Name",
       sorter: (a: any, b: any) =>
         a.EquipmentName.localeCompare(b.EquipmentName),
     },
@@ -205,9 +205,11 @@ const UOMMasterPage: React.FC = () => {
           />
           <Popconfirm
             title="Are you sure to delete this record?"
-            onConfirm={() => handleDelete(record.uomid!)}
+            onConfirm={() => handleDelete(record.UOMId!)}
             okText="Yes"
             cancelText="No"
+            okButtonProps={{className:"btn btn-primary"}}
+            cancelButtonProps={{className:"btn btn-outline-primary"}}
           >
             <Button
               title="Delete"
@@ -273,7 +275,7 @@ const UOMMasterPage: React.FC = () => {
           initialValues={{ EquipmentName: "", IsActive: false }}
         >
           <Form.Item
-            name="name"
+            name="Name"
             label="UOM Name"
             rules={[{ required: true, message: "Please enter UOM Name" }]}
           >

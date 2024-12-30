@@ -17,12 +17,10 @@ const MasterTab: React.FC = () => {
   const data = [
     { key: "1", name: "UOM" },
     { key: "2", name: "Category" },
-     
+    { key: "3", name: "Material" },
+    { key: "4", name: "Cost-Center" },
   ];
 
-  //   const filteredData = data.filter(
-  //     (item) => item.name.toLowerCase().indexOf(searchText.toLowerCase()) !== -1
-  //   );
 
   // Columns for the table
   const columns = [
@@ -50,7 +48,12 @@ const MasterTab: React.FC = () => {
               }else if(record.name == "Category") {
                 navigate(`/master/category`);
               }
-             
+              else if(record.name == "Material") {
+                navigate(`/master/material`);
+              }
+              else if(record.name == "Cost-Center") {
+                navigate(`/master/costcenter`);
+              }
             }}
           />
         </span>

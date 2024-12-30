@@ -13,35 +13,36 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../../context/userContext";
 import useUnitsOfMeasure from "../../../apis/unitOfMeasure/useUnitsOfMeasure";
 import displayjsx from "../../../utility/displayjsx";
-import { deleteUOMMaster, getAllUOMMaster, uomMasterAddOrUpdate } from "../../../apis/MasterAPIs/UOMMaster";
-import useCategories from "../../../apis/category/useCategories";
-import { categoryMasterAddOrUpdate, getAllCategoryMaster } from "../../../apis/MasterAPIs/CategoryMaster";
-interface ICategoryMaster {
-    CategoryId: number;
-    Name: string;
-    CreatedDate?: string;
+import {
+  costCenterMasterAddOrUpdate,
+  getAllCostCenterMaster,
+} from "../../../apis/MasterAPIs/CostCenterMaster";
+interface IConstCenterMaster {
+  CostCenterId: number;
+  Name: string;
+  CreatedDate?: string;
   CreatedBy?: number;
   ModifiedBy?: number;
   ModifiedDate?: string;
   IsActive?: boolean;
-  }
+}
 
-
-const CategoryMasterPage: React.FC = () => {
-  const [data, setData] = useState<ICategoryMaster[]>([]);
+const CostCenterMasterPage: React.FC = () => {
+  const [data, setData] = useState<IConstCenterMaster[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [modalVisible, setModalVisible] = useState(false);
-  const [editingItem, setEditingItem] =
-    useState<ICategoryMaster | null>(null);
+  const [editingItem, setEditingItem] = useState<IConstCenterMaster | null>(
+    null
+  );
   const [form] = Form.useForm();
   const user = useContext(UserContext);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
-  // const { data: categories, isLoading: categoryIsLoading } = useCategories();
+  //   const { data: unitsOfMeasure , isLoading:UOMLoading} = useUnitsOfMeasure();
 
   const fetchData = () => {
     setLoading(true);
-    getAllCategoryMaster()
+    getAllCostCenterMaster()
       .then((response) => {
         setLoading(false);
         setData(response.ReturnValue);
@@ -59,7 +60,7 @@ const CategoryMasterPage: React.FC = () => {
     form.resetFields();
   };
 
-  const handleEdit = (record: ICategoryMaster) => {
+  const handleEdit = (record: IConstCenterMaster) => {
     setEditingItem(null);
     setIsViewMode(false);
     setEditingItem(record);
@@ -67,7 +68,7 @@ const CategoryMasterPage: React.FC = () => {
     form.setFieldsValue(record);
   };
 
-  const handleView = (record: ICategoryMaster) => {
+  const handleView = (record: IConstCenterMaster) => {
     setEditingItem(null);
     setEditingItem(record);
     setIsViewMode(true);
@@ -75,61 +76,57 @@ const CategoryMasterPage: React.FC = () => {
     form.setFieldsValue(record);
   };
 
-  const handleDelete = (id: number) => {
-    deleteUOMMaster(id.toString())
-      .then(() => {
-        void displayjsx.showSuccess("Record deleted successfully");
-        fetchData();
-      })
-      .catch(() => {
-        void displayjsx.showErrorMsg("Failed to delete record");
-      });
-  };
+  //   const handleDelete = (id: number) => {
+  //     deleteCostCenterMaster(id.toString())
+  //       .then(() => {
+  //         void displayjsx.showSuccess("Record deleted successfully");
+  //         fetchData();
+  //       })
+  //       .catch(() => {
+  //         void displayjsx.showErrorMsg("Failed to delete record");
+  //       });
+  //   };
 
-
-  const handleSave = (values: ICategoryMaster) => {
+  const handleSave = (values: IConstCenterMaster) => {
     if (editingItem) {
-        categoryMasterAddOrUpdate({
-          CategoryId: editingItem.CategoryId,
-          Name: values.Name,
+      costCenterMasterAddOrUpdate({
+        CostCenterId: editingItem.CostCenterId,
+        Name: values.Name,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
       })
         .then(() => {
           void displayjsx.showSuccess("Record updated successfully");
-          
+
           fetchData();
           setModalVisible(false);
         })
         .catch(() => {
           void displayjsx.showErrorMsg("Failed to update record");
-          
         });
     } else {
       // Create new record
-      categoryMasterAddOrUpdate({
-        CategoryId: 0,
+      costCenterMasterAddOrUpdate({
+        CostCenterId: 0,
         Name: values.Name,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
       })
         .then((response) => {
-
           let result = response.ReturnValue;
 
-          if(result.MachineId == -1){
+          if (result.MachineId == -1) {
             void displayjsx.showInfo("Duplicate record found");
-             return false;
+            return false;
           }
 
           void displayjsx.showSuccess("Record created successfully");
-          
+
           fetchData();
           setModalVisible(false);
         })
         .catch(() => {
           void displayjsx.showErrorMsg("Failed to create record");
-         
         });
     }
   };
@@ -140,9 +137,9 @@ const CategoryMasterPage: React.FC = () => {
 
   const columns = [
     {
-      title: "Category Name",
+      title: "Cost Center Name",
       dataIndex: "Name",
-      key: "name",
+      key: "Name",
       sorter: (a: any, b: any) =>
         a.EquipmentName.localeCompare(b.EquipmentName),
     },
@@ -190,7 +187,7 @@ const CategoryMasterPage: React.FC = () => {
     {
       title: "Actions",
       key: "actions",
-      render: (text: any, record: ICategoryMaster) => (
+      render: (text: any, record: IConstCenterMaster) => (
         <span className="action-cell">
           <Button
             title="View"
@@ -205,12 +202,10 @@ const CategoryMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-          <Popconfirm
+          {/* <Popconfirm
             title="Are you sure to delete this record?"
-            onConfirm={() => handleDelete(record.CategoryId!)}
+            onConfirm={() => handleDelete(record.CostCenterId!)}
             okText="Yes"
-            okButtonProps={{className:"btn btn-primary"}}
-            cancelButtonProps={{className:"btn btn-outline-primary"}}
             cancelText="No"
           >
             <Button
@@ -219,7 +214,7 @@ const CategoryMasterPage: React.FC = () => {
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm>
+          </Popconfirm> */}
         </span>
       ),
     },
@@ -227,48 +222,51 @@ const CategoryMasterPage: React.FC = () => {
 
   return (
     <div>
-      <h2 className="title">Category Master</h2>
+      <h2 className="title">Cost-Center Master</h2>
       <div className="d-flex justify-between items-center mb-3">
         <div>
-        <Button
-          icon={<LeftCircleFilled />}
-          onClick={() => navigate(`/master`)}
-          className="btn btn-primary"
-        >
-          BACK
-        </Button>
+          <Button
+            icon={<LeftCircleFilled />}
+            onClick={() => navigate(`/master`)}
+            className="btn btn-primary"
+          >
+            BACK
+          </Button>
         </div>
-        
-        <div style={{marginLeft:"1700px"}}>
-        <Button type="primary"
-                  className="btn btn-primary"
-                  onClick={handleAdd}>
-          Add New
-        </Button>
-      </div>
+
+        <div style={{ marginLeft: "1700px" }}>
+          <Button
+            type="primary"
+            className="btn btn-primary"
+            onClick={handleAdd}
+          >
+            Add New
+          </Button>
+        </div>
       </div>
       <Table
         columns={columns}
         dataSource={data}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 10, 
+        pagination={{
+          pageSize: 10,
           showTotal: () => (
-         <div className="d-flex align-items-center gap-3">
-           <span style={{ marginRight: "auto" }}>
-             Total {data.length} items
-           </span>
-         </div>
-       ), }}
+            <div className="d-flex align-items-center gap-3">
+              <span style={{ marginRight: "auto" }}>
+                Total {data.length} items
+              </span>
+            </div>
+          ),
+        }}
       />
       <Modal
         title={editingItem ? "Edit Item" : "Add Item"}
         open={modalVisible}
-        
         onCancel={() => setModalVisible(false)}
         onOk={() => !isViewMode && form.submit()}
-        okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
-        cancelButtonProps={{ className:"btn btn-outline-primary"}}
+        okButtonProps={{ disabled: isViewMode, className: "btn btn-primary" }}
+        cancelButtonProps={{ className: "btn btn-outline-primary" }}
       >
         <Form
           form={form}
@@ -278,8 +276,10 @@ const CategoryMasterPage: React.FC = () => {
         >
           <Form.Item
             name="Name"
-            label="Category Name"
-            rules={[{ required: true, message: "Please enter Category Name" }]}
+            label="Cost Center Name"
+            rules={[
+              { required: true, message: "Please enter Cost Center Name" },
+            ]}
           >
             <Input type="text" disabled={isViewMode} />
           </Form.Item>
@@ -290,7 +290,7 @@ const CategoryMasterPage: React.FC = () => {
               style={{ marginBottom: 0 }}
               className="btn-outline-primary"
             >
-              <Checkbox disabled={isViewMode} >Is Active</Checkbox>
+              <Checkbox disabled={isViewMode}>Is Active</Checkbox>
             </Form.Item>
           </div>
         </Form>
@@ -299,4 +299,4 @@ const CategoryMasterPage: React.FC = () => {
   );
 };
 
-export default CategoryMasterPage;
+export default CostCenterMasterPage;

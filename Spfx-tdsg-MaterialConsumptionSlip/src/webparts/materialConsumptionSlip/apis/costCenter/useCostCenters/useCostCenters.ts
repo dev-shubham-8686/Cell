@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import http from "../../../http";
 import { GET_COST_CENTERS } from "../../../URLS";
 
-interface ICostCenter {
+export interface ICostCenter {
   costCenterId: number;
   name: string;
 }
