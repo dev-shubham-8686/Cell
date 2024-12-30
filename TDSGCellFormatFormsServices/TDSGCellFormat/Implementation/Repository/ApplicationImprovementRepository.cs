@@ -1512,7 +1512,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context,_cloneContext);
-                commonHelper.LogException(ex, "CompleteFormTask");
+                commonHelper.LogException(ex, "Equipment CompleteFormTask");
 
             }
             //return res;

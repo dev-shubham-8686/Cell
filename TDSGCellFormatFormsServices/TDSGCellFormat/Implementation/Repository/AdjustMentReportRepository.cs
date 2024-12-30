@@ -13,6 +13,7 @@ using TDSGCellFormat.Models.Add;
 using TDSGCellFormat.Models.View;
 using static TDSGCellFormat.Common.Enums;
 using System.Globalization;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -169,7 +170,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 SubMachineName = !string.IsNullOrEmpty(res.SubMachineName) ? res.SubMachineName.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
                 OtherSubMachineName = res.OtherSubMachineName,
                 //ImprovementCategory = !string.IsNullOrEmpty(res.ImprovementCategory) ? res.ImprovementCategory.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
-               // OtherImprovementCategory = res.OtherImprovementCategory,
+                // OtherImprovementCategory = res.OtherImprovementCategory,
                 RequestBy = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == res.CreatedBy && x.IsActive == true).Select(x => x.EmployeeName).FirstOrDefault(),
                 CheckedBy = res.CheckedBy,
                 DescribeProblem = res.DescribeProblem,
@@ -422,10 +423,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     existingReport.OtherSubMachineName = request.SubMachineName != null && request.SubMachineName.Contains(-2)
                           ? request.OtherSubMachineName
                           : "";
-                   // existingReport.ImprovementCategory = request.ImprovementCategory != null && request.ImprovementCategory.Count > 0 ? string.Join(",", request.ImprovementCategory) : "";
-                   // existingReport.OtherImprovementCategory = request.ImprovementCategory != null && request.ImprovementCategory.Contains(-2)
-                   //       ? request.OtherSubMachineName
-                   //       : "";
+                    // existingReport.ImprovementCategory = request.ImprovementCategory != null && request.ImprovementCategory.Count > 0 ? string.Join(",", request.ImprovementCategory) : "";
+                    // existingReport.OtherImprovementCategory = request.ImprovementCategory != null && request.ImprovementCategory.Contains(-2)
+                    //       ? request.OtherSubMachineName
+                    //       : "";
                     existingReport.SectionId = request.SectionId;
                     existingReport.CheckedBy = request.CheckedBy;
                     existingReport.DescribeProblem = request.DescribeProblem;
@@ -918,6 +919,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             ///bool result = false;
             var commonHelper = new CommonHelper(_context, _cloneContext);
+            var notificationHelper = new NotificationHelper(_context, _cloneContext);
             try
             {
                 var requestTaskData = _context.AdjustmentReportApproverTaskMasters.Where(x => x.ApproverTaskId == asktoAmend.ApproverTaskId && x.IsActive == true
@@ -1031,29 +1033,51 @@ namespace TDSGCellFormat.Implementation.Repository
                                                              .FirstOrDefault();
                         if (nextApproveTask != null)
                         {
-                            // int substituteUserId = 0;
-                            // int substitutePer = nextApproveTask.AssignedToUserId ?? 0;
-                            // substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
-                            //
-                            // nextApproveTask.AssignedToUserId = substituteUserId;
-                            nextApproveTask.Status = ApprovalTaskStatus.InReview.ToString();
-                            nextApproveTask.ModifiedDate = DateTime.Now;
-                            await _context.SaveChangesAsync();
+                            if (currentApproverTask.AssignedToUserId == nextApproveTask.AssignedToUserId)
+                            {
+                                nextApproveTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
+                                nextApproveTask.ModifiedDate = DateTime.Now;
+                                await _context.SaveChangesAsync();
 
-                            var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                            await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Approved, asktoAmend.Comment, nextApproveTask.ApproverTaskId);
+                                InsertHistoryData(asktoAmend.AdjustmentId, FormType.AdjustmentReport.ToString(), requestTaskData.Role, asktoAmend.Comment, requestTaskData.Status, Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.AutoApproved.ToString(), 0);
+                                await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.AutoApproved, asktoAmend.Comment, nextApproveTask.ApproverTaskId);
+
+                                var nextPendingTask = _context.AdjustmentReportApproverTaskMasters
+                                                      .Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId
+                                                       && x.IsActive == true
+                                                       && x.Status == ApprovalTaskStatus.Pending.ToString()
+                                                       && x.SequenceNo > currentApproverTask.SequenceNo)
+                                                             .OrderBy(x => x.SequenceNo) // Ensure tasks are processed in sequence order
+                                                             .FirstOrDefault();
+
+                                if (nextPendingTask != null)
+                                {
+                                    nextPendingTask.Status = ApprovalTaskStatus.InReview.ToString();
+                                    nextPendingTask.ModifiedDate = DateTime.Now;
+                                    await _context.SaveChangesAsync();
+
+                                    await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Approved, asktoAmend.Comment, nextApproveTask.ApproverTaskId);
+
+                                }
+                                else
+                                {
+                                    await CompleteFormTask(asktoAmend);
+                                }
+                            }
+                            else
+                            {
+                                nextApproveTask.Status = ApprovalTaskStatus.InReview.ToString();
+                                nextApproveTask.ModifiedDate = DateTime.Now;
+                                await _context.SaveChangesAsync();
+
+
+                                await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Approved, asktoAmend.Comment, nextApproveTask.ApproverTaskId);
+                            }
+
                         }
                         else
                         {
-                            var adjustmentData = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == asktoAmend.AdjustmentId && x.IsDeleted == false && x.IsDeleted == false).FirstOrDefault();
-                            if (adjustmentData != null)
-                            {
-                                adjustmentData.Status = ApprovalTaskStatus.Completed.ToString();
-                                await _context.SaveChangesAsync();
-                            }
-
-                            var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                            await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Completed, asktoAmend.Comment);
+                            await CompleteFormTask(asktoAmend);
                         }
                     }
 
@@ -1079,7 +1103,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     InsertHistoryData(asktoAmend.AdjustmentId, FormType.AdjustmentReport.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.UnderAmendment.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.AskToAmend.ToString(), 0);
 
-                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    //var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Amended, asktoAmend.Comment, asktoAmend.ApproverTaskId);
                 }
 
@@ -1095,7 +1119,31 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+        private async Task CompleteFormTask(ApproveAsktoAmend asktoAmend)
+        {
+            var res = new AjaxResult();
+            var notificationHelper = new NotificationHelper(_context, _cloneContext);
+            try
+            {
+                var adjustmentData = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == asktoAmend.AdjustmentId && x.IsDeleted == false && x.IsDeleted == false).FirstOrDefault();
+                if (adjustmentData != null)
+                {
+                    adjustmentData.Status = ApprovalTaskStatus.Completed.ToString();
+                    await _context.SaveChangesAsync();
+                }
 
+                // notificationHelper = new NotificationHelper(_context, _cloneContext);
+                await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Completed, asktoAmend.Comment);
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context, _cloneContext);
+                commonHelper.LogException(ex, "Adjustment CompleteFormTask");
+
+            }
+        }
         public async Task<AjaxResult> PullBackRequest(PullBackRequest data)
         {
             var res = new AjaxResult();
@@ -1178,8 +1226,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 data.seqNumber = adjustmentDelegateApprover.SequenceNo;
             }
 
-            var adjustmentApprover = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.AssignedToUserId == userId  && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
-           
+            var adjustmentApprover = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.AssignedToUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+
             if (adjustmentApprover != null)
             {
                 data.approverTaskId = adjustmentApprover.ApproverTaskId;
@@ -1515,10 +1563,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#adjustmentdesciption#", adjustMentReportData.AdjustmentDescription);
                 sb.Replace("#conditionafteradjustment#", adjustMentReportData.ConditionAfterAdjustment);
                 sb.Replace("#preparedby#", applicant);
-                //preparedby
-                //sb.Replace("#Remarks#", data.FirstOrDefault()?.Remarks);
-
-                //StringBuilder tableBuilder = new StringBuilder();
 
                 string approvedBySectionHead = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByDepartmentHead = approverData.FirstOrDefault(a => a.SequenceNo == 3)?.employeeNameWithoutCode ?? "N/A";
@@ -1545,64 +1589,96 @@ namespace TDSGCellFormat.Implementation.Repository
                                   .ToList();
 
                 StringBuilder beforeImages = new StringBuilder();
-                StringBuilder afterImages = new StringBuilder();
+                StringBuilder beforeOtherFiles = new StringBuilder();
 
-                foreach (var url1 in beforeImageUrl)
+                StringBuilder afterImages = new StringBuilder();
+                StringBuilder afterOtherFiles = new StringBuilder();
+
+                var imageExtensions = new List<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".svg",".heif",".heic",".cr2",".nef",
+                                        ".arw",".dng",".psd",".ico", ".cur",".apng", ".tga",".pcx",".xcf"};
+                // Separate images and non-images
+                var beforeImageFiles = beforeImageUrl.Where(url => imageExtensions.Any(ext => url.BeforeImageDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).ToList();
+                var beforeFiles = beforeImageUrl.Except(beforeImageFiles).ToList();
+                // Append image files first
+                foreach (var url1 in beforeImageFiles)
                 {
                     string bfrUrl = $"{baseUrl}{url1.BeforeImageDocFilePath}";
 
-                    if (url1.BeforeImageDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.BeforeImageDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.BeforeImageDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.BeforeImageDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Add image to a grid container
-                        // beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
-                        // beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto;\" />");
-                        // beforeImages.AppendLine("</div>");
-
-                        beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
-                        beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
-                        beforeImages.AppendLine("</div>");
-
-                        // Add image tag
-                        //beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
-                    }
-                    else
-                    {
-                        beforeImages.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
-                    }
-
+                    beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                    beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                    beforeImages.AppendLine("</div>");
                 }
-                // Wrap the images in a container for the grid structure
-                // string finalHtml = $"<div style=\"display: flex; flex-wrap: wrap; justify-content: space-between;\">{beforeImages}</div>";
 
-                foreach (var url2 in afterImageUrl)
+                // Then append other non-image files
+                foreach (var url1 in beforeFiles)
                 {
-                    string AftrUrl = $"{baseUrl}{url2.AfterImageDocFilePath}";
-                    if (url2.AfterImageDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.AfterImageDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.AfterImageDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.AfterImageDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Add image to a grid container
-                        afterImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
-                        afterImages.AppendLine($"<img src=\"{url2.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
-                        afterImages.AppendLine("</div>");
-                        // Add image tag
-                        //afterImages.AppendLine($"<img src=\"{url2.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
-                    }
-                    else
-                    {
-                        afterImages.Append($"<a href=\"{AftrUrl}\" target=\"_blank\">{Path.GetFileName(AftrUrl)}</a><br>");
-
-                    }
+                    string bfrUrl = $"{baseUrl}{url1.BeforeImageDocFilePath}";
+                    beforeOtherFiles.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
                 }
-                // string afterhtml = $"<div style=\"display: flex; flex-wrap: wrap; justify-content: space-between;\">{afterImages}</div>";
-                // Replace placeholders in the HTML template
 
-                sb.Replace("#BeforeImg#", beforeImages.ToString());
-                sb.Replace("#AfterImg#", afterImages.ToString());
+                // Combine both image and non-image content
+                sb.Replace("#BeforeImg#", beforeImages.ToString() + beforeOtherFiles.ToString());
+
+
+                /* foreach (var url1 in beforeImageUrl)
+                 {
+                     string bfrUrl = $"{baseUrl}{url1.BeforeImageDocFilePath}";
+
+                     if (imageExtensions.Any(ext => url1.BeforeImageDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
+                     {
+                         beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                         beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                         beforeImages.AppendLine("</div>");
+
+                         // Add image tag
+                         //beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
+                     }
+                     else
+                     {
+                         beforeImages.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
+                     }
+
+                 }*/
+
+                var afterImageFiles = afterImageUrl.Where(url => imageExtensions.Any(ext => url.AfterImageDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).ToList();
+                var afterFiles = afterImageUrl.Except(afterImageFiles).ToList();
+
+                foreach (var url1 in afterImageFiles)
+                {
+                    string bfrUrl = $"{baseUrl}{url1.AfterImageDocFilePath}";
+
+                    afterImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                    afterImages.AppendLine($"<img src=\"{url1.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                    afterImages.AppendLine("</div>");
+                }
+
+                // Then append other non-image files
+                foreach (var url1 in afterFiles)
+                {
+                    string bfrUrl = $"{baseUrl}{url1.AfterImageDocFilePath}";
+                    afterOtherFiles.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
+                }
+
+                /* foreach (var url2 in afterImageUrl)
+                 {
+                     string AftrUrl = $"{baseUrl}{url2.AfterImageDocFilePath}";
+                     if (imageExtensions.Any(ext => url2.AfterImageDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
+                     {
+                         // Add image to a grid container
+                         afterImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                         afterImages.AppendLine($"<img src=\"{url2.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                         afterImages.AppendLine("</div>");
+                         // Add image tag
+                         //afterImages.AppendLine($"<img src=\"{url2.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
+                     }
+                     else
+                     {
+                         afterImages.Append($"<a href=\"{AftrUrl}\" target=\"_blank\">{Path.GetFileName(AftrUrl)}</a><br>");
+
+                     }
+                 }*/
+
+                sb.Replace("#AfterImg#", afterImages.ToString() + afterOtherFiles.ToString());
 
 
                 // Create PDF using SelectPDF
@@ -1622,33 +1698,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.ReturnValue = base64String; // Send the Base64 string to the frontend
 
                 return res;
-                //using (var ms = new MemoryStream())
-                //{
-                //    Document document = new Document(iTextSharp.text.PageSize.A3, 10f, 10f, 10f, 30f);
-                //    PdfWriter writer = PdfWriter.GetInstance(document, ms);
-                //    document.Open();
-
-                //    // Convert the StringBuilder HTML content to a PDF using iTextSharp
-                //    using (var sr = new StringReader(sb.ToString()))
-                //    {
-                //        iTextSharp.tool.xml.XMLWorkerHelper.GetInstance().ParseXHtml(writer, document, sr);
-                //    }
-
-                //    document.Close();
-
-                //    // Convert the PDF to a byte array
-                //    byte[] pdfBytes = ms.ToArray();
-
-                //    // Encode the PDF as a Base64 string
-                //    string base64String = Convert.ToBase64String(pdfBytes);
-
-                //    // Set response values
-                //    res.StatusCode = Enums.Status.Success;
-                //    res.Message = Enums.AdjustMentPdf;
-                //    res.ReturnValue = base64String; // Send the Base64 string to the frontend
-
-                //    return res;
-                //}
             }
 
             catch (Exception ex)
