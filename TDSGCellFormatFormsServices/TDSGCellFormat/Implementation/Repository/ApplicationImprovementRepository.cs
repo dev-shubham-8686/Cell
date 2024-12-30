@@ -2007,6 +2007,44 @@ namespace TDSGCellFormat.Implementation.Repository
                         sb.Replace("#MachineName#", "Other - " + equipmentData.OtherMachineName);
                     }
 
+                    var impCategoryId = string.IsNullOrEmpty(equipmentData.ImprovementCategory)
+                                            ? new List<int>()  // Return an empty list if the string is null or empty
+                                            : equipmentData.ImprovementCategory.Split(',')
+                                                                                .Select(id => int.Parse(id))
+                                        .ToList();
+                    // var impCategoryId = equipmentData.ImprovementCategory.Split(',').Select(id => int.Parse(id)).ToList();
+                    var impCategoryNames = new List<string>();
+                    var impCategoryString = string.Empty;
+
+
+                    foreach (var id in impCategoryId)
+                    {
+                        if (id == -1)
+                        {
+                            // Fetch the "Other" category name from the database if id is -1
+                            //var otherCategoryName = _context.ImprovementCategoryMasters
+                            //                                .Where(x => x.Other != null && x.IsDeleted == false)
+                            //                                .Select(x => x.OtherImprovementCategory)
+                            //                                .FirstOrDefault();
+
+                            if (!string.IsNullOrEmpty(equipmentData.OtherImprovementCategory))
+                            {
+                                impCategoryNames.Add("Other - " + equipmentData.OtherImprovementCategory); // Add "Other" category with its name
+                            }
+                        }
+
+                        // Query database or use a dictionary/cache to get the name
+                        var impCatName = _context.ImprovementCategoryMasters.Where(x => x.ImprovementCategoryId == id && x.IsDeleted == false).Select(x => x.ImprovementCategoryName).FirstOrDefault(); // Replace this with your actual DB logic
+                        if (!string.IsNullOrEmpty(impCatName))
+                        {
+                            impCategoryNames.Add(impCatName);
+                        }
+                    }
+                    impCategoryString = string.Join(", ", impCategoryNames);
+
+
+                    sb.Replace("#ImpCategory#", impCategoryString);
+
                     sb.Replace("#ApplicantName#", applicant);
                     sb.Replace("#clsReq#", applicant);
                 }
@@ -2014,38 +2052,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#currentSituations#", equipmentData?.CurrentSituation);
                 sb.Replace("#Improvement#", equipmentData?.Imrovement);
 
-                var impCategoryId = equipmentData.ImprovementCategory.Split(',').Select(id => int.Parse(id)).ToList();
-                var impCategoryNames = new List<string>();
-                var impCategoryString = string.Empty;
-
-
-                foreach (var id in impCategoryId)
-                {
-                    if (id == -1)
-                    {
-                        // Fetch the "Other" category name from the database if id is -1
-                        //var otherCategoryName = _context.ImprovementCategoryMasters
-                        //                                .Where(x => x.Other != null && x.IsDeleted == false)
-                        //                                .Select(x => x.OtherImprovementCategory)
-                        //                                .FirstOrDefault();
-
-                        if (!string.IsNullOrEmpty(equipmentData.OtherImprovementCategory))
-                        {
-                            impCategoryNames.Add("Other - " + equipmentData.OtherImprovementCategory); // Add "Other" category with its name
-                        }
-                    }
-
-                    // Query database or use a dictionary/cache to get the name
-                    var impCatName = _context.ImprovementCategoryMasters.Where(x => x.ImprovementCategoryId == id && x.IsDeleted == false).Select(x => x.ImprovementCategoryName).FirstOrDefault(); // Replace this with your actual DB logic
-                    if (!string.IsNullOrEmpty(impCatName))
-                    {
-                        impCategoryNames.Add(impCatName);
-                    }
-                }
-                impCategoryString = string.Join(", ", impCategoryNames);
-
-
-                sb.Replace("#ImpCategory#", impCategoryString);
+               
 
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
                 if (equipmentData?.ToshibaApprovalRequired == true)
