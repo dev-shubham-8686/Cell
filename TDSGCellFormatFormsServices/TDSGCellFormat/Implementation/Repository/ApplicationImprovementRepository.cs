@@ -1953,7 +1953,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 {"OtherSubMachine","Other Sub Machine Name" },
                  {"SectionName","Section Name" },
                    {"ImprovementName","Improvement Name" },
-                    {"CurrentApprover","Current Approver" }
+                    {"CurrentApprover","Current Approver" },
+                    {"SubMachineName","Sub Machine Name" },
+                {"ImprovementCategory","Improvement Category" },
+                 {"OtherImprovementCategory","Other Improvement Category" }
 
 };
 
@@ -2007,6 +2010,44 @@ namespace TDSGCellFormat.Implementation.Repository
                         sb.Replace("#MachineName#", "Other - " + equipmentData.OtherMachineName);
                     }
 
+                    var impCategoryId = string.IsNullOrEmpty(equipmentData.ImprovementCategory)
+                                            ? new List<int>()  // Return an empty list if the string is null or empty
+                                            : equipmentData.ImprovementCategory.Split(',')
+                                                                                .Select(id => int.Parse(id))
+                                        .ToList();
+                    // var impCategoryId = equipmentData.ImprovementCategory.Split(',').Select(id => int.Parse(id)).ToList();
+                    var impCategoryNames = new List<string>();
+                    var impCategoryString = string.Empty;
+
+
+                    foreach (var id in impCategoryId)
+                    {
+                        if (id == -1)
+                        {
+                            // Fetch the "Other" category name from the database if id is -1
+                            //var otherCategoryName = _context.ImprovementCategoryMasters
+                            //                                .Where(x => x.Other != null && x.IsDeleted == false)
+                            //                                .Select(x => x.OtherImprovementCategory)
+                            //                                .FirstOrDefault();
+
+                            if (!string.IsNullOrEmpty(equipmentData.OtherImprovementCategory))
+                            {
+                                impCategoryNames.Add("Other - " + equipmentData.OtherImprovementCategory); // Add "Other" category with its name
+                            }
+                        }
+
+                        // Query database or use a dictionary/cache to get the name
+                        var impCatName = _context.ImprovementCategoryMasters.Where(x => x.ImprovementCategoryId == id && x.IsDeleted == false).Select(x => x.ImprovementCategoryName).FirstOrDefault(); // Replace this with your actual DB logic
+                        if (!string.IsNullOrEmpty(impCatName))
+                        {
+                            impCategoryNames.Add(impCatName);
+                        }
+                    }
+                    impCategoryString = string.Join(", ", impCategoryNames);
+
+
+                    sb.Replace("#ImpCategory#", impCategoryString);
+
                     sb.Replace("#ApplicantName#", applicant);
                     sb.Replace("#clsReq#", applicant);
                 }
@@ -2014,38 +2055,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#currentSituations#", equipmentData?.CurrentSituation);
                 sb.Replace("#Improvement#", equipmentData?.Imrovement);
 
-                var impCategoryId = equipmentData.ImprovementCategory.Split(',').Select(id => int.Parse(id)).ToList();
-                var impCategoryNames = new List<string>();
-                var impCategoryString = string.Empty;
 
-
-                foreach (var id in impCategoryId)
-                {
-                    if (id == -1)
-                    {
-                        // Fetch the "Other" category name from the database if id is -1
-                        //var otherCategoryName = _context.ImprovementCategoryMasters
-                        //                                .Where(x => x.Other != null && x.IsDeleted == false)
-                        //                                .Select(x => x.OtherImprovementCategory)
-                        //                                .FirstOrDefault();
-
-                        if (!string.IsNullOrEmpty(equipmentData.OtherImprovementCategory))
-                        {
-                            impCategoryNames.Add("Other - " + equipmentData.OtherImprovementCategory); // Add "Other" category with its name
-                        }
-                    }
-
-                    // Query database or use a dictionary/cache to get the name
-                    var impCatName = _context.ImprovementCategoryMasters.Where(x => x.ImprovementCategoryId == id && x.IsDeleted == false).Select(x => x.ImprovementCategoryName).FirstOrDefault(); // Replace this with your actual DB logic
-                    if (!string.IsNullOrEmpty(impCatName))
-                    {
-                        impCategoryNames.Add(impCatName);
-                    }
-                }
-                impCategoryString = string.Join(", ", impCategoryNames);
-
-
-                sb.Replace("#ImpCategory#", impCategoryString);
 
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
                 if (equipmentData?.ToshibaApprovalRequired == true)
@@ -2077,13 +2087,20 @@ namespace TDSGCellFormat.Implementation.Repository
                 StringBuilder currentSituationAttachments = new StringBuilder();
                 StringBuilder improvementAttachments = new StringBuilder();
 
+                var imageExtensions = new List<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".svg" };
+
                 foreach (var url1 in currAttachmentUrl)
                 {
                     string bfrUrl = $"{baseUrl}{url1.CurrSituationDocFilePath}";
-                    if (url1.CurrSituationDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrSituationDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrSituationDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrSituationDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    // List of image extensions
+
+
+                    //if (url1.CurrSituationDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                    //             url1.CurrSituationDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                    //             url1.CurrSituationDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                    //             url1.CurrSituationDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    // Check if the file path ends with any of the image extensions
+                    if (imageExtensions.Any(ext => url1.CurrSituationDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
                     {
                         // Add image tag
                         currentSituationAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
@@ -2102,10 +2119,11 @@ namespace TDSGCellFormat.Implementation.Repository
                 foreach (var url2 in impAttachmentUrl)
                 {
                     string bfrUrl = $"{baseUrl}{url2.ImprovementDocFilePath}";
-                    if (url2.ImprovementDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImprovementDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImprovementDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImprovementDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    //   if (url2.ImprovementDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                    //                url2.ImprovementDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                    //                url2.ImprovementDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                    //                url2.ImprovementDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    if (imageExtensions.Any(ext => url2.ImprovementDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
                     {
                         // Add image tag
                         improvementAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
