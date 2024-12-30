@@ -1552,7 +1552,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 //stage
                 // var baseUrl = "https://tdsgj.sharepoint.com/sites/e-app-stage";
                 //QA
-                var baseUrl = "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA/";
+                var baseUrl = _configuration["SPSiteUrl"];
                 var beforeImageUrl = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == adjustMentReportId
                          && x.IsDeleted == false)
                           // .Select(x => $"{baseUrl}{x.BeforeImageDocFilePath}")
