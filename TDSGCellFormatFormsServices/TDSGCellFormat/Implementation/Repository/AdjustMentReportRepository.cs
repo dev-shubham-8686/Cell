@@ -972,6 +972,8 @@ namespace TDSGCellFormat.Implementation.Repository
                             await _context.SaveChangesAsync();
                         }
 
+                        int substituteUserId = 0;
+                        bool IsSubstitute = false;
                         var otherdepartmenthead1 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 1" && x.IsActive == false && x.SequenceNo == 4)
                                                  .OrderByDescending(x => x.ApproverTaskId)
                                                .FirstOrDefault();
@@ -981,9 +983,13 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         if (otherdepartmenthead1 != null && departmentHead1 > 0)
                         {
-                            otherdepartmenthead1.AssignedToUserId = departmentHead1;
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)departmentId1,ProjectType.AdjustMentReport.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)departmentId1, ProjectType.AdjustMentReport.ToString());
+
+                            otherdepartmenthead1.AssignedToUserId = substituteUserId;
                             otherdepartmenthead1.IsActive = true;
                             otherdepartmenthead1.DisplayName = departMentName1;
+                            otherdepartmenthead1.IsSubstitute = IsSubstitute;
                             await _context.SaveChangesAsync();
                         }
 
@@ -993,11 +999,16 @@ namespace TDSGCellFormat.Implementation.Repository
                         var departmentHead2 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 2 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
                         var departmentId2 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 2 && x.IsActive == true).Select(x => x.DepartmentId).FirstOrDefault();
                         var departMentName2 = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID == departmentId2).Select(x => x.Name).FirstOrDefault();
+                      
                         if (otherdepartmenthead2 != null && departmentHead2 > 0)
                         {
-                            otherdepartmenthead2.AssignedToUserId = departmentHead2;
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)departmentId2, ProjectType.AdjustMentReport.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)departmentId2, ProjectType.AdjustMentReport.ToString());
+
+                            otherdepartmenthead2.AssignedToUserId = substituteUserId;
                             otherdepartmenthead2.IsActive = true;
                             otherdepartmenthead2.DisplayName = departMentName2;
+                            otherdepartmenthead2.IsSubstitute = IsSubstitute;
                             await _context.SaveChangesAsync();
                         }
 
@@ -1010,9 +1021,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         if (otherdepartmenthead3 != null && departmentHead3 > 0)
                         {
-                            otherdepartmenthead3.AssignedToUserId = departmentHead3;
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)departmentId3, ProjectType.AdjustMentReport.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)departmentId3, ProjectType.AdjustMentReport.ToString());
+
+                            otherdepartmenthead3.AssignedToUserId = substituteUserId;
                             otherdepartmenthead3.IsActive = true;
                             otherdepartmenthead3.DisplayName = departMentName3;
+                            otherdepartmenthead3.IsSubstitute = IsSubstitute;
+
                             await _context.SaveChangesAsync();
                         }
 
