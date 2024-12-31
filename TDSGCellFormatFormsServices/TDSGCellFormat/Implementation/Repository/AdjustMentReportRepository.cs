@@ -1577,7 +1577,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 //stage
                 // var baseUrl = "https://tdsgj.sharepoint.com/sites/e-app-stage";
                 //QA
-                var baseUrl = "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA/";
+                var baseUrl = _configuration["SPSiteUrl"];
                 var beforeImageUrl = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == adjustMentReportId
                          && x.IsDeleted == false)
                           // .Select(x => $"{baseUrl}{x.BeforeImageDocFilePath}")
@@ -1940,7 +1940,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     adjustment.Comments = request.Comments;
                     await _context.SaveChangesAsync();
 
-                    InsertHistoryData(request.FormId, FormType.AdjustmentReport.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.DelegateUserId), HistoryAction.Delegate.ToString(), 0);
+                    InsertHistoryData(request.FormId, FormType.AdjustmentReport.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
                     var adjustmentNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == request.FormId && x.IsDeleted == false).FirstOrDefault();
 

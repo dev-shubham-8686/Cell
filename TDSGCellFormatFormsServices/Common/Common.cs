@@ -80,7 +80,8 @@ namespace TDSGCellFormat.Common
             AdvisorUpdate = 29,
 
             AutoApproved = 30,
-            Delegate = 31
+            PCRNNotRequired = 31,
+            Delegate=32
         }
         public enum ApprovalStatus
         {

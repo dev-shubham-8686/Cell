@@ -91,6 +91,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
     public virtual DbSet<SubDeviceMaster> SubDeviceMaster { get; set; }
     public virtual DbSet<TroubleType> TroubleTypes { get; set; }
 
+    public virtual DbSet<ImprovementCategoryMaster> ImprovementCategoryMasters { get; set; }
     public virtual DbSet<UnitOfMeasure> UnitOfMeasures { get; set; }
 
     public virtual DbSet<WorkDoneDetail> WorkDoneDetails { get; set; }

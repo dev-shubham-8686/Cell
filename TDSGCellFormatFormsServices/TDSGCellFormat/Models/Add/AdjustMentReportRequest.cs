@@ -170,7 +170,6 @@ namespace TDSGCellFormat.Models.Add
         public int? UserId { get; set; }   // who is delegating(admin id)
         public int activeUserId { get; set; }     // who u want to delegate
         public int DelegateUserId { get; set; } // with whom u want to delegate
-        public int ApproverTaskId { get; set; }  //not needed
         public string? Comments { get; set; }
     }
 }
