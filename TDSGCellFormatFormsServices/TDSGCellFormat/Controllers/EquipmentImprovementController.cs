@@ -375,6 +375,35 @@ namespace TDSGCellFormat.Controllers
             
         }
 
+        [HttpGet("GetEmailAttachment")]
+        public async Task<IActionResult> GetEmailAttachment(int id)
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
+
+            var result = await _applicationService.GetEmailAttachment(id);
+            if (result != null)
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(result.StatusCode, result.Message, result.ReturnValue);
+            }
+            else
+            {
+                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotValid), ModelState.Values);
+                //return Ok(Ajaxresponse);
+            }
+            return Ok(Ajaxresponse);
+
+        }
+
         [HttpGet("GetCurrentApprover")]
         public IActionResult GetCurrentApproverTask(int equipmentId, int userId)
         {
@@ -490,5 +519,6 @@ namespace TDSGCellFormat.Controllers
 
         }
 
+        
     }
 }
