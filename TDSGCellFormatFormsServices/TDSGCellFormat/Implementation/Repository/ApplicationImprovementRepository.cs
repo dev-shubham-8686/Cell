@@ -62,41 +62,51 @@ namespace TDSGCellFormat.Implementation.Repository
         }
 
         #region Delegate 
-        //public async Task<AjaxResult> InsertDelegate(DelegateUser request)
-        //{
-        //    var res = new AjaxResult();
-        //    try
-        //    {
-        //        var adjustment = _context.AdjustmentReportApproverTaskMasters.FirstOrDefault(x => x.AssignedToUserId == request.activeUserId && x.AdjustmentReportId == request.FormId && x.IsActive == true);
-        //        if (adjustment != null)
-        //        {
-        //            adjustment.DelegateUserId = request.DelegateUserId;
-        //            adjustment.DelegateBy = request.UserId;
-        //            adjustment.DelegateOn = DateTime.Now;
-        //            adjustment.Comments = request.Comments;
-        //            await _context.SaveChangesAsync();
+        public async Task<AjaxResult> InsertDelegate(DelegateUser request)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var equipment = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId && x.EquipmentImprovementId == request.FormId && x.IsActive == true).ToList();
+                if (equipment != null)
+                {
+                    foreach(var user in equipment)
+                    {
+                        user.DelegateUserId = request.DelegateUserId;
+                        user.DelegateBy = request.UserId;
+                        user.DelegateOn = DateTime.Now;
+                        user.Comments = request.Comments;
+                        await _context.SaveChangesAsync();
+                    }
+                    InsertHistoryData(request.FormId, FormType.EquipmentImprovement.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
-        //            //InsertHistoryData(request.FormId, FormType.AdjustmentReport.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
+                    var equipmentDelegate = new CellDelegateMaster();
+                    equipmentDelegate.RequestId = request.FormId;
+                    equipmentDelegate.FormName = FormType.EquipmentImprovement.ToString();
+                    equipmentDelegate.EmployeeId = request.activeUserId;
+                    equipmentDelegate.DelegateUserId = request.DelegateUserId;
+                    _context.CellDelegateMasters.Add(equipmentDelegate);
+                    await _context.SaveChangesAsync();
 
-        //            var adjustmentNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == request.FormId && x.IsDeleted == false).FirstOrDefault();
+                    var equipmentData = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == request.FormId && x.IsDeleted == false).FirstOrDefault();
 
-        //            //var notificationHelper = new NotificationHelper(_context, _cloneContext);
-        //           // await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, adjustmentNo.ReportNo, adjustment.FormType);
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, equipmentData.EquipmentImprovementNo, FormType.EquipmentImprovement.ToString());
 
-        //            res.StatusCode = Enums.Status.Success;
-        //            //res.Message = Enums.Delegate;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        res.Message = "Fail " + ex;
-        //        res.StatusCode = Enums.Status.Error;
-        //        var commonHelper = new CommonHelper(_context, _cloneContext);
-        //        commonHelper.LogException(ex, "Adjustment AddOrUpdate");
+                    res.StatusCode = Enums.Status.Success;
+                    res.Message = Enums.Delegate;
+                }
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context, _cloneContext);
+                commonHelper.LogException(ex, "Adjustment AddOrUpdate");
 
-        //    }
-        //    return res;
-        //}
+            }
+            return res;
+        }
         #endregion
 
         #region GetUserRole
@@ -1189,6 +1199,7 @@ namespace TDSGCellFormat.Implementation.Repository
         public async Task<AjaxResult> UpdateApproveAskToAmend(EquipmentApproveAsktoAmend data)
         {
             var res = new AjaxResult();
+            var commonHelper = new CommonHelper(_context, _cloneContext);
             try
             {
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
@@ -1411,6 +1422,12 @@ namespace TDSGCellFormat.Implementation.Repository
 
                                 if (nextPendingTask != null)
                                 {
+                                    //int substituteUserId = 0;
+                                    //int substitutePer = nextPendingTask.AssignedToUserId ?? 0;
+                                    //substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
+                                    //
+                                    //nextPendingTask.AssignedToUserId = substituteUserId;
+
                                     nextPendingTask.Status = ApprovalTaskStatus.InReview.ToString();
                                     nextPendingTask.ModifiedDate = DateTime.Now;
                                     await _context.SaveChangesAsync();
@@ -1434,6 +1451,12 @@ namespace TDSGCellFormat.Implementation.Repository
                             }
                             else
                             {
+                               // int substituteUserId = 0;
+                               // int substitutePer = nextTask.AssignedToUserId ?? 0;
+                               // substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
+                               //
+                               // nextTask.AssignedToUserId = substituteUserId;
+
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
@@ -1484,7 +1507,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context, _cloneContext);
+                //var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Equipment UpdateApproveAskToAmend");
 
             }
@@ -1553,8 +1576,8 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context, _cloneContext);
-                commonHelper.LogException(ex, "CompleteFormTask");
+                var commonHelper = new CommonHelper(_context,_cloneContext);
+                commonHelper.LogException(ex, "Equipment CompleteFormTask");
 
             }
             //return res;
@@ -1732,11 +1755,25 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId)
         {
+            var materialDelegateApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.DelegateUserId == userId &&
+           (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString()
+           || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString() || x.Status == ApprovalTaskStatus.LogicalAmendmentInReview.ToString()) && x.IsActive == true);
+
+            var data = new ApproverTaskId_dto();
+
+            if (materialDelegateApprovers != null)
+            {
+                data.approverTaskId = materialDelegateApprovers.ApproverTaskId;
+                data.userId = materialDelegateApprovers.AssignedToUserId ?? 0;
+                data.status = materialDelegateApprovers.Status;
+                data.seqNumber = materialDelegateApprovers.SequenceNo;
+            }
+
             var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId &&
             (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString()
             || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString() || x.Status == ApprovalTaskStatus.LogicalAmendmentInReview.ToString()) && x.IsActive == true);
 
-            var data = new ApproverTaskId_dto();
+            //var data = new ApproverTaskId_dto();
             if (materialApprovers != null)
             {
                 data.approverTaskId = materialApprovers.ApproverTaskId;

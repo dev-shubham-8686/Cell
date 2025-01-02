@@ -172,6 +172,70 @@ namespace TDSGCellFormat.Helper
             return emailSent;
         }
 
+
+        public async Task<bool> DelegateEmail(int formId, EmailNotificationAction emailNotificationAction, int? userId, int delegateId, int? assignedToUserId, string reportNo, string FormType)
+        {
+            bool emailSent = false;
+            try
+            {
+                string? templateDirectory = _configuration["TemplateSettings:Normal_Mail"];
+                string? AdminEmailNotification = _configuration["AdminEmailNotification"];
+
+                List<string> emailToAddressList = new List<string>();
+                List<string> emailCCAddressList = new List<string>();
+
+                StringBuilder emailBody = new StringBuilder();
+
+                string templateFile = null, templateFilePath = null;
+
+                string emailSubject = $"[{FormType} Delegate Information!] " + reportNo;
+                if (formId > 0)
+                {
+                    var EmployeeRequestUser = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == userId && x.IsActive == true).FirstOrDefault();
+                    var DelegateUser = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == delegateId && x.IsActive == true).FirstOrDefault();
+                    var ApproverUser = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == assignedToUserId && x.IsActive == true).FirstOrDefault();
+
+                    templateFile = "EmailTemplate_Delegate.html";
+
+                    if (!string.IsNullOrEmpty(templateFile))
+                    {
+                        string baseDirectory = AppContext.BaseDirectory;
+                        templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
+
+                        if (!string.IsNullOrEmpty(templateFilePath))
+                        {
+                            emailBody.Append(System.IO.File.ReadAllText(templateFilePath));
+                        }
+
+                        if (emailBody?.Length > 0)
+                        {
+                            // string docLink = documentationLink + "request/edit/" + vehicleRequestId + "?action=approval";
+
+                            emailBody = emailBody.Replace("#ControlNo#", reportNo);
+                            emailBody = emailBody.Replace("#ApprovedBy#", ApproverUser.EmployeeName);
+                            emailBody = emailBody.Replace("#AdminUserName#", EmployeeRequestUser.EmployeeName);
+                            emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
+
+                            emailToAddressList.Add(DelegateUser.Email);
+                            emailCCAddressList.Add(EmployeeRequestUser.Email);
+                            emailCCAddressList.Add(ApproverUser.Email);
+
+                            emailSent = SendEmailNotification(emailToAddressList.Distinct().ToList(), emailCCAddressList.Distinct().ToList(), emailBody, emailSubject);
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var commonHelper = new CommonHelper(_context, _cloneContext);
+                commonHelper.LogException(ex, "Delegate Email");
+                return false;
+            }
+            emailSent = true;
+            return emailSent;
+        }
+
         public async Task<bool> SendEmail(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0)
         {
             bool emailSent = false;
@@ -1059,7 +1123,7 @@ namespace TDSGCellFormat.Helper
                 //stage link
                 string? documentLink = _configuration["SPSiteUrl"] +
                      _configuration["EquipmentURL"];
-                
+
 
                 //prod link
                 //string? documentLink = _configuration["SPSiteUrl"] +
@@ -1125,7 +1189,7 @@ namespace TDSGCellFormat.Helper
                             case EmailNotificationAction.AutoApproved:
                                 templateFile = "Equipment_AutoApprove.html";
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Auto Approved", equipmentNo);
-                                
+
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
                                 break;
@@ -1235,7 +1299,7 @@ namespace TDSGCellFormat.Helper
                             }
                         }
 
-                        if(emailNotification == EmailNotificationAction.AutoApproved)
+                        if (emailNotification == EmailNotificationAction.AutoApproved)
                         {
                             foreach (var item in approverData)
                             {
@@ -1764,13 +1828,13 @@ namespace TDSGCellFormat.Helper
                             }
                             if (emailBody?.Length > 0)
                             {
-                                if (userEditLinkFromEmail == true && approvelink == true) 
+                                if (userEditLinkFromEmail == true && approvelink == true)
                                 {
                                     docLink = documentLink + "form/edit/" + requestId;
                                 }
                                 else if (approvelink)
                                 {
-                                    
+
                                     docLink = documentLink.Replace("#", "?action=approval#") + "form/view/" + requestId;
                                 }
                                 else
@@ -1834,7 +1898,7 @@ namespace TDSGCellFormat.Helper
                 bool isRequestorinToEmail = false;
                 bool isRequestorinCCEmail = false;
                 bool isDepartMentHead = false;
-                bool isIsAmendTask = false , isPullBacked = false;
+                bool isIsAmendTask = false, isPullBacked = false;
                 string? requesterUserName = null, requesterUserEmail = null;
                 string? advisorName = null, advisorEmail = null;
                 string? departmentHeadName = null, departmentHeadEmail = null;
@@ -1847,7 +1911,7 @@ namespace TDSGCellFormat.Helper
                 string? documentLink = _configuration["SPSiteUrl"] +
                       _configuration["AdjustmentURL"];
 
-                
+
 
                 if (requestId > 0)
                 {
@@ -1871,7 +1935,7 @@ namespace TDSGCellFormat.Helper
 
                     var areaNamesString = string.Join(", ", areaNames);
 
-                    if (adjustmentData != null) 
+                    if (adjustmentData != null)
                     {
                         if (adjustmentData.CreatedBy > 0)
                         {
@@ -1882,7 +1946,7 @@ namespace TDSGCellFormat.Helper
                         }
 
                         var advisorId = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == adjustmentData.AdjustMentReportId && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
-                        if(advisorId > 0)
+                        if (advisorId > 0)
                         {
                             EmployeeMaster? advisorDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == advisorId && x.IsActive == true).FirstOrDefault();
                             advisorEmail = advisorDetails?.Email;
@@ -1945,7 +2009,7 @@ namespace TDSGCellFormat.Helper
                                 isRequestorinToEmail = true;
                                 allApprover = true;
                                 isDepartMentHead = true;
-                                break; 
+                                break;
 
                             default:
                                 break;
@@ -2026,7 +2090,7 @@ namespace TDSGCellFormat.Helper
                                                       .FirstOrDefault();
                                     if (task != null)
                                     {
-                                        if(task.SequenceNo == 1 || approved.SequenceNo == 2 || approved.SequenceNo == 7 || approved.SequenceNo == 8)
+                                        if (task.SequenceNo == 1 || approved.SequenceNo == 2 || approved.SequenceNo == 7 || approved.SequenceNo == 8)
                                         {
                                             var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1 && (x.HRMSDeptName == "CP01-DP-1003" || x.HRMSDeptName == "CP01-DP-1004" || x.HRMSDeptName == "CP01-DP-1002")).Select(x => x.Head).ToList();
                                             foreach (var dept in userOtherDepId)

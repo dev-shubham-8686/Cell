@@ -851,7 +851,7 @@ namespace TDSGCellFormat.Implementation.Repository
         public async Task<AjaxResult> UpdateApproveAskToAmend(int ApproverTaskId, int CurrentUserId, ApprovalStatus type, string comment, int technicalId)
         {
             var res = new AjaxResult();
-            ///bool result = false;
+            var commonHelper = new CommonHelper(_context, _cloneContext); 
             try
             {
                 var requestTaskData = _context.TechnicalInstructionApproverTaskMasters.Where(x => x.ApproverTaskId == ApproverTaskId && x.IsActive == true
@@ -889,6 +889,12 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             foreach (var nextTask in nextApproveTask)
                             {
+                               // int substituteUserId = 0;
+                               // int substitutePer = nextTask.AssignedToUserId ?? 0;
+                               // substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
+                               //
+                               // nextTask.AssignedToUserId = substituteUserId;
+
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
@@ -935,7 +941,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context, _cloneContext);
+                //var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical UpdateApproveAskToAmend");
 
             }
