@@ -1787,34 +1787,8 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        //public async Task<AjaxResult> GetAdditionalDepartmentHeads(int departmentId)
-        //{
-        //    var res = new AjaxResult();
-        //    var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
-        //    var result = await _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAdditionalDepartmentHeads] @DepartmentId")
-        //        .ExecuteStoredProcedureAsync<DepartmentHeadsView>();
-
-        //    if (result == null)
-        //    {
-        //        res.Message = "Data not found";
-        //        res.StatusCode = Enums.Status.Error;
-        //        return res;
-        //    }
-        //    else
-        //    {
-        //        res.Message = "Employee Details Fetched Successfully";
-        //        res.StatusCode = Enums.Status.Success;
-        //        res.ReturnValue = result;
-        //    }
-        //    return res;
-        //}
-
         public async Task<List<DepartmentHeadsView>> GetAdditionalDepartmentHeads(int departmentId)
         {
-            // var res = new AjaxResult();
-            // var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
-            // var result = await _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAdditionalDepartmentHeads] @DepartmentId")
-            //  .ExecuteStoredProcedureAsync<DepartmentHeadsView>();
             var listData = await _context.GetAdditionalDepartmenthead(departmentId);
             var additionalDepHead = new List<DepartmentHeadsView>();
             foreach (var item in listData)
