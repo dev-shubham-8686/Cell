@@ -130,4 +130,11 @@
 
 
     }
+
+    public class ImpCategoryView
+    {
+        public int ImpCategoryId { get; set; }
+
+        public string? ImpCategoryName { get; set; }
+    }
 }

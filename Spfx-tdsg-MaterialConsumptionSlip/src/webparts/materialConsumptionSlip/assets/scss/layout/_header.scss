@@ -1,0 +1,55 @@
+.header {
+  border: none !important;
+  padding-left: 0px !important;
+  background: white;
+
+  .title {
+    margin: 0px !important;
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: $font-family, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color:$primary;
+  }
+
+  .toggler {
+    height: 1.5rem;
+    width: 1.5rem;
+    background-color: #e3e3e3;
+    font-size: 13px;
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+
+    .fa-bars-staggered {
+      display: block;
+    }
+
+    .fa-chevron-left {
+      display: none;
+    }
+
+    &.hide {
+      .fa-bars-staggered {
+        display: none;
+      }
+
+      .fa-chevron-left {
+        display: block;
+      }
+    }
+  }
+}
+
+.request-btn{
+  width: fit-content;
+  position: absolute;
+  right: 3.2rem;
+  top: 83px;
+}
+
+
+.fsz-15 {
+  font-size: .9375rem !important;
+}

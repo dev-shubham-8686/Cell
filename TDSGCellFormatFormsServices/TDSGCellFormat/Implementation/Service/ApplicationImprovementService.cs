@@ -108,5 +108,10 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return await _applicationRepo.ExportToPdf(equipmentId);
         }
+
+        public async Task<AjaxResult> GetEmailAttachment(int id)
+        {
+            return await _applicationRepo.GetEmailAttachment(id);
+        }
     }
 }

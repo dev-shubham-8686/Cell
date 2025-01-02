@@ -385,5 +385,18 @@ namespace TDSGCellFormat.Implementation.Repository
 
             return res;
         }
+
+        public IQueryable<ImpCategoryView> GetImprovementCategory()
+        {
+            IQueryable<ImpCategoryView> res = _context.ImprovementCategoryMasters.Where(x => x.IsDeleted == false)
+                                            .Select(x => new ImpCategoryView
+                                            {
+                                                ImpCategoryId = x.ImprovementCategoryId,
+
+                                                ImpCategoryName = x.ImprovementCategoryName
+                                            });
+
+            return res;
+        }
     }
 }
