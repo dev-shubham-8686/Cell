@@ -55,5 +55,7 @@ namespace TDSGCellFormat.Interface.Repository
         AdjustmentAdvisor GetAdvisorData(int adjustmentReportId);
 
         Task<List<CellDepartment>> GetAdditionalDepartments(int departmentId);
+
+        Task<AjaxResult> InsertDelegate(DelegateUser request);
     }
 }

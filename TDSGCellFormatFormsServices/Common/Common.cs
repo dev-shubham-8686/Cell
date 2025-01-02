@@ -80,7 +80,8 @@ namespace TDSGCellFormat.Common
             AdvisorUpdate = 29,
 
             AutoApproved = 30,
-            PCRNNotRequired = 31
+            PCRNNotRequired = 31,
+            Delegate=32
         }
         public enum ApprovalStatus
         {
@@ -325,6 +326,9 @@ namespace TDSGCellFormat.Common
         public const string TechnicalPdf = "PDF file downloaded successfully";
         public const string TechnicalExcelNotFound = "Please complete the approval process to download the excel";
         public const string TechnicalReOpen = "Technical Instruction reopened";
+
+
+        public const string Delegate = "Delegate User assigned successfully";
         #endregion
     }
 }
