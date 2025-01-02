@@ -44,5 +44,5 @@ public class AdjustmentReportApproverTaskMaster
     public DateTime? ModifiedDate { get; set; }
 
     public bool? IsActive { get; set; }
-
+    public bool? IsSubstitute { get; set; }
 }

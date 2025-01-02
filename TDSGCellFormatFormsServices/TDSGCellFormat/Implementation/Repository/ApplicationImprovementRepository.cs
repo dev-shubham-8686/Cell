@@ -1151,6 +1151,7 @@ namespace TDSGCellFormat.Implementation.Repository
         public async Task<AjaxResult> UpdateApproveAskToAmend(EquipmentApproveAsktoAmend data)
         {
             var res = new AjaxResult();
+            var commonHelper = new CommonHelper(_context, _cloneContext);
             try
             {
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
@@ -1373,6 +1374,12 @@ namespace TDSGCellFormat.Implementation.Repository
 
                                 if (nextPendingTask != null)
                                 {
+                                    //int substituteUserId = 0;
+                                    //int substitutePer = nextPendingTask.AssignedToUserId ?? 0;
+                                    //substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
+                                    //
+                                    //nextPendingTask.AssignedToUserId = substituteUserId;
+
                                     nextPendingTask.Status = ApprovalTaskStatus.InReview.ToString();
                                     nextPendingTask.ModifiedDate = DateTime.Now;
                                     await _context.SaveChangesAsync();
@@ -1396,6 +1403,12 @@ namespace TDSGCellFormat.Implementation.Repository
                             }
                             else
                             {
+                               // int substituteUserId = 0;
+                               // int substitutePer = nextTask.AssignedToUserId ?? 0;
+                               // substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
+                               //
+                               // nextTask.AssignedToUserId = substituteUserId;
+
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
@@ -1446,7 +1459,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context, _cloneContext);
+                //var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Equipment UpdateApproveAskToAmend");
 
             }
@@ -1515,8 +1528,8 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context, _cloneContext);
-                commonHelper.LogException(ex, "CompleteFormTask");
+                var commonHelper = new CommonHelper(_context,_cloneContext);
+                commonHelper.LogException(ex, "Equipment CompleteFormTask");
 
             }
             //return res;
