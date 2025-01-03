@@ -43,35 +43,35 @@ namespace TDSGCellFormat.Helper
 
         }
 
-        //public int CheckSubstituteDelegate(int userId, string formname)
-        //{
-            //var user = _context.CellSubstituteMasters.Where(x => x.EmployeeID == userId && (x.FormName == formname) && (x.DateFrom <= DateOnly.FromDateTime(System.DateTime.Today) && x.DateTo >= DateOnly.FromDateTime(System.DateTime.Today)) && x.IsSubstitute == true).FirstOrDefault();
+        public int CheckSubstituteDelegate(int userId, string formname)
+        {
+            var user = _dbContext.SubstituteMasters.Where(x => x.EmployeedId == userId && (x.FormName == formname) && (x.DateFrom <= DateOnly.FromDateTime(System.DateTime.Today) && x.DateTo >= DateOnly.FromDateTime(System.DateTime.Today)) && x.IsSubstitute == true).FirstOrDefault();
 
-            //if (user == null)
-            //{
-                //return userId;
-            //}
-            //else
-            //{
-                //return user.SubstituteUserID.Value;
-            //}
+            if (user == null)
+            {
+                return userId;
+            }
+            else
+            {
+                return user.SubstituteUserId.Value;
+            }
 
 
-        //}
-        //public bool CheckSubstituteDelegateCheck(int userId, string formname)
-        //{
+        }
+        public bool CheckSubstituteDelegateCheck(int userId, string formname)
+        {
 
-            //var user = _context.CellSubstituteMasters.Where(x => x.EmployeeID == userId && (x.FormName == formname) && (x.DateFrom <= DateOnly.FromDateTime(System.DateTime.Today) && x.DateTo >= DateOnly.FromDateTime(System.DateTime.Today)) && x.IsSubstitute == true).FirstOrDefault();
+            var user = _dbContext.SubstituteMasters.Where(x => x.EmployeedId == userId && (x.FormName == formname) && (x.DateFrom <= DateOnly.FromDateTime(System.DateTime.Today) && x.DateTo >= DateOnly.FromDateTime(System.DateTime.Today)) && x.IsSubstitute == true).FirstOrDefault();
 
-            //if (user == null || userId == user.SubstituteUserID.Value)
-            //{
-                //return false;
-            //}
-            //else
-            //{
-                //return true;
-            //}
-        //}
+            if (user == null || userId == user.SubstituteUserId.Value)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
 
 
     }

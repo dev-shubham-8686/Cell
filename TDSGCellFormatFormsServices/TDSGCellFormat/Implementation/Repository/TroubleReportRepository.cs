@@ -1121,7 +1121,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
 
             var res = new AjaxResult();
-            ///bool result = false;
+            var commonHelper = new CommonHelper(_context, _cloneContext);
             try
             {
                 var requestTaskData = _context.TroubleReportApproverTaskMasters.Where(x => x.ApproverTaskId == ApproverTaskId && x.IsActive == true
@@ -1178,6 +1178,12 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             foreach (var nextTask in nextApproveTask)
                             {
+                                //int substituteUserId = 0;
+                                //int substitutePer = nextTask.AssignedToUserId ?? 0;
+                                //substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
+                                //
+                                //nextTask.AssignedToUserId = substituteUserId;
+
                                 nextTask.Status = ApprovalTaskStatus.UnderApproval.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
@@ -1274,7 +1280,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context, _cloneContext);
+                //var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "UpdateApproveAskToAmend");
                 return res;
             }
