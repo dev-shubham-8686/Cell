@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using TDSG_VehicleRequisitionSubstitution.Models;
 
 namespace TDSGCellFormat.Models;
 
@@ -22,7 +23,7 @@ public partial class AepplNewCloneStageContext : DbContext
     {
 
     }
-
+    public virtual DbSet<SubstituteMaster> SubstituteMasters { get; set; }
     public virtual DbSet<EmployeeInfoMaster> EmployeeInfoMasters { get; set; }
 
     public virtual DbSet<EmployeeMaster> EmployeeMasters { get; set; }

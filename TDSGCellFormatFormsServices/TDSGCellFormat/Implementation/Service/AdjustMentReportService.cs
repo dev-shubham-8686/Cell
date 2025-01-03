@@ -138,5 +138,10 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return _adjustMentRepository.GetAdvisorData(adjustmentReportId);
         }
+
+        public async Task<AjaxResult> InsertDelegate(DelegateUser request)
+        {
+            return await _adjustMentRepository.InsertDelegate(request);
+        }
     }
 }
