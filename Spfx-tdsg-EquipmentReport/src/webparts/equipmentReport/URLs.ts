@@ -24,3 +24,4 @@ export const GET_APPROVE_ASK_TO_AMMEND =
   export const EXPORT_TO_EXCEL_LISTING = "/api/EquipmentImprovement/EquipmentListingExcel";
   export const PDF_VIEWER = "/api/EquipmentImprovement/EquipmentPDF";
   export const GET_EMAIL_ATTACHMENTS = "/api/EquipmentImprovement/GetEmailAttachment";
+  export const DELEGATE_USER = "/api/EquipmentImprovement/InsertDelegate";

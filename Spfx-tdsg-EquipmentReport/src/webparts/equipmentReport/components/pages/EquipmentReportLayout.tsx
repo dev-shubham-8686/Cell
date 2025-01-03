@@ -3,19 +3,20 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Modal } from "antd";
 // import { useAuth } from "../../context/AuthContext";
-import Workflow from "../equipmentReport/Workflow";
+import Workflow, { IWorkflowDetail } from "../equipmentReport/Workflow";
 import History from "../equipmentReport/History";
 import Page from "../page/page";
 import { UserContext } from "../../context/userContext";
 import EquipmentReportForm from "../equipmentReport/Form";
 import useEquipmentReportByID from "../../apis/equipmentReport/useEquipmentReport/useEquipmentReportById";
-import WorkFlowButtons from "../common/WorkFlowButtons";
+import WorkFlowButtons, { IApproverTask } from "../common/WorkFlowButtons";
 import useGetApproverFlowData from "../../apis/workflow/useGetApprovalFlowData";
 import useGetCurrentApproverData from "../../apis/workflow/useGetCurrentApprover";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import useGetEmailAttachmentsData from "../../apis/equipmentReport/useEmailAttachments/useEmailAttachmentsData";
 import EmailAttachments from "../equipmentReport/EmailAttachments";
+import { REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
 
 type TabName = "form" | "history" | "workflow" | "emailAtachments";
 
@@ -29,6 +30,8 @@ const EquipmentReportLayout: React.FC<EquipmentReportLayoutProps> = ({}) => {
   const { isApproverRequest, currentTabState, fromReviewTab ,allReq } =
     location.state || {};
   const [currentTab, setCurrentTab] = useState<TabName>("form");
+  const [currentApproverDetail, setCurrentApproverDetail] = useState<IWorkflowDetail | null>(null);
+
   const equipmentReport = useEquipmentReportByID(id ? parseInt(id) : undefined);
 
 console.log("allReq",equipmentReport?.data,location.state)
@@ -44,6 +47,25 @@ const currentApprover = useGetCurrentApproverData(
   user.employeeId
 );
 
+useEffect(() => {
+  if (approverFlowData) {
+    let approverInReview = null;
+
+    if (approverFlowData.WorkflowTwo?.length > 0) {
+      approverInReview = approverFlowData?.WorkflowTwo.find(
+        (approver) => approver.Status === REQUEST_STATUS.InReview
+      );
+    }
+
+    if (!approverInReview && approverFlowData.WorkflowOne?.length > 0) {
+      approverInReview = approverFlowData?.WorkflowOne.find(
+        (approver) => approver.Status === REQUEST_STATUS.InReview
+      );
+    }
+
+    setCurrentApproverDetail(approverInReview || null);
+  }
+}, [approverFlowData]);
   const onBackClick = (): void => {
     console.log("CURRENTSTATE", currentTabState, fromReviewTab ,allReq);
     navigate("/", {
@@ -93,7 +115,9 @@ const currentApprover = useGetCurrentApproverData(
             Back
           </button>
           <div className=" justify-content-right mr-50">
-            <WorkFlowButtons currentApproverTask={currentApprover?.data}
+            <WorkFlowButtons
+                currentApprover={currentApproverDetail}
+            currentApproverTask={currentApprover?.data}
             eqReport={equipmentReport?.data}
             isTargetDateSet={equipmentReport?.data?.ToshibaApprovalRequired ||equipmentReport?.data?.ToshibaTeamDiscussion } 
             />
