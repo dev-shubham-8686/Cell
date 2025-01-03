@@ -1,14 +1,17 @@
 export const SERVICE_URL = 
-  // "http://localhost:5246"
- "https://localhost:44353"
-//  "https://cellformservice-stage.tdsgj.co.in"   //stage
-//  "https://tdsg-eapp-cellforms.tdsgj.co.in" // prod
-;
+  // "http://localhost:5246";
+//  "https://localhost:44353";
+`https://cellformservice-qa.tdsgj.co.in`;         //   ---  QA
+
+//  "https://cellformservice-stage.tdsgj.co.in";   //stage
+//  "https://tdsg-eapp-cellforms.tdsgj.co.in"; // prod
+
 // TODO: change URLs
 export const WEB_URL = 
 // "https://synopsandbox.sharepoint.com/sites/Training2024"
 // "https://synopsandbox.sharepoint.com/sites/e-app-stage"
-"https://tdsgj.sharepoint.com/sites/e-app-stage" //stage
+"https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA"    // --QA
+// "https://tdsgj.sharepoint.com/sites/e-app-stage" //stage
 // "https://tdsgj.sharepoint.com/sites/e-app"   // prod
 
 

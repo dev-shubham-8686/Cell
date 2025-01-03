@@ -32,12 +32,12 @@ const MaterialConsumptionSlips: React.FC = () => {
     <Page title="Material Consumption Dashboard">
       <div className="content flex-grow-1 p-4">
         <div className="request-btn d-flex align-items-center justify-content-between">
-        {<button
+        {/* {<button
             className="btn btn-primary masterbutton"
             onClick={() => navigate("/master")}
           >
             MASTER
-          </button>}
+          </button>} */}
 
           {currentTab === "myrequest-tab" && (
             <div className="text-end">

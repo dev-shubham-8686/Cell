@@ -26,6 +26,7 @@ export const UserProvider: React.FC<IUserProvider> = ({
     // "tdivan@synoptek.com"
     // "esakir@synoptek.com"
     // "diparmar@synoptek.com"
+    // "ebrahim@synopsandbox.onmicrosoft.com"     //  admin
   );
   console.log("USERROLE Res", data);
   return (

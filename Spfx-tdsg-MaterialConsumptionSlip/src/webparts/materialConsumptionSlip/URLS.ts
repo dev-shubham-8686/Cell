@@ -36,3 +36,5 @@ export const GET_APPROVE_ASK_TO_AMMEND =
 export const CLOSE_REQUEST = "/api/Material/CloseMaterial";
 
 export const GET_PULLBACK = "/api/Material/PullBack";
+export const GET_EMPLOYEE_MASTER= "GetAllEmployees";
+export const DELEGATE_USER = "/api/Material/InsertDelegate";
