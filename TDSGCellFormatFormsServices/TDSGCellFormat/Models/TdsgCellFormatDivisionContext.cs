@@ -26,7 +26,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
     {
     }
     //EquipmentEmailAttachment
-    public virtual DbSet<CellSubstituteMaster> CellSubstituteMasters { get; set; }
+  
     public virtual DbSet<EquipmentEmailAttachment> EquipmentEmailAttachments { get; set; }
 
     public virtual DbSet<SectionHeadEmpMaster> SectionHeadEmpMasters { get; set; }
@@ -127,6 +127,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
     public virtual DbSet<AdjustmentAdvisorMaster> AdjustmentAdvisorMasters { get; set; }
 
     public virtual DbSet<AdjustmentAdditionalDepartmentHeadMaster> AdjustmentAdditionalDepartmentHeadMasters { get; set; }
+    public virtual DbSet<CellDelegateMaster> CellDelegateMasters { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

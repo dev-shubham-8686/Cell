@@ -195,7 +195,7 @@ namespace TDSGCellFormat.Helper
                     var DelegateUser = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == delegateId && x.IsActive == true).FirstOrDefault();
                     var ApproverUser = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == assignedToUserId && x.IsActive == true).FirstOrDefault();
 
-                    templateFile = "Employee_Delegate.html";
+                    templateFile = "EmailTemplate_Delegate.html";
 
                     if (!string.IsNullOrEmpty(templateFile))
                     {
