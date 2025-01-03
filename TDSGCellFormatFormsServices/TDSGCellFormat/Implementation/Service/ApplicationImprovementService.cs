@@ -113,5 +113,10 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return await _applicationRepo.GetEmailAttachment(id);
         }
+
+        public async Task<AjaxResult> InsertDelegate(DelegateUser request)
+        {
+            return await _applicationRepo.InsertDelegate(request);
+        }
     }
 }
