@@ -1232,7 +1232,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             var data = new ApproverTaskId_dto();
 
-            var adjustmentDelegateApprover = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.DelegateUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+            var adjustmentDelegateApprover = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.DelegateUserId == userId && x.DelegateUserId != 0  && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
 
             if (adjustmentDelegateApprover != null)
             {
@@ -1242,7 +1242,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 data.seqNumber = adjustmentDelegateApprover.SequenceNo;
             }
 
-            var adjustmentApprover = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.AssignedToUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+            var adjustmentApprover = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.AssignedToUserId == userId && x.DelegateUserId == 0 && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
 
             if (adjustmentApprover != null)
             {
@@ -1929,7 +1929,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         user.DelegateUserId = request.DelegateUserId;
                         user.DelegateBy = request.UserId;
                         user.DelegateOn = DateTime.Now;
-                        user.Comments = request.Comments;
+                        //user.Comments = request.Comments;
                         await _context.SaveChangesAsync();
                     }
                     var adjustmentDelegate = new CellDelegateMaster();
