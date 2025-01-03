@@ -21,6 +21,7 @@ import { IDelegate } from "../../api/DeligateUser.api";
 import { useGetAllEmployees } from "../../hooks/useGetAllEmployees";
 import { useDelegate } from "../../hooks/useDelegate";
 import { IWorkflowDetail } from "../../interface";
+import AdjustmentReport from "../AdjustmentReport";
 
 const { Option } = Select;
 
@@ -252,6 +253,7 @@ if(actionType==="delegate"){
     if (actionType === "approve") return "Approve";
     if (actionType === "amend") return "Ask to Amend";
     if (actionType === "pullback") return "Pull Back";
+    if (actionType === "delegate") return "Delegate";
     return "Submit"; // Fallback
   };
 
@@ -283,7 +285,7 @@ if(actionType==="delegate"){
         </>
       ) : null}
 
-{user?.isAdmin ? (
+{user?.isAdmin && existingAdjustmentReport?.Status == REQUEST_STATUS.InReview ? (
   <div className="button-container">
         <Button
           className="btn btn-primary"

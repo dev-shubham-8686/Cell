@@ -502,6 +502,8 @@ const RequestForm: React.FC<RequestFormProps> = ({
             name="AdvisorId"
             label="Select an advisor"
             rules={[{ required: true, message: "Please select an advisor." }]}
+            validateStatus={selectedAdvisor ? "success" : undefined}
+
           >
             <Select
               allowClear
