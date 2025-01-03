@@ -61,6 +61,54 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+        #region Delegate 
+        public async Task<AjaxResult> InsertDelegate(DelegateUser request)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var equipment = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId && x.EquipmentImprovementId == request.FormId && x.IsActive == true).ToList();
+                if (equipment != null)
+                {
+                    foreach(var user in equipment)
+                    {
+                        user.DelegateUserId = request.DelegateUserId;
+                        user.DelegateBy = request.UserId;
+                        user.DelegateOn = DateTime.Now;
+                        //user.Comments = request.Comments;
+                        await _context.SaveChangesAsync();
+                    }
+                    InsertHistoryData(request.FormId, FormType.EquipmentImprovement.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
+
+                    var equipmentDelegate = new CellDelegateMaster();
+                    equipmentDelegate.RequestId = request.FormId;
+                    equipmentDelegate.FormName = FormType.EquipmentImprovement.ToString();
+                    equipmentDelegate.EmployeeId = request.activeUserId;
+                    equipmentDelegate.DelegateUserId = request.DelegateUserId;
+                    _context.CellDelegateMasters.Add(equipmentDelegate);
+                    await _context.SaveChangesAsync();
+
+                    var equipmentData = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == request.FormId && x.IsDeleted == false).FirstOrDefault();
+
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, equipmentData.EquipmentImprovementNo, FormType.EquipmentImprovement.ToString());
+
+                    res.StatusCode = Enums.Status.Success;
+                    res.Message = Enums.Delegate;
+                }
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context, _cloneContext);
+                commonHelper.LogException(ex, "Adjustment AddOrUpdate");
+
+            }
+            return res;
+        }
+        #endregion
+
         #region GetUserRole
         public async Task<GetEquipmentUser> GetUserRole(string userEmail)
         {
@@ -606,12 +654,11 @@ namespace TDSGCellFormat.Implementation.Repository
                     foreach (var attach in report.EquipmentCurrSituationAttachmentDetails)
                     {
                         var updatedUrl = attach.CurrSituationDocFilePath.Replace($"/{report.CreatedBy}/", $"/{existingReport.EquipmentImprovementNo}/");
-                        var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == report.EquipmentImprovementId).FirstOrDefault();
+                        var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == attach.EquipmentCurrSituationAttachmentId).FirstOrDefault();
                         if (existingAttachData != null)
                         {
                             existingAttachData.CurrSituationDocName = attach.CurrSituationDocName;
                             existingAttachData.CurrSituationDocFilePath = attach.CurrSituationDocFilePath;
-                            //existingAttachData.CurrImageBytes = attach.CurrentImgBytes;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -649,7 +696,6 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             existingAttachData.ImprovementDocName = attach.ImprovementDocName;
                             existingAttachData.ImprovementDocFilePath = attach.ImprovementDocFilePath;
-                            // existingAttachData.ImpImageBytes = attach.ImprovementImgBytes;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -1707,11 +1753,25 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId)
         {
-            var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId &&
+            var materialDelegateApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.DelegateUserId == userId && x.DelegateUserId != 0 &&
+           (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString()
+           || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString() || x.Status == ApprovalTaskStatus.LogicalAmendmentInReview.ToString()) && x.IsActive == true);
+
+            var data = new ApproverTaskId_dto();
+
+            if (materialDelegateApprovers != null)
+            {
+                data.approverTaskId = materialDelegateApprovers.ApproverTaskId;
+                data.userId = materialDelegateApprovers.AssignedToUserId ?? 0;
+                data.status = materialDelegateApprovers.Status;
+                data.seqNumber = materialDelegateApprovers.SequenceNo;
+            }
+
+            var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId && x.DelegateUserId == 0 &&
             (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString()
             || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString() || x.Status == ApprovalTaskStatus.LogicalAmendmentInReview.ToString()) && x.IsActive == true);
 
-            var data = new ApproverTaskId_dto();
+            //var data = new ApproverTaskId_dto();
             if (materialApprovers != null)
             {
                 data.approverTaskId = materialApprovers.ApproverTaskId;
@@ -1966,7 +2026,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 {"OtherSubMachine","Other Sub Machine Name" },
                  {"SectionName","Section Name" },
                    {"ImprovementName","Improvement Name" },
-                    {"CurrentApprover","Current Approver" }
+                    {"CurrentApprover","Current Approver" },
+                    {"SubMachineName","Sub Machine Name" },
+                {"ImprovementCategory","Improvement Category" },
+                 {"OtherImprovementCategory","Other Improvement Category" }
 
 };
 
@@ -2020,6 +2083,44 @@ namespace TDSGCellFormat.Implementation.Repository
                         sb.Replace("#MachineName#", "Other - " + equipmentData.OtherMachineName);
                     }
 
+                    var impCategoryId = string.IsNullOrEmpty(equipmentData.ImprovementCategory)
+                                            ? new List<int>()  // Return an empty list if the string is null or empty
+                                            : equipmentData.ImprovementCategory.Split(',')
+                                                                                .Select(id => int.Parse(id))
+                                        .ToList();
+                    // var impCategoryId = equipmentData.ImprovementCategory.Split(',').Select(id => int.Parse(id)).ToList();
+                    var impCategoryNames = new List<string>();
+                    var impCategoryString = string.Empty;
+
+
+                    foreach (var id in impCategoryId)
+                    {
+                        if (id == -1)
+                        {
+                            // Fetch the "Other" category name from the database if id is -1
+                            //var otherCategoryName = _context.ImprovementCategoryMasters
+                            //                                .Where(x => x.Other != null && x.IsDeleted == false)
+                            //                                .Select(x => x.OtherImprovementCategory)
+                            //                                .FirstOrDefault();
+
+                            if (!string.IsNullOrEmpty(equipmentData.OtherImprovementCategory))
+                            {
+                                impCategoryNames.Add("Other - " + equipmentData.OtherImprovementCategory); // Add "Other" category with its name
+                            }
+                        }
+
+                        // Query database or use a dictionary/cache to get the name
+                        var impCatName = _context.ImprovementCategoryMasters.Where(x => x.ImprovementCategoryId == id && x.IsDeleted == false).Select(x => x.ImprovementCategoryName).FirstOrDefault(); // Replace this with your actual DB logic
+                        if (!string.IsNullOrEmpty(impCatName))
+                        {
+                            impCategoryNames.Add(impCatName);
+                        }
+                    }
+                    impCategoryString = string.Join(", ", impCategoryNames);
+
+
+                    sb.Replace("#ImpCategory#", impCategoryString);
+
                     sb.Replace("#ApplicantName#", applicant);
                     sb.Replace("#clsReq#", applicant);
                 }
@@ -2027,38 +2128,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#currentSituations#", equipmentData?.CurrentSituation);
                 sb.Replace("#Improvement#", equipmentData?.Imrovement);
 
-                var impCategoryId = equipmentData.ImprovementCategory.Split(',').Select(id => int.Parse(id)).ToList();
-                var impCategoryNames = new List<string>();
-                var impCategoryString = string.Empty;
 
-
-                foreach (var id in impCategoryId)
-                {
-                    if (id == -1)
-                    {
-                        // Fetch the "Other" category name from the database if id is -1
-                        //var otherCategoryName = _context.ImprovementCategoryMasters
-                        //                                .Where(x => x.Other != null && x.IsDeleted == false)
-                        //                                .Select(x => x.OtherImprovementCategory)
-                        //                                .FirstOrDefault();
-
-                        if (!string.IsNullOrEmpty(equipmentData.OtherImprovementCategory))
-                        {
-                            impCategoryNames.Add("Other - " + equipmentData.OtherImprovementCategory); // Add "Other" category with its name
-                        }
-                    }
-
-                    // Query database or use a dictionary/cache to get the name
-                    var impCatName = _context.ImprovementCategoryMasters.Where(x => x.ImprovementCategoryId == id && x.IsDeleted == false).Select(x => x.ImprovementCategoryName).FirstOrDefault(); // Replace this with your actual DB logic
-                    if (!string.IsNullOrEmpty(impCatName))
-                    {
-                        impCategoryNames.Add(impCatName);
-                    }
-                }
-                impCategoryString = string.Join(", ", impCategoryNames);
-
-
-                sb.Replace("#ImpCategory#", impCategoryString);
 
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
                 if (equipmentData?.ToshibaApprovalRequired == true)
@@ -2075,7 +2145,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 //local
                 //var baseUrl = "https://synopsandbox.sharepoint.com/sites/Training2024";
                 //stage
-                var baseUrl = "https://tdsgj.sharepoint.com/sites/e-app-stage";
+                var baseUrl = _configuration["SPSiteUrl"];
 
                 var currAttachmentUrl = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == equipmentId
                          && x.IsDeleted == false)
@@ -2090,13 +2160,21 @@ namespace TDSGCellFormat.Implementation.Repository
                 StringBuilder currentSituationAttachments = new StringBuilder();
                 StringBuilder improvementAttachments = new StringBuilder();
 
+                var imageExtensions = new List<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".svg",".heif",".heic", ".cr2", ".nef", ".arw",".dng",".psd",".ico",".cur",
+                                ".apng", ".tga",".pcx",".xcf" };
+
                 foreach (var url1 in currAttachmentUrl)
                 {
                     string bfrUrl = $"{baseUrl}{url1.CurrSituationDocFilePath}";
-                    if (url1.CurrSituationDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrSituationDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrSituationDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrSituationDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    // List of image extensions
+
+
+                    //if (url1.CurrSituationDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                    //             url1.CurrSituationDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                    //             url1.CurrSituationDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                    //             url1.CurrSituationDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    // Check if the file path ends with any of the image extensions
+                    if (imageExtensions.Any(ext => url1.CurrSituationDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
                     {
                         // Add image tag
                         currentSituationAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
@@ -2115,10 +2193,11 @@ namespace TDSGCellFormat.Implementation.Repository
                 foreach (var url2 in impAttachmentUrl)
                 {
                     string bfrUrl = $"{baseUrl}{url2.ImprovementDocFilePath}";
-                    if (url2.ImprovementDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImprovementDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImprovementDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImprovementDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    //   if (url2.ImprovementDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                    //                url2.ImprovementDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                    //                url2.ImprovementDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                    //                url2.ImprovementDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                    if (imageExtensions.Any(ext => url2.ImprovementDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
                     {
                         // Add image tag
                         improvementAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
