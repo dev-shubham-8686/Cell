@@ -44,7 +44,6 @@ export const UserProvider: React.FC<IUserProvider> = ({
   // const data=[]
   const { data, isLoading } = useUser(
     userEmail 
-   
   );
 
   console.log("USERROLE Res", data);
