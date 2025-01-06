@@ -75,7 +75,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         user.DelegateUserId = request.DelegateUserId;
                         user.DelegateBy = request.UserId;
                         user.DelegateOn = DateTime.Now;
-                        user.Comments = request.Comments;
+                        //user.Comments = request.Comments;
                         await _context.SaveChangesAsync();
                     }
                     InsertHistoryData(request.FormId, FormType.EquipmentImprovement.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
@@ -654,12 +654,11 @@ namespace TDSGCellFormat.Implementation.Repository
                     foreach (var attach in report.EquipmentCurrSituationAttachmentDetails)
                     {
                         var updatedUrl = attach.CurrSituationDocFilePath.Replace($"/{report.CreatedBy}/", $"/{existingReport.EquipmentImprovementNo}/");
-                        var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == report.EquipmentImprovementId).FirstOrDefault();
+                        var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == attach.EquipmentCurrSituationAttachmentId).FirstOrDefault();
                         if (existingAttachData != null)
                         {
                             existingAttachData.CurrSituationDocName = attach.CurrSituationDocName;
                             existingAttachData.CurrSituationDocFilePath = attach.CurrSituationDocFilePath;
-                            //existingAttachData.CurrImageBytes = attach.CurrentImgBytes;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -697,7 +696,6 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             existingAttachData.ImprovementDocName = attach.ImprovementDocName;
                             existingAttachData.ImprovementDocFilePath = attach.ImprovementDocFilePath;
-                            // existingAttachData.ImpImageBytes = attach.ImprovementImgBytes;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -1755,7 +1753,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId)
         {
-            var materialDelegateApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.DelegateUserId == userId &&
+            var materialDelegateApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.DelegateUserId == userId && x.DelegateUserId != 0 &&
            (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString()
            || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString() || x.Status == ApprovalTaskStatus.LogicalAmendmentInReview.ToString()) && x.IsActive == true);
 
@@ -1769,7 +1767,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 data.seqNumber = materialDelegateApprovers.SequenceNo;
             }
 
-            var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId &&
+            var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId && x.DelegateUserId == 0 &&
             (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString()
             || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString() || x.Status == ApprovalTaskStatus.LogicalAmendmentInReview.ToString()) && x.IsActive == true);
 
@@ -2147,7 +2145,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 //local
                 //var baseUrl = "https://synopsandbox.sharepoint.com/sites/Training2024";
                 //stage
-                var baseUrl = "https://tdsgj.sharepoint.com/sites/e-app-stage";
+                var baseUrl = _configuration["SPSiteUrl"];
 
                 var currAttachmentUrl = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == equipmentId
                          && x.IsDeleted == false)
