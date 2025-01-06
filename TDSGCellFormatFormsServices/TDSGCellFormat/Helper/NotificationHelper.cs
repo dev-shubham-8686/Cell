@@ -173,7 +173,7 @@ namespace TDSGCellFormat.Helper
         }
 
 
-        public async Task<bool> DelegateEmail(int formId, EmailNotificationAction emailNotificationAction, int? userId, int delegateId, int? assignedToUserId, string reportNo, string FormType)
+        public async Task<bool> DelegateEmail(int formId, EmailNotificationAction emailNotificationAction, int? userId, int delegateId, int? assignedToUserId, string reportNo, string FormType,string comment)
         {
             bool emailSent = false;
             try
@@ -186,9 +186,13 @@ namespace TDSGCellFormat.Helper
 
                 StringBuilder emailBody = new StringBuilder();
 
-                string templateFile = null, templateFilePath = null;
+                string? templateFile = null, templateFilePath = null;
 
                 string emailSubject = $"[{FormType} Delegate Information!] " + reportNo;
+
+                string? documentLink = _configuration["SPSiteUrl"] +
+                      _configuration["AdjustmentURL"];
+
                 if (formId > 0)
                 {
                     var EmployeeRequestUser = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == userId && x.IsActive == true).FirstOrDefault();
@@ -212,9 +216,11 @@ namespace TDSGCellFormat.Helper
                             // string docLink = documentationLink + "request/edit/" + vehicleRequestId + "?action=approval";
 
                             emailBody = emailBody.Replace("#ControlNo#", reportNo);
+                            emailBody = emailBody.Replace("#Comment#", comment);
                             emailBody = emailBody.Replace("#ApprovedBy#", ApproverUser.EmployeeName);
                             emailBody = emailBody.Replace("#AdminUserName#", EmployeeRequestUser.EmployeeName);
                             emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
+                            emailBody = emailBody.Replace("#FormName#", FormType);
 
                             emailToAddressList.Add(DelegateUser.Email);
                             emailCCAddressList.Add(EmployeeRequestUser.Email);
@@ -273,11 +279,14 @@ namespace TDSGCellFormat.Helper
 
                 //prod link
                 // string? documentLink = _configuration["SPSiteUrl"] +
-                // "/SitePages/Trouble-Report.aspx#/";
+                // "/SitePages/Trouble-Report.aspx#/";_configuration["AdjustmentURL"];
 
                 //stage link
+                //string? documentLink = _configuration["SPSiteUrl"] +
+                // "/SitePages/CellFormatStage.aspx#/";
+
                 string? documentLink = _configuration["SPSiteUrl"] +
-                 "/SitePages/CellFormatStage.aspx#/";
+                _configuration["AdjustmentURL"]; ;
 
                 StringBuilder emailBody = new StringBuilder();
                 if (requestId > 0)
@@ -840,12 +849,15 @@ namespace TDSGCellFormat.Helper
                 string? AdminEmailNotification = _configuration["AdminEmailNotification"];
 
                 //stage link
-                string? documentLink = _configuration["SPSiteUrl"] +
-                "/SitePages/MaterialConsumptionSlip.aspx#/form/";
+                // string? documentLink = _configuration["SPSiteUrl"] +
+                // "/SitePages/MaterialConsumptionSlip.aspx#/form/";
 
                 //prod link
                 // string? documentLink = _configuration["SPSiteUrl"] +
                 //"/SitePages/MaterialConsumptionSlip.aspx#/form/";
+
+                string? documentLink = _configuration["SPSiteUrl"] +
+                _configuration["MaterialURL"];
 
                 if (requestId > 0)
                 {
@@ -1369,7 +1381,7 @@ namespace TDSGCellFormat.Helper
                                     {
                                         if (task.SequenceNo == 3)
                                         {
-                                            var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true).Select(x => x.Head).ToList();
+                                            var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1 && (x.HRMSDeptName == "CP01-DP-1003" || x.HRMSDeptName == "CP01-DP-1004" || x.HRMSDeptName == "CP01-DP-1002")).Select(x => x.Head).ToList();
                                             foreach (var dept in userOtherDepId)
                                             {
                                                 var deptEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == dept && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
@@ -1987,6 +1999,14 @@ namespace TDSGCellFormat.Helper
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
                                 break;
+
+                            case EmailNotificationAction.AutoApproved:
+                                templateFile = "Equipment_AutoApprove.html";
+                                emailSubject = string.Format("[Action taken!] Adjustment_{0} has been Auto Approved", adjustmentData.ReportNo);
+                                approvelink = true;
+                                isRequestorinCCEmail = true;
+                                break;
+
 
                             case EmailNotificationAction.Amended:
                                 templateFile = "Adjustment_Amend.html";
