@@ -983,13 +983,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         if (otherdepartmenthead1 != null && departmentHead1 > 0)
                         {
-                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)departmentId1, ProjectType.AdjustMentReport.ToString());
-                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)departmentId1, ProjectType.AdjustMentReport.ToString());
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)departmentHead1, ProjectType.AdjustMentReport.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)departmentHead1, ProjectType.AdjustMentReport.ToString());
 
                             otherdepartmenthead1.AssignedToUserId = substituteUserId;
                             otherdepartmenthead1.IsActive = true;
                             otherdepartmenthead1.DisplayName = departMentName1;
                             otherdepartmenthead1.IsSubstitute = IsSubstitute;
+                            otherdepartmenthead1.ModifiedDate = DateTime.Now;
                             await _context.SaveChangesAsync();
                         }
 
@@ -1002,13 +1003,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         if (otherdepartmenthead2 != null && departmentHead2 > 0)
                         {
-                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)departmentId2, ProjectType.AdjustMentReport.ToString());
-                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)departmentId2, ProjectType.AdjustMentReport.ToString());
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)departmentHead2, ProjectType.AdjustMentReport.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)departmentHead2, ProjectType.AdjustMentReport.ToString());
 
                             otherdepartmenthead2.AssignedToUserId = substituteUserId;
                             otherdepartmenthead2.IsActive = true;
                             otherdepartmenthead2.DisplayName = departMentName2;
                             otherdepartmenthead2.IsSubstitute = IsSubstitute;
+                            otherdepartmenthead2.ModifiedDate = DateTime.Now;
                             await _context.SaveChangesAsync();
                         }
 
@@ -1021,14 +1023,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         if (otherdepartmenthead3 != null && departmentHead3 > 0)
                         {
-                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)departmentId3, ProjectType.AdjustMentReport.ToString());
-                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)departmentId3, ProjectType.AdjustMentReport.ToString());
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)departmentHead3, ProjectType.AdjustMentReport.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)departmentHead3, ProjectType.AdjustMentReport.ToString());
 
                             otherdepartmenthead3.AssignedToUserId = substituteUserId;
                             otherdepartmenthead3.IsActive = true;
                             otherdepartmenthead3.DisplayName = departMentName3;
                             otherdepartmenthead3.IsSubstitute = IsSubstitute;
-
+                            otherdepartmenthead3.ModifiedDate = DateTime.Now;
                             await _context.SaveChangesAsync();
                         }
 
@@ -1937,6 +1939,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     adjustmentDelegate.FormName = FormType.AdjustmentReport.ToString();
                     adjustmentDelegate.EmployeeId = request.activeUserId;
                     adjustmentDelegate.DelegateUserId = request.DelegateUserId;
+                    adjustmentDelegate.CreatedDate = DateTime.Now;
+                    adjustmentDelegate.CreatedBy = request.UserId;
                     _context.CellDelegateMasters.Add(adjustmentDelegate);
                     await _context.SaveChangesAsync();
 
@@ -1945,7 +1949,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var adjustmentNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == request.FormId && x.IsDeleted == false).FirstOrDefault();
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, adjustmentNo.ReportNo, FormType.AdjustmentReport.ToString());
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, adjustmentNo.ReportNo, FormType.AdjustmentReport.ToString(), request.Comments);
 
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.Delegate;
