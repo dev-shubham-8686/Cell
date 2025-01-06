@@ -91,5 +91,10 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return await _materialRepository.GetMaterialConsumptionList1(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
         }
+
+        public async Task<AjaxResult> InsertDelegate(DelegateUser request)
+        {
+            return await _materialRepository.InsertDelegate(request);
+        }
     }
 }

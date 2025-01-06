@@ -122,7 +122,7 @@
             </tr>
             <tr>
                 <!--<td class="label-cell">MACHINE No. :</td>
-                <td>#machineid#</td>-->
+            <td>#machineid#</td>-->
                 <td class="label-cell">Date & Time :</td>
                 <td>#when#</td>
             </tr>
@@ -243,19 +243,28 @@
                     <th style="border: 1px solid black; padding: 5px; text-align: center;">Section Head</th>
                     <th style="border: 1px solid black; padding: 5px; text-align: center;">Department Head</th>
                     <th style="border: 1px solid black; padding: 5px; text-align: center;">Deputy Division Head</th>
-                    <!--<th style="border: 0.25px; padding: 5px; text-align: center;">Remarks</th>-->
+                    <!-- Placeholder for dynamically inserted headers -->
+                    #dynamicHeaders#
                 </tr>
                 <tr style="padding: 10px; ">
                     <td style="border: 1px solid black ; height: 20px; padding: 5px; text-align: center;">#preparedby#</td>
-                    <!--<td style="border: 0.25px; height: 20px; padding: 5px; text-align: center;"></td>--> <!-- Empty cell for Approved By -->
                     <td style="border: 1px solid black ; height: 20px; padding: 5px; text-align: center;">#sectionhead#</td>
                     <td style="border: 1px solid black; height: 20px; padding: 5px; text-align: center;">#departmenthead#</td>
                     <td style="border: 1px solid black; height: 20px; padding: 5px; text-align: center;">#divisionhead#</td>
-                    <!--<td style="border: 0.25px; height: 20px; padding: 5px; text-align: center;">#Remarks#</td>-->
+                    <!-- Placeholder for dynamically inserted cells -->
+                    #dynamicCells#
                 </tr>
             </table>
         </div>
 
+        <table class="table">
+            <tr>
+                <td class="label-cell">Advisor Comments</td>
+            </tr>
+            <tr class="textarea-cell">
+                <td>#advisorComments#</td>
+            </tr>
+        </table>
 
     </div>
 </body>
