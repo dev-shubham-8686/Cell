@@ -1582,28 +1582,56 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#conditionafteradjustment#", adjustMentReportData.ConditionAfterAdjustment);
                 sb.Replace("#preparedby#", applicant);
 
-                string approvedBySectionHead = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDepartmentHead = approverData.FirstOrDefault(a => a.SequenceNo == 3)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDivisionHead = approverData.FirstOrDefault(a => a.SequenceNo == 7)?.employeeNameWithoutCode ?? "N/A";
+                //  string approveSectioneHead = approvalData.FirstOrDefault(a => a.SequenceNo == 1 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedBySectionHead = approverData.FirstOrDefault(a => a.SequenceNo == 2 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByDepartmentHead = approverData.FirstOrDefault(a => a.SequenceNo == 3 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByDivisionHead = approverData.FirstOrDefault(a => a.SequenceNo == 7 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
 
                 sb.Replace("#sectionhead#", approvedBySectionHead);
                 sb.Replace("#departmenthead#", approvedByDepartmentHead);
                 sb.Replace("#divisionhead#", approvedByDivisionHead);
 
-                //local
-                //var baseUrl = "https://synopsandbox.sharepoint.com/sites/Training2024";
-                //stage
-                // var baseUrl = "https://tdsgj.sharepoint.com/sites/e-app-stage";
-                //QA
+                
+                // Prepare dynamic headers and cells based on the fetched data
+                string dynamicHeaders = string.Empty;
+                string dynamicCells = string.Empty;
+
+                string approvedByOtherDepartmentHead1 = approverData.FirstOrDefault(a => a.SequenceNo == 4 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByOtherDepartmentHead2 = approverData.FirstOrDefault(a => a.SequenceNo == 5 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string divisionHead = approverData.FirstOrDefault(a => a.SequenceNo == 8 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+               
+                if (approvedByOtherDepartmentHead1 != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Other Department Head 1</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedByOtherDepartmentHead1}</td>";
+                }
+                if (approvedByOtherDepartmentHead2 != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Other Department Head 2</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedByOtherDepartmentHead2}</td>";
+                }
+                if (divisionHead != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Division Head</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{divisionHead}</td>";
+                }
+
+                sb.Replace("#dynamicHeaders#", dynamicHeaders);
+                sb.Replace("#dynamicCells#", dynamicCells);
+                
+                var advisor = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == adjustMentReportId && x.IsActive == true).FirstOrDefault();
+                if(advisor != null)
+                {
+                    sb.Replace("#advisorComments#", advisor.Comment);
+                }
+
                 var baseUrl = _configuration["SPSiteUrl"];
                 var beforeImageUrl = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == adjustMentReportId
                          && x.IsDeleted == false)
-                          // .Select(x => $"{baseUrl}{x.BeforeImageDocFilePath}")
                           .ToList();
 
                 var afterImageUrl = _context.AdjustmentAfterImages.Where(x => x.AdjustmentReportId == adjustMentReportId
                                  && x.IsDeleted == false)
-                                  //.Select(x => $"{baseUrl}{x.AfterImageDocFilePath}")
                                   .ToList();
 
                 StringBuilder beforeImages = new StringBuilder();
@@ -1638,26 +1666,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#BeforeImg#", beforeImages.ToString() + beforeOtherFiles.ToString());
 
 
-                /* foreach (var url1 in beforeImageUrl)
-                 {
-                     string bfrUrl = $"{baseUrl}{url1.BeforeImageDocFilePath}";
-
-                     if (imageExtensions.Any(ext => url1.BeforeImageDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
-                     {
-                         beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
-                         beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
-                         beforeImages.AppendLine("</div>");
-
-                         // Add image tag
-                         //beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
-                     }
-                     else
-                     {
-                         beforeImages.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
-                     }
-
-                 }*/
-
                 var afterImageFiles = afterImageUrl.Where(url => imageExtensions.Any(ext => url.AfterImageDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).ToList();
                 var afterFiles = afterImageUrl.Except(afterImageFiles).ToList();
 
@@ -1677,24 +1685,6 @@ namespace TDSGCellFormat.Implementation.Repository
                     afterOtherFiles.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
                 }
 
-                /* foreach (var url2 in afterImageUrl)
-                 {
-                     string AftrUrl = $"{baseUrl}{url2.AfterImageDocFilePath}";
-                     if (imageExtensions.Any(ext => url2.AfterImageDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
-                     {
-                         // Add image to a grid container
-                         afterImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
-                         afterImages.AppendLine($"<img src=\"{url2.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
-                         afterImages.AppendLine("</div>");
-                         // Add image tag
-                         //afterImages.AppendLine($"<img src=\"{url2.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
-                     }
-                     else
-                     {
-                         afterImages.Append($"<a href=\"{AftrUrl}\" target=\"_blank\">{Path.GetFileName(AftrUrl)}</a><br>");
-
-                     }
-                 }*/
 
                 sb.Replace("#AfterImg#", afterImages.ToString() + afterOtherFiles.ToString());
 
@@ -1949,7 +1939,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var adjustmentNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == request.FormId && x.IsDeleted == false).FirstOrDefault();
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, adjustmentNo.ReportNo, FormType.AdjustmentReport.ToString(), request.Comments);
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, adjustmentNo.ReportNo, FormType.AdjustmentReport.ToString(), request.Comments , request.FormId);
 
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.Delegate;
