@@ -1855,6 +1855,19 @@ namespace TDSGCellFormat.Implementation.Repository
                 // Create PDF using SelectPDF
                 var converter = new SelectPdf.HtmlToPdf();
                 converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
+
+                // footer settings
+                converter.Options.DisplayFooter = true;
+                converter.Footer.DisplayOnFirstPage = true;
+                converter.Footer.DisplayOnOddPages = true;
+                converter.Footer.DisplayOnEvenPages = true;
+                converter.Footer.Height = 50;
+
+                // page numbers can be added using a PdfTextSection object
+                SelectPdf.PdfTextSection text = new SelectPdf.PdfTextSection(0, 10, "Page {page_number}", new System.Drawing.Font("Arial", 8));
+                text.HorizontalAlign = SelectPdf.PdfTextHorizontalAlign.Center;
+                converter.Footer.Add(text);
+
                 SelectPdf.PdfDocument pdfDoc = converter.ConvertHtmlString(sb.ToString());
 
                 // Convert the PDF to a byte array
