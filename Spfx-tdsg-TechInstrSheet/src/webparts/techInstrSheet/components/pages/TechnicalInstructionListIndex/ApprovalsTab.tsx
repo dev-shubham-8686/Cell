@@ -400,8 +400,8 @@ const ApprovalsTab: React.FC = () => {
         loading={loading}
         onChange={handleTableChange}
         rowKey="TechnicalId"
-        scroll={{ x: true }}
-        className="w-full shadow-sm no-radius-table"
+        scroll={{ x: 'max-content', y: '300px' }} // Ensure 'max-content' for dynamic width
+        className="no-radius-table dashboard-table"
       />
 
       <Spin spinning={pdfLoading} fullscreen />
