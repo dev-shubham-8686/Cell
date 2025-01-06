@@ -75,7 +75,6 @@ namespace TDSGCellFormat.Implementation.Repository
                         user.DelegateUserId = request.DelegateUserId;
                         user.DelegateBy = request.UserId;
                         user.DelegateOn = DateTime.Now;
-                        //user.Comments = request.Comments;
                         await _context.SaveChangesAsync();
                     }
                     InsertHistoryData(request.FormId, FormType.EquipmentImprovement.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
@@ -85,13 +84,15 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipmentDelegate.FormName = FormType.EquipmentImprovement.ToString();
                     equipmentDelegate.EmployeeId = request.activeUserId;
                     equipmentDelegate.DelegateUserId = request.DelegateUserId;
+                    equipmentDelegate.CreatedDate = DateTime.Now;
+                    equipmentDelegate.CreatedBy = request.UserId;
                     _context.CellDelegateMasters.Add(equipmentDelegate);
                     await _context.SaveChangesAsync();
 
                     var equipmentData = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == request.FormId && x.IsDeleted == false).FirstOrDefault();
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, equipmentData.EquipmentImprovementNo, FormType.EquipmentImprovement.ToString());
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, equipmentData.EquipmentImprovementNo, FormType.EquipmentImprovement.ToString(), request.Comments);
 
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.Delegate;
@@ -1131,6 +1132,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         equipmentTask.WorkFlowStatus = ApprovalTaskStatus.Draft.ToString();
                         equipmentTask.WorkFlowLevel = 1;
                         equipmentTask.ModifiedBy = data.userId;
+                        equipmentTask.ModifiedDate = DateTime.Now;
                         equipmentTask.IsPcrnRequired = false;
                         // mention the WorkFlow status 
                         await _context.SaveChangesAsync();
@@ -1157,6 +1159,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         equipmentTask.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
                         equipmentTask.WorkFlowLevel = 2;
                         equipmentTask.ModifiedBy = data.userId;
+                        equipmentTask.ModifiedDate = DateTime.Now;
                         equipmentTask.IsPcrnRequired = false;
                         // mention the WorkFlow status 
                         await _context.SaveChangesAsync();

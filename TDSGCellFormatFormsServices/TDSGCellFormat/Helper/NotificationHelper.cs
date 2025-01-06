@@ -173,7 +173,7 @@ namespace TDSGCellFormat.Helper
         }
 
 
-        public async Task<bool> DelegateEmail(int formId, EmailNotificationAction emailNotificationAction, int? userId, int delegateId, int? assignedToUserId, string reportNo, string FormType)
+        public async Task<bool> DelegateEmail(int formId, EmailNotificationAction emailNotificationAction, int? userId, int delegateId, int? assignedToUserId, string reportNo, string FormType,string comment)
         {
             bool emailSent = false;
             try
@@ -186,9 +186,13 @@ namespace TDSGCellFormat.Helper
 
                 StringBuilder emailBody = new StringBuilder();
 
-                string templateFile = null, templateFilePath = null;
+                string? templateFile = null, templateFilePath = null;
 
                 string emailSubject = $"[{FormType} Delegate Information!] " + reportNo;
+
+                string? documentLink = _configuration["SPSiteUrl"] +
+                      _configuration["AdjustmentURL"];
+
                 if (formId > 0)
                 {
                     var EmployeeRequestUser = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == userId && x.IsActive == true).FirstOrDefault();
@@ -212,6 +216,7 @@ namespace TDSGCellFormat.Helper
                             // string docLink = documentationLink + "request/edit/" + vehicleRequestId + "?action=approval";
 
                             emailBody = emailBody.Replace("#ControlNo#", reportNo);
+                            emailBody = emailBody.Replace("#Comment#", comment);
                             emailBody = emailBody.Replace("#ApprovedBy#", ApproverUser.EmployeeName);
                             emailBody = emailBody.Replace("#AdminUserName#", EmployeeRequestUser.EmployeeName);
                             emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
