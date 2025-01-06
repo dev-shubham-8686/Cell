@@ -31,6 +31,7 @@ namespace TDSGCellFormat.Interface.Repository
         Task<AjaxResult> ExportToPdf(int equipmentId);
 
         Task<AjaxResult> GetEmailAttachment(int id);
+        Task<AjaxResult> InsertDelegate(DelegateUser request);
 
     }
 
