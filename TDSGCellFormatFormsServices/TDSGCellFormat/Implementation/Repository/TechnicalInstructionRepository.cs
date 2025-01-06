@@ -1,16 +1,12 @@
-﻿using Castle.Components.DictionaryAdapter.Xml;
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using Dapper;
-using DocumentFormat.OpenXml.Bibliography;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
-using Org.BouncyCastle.Asn1.X509;
 using System.Data;
 using System.Data.SqlClient;
 using System.Net;
-using System.Net.Mail;
 using System.Text;
 using TDSGCellFormat.Common;
 using TDSGCellFormat.Helper;
@@ -20,10 +16,8 @@ using TDSGCellFormat.Models.Add;
 using TDSGCellFormat.Models.View;
 using IronPdf;
 using static TDSGCellFormat.Common.Enums;
-using PnP.Framework.Modernization.Cache;
 using System.Text.RegularExpressions;
 using static IronPdf.PdfPrintOptions;
-using PnP.Framework.Extensions;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -857,7 +851,7 @@ namespace TDSGCellFormat.Implementation.Repository
         public async Task<AjaxResult> UpdateApproveAskToAmend(int ApproverTaskId, int CurrentUserId, ApprovalStatus type, string comment, int technicalId)
         {
             var res = new AjaxResult();
-            ///bool result = false;
+            var commonHelper = new CommonHelper(_context, _cloneContext); 
             try
             {
                 var requestTaskData = _context.TechnicalInstructionApproverTaskMasters.Where(x => x.ApproverTaskId == ApproverTaskId && x.IsActive == true
@@ -895,6 +889,12 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             foreach (var nextTask in nextApproveTask)
                             {
+                               // int substituteUserId = 0;
+                               // int substitutePer = nextTask.AssignedToUserId ?? 0;
+                               // substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
+                               //
+                               // nextTask.AssignedToUserId = substituteUserId;
+
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
@@ -941,7 +941,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
-                var commonHelper = new CommonHelper(_context, _cloneContext);
+                //var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical UpdateApproveAskToAmend");
 
             }
@@ -2574,6 +2574,27 @@ namespace TDSGCellFormat.Implementation.Repository
         #endregion
 
         #region Master
+        #endregion
+
+        #region GetUserRole
+        public async Task<GetTechnicalUser> GetUserRole(string userEmail)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserEmail", userEmail, DbType.String, ParameterDirection.Input, 150);
+
+                var result = await connection.QueryFirstOrDefaultAsync<GetTechnicalUser>(
+                    "dbo.SPP_GetUserDetails_Technical",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+
+                return result;
+            }
+        }
         #endregion
 
     }

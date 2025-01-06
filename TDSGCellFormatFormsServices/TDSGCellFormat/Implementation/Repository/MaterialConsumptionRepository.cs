@@ -598,7 +598,7 @@ namespace TDSGCellFormat.Implementation.Repository
         public async Task<AjaxResult> UpdateApproveAskToAmend(int ApproverTaskId, int CurrentUserId, ApprovalStatus type, string comment, int materialConsumptionId)
         {
             var res = new AjaxResult();
-            ///bool result = false;
+            var commonHelper = new CommonHelper(_context, _cloneContext);
             try
             {
                 var requestTaskData = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.ApproverTaskId == ApproverTaskId && x.IsActive == true
@@ -638,6 +638,12 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             foreach (var nextTask in nextApproveTask)
                             {
+                               // int substituteUserId = 0;
+                               // int substitutePer = nextTask.AssignedToUserId ?? 0;
+                               // substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
+                               //
+                               // nextTask.AssignedToUserId = substituteUserId;
+
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
@@ -685,7 +691,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context, _cloneContext);
+               // var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Material UpdateApproveAskToAmend");
 
             }
@@ -805,8 +811,19 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public ApproverTaskId_dto GetCurrentApproverTask(int materialConsumptionId, int userId)
         {
-            var materialApprovers = _context.MaterialConsumptionApproverTaskMasters.FirstOrDefault(x => x.MaterialConsumptionId == materialConsumptionId && x.AssignedToUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+            var materialDelegate = _context.MaterialConsumptionApproverTaskMasters.FirstOrDefault(x => x.MaterialConsumptionId == materialConsumptionId && x.DelegateUserId == userId && x.DelegateUserId != 0 &&  x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
             var data = new ApproverTaskId_dto();
+            if (materialDelegate != null)
+            {
+                data.approverTaskId = materialDelegate.ApproverTaskId;
+                data.userId = materialDelegate.AssignedToUserId ?? 0;
+                data.status = materialDelegate.Status;
+                data.seqNumber = materialDelegate.SequenceNo;
+
+            }
+
+            var materialApprovers = _context.MaterialConsumptionApproverTaskMasters.FirstOrDefault(x => x.MaterialConsumptionId == materialConsumptionId && x.AssignedToUserId == userId && x.DelegateUserId == 0 && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+          
             if (materialApprovers != null)
             {
                 data.approverTaskId = materialApprovers.ApproverTaskId;
@@ -1269,6 +1286,57 @@ namespace TDSGCellFormat.Implementation.Repository
                 return input;
 
             return char.ToUpper(input[0]) + input.Substring(1);
+        }
+        #endregion
+
+
+        #region Delegate 
+        public async Task<AjaxResult> InsertDelegate(DelegateUser request)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var material = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId && x.MaterialConsumptionId == request.FormId && x.IsActive == true).ToList();
+                if (material != null)
+                {
+                    foreach (var user in material)
+                    {
+                        user.DelegateUserId = request.DelegateUserId;
+                        user.DelegateBy = request.UserId;
+                        user.DelegateOn = DateTime.Now;
+                        //user.Comments = request.Comments;
+                        await _context.SaveChangesAsync();
+                    }
+                    InsertHistoryData(request.FormId, FormType.MaterialConsumption.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
+
+                    var materialDelegate = new CellDelegateMaster();
+                    materialDelegate.RequestId = request.FormId;
+                    materialDelegate.FormName = FormType.EquipmentImprovement.ToString();
+                    materialDelegate.EmployeeId = request.activeUserId;
+                    materialDelegate.DelegateUserId = request.DelegateUserId;
+                    materialDelegate.CreatedDate = DateTime.Now;
+                    materialDelegate.CreatedBy = request.UserId;
+                    _context.CellDelegateMasters.Add(materialDelegate);
+                    await _context.SaveChangesAsync();
+
+                    var materialData = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == request.FormId && x.IsDeleted == false).FirstOrDefault();
+
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, materialData.MaterialConsumptionSlipNo, FormType.MaterialConsumption.ToString(),request.Comments);
+
+                    res.StatusCode = Enums.Status.Success;
+                    res.Message = Enums.Delegate;
+                }
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context, _cloneContext);
+                commonHelper.LogException(ex, "Adjustment AddOrUpdate");
+
+            }
+            return res;
         }
         #endregion
     }

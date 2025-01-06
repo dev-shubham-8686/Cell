@@ -126,11 +126,11 @@ const RequestsTab: React.FC = () => {
       .then(async (response) => {
         setMailLoading(false);
         //const emailList = response.ReturnValue.emails; // Comma-separated emails
-        const emailList = "digital-team@tdsg.co.in";
+        const emailList = "digital-team@tdsgj.co.in";
         const pdfBase64 = response.ReturnValue.pdf; // Base64 string of PDF
         const subject = `Notification for ${mailTriggerCtinumber}`;
         let pdf_url_link = "";
-        debugger;
+        //debugger;
 
         if (pdfBase64) {
           const isValidFolderOutline = await checkAndCreateFolder(

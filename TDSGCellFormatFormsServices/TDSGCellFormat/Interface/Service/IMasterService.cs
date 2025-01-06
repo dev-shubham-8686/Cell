@@ -34,5 +34,7 @@ namespace TDSGCellFormat.Interface.Service
         IQueryable<EmployeeMasterView> GetAllEmployee();
 
         IQueryable<AdvisorMasterView> GetAllAdvisors();
+
+        IQueryable<ImpCategoryView> GetImprovementCategory();
     }
 }

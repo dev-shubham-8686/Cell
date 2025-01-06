@@ -344,9 +344,8 @@
             }
         }
 
-        .tableFormat 
-        {
-            border : 1px solid black;
+        .tableFormat {
+            border: 1px solid black;
             padding: 1px
         }
     </style>
@@ -365,10 +364,10 @@
                         <tr>
                             <td class="wrapper">
                                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                                  <tr style="background-color: #c50017;">
+                                    <tr style="background-color: #c50017;">
                                         <th style="">
 
-                                            <h1 style="color: white;margin: 0px;text-transform: none;">Equipment Improvement</h1>
+                                            <h1 style="color: white;margin: 0px;text-transform: none;">#FormName#</h1>
                                         </th>
                                     </tr>
                                     <tr>
@@ -376,8 +375,7 @@
                                             <br />
                                             Dear User,
                                             <br />
-                                            <br />
-                                            Following Application has been automatically Approved by #Role#. Kindly review it.
+                                            You have been delegated the task associated with #ControlNo# for a #FormName# Request on behalf of #ApprovedBy#, initiated by #AdminUserName#.
                                             <br />
                                             <br />
                                             Request details:
@@ -386,34 +384,23 @@
                                             <table class="tableFormat"
                                                    style="border-collapse: collapse">
                                                 <tr>
-                                                    <td class="tableFormat">Application Number</td>
-                                                    <td class="tableFormat">#ApplicationNo#</td>
+                                                    <td class="tableFormat">#FormName# Request Number</td>
+                                                    <td class="tableFormat">#ControlNo#</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="tableFormat">Improvement Name</td>
-                                                    <td class="tableFormat">#Improvement#</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="tableFormat">Area</td>
-                                                    <td class="tableFormat">#Area#</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="tableFormat">Section</td>
-                                                    <td class="tableFormat">#Section#</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="tableFormat">Comment</td>
+                                                    <td class="tableFormat">Approver Remarks</td>
                                                     <td class="tableFormat">#Comment#</td>
                                                 </tr>
+
                                             </table>
                                             <br />
-                                            Next action is waiting for your input. Kindly proceed for next action, <a href=#EquipmentLink#>Click here</a>  to visit flow of approval.
+                                            Next action is waiting for your input. Kindly proceed for next action, <a href=#DocumentationLink#>Click here</a>  to visit flow of approval.
                                             <br />
                                             <br />
-                                            ***Kindly note this is a system generated email, do not reply to this email, in case of
-                                            any query reach us with change details: <a href="mailto:#AdminEmailID#">#AdminEmailID#</a>***
+                                            ***Kindly note this is a system generated email, do not reply to this email,
+                                            in case of any query reach us with change details: <a href="mailto:#AdminEmailID#">#AdminEmailID#</a>***
                                         </td>
-							        
+
                                     </tr>
                                 </table>
                             </td>
