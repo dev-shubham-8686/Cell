@@ -1322,7 +1322,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var materialData = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == request.FormId && x.IsDeleted == false).FirstOrDefault();
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, materialData.MaterialConsumptionSlipNo, FormType.MaterialConsumption.ToString(),request.Comments);
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, materialData.MaterialConsumptionSlipNo, FormType.MaterialConsumption.ToString(),request.Comments, request.FormId);
 
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.Delegate;
