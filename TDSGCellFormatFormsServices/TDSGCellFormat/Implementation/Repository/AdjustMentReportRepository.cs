@@ -1234,7 +1234,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             var data = new ApproverTaskId_dto();
 
-            var adjustmentDelegateApprover = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.DelegateUserId == userId && x.DelegateUserId != 0  && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+            var adjustmentDelegateApprover = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.DelegateUserId == userId && x.DelegateUserId != 0 && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
 
             if (adjustmentDelegateApprover != null)
             {
@@ -1591,7 +1591,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#departmenthead#", approvedByDepartmentHead);
                 sb.Replace("#divisionhead#", approvedByDivisionHead);
 
-                
+
                 // Prepare dynamic headers and cells based on the fetched data
                 string dynamicHeaders = string.Empty;
                 string dynamicCells = string.Empty;
@@ -1599,7 +1599,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 string approvedByOtherDepartmentHead1 = approverData.FirstOrDefault(a => a.SequenceNo == 4 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByOtherDepartmentHead2 = approverData.FirstOrDefault(a => a.SequenceNo == 5 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string divisionHead = approverData.FirstOrDefault(a => a.SequenceNo == 8 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
-               
+
                 if (approvedByOtherDepartmentHead1 != "N/A")
                 {
                     dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Other Department Head 1</th>";
@@ -1618,9 +1618,9 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 sb.Replace("#dynamicHeaders#", dynamicHeaders);
                 sb.Replace("#dynamicCells#", dynamicCells);
-                
+
                 var advisor = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == adjustMentReportId && x.IsActive == true).FirstOrDefault();
-                if(advisor != null)
+                if (advisor != null)
                 {
                     sb.Replace("#advisorComments#", advisor.Comment);
                 }
@@ -1913,7 +1913,9 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var adjustment = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId && x.AdjustmentReportId == request.FormId && x.IsActive == true).ToList();
+                var adjustment = _context.AdjustmentReportApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId == 0) ||
+                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0)) &&
+                                                                                      x.AdjustmentReportId == request.FormId && x.IsActive == true).ToList();
                 if (adjustment != null)
                 {
                     foreach (var user in adjustment)
@@ -1923,14 +1925,25 @@ namespace TDSGCellFormat.Implementation.Repository
                         user.DelegateOn = DateTime.Now;
                         await _context.SaveChangesAsync();
                     }
-                    var adjustmentDelegate = new CellDelegateMaster();
-                    adjustmentDelegate.RequestId = request.FormId;
-                    adjustmentDelegate.FormName = FormType.AdjustmentReport.ToString();
-                    adjustmentDelegate.EmployeeId = request.activeUserId;
-                    adjustmentDelegate.DelegateUserId = request.DelegateUserId;
-                    adjustmentDelegate.CreatedDate = DateTime.Now;
-                    adjustmentDelegate.CreatedBy = request.UserId;
-                    _context.CellDelegateMasters.Add(adjustmentDelegate);
+
+                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.AdjustmentReport.ToString()).FirstOrDefault();
+                    if (existingAdjDelegate != null)
+                    {
+                        existingAdjDelegate.DelegateUserId = request.DelegateUserId;
+                        existingAdjDelegate.ModifiedDate = DateTime.Now;
+                    }
+                    else
+                    {
+                        var adjustmentDelegate = new CellDelegateMaster();
+                        adjustmentDelegate.RequestId = request.FormId;
+                        adjustmentDelegate.FormName = FormType.AdjustmentReport.ToString();
+                        adjustmentDelegate.EmployeeId = request.activeUserId;
+                        adjustmentDelegate.DelegateUserId = request.DelegateUserId;
+                        adjustmentDelegate.CreatedDate = DateTime.Now;
+                        adjustmentDelegate.CreatedBy = request.UserId;
+                        _context.CellDelegateMasters.Add(adjustmentDelegate);
+                    }
+
                     await _context.SaveChangesAsync();
 
                     InsertHistoryData(request.FormId, FormType.AdjustmentReport.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
@@ -1938,7 +1951,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var adjustmentNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == request.FormId && x.IsDeleted == false).FirstOrDefault();
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, adjustmentNo.ReportNo, FormType.AdjustmentReport.ToString(), request.Comments , request.FormId);
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, adjustmentNo.ReportNo, FormType.AdjustmentReport.ToString(), request.Comments, request.FormId);
 
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.Delegate;

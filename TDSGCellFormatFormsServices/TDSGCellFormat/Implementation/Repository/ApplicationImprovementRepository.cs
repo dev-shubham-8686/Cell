@@ -81,6 +81,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     InsertHistoryData(request.FormId, FormType.EquipmentImprovement.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
+                    
                     var equipmentDelegate = new CellDelegateMaster();
                     equipmentDelegate.RequestId = request.FormId;
                     equipmentDelegate.FormName = FormType.EquipmentImprovement.ToString();
