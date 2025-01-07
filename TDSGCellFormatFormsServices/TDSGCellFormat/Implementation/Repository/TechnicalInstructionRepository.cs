@@ -190,13 +190,37 @@ namespace TDSGCellFormat.Implementation.Repository
                 employeeCode = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == technicalInstruction.CreatedBy && x.IsActive == true).Select(x => x.EmployeeCode).FirstOrDefault(),
                 seqNumber = _context.TechnicalInstructionApproverTaskMasters.Where(x => x.TechnicalId == Id && x.IsActive == true && x.Status == ApprovalTaskStatus.Approved.ToString())
                                             .OrderByDescending(x => x.CreatedDate).Select(x => x.SequenceNo).FirstOrDefault(),
-                sectionHead = _context.TechnicalInstructionApproverTaskMasters.Where(x => x.TechnicalId == Id && x.IsActive == true && x.SequenceNo == 1).Select(c => c.AssignedToUserId).FirstOrDefault(),
+                //sectionHead = _context.TechnicalInstructionApproverTaskMasters.Where(x => x.TechnicalId == Id && x.IsActive == true && x.SequenceNo == 1).Select(c => c.AssignedToUserId).FirstOrDefault(),
                 requestor = requestor.EmployeeName,
                 department = department,
                 createdDate = technicalInstruction.CreatedDate?.ToString("dd-MM-yyyy"),
                 isClosed = technicalInstruction.IsClosed,
                 otherEquipment = technicalInstruction.OtherEquipment
             };
+
+            var section_head = _context.TechnicalInstructionApproverTaskMasters.Where(x => x.TechnicalId == Id && x.IsActive == true && x.SequenceNo == 1).Select(c => new {c.AssignedToUserId, c.DelegateUserId}).FirstOrDefault();
+
+            if(section_head != null)
+            {
+                if (section_head.DelegateUserId > 0)
+                {
+                    res.sectionHead = section_head.DelegateUserId;
+
+                }
+                else if (section_head.AssignedToUserId > 0)
+                {
+
+                    res.sectionHead = section_head.AssignedToUserId;
+
+                }
+            }
+
+            var technicalApprovers = _context.TechnicalInstructionApproverTaskMasters.FirstOrDefault(x => x.TechnicalId == Id && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+
+            if(technicalApprovers != null)
+            {
+                res.activeUserId = technicalApprovers.AssignedToUserId;
+            }
 
             if (technicalInstruction != null)
             {
@@ -1003,17 +1027,69 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public Technical_ApproverTaskId_dto GetCurrentApproverTask(int technicalId, int userId)
         {
-            var materialApprovers = _context.TechnicalInstructionApproverTaskMasters.FirstOrDefault(x => x.TechnicalId == technicalId && x.AssignedToUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+            //var materialApprovers = _context.TechnicalInstructionApproverTaskMasters.FirstOrDefault(x => x.TechnicalId == technicalId && x.AssignedToUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+            var technicalApprovers = _context.TechnicalInstructionApproverTaskMasters.Where(x => x.TechnicalId == technicalId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true).ToList();
+
+            var delegate_user = technicalApprovers.FirstOrDefault(c => c.DelegateUserId == userId);
+
+            var assign_user = technicalApprovers.FirstOrDefault(c => c.AssignedToUserId == userId);
+
             var data = new Technical_ApproverTaskId_dto();
-            if (materialApprovers != null)
+
+            if (delegate_user != null)
             {
-                data.approverTaskId = materialApprovers.ApproverTaskId;
-                data.userId = materialApprovers.AssignedToUserId ?? 0;
-                data.status = materialApprovers.Status;
-                data.seqNumber = materialApprovers.SequenceNo;
+                if (technicalApprovers != null)
+                {
+                    data.approverTaskId = delegate_user.ApproverTaskId;
+                    data.userId = delegate_user.DelegateUserId ?? 0;
+                    data.status = delegate_user.Status;
+                    data.seqNumber = delegate_user.SequenceNo;
+                    data.isSubstitute = delegate_user.IsSubstitute;
+                }
+
+                return data;
+            }
+            else if (assign_user != null)
+            {
+                if (technicalApprovers != null)
+                {
+                    data.approverTaskId = assign_user.ApproverTaskId;
+                    data.userId = assign_user.AssignedToUserId ?? 0;
+                    data.status = assign_user.Status;
+                    data.seqNumber = assign_user.SequenceNo;
+                    data.isSubstitute = assign_user.IsSubstitute;
+                }
 
             }
+
+
             return data;
+
+            //var technicalDelegateApprover = _context.TechnicalInstructionApproverTaskMasters.FirstOrDefault(x => x.TechnicalId == technicalId && x.DelegateUserId == userId && x.DelegateUserId != 0 && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+
+            //var data = new Technical_ApproverTaskId_dto();
+
+            //if (technicalDelegateApprover != null)
+            //{
+            //    data.approverTaskId = technicalDelegateApprover.ApproverTaskId;
+            //    data.userId = technicalDelegateApprover.AssignedToUserId ?? 0;
+            //    data.status = technicalDelegateApprover.Status;
+            //    data.seqNumber = technicalDelegateApprover.SequenceNo;
+
+            //    return data;
+            //}
+
+            //var technicalApprover = _context.TechnicalInstructionApproverTaskMasters.FirstOrDefault(x => x.TechnicalId == technicalId && x.AssignedToUserId == userId && (x.DelegateUserId == 0 || x.DelegateUserId == null) && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+
+            //if (technicalApprover != null)
+            //{
+            //    data.approverTaskId = technicalApprover.ApproverTaskId;
+            //    data.userId = technicalApprover.AssignedToUserId ?? 0;
+            //    data.status = technicalApprover.Status;
+            //    data.seqNumber = technicalApprover.SequenceNo;
+            //}
+
+            //return data;
         }
 
         public List<TechnicalHistoryView> GetHistoryData(int technicalId)
@@ -1161,7 +1237,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 return await connection.QueryAsync<TechnicalInstructionDto>(query, parameters);
             }
         }
-
         public async Task<AjaxResult> ExportTechnicalInstructionToExcel(int technicalId)
         {
             var res = new AjaxResult();
@@ -1273,194 +1348,195 @@ namespace TDSGCellFormat.Implementation.Repository
                 return res;
             }
         }
-
         public async Task<AjaxResult> ExportToPdf(int technicalId)
         {
             var res = new AjaxResult();
-            try
-            {
-                var materialdata = _context.TechnicalInstructionSheets.Where(x => x.TechnicalId == technicalId && x.IsDeleted == false).FirstOrDefault();
+            //try
+            //{
+            //    var materialdata = _context.TechnicalInstructionSheets.Where(x => x.TechnicalId == technicalId && x.IsDeleted == false).FirstOrDefault();
 
-                var getEquipments = from tech in _context.TechnicalEquipmentMasterItems
-                                    join equip in _context.EquipmentMasters
-                                    on tech.EquipmentId equals equip.EquipmentId
-                                    where tech.TechnicalId == materialdata.TechnicalId
-                                    select new
-                                    {
-                                        EquipmentId = tech.EquipmentId,
-                                        EquipmentName = equip.EquipmentName
-                                    };
+            //    var getEquipments = from tech in _context.TechnicalEquipmentMasterItems
+            //                        join equip in _context.EquipmentMasters
+            //                        on tech.EquipmentId equals equip.EquipmentId
+            //                        where tech.TechnicalId == materialdata.TechnicalId
+            //                        select new
+            //                        {
+            //                            EquipmentId = tech.EquipmentId,
+            //                            EquipmentName = equip.EquipmentName
+            //                        };
 
-                var equipmentList = getEquipments.ToList();
-                string commaSeparatedEquipmentNames = "";
+            //    var equipmentList = getEquipments.ToList();
+            //    string commaSeparatedEquipmentNames = "";
 
-                if (equipmentList != null && equipmentList.Count() > 0)
-                {
-                    var equipmentNames = equipmentList.Select(e => e.EquipmentName);
-                    commaSeparatedEquipmentNames = string.Join(", ", equipmentNames);
-                }
+            //    if (equipmentList != null && equipmentList.Count() > 0)
+            //    {
+            //        var equipmentNames = equipmentList.Select(e => e.EquipmentName);
+            //        commaSeparatedEquipmentNames = string.Join(", ", equipmentNames);
+            //    }
 
-                //normal data
-                var data = await GetTechnicalInstructionData(technicalId);
+            //    normal data
+            //    var data = await GetTechnicalInstructionData(technicalId);
 
-                //approvers data
-                var approverData = await _context.GetTechnicalWorkFlowData(technicalId);
+            //    approvers data
+            //    var approverData = await _context.GetTechnicalWorkFlowData(technicalId);
 
-                StringBuilder sb = new StringBuilder();
-                string? htmlTemplatePath = _configuration["TemplateSettings:PdfTemplate"];
-                string baseDirectory = AppContext.BaseDirectory;
-                DirectoryInfo? directoryInfo = new DirectoryInfo(baseDirectory);
+            //    StringBuilder sb = new StringBuilder();
+            //    string? htmlTemplatePath = _configuration["TemplateSettings:PdfTemplate"];
+            //    string baseDirectory = AppContext.BaseDirectory;
+            //    DirectoryInfo? directoryInfo = new DirectoryInfo(baseDirectory);
 
-                string templateFile = "TechnicalInstructionPDF.html";
+            //    string templateFile = "TechnicalInstructionPDF.html";
 
-                string templateFilePath = Path.Combine(baseDirectory, htmlTemplatePath, templateFile);
+            //    string templateFilePath = Path.Combine(baseDirectory, htmlTemplatePath, templateFile);
 
-                string? htmlTemplate = System.IO.File.ReadAllText(templateFilePath);
-                sb.Append(htmlTemplate);
+            //    string? htmlTemplate = System.IO.File.ReadAllText(templateFilePath);
+            //    sb.Append(htmlTemplate);
 
-                sb.Replace("#TechnicalNo#", data.FirstOrDefault()?.RequestNo);
-                sb.Replace("#RequestorDept#", data.FirstOrDefault()?.Department);
-                sb.Replace("#Date#", data.FirstOrDefault()?.Date.ToString("dd-MM-yyyy"));
-                //sb.Replace("#Remarks#", data.FirstOrDefault()?.Remarks);
-                sb.Replace("#issueDate#", materialdata.IssueDate?.ToString("dd-MM-yyyy") ?? "N/A");
-                sb.Replace("#issuedBy#", materialdata.IssuedBy?.ToString() ?? "");
-                sb.Replace("#title#", materialdata.Title?.ToString() ?? "");
-                sb.Replace("#ctiNumber#", materialdata.CTINumber?.ToString() ?? "");
-                sb.Replace("#revisionNo#", materialdata.RevisionNo?.ToString() ?? "");
-                sb.Replace("#purpose#", materialdata.Purpose?.ToString() ?? "");
-                sb.Replace("#productType#", materialdata.ProductType?.ToString() ?? "");
-                sb.Replace("#quantity#", materialdata.Quantity?.ToString() ?? "");
-                sb.Replace("#outline#", materialdata.Outline?.ToString() ?? "");
-                sb.Replace("#tisApplicabilityDate#", materialdata.TISApplicable?.ToString("dd-MM-yyyy") ?? "N/A");
-                sb.Replace("#targetClosureDate#", materialdata.TargetClosureDate?.ToString("dd-MM-yyyy") ?? "N/A");
-                sb.Replace("#applicationStartDate#", materialdata.ApplicationStartDate?.ToString("dd-MM-yyyy") ?? "N/A");
-                sb.Replace("#applicationLotNo#", materialdata.ApplicationLotNo?.ToString() ?? "");
-                sb.Replace("#equipmentList#", commaSeparatedEquipmentNames ?? "");
+            //    sb.Replace("#TechnicalNo#", data.FirstOrDefault()?.RequestNo);
+            //    sb.Replace("#RequestorDept#", data.FirstOrDefault()?.Department);
+            //    sb.Replace("#Date#", data.FirstOrDefault()?.Date.ToString("dd-MM-yyyy"));
+            //    sb.Replace("#Remarks#", data.FirstOrDefault()?.Remarks);
+            //    sb.Replace("#issueDate#", materialdata.IssueDate?.ToString("dd-MM-yyyy") ?? "N/A");
+            //    sb.Replace("#issuedBy#", materialdata.IssuedBy?.ToString() ?? "");
+            //    sb.Replace("#title#", materialdata.Title?.ToString() ?? "");
+            //    sb.Replace("#ctiNumber#", materialdata.CTINumber?.ToString() ?? "");
+            //    sb.Replace("#revisionNo#", materialdata.RevisionNo?.ToString() ?? "");
+            //    sb.Replace("#purpose#", materialdata.Purpose?.ToString() ?? "");
+            //    sb.Replace("#productType#", materialdata.ProductType?.ToString() ?? "");
+            //    sb.Replace("#quantity#", materialdata.Quantity?.ToString() ?? "");
+            //    sb.Replace("#outline#", materialdata.Outline?.ToString() ?? "");
+            //    sb.Replace("#tisApplicabilityDate#", materialdata.TISApplicable?.ToString("dd-MM-yyyy") ?? "N/A");
+            //    sb.Replace("#targetClosureDate#", materialdata.TargetClosureDate?.ToString("dd-MM-yyyy") ?? "N/A");
+            //    sb.Replace("#applicationStartDate#", materialdata.ApplicationStartDate?.ToString("dd-MM-yyyy") ?? "N/A");
+            //    sb.Replace("#applicationLotNo#", materialdata.ApplicationLotNo?.ToString() ?? "");
+            //    sb.Replace("#equipmentList#", commaSeparatedEquipmentNames ?? "");
 
-                //var base64Images = await GetBase64ImagesForTechnicalInstruction(technicalId); // List of Base64 image strings
-                sb.Replace("#technicalOutlineAttachment#", null ?? "");
-
-
-                StringBuilder tableBuilder = new StringBuilder();
-                int serialNumber = 1;
-                //foreach (var item in data)
-                //{
-                //    tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
-
-                //    // Add the serial number to the first column
-                //    tableBuilder.Append("<td style=\"width:5%; border:0.25px; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
-
-                //    // Add the rest of the data to the respective columns
-                //    tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.Title + "</td>");
-                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.MaterialDescription + "</td>");
-                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.MaterialNo + "</td>");
-                //    tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.Quantity + "</td>");
-                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.UOM + "</td>");
-                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.CostCenter + "</td>");
-                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.GLCode + "</td>");
-                //    tableBuilder.Append("<td style=\"width:20%; border:0.25px; height: 20px; padding: 5px\">" + item.Purpose + "</td>");
-
-                //    tableBuilder.Append("</tr>");
-                //}
-                //sb.Replace("#ItemTable#", tableBuilder.ToString());
-
-                string reqName = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == materialdata.CreatedBy && x.IsActive == true).Select(x => x.EmployeeName).FirstOrDefault() ?? "";
-                string approvedByDepHead = approverData.FirstOrDefault(a => a.SequenceNo == 1)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByCPC = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDivHead = approverData.FirstOrDefault(a => a.SequenceNo == 3)?.employeeNameWithoutCode ?? "N/A";
-
-                sb.Replace("#RequestorName#", reqName);
-                sb.Replace("#SectionHeadName#", approvedByDepHead);
-                sb.Replace("#CMFDepartmentHeadName#", approvedByCPC);
-                sb.Replace("#CQCDepartmentHeadName#", approvedByDivHead);
-
-                DateTime? depHeadDate = approverData.FirstOrDefault(a => a.SequenceNo == 1)?.ActionTakenDate;
-                DateTime? cpcDate = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.ActionTakenDate;
-                DateTime? divHeadDate = approverData.FirstOrDefault(a => a.SequenceNo == 3)?.ActionTakenDate;
-
-                sb.Replace("#CreatedDate#", materialdata.CreatedDate?.ToString("dd-MM-yyyy") ?? "N/A");
-                sb.Replace("#SectionHeadapproveDate#", depHeadDate?.ToString("dd-MM-yyyy") ?? "N/A");
-                sb.Replace("#CMFapproveDate#", cpcDate?.ToString("dd-MM-yyyy") ?? "N/A");
-                sb.Replace("#CQCapproveDate#", divHeadDate?.ToString("dd-MM-yyyy") ?? "N/A");
-
-                using (var ms = new MemoryStream())
-                {
-                    Document document = new Document(iTextSharp.text.PageSize.A3, 10f, 10f, 10f, 30f);
-                    PdfWriter writer = PdfWriter.GetInstance(document, ms);
-                    document.Open();
-
-                    PdfContentByte canvas = writer.DirectContentUnder;
+            //    var base64Images = await GetBase64ImagesForTechnicalInstruction(technicalId); // List of Base64 image strings
+            //    sb.Replace("#technicalOutlineAttachment#", null ?? "");
 
 
-                    // Convert the StringBuilder HTML content to a PDF using iTextSharp
-                    using (var sr = new StringReader(sb.ToString()))
-                    {
-                        iTextSharp.tool.xml.XMLWorkerHelper.GetInstance().ParseXHtml(writer, document, sr);
-                    }
+            //    StringBuilder tableBuilder = new StringBuilder();
+            //    int serialNumber = 1;
+            //    foreach (var item in data)
+            //    {
+            //        tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
+
+            //        // Add the serial number to the first column
+            //        tableBuilder.Append("<td style=\"width:5%; border:0.25px; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
+
+            //        // Add the rest of the data to the respective columns
+            //        tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.Title + "</td>");
+            //        //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.MaterialDescription + "</td>");
+            //        //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.MaterialNo + "</td>");
+            //        tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.Quantity + "</td>");
+            //        //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.UOM + "</td>");
+            //        //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.CostCenter + "</td>");
+            //        //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.GLCode + "</td>");
+            //        tableBuilder.Append("<td style=\"width:20%; border:0.25px; height: 20px; padding: 5px\">" + item.Purpose + "</td>");
+
+            //        tableBuilder.Append("</tr>");
+            //    }
+            //    sb.Replace("#ItemTable#", tableBuilder.ToString());
+
+            //    string reqName = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == materialdata.CreatedBy && x.IsActive == true).Select(x => x.EmployeeName).FirstOrDefault() ?? "";
+            //    string approvedByDepHead = approverData.FirstOrDefault(a => a.SequenceNo == 1)?.employeeNameWithoutCode ?? "N/A";
+            //    string approvedByCPC = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.employeeNameWithoutCode ?? "N/A";
+            //    string approvedByDivHead = approverData.FirstOrDefault(a => a.SequenceNo == 3)?.employeeNameWithoutCode ?? "N/A";
+
+            //    sb.Replace("#RequestorName#", reqName);
+            //    sb.Replace("#SectionHeadName#", approvedByDepHead);
+            //    sb.Replace("#CMFDepartmentHeadName#", approvedByCPC);
+            //    sb.Replace("#CQCDepartmentHeadName#", approvedByDivHead);
+
+            //    DateTime? depHeadDate = approverData.FirstOrDefault(a => a.SequenceNo == 1)?.ActionTakenDate;
+            //    DateTime? cpcDate = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.ActionTakenDate;
+            //    DateTime? divHeadDate = approverData.FirstOrDefault(a => a.SequenceNo == 3)?.ActionTakenDate;
+
+            //    sb.Replace("#CreatedDate#", materialdata.CreatedDate?.ToString("dd-MM-yyyy") ?? "N/A");
+            //    sb.Replace("#SectionHeadapproveDate#", depHeadDate?.ToString("dd-MM-yyyy") ?? "N/A");
+            //    sb.Replace("#CMFapproveDate#", cpcDate?.ToString("dd-MM-yyyy") ?? "N/A");
+            //    sb.Replace("#CQCapproveDate#", divHeadDate?.ToString("dd-MM-yyyy") ?? "N/A");
+
+            //    using (var ms = new MemoryStream())
+            //    {
+            //        Document document = new Document(iTextSharp.text.PageSize.A3, 10f, 10f, 10f, 30f);
+            //        PdfWriter writer = PdfWriter.GetInstance(document, ms);
+            //        document.Open();
+
+            //        PdfContentByte canvas = writer.DirectContentUnder;
 
 
-                    //float xPosition = 100f; // Starting X position for the first image (adjust as needed)
-                    //float yPosition = 500f; // Fixed Y position (adjust as needed)
-                    //float imageWidth = 150; // Width of the image
-                    //float imageSpacing = 170f; // Spacing betwe01 images
+            //        Convert the StringBuilder HTML content to a PDF using iTextSharp
+            //        using (var sr = new StringReader(sb.ToString()))
+            //        {
+            //            iTextSharp.tool.xml.XMLWorkerHelper.GetInstance().ParseXHtml(writer, document, sr);
+            //        }
 
-                    //foreach (var base64Image in base64Images)
-                    //{
-                    //    if (!string.IsNullOrEmpty(base64Image))
-                    //    {
-                    //        //byte[] imageBytes = Convert.FromBase64String(base64Image);
-                    //        //using (MemoryStream ms1 = new MemoryStream(imageBytes))
-                    //        //{
-                    //        //    Image image = Image.GetInstance(ms1);
-                    //        //    image.ScaleToFit(imageWidth, imageWidth);  // Scale the image as needed
 
-                    //        //    // Check if the image exceeds the page width and wrap to the next line
-                    //        //    if (xPosition + imageSpacing > document.PageSize.Width - 100f)  // Check if image exceeds page width
-                    //        //    {
-                    //        //        xPosition = 100f;  // Reset X position to start a new row
-                    //        //        yPosition -= imageSpacing;  // Move down for the new row (adjust spacing as needed)
-                    //        //    }
+            //        float xPosition = 100f; // Starting X position for the first image (adjust as needed)
+            //        float yPosition = 500f; // Fixed Y position (adjust as needed)
+            //        float imageWidth = 150; // Width of the image
+            //        float imageSpacing = 170f; // Spacing betwe01 images
 
-                    //        //    // Set the position of the image
-                    //        //    image.SetAbsolutePosition(xPosition, yPosition);  // Position each image horizontally
+            //        foreach (var base64Image in base64Images)
+            //        {
+            //            if (!string.IsNullOrEmpty(base64Image))
+            //            {
+            //                //byte[] imageBytes = Convert.FromBase64String(base64Image);
+            //                //using (MemoryStream ms1 = new MemoryStream(imageBytes))
+            //                //{
+            //                //    Image image = Image.GetInstance(ms1);
+            //                //    image.ScaleToFit(imageWidth, imageWidth);  // Scale the image as needed
 
-                    //        //    // Add the image to the document
-                    //        //    document.Add(image);
+            //                //    // Check if the image exceeds the page width and wrap to the next line
+            //                //    if (xPosition + imageSpacing > document.PageSize.Width - 100f)  // Check if image exceeds page width
+            //                //    {
+            //                //        xPosition = 100f;  // Reset X position to start a new row
+            //                //        yPosition -= imageSpacing;  // Move down for the new row (adjust spacing as needed)
+            //                //    }
 
-                    //        //    // Adjust the xPosition for the next image (move right)
-                    //        //    xPosition += imageSpacing; // Move right for the next image (adjust spacing as needed)
-                    //        //}
-                    //    }
-                    //}
+            //                //    // Set the position of the image
+            //                //    image.SetAbsolutePosition(xPosition, yPosition);  // Position each image horizontally
 
-                    document.Close();
+            //                //    // Add the image to the document
+            //                //    document.Add(image);
 
-                    // Convert the PDF to a byte array
-                    byte[] pdfBytes = ms.ToArray();
+            //                //    // Adjust the xPosition for the next image (move right)
+            //                //    xPosition += imageSpacing; // Move right for the next image (adjust spacing as needed)
+            //                //}
+            //            }
+            //        }
 
-                    // Encode the PDF as a Base64 string
-                    string base64String = Convert.ToBase64String(pdfBytes);
+            //        document.Close();
 
-                    // Set response values
-                    res.StatusCode = Status.Success;
-                    res.Message = Enums.TechnicalPdf;
-                    res.ReturnValue = base64String; // Send the Base64 string to the frontend
+            //        Convert the PDF to a byte array
+            //        byte[] pdfBytes = ms.ToArray();
 
-                    return res;
-                }
-            }
+            //        Encode the PDF as a Base64 string
+            //        string base64String = Convert.ToBase64String(pdfBytes);
 
-            catch (Exception ex)
-            {
-                res.Message = "Fail " + ex.Message;
-                res.StatusCode = Status.Error;
+            //        Set response values
+            //        res.StatusCode = Status.Success;
+            //        res.Message = Enums.TechnicalPdf;
+            //        res.ReturnValue = base64String; // Send the Base64 string to the frontend
 
-                // Log the exception using your logging mechanism
-                var commonHelper = new CommonHelper(_context, _cloneContext);
-                commonHelper.LogException(ex, "ExportToPdf");
+            //        return res;
+            //    }
+            //}
 
-                return res;
-            }
+            //catch (Exception ex)
+            //{
+            //    res.Message = "Fail " + ex.Message;
+            //    res.StatusCode = Status.Error;
+
+            //    Log the exception using your logging mechanism
+            //   var commonHelper = new CommonHelper(_context, _cloneContext);
+            //    commonHelper.LogException(ex, "ExportToPdf");
+
+            //    return res;
+            //}
+
+            return res;
         }
         public async Task<AjaxResult> ExportToPdf_v2(int technicalId)
         {
@@ -1841,7 +1917,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 // Replace all image URLs with base64 data
                 //string updatedHtmlContent = ConvertImagesToBase64(sb.ToString());
 
-                var renderer = new HtmlToPdf();
+                var renderer = new SelectPdf.HtmlToPdf();
 
                 // Convert <img> tags to <a> tags
                 //string updatedHtml = Regex.Replace(sb.ToString(), @"<img\s+[^>]*src\s*=\s*['""]([^'""]+)['""][^>]*>",
@@ -1855,7 +1931,17 @@ namespace TDSGCellFormat.Implementation.Repository
                 // Create PDF using SelectPDF
                 var converter = new SelectPdf.HtmlToPdf();
                 converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
+                                                               // Automatically fit the content width
+                converter.Options.AutoFitWidth = SelectPdf.HtmlToPdfPageFitMode.AutoFit;
 
+                // Adjust the page size to accommodate larger content
+                converter.Options.AutoFitHeight = SelectPdf.HtmlToPdfPageFitMode.AutoFit;
+
+                // Set a standard page size, such as A4
+                converter.Options.PdfPageSize = SelectPdf.PdfPageSize.A4;
+
+                // Set the orientation to landscape if the content is wide
+                converter.Options.PdfPageOrientation = SelectPdf.PdfPageOrientation.Portrait;
                 // footer settings
                 converter.Options.DisplayFooter = true;
                 converter.Footer.DisplayOnFirstPage = true;
@@ -1995,7 +2081,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 return res;
             }
         }
-
         private static string ConvertImagesToBase64(string htmlContent)
         {
             // Regex to find image tags with src attributes
@@ -2017,7 +2102,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
             return htmlContent;
         }
-
         private static string GetImageAsBase64(string imageUrl)
         {
             try
@@ -2046,7 +2130,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 return null;
             }
         }
-
         //public async Task<string> GetBase64ImagesForTechnicalInstruction(int technicalId)
         //{
         //    var images = new List<string>();
@@ -2089,7 +2172,6 @@ namespace TDSGCellFormat.Implementation.Repository
         //    }
         //    return str;
         //}
-
         public async Task<AjaxResult> GetTechnicalInstructionExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
         {
             var res = new AjaxResult();
@@ -2181,7 +2263,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 return res;
             }
         }
-
         private static readonly Dictionary<string, string> ColumnHeaderMapping = new Dictionary<string, string>
         {
             {"RequestedDate", "Requested Date" },
@@ -2610,5 +2691,56 @@ namespace TDSGCellFormat.Implementation.Repository
         }
         #endregion
 
+        #region Insert delegate
+
+        public async Task<AjaxResult> InsertDelegate(TecnicalDelegateUser request)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var technical = _context.TechnicalInstructionApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId && x.TechnicalId == request.FormId && x.IsActive == true).ToList();
+                if (technical != null)
+                {
+                    foreach (var user in technical)
+                    {
+                        user.DelegateUserId = request.DelegateUserId;
+                        user.DelegateBy = request.UserId;
+                        user.DelegateOn = DateTime.Now;
+                        //user.Comments = request.Comments;
+                        await _context.SaveChangesAsync();
+                    }
+                    InsertHistoryData(request.FormId, FormType.TechnicalInstruction.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
+
+                    var technicalDelegate = new CellDelegateMaster();
+                    technicalDelegate.RequestId = request.FormId;
+                    technicalDelegate.FormName = FormType.TechnicalInstruction.ToString();
+                    technicalDelegate.EmployeeId = request.activeUserId;
+                    technicalDelegate.DelegateUserId = request.DelegateUserId;
+                    technicalDelegate.CreatedDate = DateTime.Now;
+                    technicalDelegate.CreatedBy = request.UserId;
+                    _context.CellDelegateMasters.Add(technicalDelegate);
+                    await _context.SaveChangesAsync();
+
+                    var technicalData = _context.TechnicalInstructionSheets.Where(x => x.TechnicalId == request.FormId && x.IsDeleted == false).FirstOrDefault();
+
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, technicalData.CTINumber, FormType.MaterialConsumption.ToString(), request.Comments);
+
+                    res.StatusCode = Enums.Status.Success;
+                    res.Message = Enums.Delegate;
+                }
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context, _cloneContext);
+                commonHelper.LogException(ex, "Tecnical InsertDelegate");
+
+            }
+            return res;
+        }
+
+        #endregion
     }
 }
