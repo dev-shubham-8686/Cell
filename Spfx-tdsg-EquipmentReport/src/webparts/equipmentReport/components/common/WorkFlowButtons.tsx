@@ -397,8 +397,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                     },
                   });
                 } else if (
-                  user?.employeeId == eqReport?.SectionHeadId &&
-                  currentApproverTask?.seqNumber == 1 &&
+                  // user?.employeeId == eqReport?.SectionHeadId &&   // --no need for sec head condition cause we need to show advisor dropdown to workflow level one only 
+                  currentApproverTask?.seqNumber == 1 &&              // TODO: need to change if any changes happen in workflow in future 
                   eqReport?.WorkflowStatus != REQUEST_STATUS.W1Completed
                 ) {
                   openCommentsPopup("Approve", false, false, true);
