@@ -2698,7 +2698,12 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var technical = _context.TechnicalInstructionApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId && x.TechnicalId == request.FormId && x.IsActive == true).ToList();
+                var technical = _context.TechnicalInstructionApproverTaskMasters.Where(
+                    x => 
+                    ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId == 0) 
+                    || (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0)) &&
+                    x.TechnicalId == request.FormId && x.IsActive == true).ToList();
+
                 if (technical != null)
                 {
                     foreach (var user in technical)
@@ -2709,17 +2714,29 @@ namespace TDSGCellFormat.Implementation.Repository
                         //user.Comments = request.Comments;
                         await _context.SaveChangesAsync();
                     }
-                    InsertHistoryData(request.FormId, FormType.TechnicalInstruction.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
-                    var technicalDelegate = new CellDelegateMaster();
-                    technicalDelegate.RequestId = request.FormId;
-                    technicalDelegate.FormName = FormType.TechnicalInstruction.ToString();
-                    technicalDelegate.EmployeeId = request.activeUserId;
-                    technicalDelegate.DelegateUserId = request.DelegateUserId;
-                    technicalDelegate.CreatedDate = DateTime.Now;
-                    technicalDelegate.CreatedBy = request.UserId;
-                    _context.CellDelegateMasters.Add(technicalDelegate);
+                    var existingTISDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.TechnicalInstruction.ToString()).FirstOrDefault();
+
+                    if (existingTISDelegate != null) {
+
+                        existingTISDelegate.DelegateUserId = request.DelegateUserId;
+                        existingTISDelegate.ModifiedDate = DateTime.Now;
+                    }
+                    else
+                    {
+                        var technicalDelegate = new CellDelegateMaster();
+                        technicalDelegate.RequestId = request.FormId;
+                        technicalDelegate.FormName = FormType.TechnicalInstruction.ToString();
+                        technicalDelegate.EmployeeId = request.activeUserId;
+                        technicalDelegate.DelegateUserId = request.DelegateUserId;
+                        technicalDelegate.CreatedDate = DateTime.Now;
+                        technicalDelegate.CreatedBy = request.UserId;
+                        _context.CellDelegateMasters.Add(technicalDelegate);
+                    }
+
                     await _context.SaveChangesAsync();
+
+                    InsertHistoryData(request.FormId, FormType.TechnicalInstruction.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
                     var technicalData = _context.TechnicalInstructionSheets.Where(x => x.TechnicalId == request.FormId && x.IsDeleted == false).FirstOrDefault();
 
