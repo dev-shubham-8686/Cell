@@ -67,7 +67,9 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var equipment = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId && x.EquipmentImprovementId == request.FormId && x.IsActive == true).ToList();
+                var equipment = _context.EquipmentImprovementApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId ==0) || 
+                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0))
+                                                                                && x.EquipmentImprovementId == request.FormId && x.IsActive == true).ToList();
                 if (equipment != null)
                 {
                     foreach (var user in equipment)
@@ -79,6 +81,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     InsertHistoryData(request.FormId, FormType.EquipmentImprovement.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
+                    
                     var equipmentDelegate = new CellDelegateMaster();
                     equipmentDelegate.RequestId = request.FormId;
                     equipmentDelegate.FormName = FormType.EquipmentImprovement.ToString();
@@ -2030,7 +2033,6 @@ namespace TDSGCellFormat.Implementation.Repository
                  {"SectionName","Section Name" },
                    {"ImprovementName","Improvement Name" },
                     {"CurrentApprover","Current Approver" },
-                    {"SubMachineName","Sub Machine Name" },
                 {"ImprovementCategory","Improvement Category" },
                  {"OtherImprovementCategory","Other Improvement Category" }
 
@@ -2244,14 +2246,20 @@ namespace TDSGCellFormat.Implementation.Repository
                 string approveSectioneHead = approvalData.FirstOrDefault(a => a.SequenceNo == 1 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByDepHead = approvalData.FirstOrDefault(a => a.SequenceNo == 3 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 5 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByDeptDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 4 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByQT= approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
 
                 string approvedByAdvisor = approvalData.FirstOrDefault(a => a.SequenceNo == 2 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+
                 string advisorComment = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.Comments ?? "N/A";
                 string advisorDate = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? "N/A";
 
                 sb.Replace("#SectionHeadName#", approveSectioneHead);
                 sb.Replace("#DepartmentHeadName#", approvedByDepHead);
                 sb.Replace("#DivisionHeadName#", approvedByDivHead);
+                sb.Replace("#Advisor#", approvedByAdvisor);
+                sb.Replace("#DeputyDivisionHeadName#", approvedByDeptDivHead);
+                sb.Replace("#QualityTeamReview#", approvedByQT);
 
                 sb.Replace("#AdvisorName#", approvedByAdvisor);
                 sb.Replace("#AdvisorComment#", advisorComment);
