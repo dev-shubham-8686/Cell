@@ -67,7 +67,9 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var equipment = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId && x.EquipmentImprovementId == request.FormId && x.IsActive == true).ToList();
+                var equipment = _context.EquipmentImprovementApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId ==0) || 
+                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0))
+                                                                                && x.EquipmentImprovementId == request.FormId && x.IsActive == true).ToList();
                 if (equipment != null)
                 {
                     foreach (var user in equipment)
