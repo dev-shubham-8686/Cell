@@ -1921,7 +1921,6 @@ namespace TDSGCellFormat.Implementation.Repository
                         user.DelegateUserId = request.DelegateUserId;
                         user.DelegateBy = request.UserId;
                         user.DelegateOn = DateTime.Now;
-                        //user.Comments = request.Comments;
                         await _context.SaveChangesAsync();
                     }
                     var adjustmentDelegate = new CellDelegateMaster();

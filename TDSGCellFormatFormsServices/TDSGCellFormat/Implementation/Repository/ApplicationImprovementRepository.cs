@@ -2030,7 +2030,6 @@ namespace TDSGCellFormat.Implementation.Repository
                  {"SectionName","Section Name" },
                    {"ImprovementName","Improvement Name" },
                     {"CurrentApprover","Current Approver" },
-                    {"SubMachineName","Sub Machine Name" },
                 {"ImprovementCategory","Improvement Category" },
                  {"OtherImprovementCategory","Other Improvement Category" }
 

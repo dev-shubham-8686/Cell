@@ -242,6 +242,7 @@ namespace TDSGCellFormat.Helper
                             emailBody = emailBody.Replace("#AdminUserName#", EmployeeRequestUser.EmployeeName);
                             emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
                             emailBody = emailBody.Replace("#FormName#", formType);
+                            emailBody = emailBody.Replace("##DocumentationLink##", docLink);
 
                             emailToAddressList.Add(DelegateUser.Email);
                             emailCCAddressList.Add(EmployeeRequestUser.Email);
