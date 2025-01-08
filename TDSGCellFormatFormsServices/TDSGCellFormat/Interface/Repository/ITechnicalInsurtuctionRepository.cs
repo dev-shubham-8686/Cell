@@ -50,5 +50,7 @@ namespace TDSGCellFormat.Interface.Repository
 
         Task<GetTechnicalUser> GetUserRole(string userEmail);
 
+        Task<AjaxResult> InsertDelegate(TecnicalDelegateUser request);
+
     }
 }
