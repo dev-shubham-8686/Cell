@@ -170,7 +170,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
   const [otherEquipment, setOtherEquipment] = React.useState("");
   const handleChangeEquipment = (value: any) => {
     // Check if "Other" is selected
-    debugger;
+    //debugger;
     if (value.includes("other")) {
       setShowOtherField(true);
       form.setFieldsValue({
@@ -197,7 +197,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           const returnValue = data.ReturnValue;
           setexistingTechniaclInstructionSlip(returnValue);
           setCtiNumber(returnValue.ctiNumber);
-          console.log(ctiNumber);
+          //console.log(ctiNumber);
 
           form.setFieldsValue({
             ...returnValue,
@@ -243,7 +243,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           if (returnValue.isSubmit) {
             setsubmitted(true);
           }
-          debugger;
+          //debugger;
 
           if (
             returnValue?.status == REQUEST_STATUS.UnderAmendment &&
@@ -261,7 +261,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       getCurrentApprover(id!, user?.employeeId.toString() ?? "")
         .then((data) => {
           setLoading(false);
-          debugger;
+          //debugger;
           const returnValue = data.ReturnValue;
           setcurrentApproverTask(returnValue);
           // setShowWorkflowBtns(
@@ -376,7 +376,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       void displayjsx.showErrorMsg("Please enter Outline");
       return false;
     }
-    debugger;
+    //debugger;
     const technicalInstructionData = {
       TechnicalId: id ? parseInt(id, 10) : 0, // For update
       issueDate: values.issueDate
@@ -437,7 +437,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       .then(async (response) => {
         setLoading(false);
         //console.log("Response from API: ", response);
-        debugger;
+        //debugger;
 
         const getResObj = response.ReturnValue;
 
@@ -500,7 +500,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           {
             if (outlineImageFiles && Array.isArray(outlineImageFiles)) {
               // Check and create folder if necessary
-              debugger;
+              //debugger;
 
               const isValidFolderOutline = await checkAndCreateFolder(
                 webPartContext,
@@ -514,7 +514,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
               const uploadedUrls = await Promise.all(
                 outlineImageFiles.map(async (file, index) => {
                   // Generate unique filename for each image
-                  debugger;
+                  //debugger;
                   const uniqueFileName = `image-${Date.now()}-${index}.jpg`; // or extract from metadata if available
 
                   // Convert the Blob URL to a File object
@@ -541,7 +541,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
               // Filter out null values (failed uploads)
               // const successfulUploads = uploadedUrls.filter(Boolean);
 
-              debugger;
+              //debugger;
 
               console.log(uploadedUrls);
 
@@ -555,7 +555,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
               //   ); // Replace base64 with SharePoint URL
               // });
 
-              debugger;
+              //debugger;
 
               for (const url of outlineImageFiles) {
                 const base64String = await getBase64StringFromBlobUrl(url);
@@ -574,7 +574,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
                 outlineImageBytes: __updatedContent,
               })
                 .then((c) => {
-                  debugger;
+                  //debugger;
                   setLoading(false);
                   //navigate("/");
                   // navigate("/", {
@@ -643,7 +643,22 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
         }
 
         // Navigate back to the list after successful submission
-        navigate("/");
+        if (isFromAllRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "allrequest-tab",
+            },
+          });
+        } else if (isApproverRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+        } else {
+          navigate("/");
+        }
+        //navigate("/");
       })
       .catch((error) => {
         setLoading(false);
@@ -910,7 +925,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       })
       .catch((error) => {
         // If validation fails, handle the error (e.g., show error messages)
-        console.log("Form validation failed", error);
+        //console.log("Form validation failed", error);
       });
   };
 
@@ -959,7 +974,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       })
       .catch((error) => {
         // If validation fails, handle the error (e.g., show error messages)
-        console.log("Form validation failed", error);
+        //console.log("Form validation failed", error);
       });
   };
 
@@ -1012,7 +1027,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       })
       .catch((error) => {
         // If validation fails, handle the error (e.g., show error messages)
-        console.log("Form validation failed", error);
+        //console.log("Form validation failed", error);
       });
   };
 
@@ -1045,7 +1060,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
   // };
 
   const handleApprove = async (comment: string): Promise<void> => {
-    console.log("Approved with comment:", comment);
+    //console.log("Approved with comment:", comment);
     const data = {
       ApproverTaskId: currentApproverTask.approverTaskId,
       CurrentUserId: user?.employeeId,
@@ -1061,11 +1076,26 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
         void displayjsx.showSuccess(
           "Technical Instruction form has been approved."
         );
-        navigate("/", {
-          state: {
-            currentTabState: "myapproval-tab",
-          },
-        });
+        if (isFromAllRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "allrequest-tab",
+            },
+          });
+        } else if (isApproverRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+        } else {
+          navigate("/");
+        }
+        // navigate("/", {
+        //   state: {
+        //     currentTabState: "myapproval-tab",
+        //   },
+        // });
       })
       .catch((c) => {
         setLoading(false);
@@ -1091,11 +1121,26 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
         void displayjsx.showSuccess(
           "Technical Instruction form has been requested to amend."
         );
-        navigate("/", {
-          state: {
-            currentTabState: "myapproval-tab",
-          },
-        });
+        if (isFromAllRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "allrequest-tab",
+            },
+          });
+        } else if (isApproverRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+        } else {
+          navigate("/");
+        }
+        // navigate("/", {
+        //   state: {
+        //     currentTabState: "myapproval-tab",
+        //   },
+        // });
       })
       .catch((c) => {
         setLoading(false);
@@ -1118,7 +1163,21 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
         void displayjsx.showSuccess(
           "Technical Instruction form has been pulled back."
         );
-        navigate("/");
+        if (isFromAllRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "allrequest-tab",
+            },
+          });
+        } else if (isApproverRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+        } else {
+          navigate("/");
+        }
       })
       .catch((c) => {
         setLoading(false);
@@ -1783,9 +1842,9 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
 
   const operations = (
     <div>
-      {!isViewMode &&
-        activeKey === "1" &&
-        !submitted && ( //||
+      { ((!isViewMode && activeKey === "1" && !submitted) 
+        || (activeKey === "1" && user?.isAdmin))
+       && ( //||
           //(currentApproverTask?.userId == user?.employeeId //&& currentApproverTask?.seqNumber != 3)
           <Form.Item
             style={{
@@ -1804,7 +1863,27 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           </Form.Item>
         )}
 
-      {!isViewMode && activeKey === "1" && !submitted && (
+      {/* {!isViewMode && activeKey === "1" && !submitted && (
+        <Form.Item
+          style={{
+            display: "inline-block", // Inline display for second button as well
+            marginRight: "10px",
+          }}
+        >
+          <Button
+            color="default"
+            variant="solid"
+            //loading={loading}
+            onClick={handleSubmit}
+          >
+            Submit
+          </Button>
+        </Form.Item>
+      )} */}
+
+      { ((!isViewMode && activeKey === "1" && !submitted)
+        || (activeKey === "1" && !submitted && user?.isAdmin))
+      && (
         <Form.Item
           style={{
             display: "inline-block", // Inline display for second button as well
