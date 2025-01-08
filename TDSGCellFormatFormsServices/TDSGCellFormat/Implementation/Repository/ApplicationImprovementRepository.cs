@@ -2111,12 +2111,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         if (id == -1)
                         {
-                            // Fetch the "Other" category name from the database if id is -1
-                            //var otherCategoryName = _context.ImprovementCategoryMasters
-                            //                                .Where(x => x.Other != null && x.IsDeleted == false)
-                            //                                .Select(x => x.OtherImprovementCategory)
-                            //                                .FirstOrDefault();
-
+                           
                             if (!string.IsNullOrEmpty(equipmentData.OtherImprovementCategory))
                             {
                                 impCategoryNames.Add("Other - " + equipmentData.OtherImprovementCategory); // Add "Other" category with its name
@@ -2181,7 +2176,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var currSitImageFiles = currAttachmentUrl.Where(url => imageExtensions.Any(ext => url.CurrSituationDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).ToList();
                 var currSitFiles = currAttachmentUrl.Except(currSitImageFiles).ToList();
 
-                foreach (var url1 in currAttachmentUrl)
+                foreach (var url1 in currSitImageFiles)
                 {
                     string bfrUrl = $"{baseUrl}{url1.CurrSituationDocFilePath}";
 
@@ -2204,7 +2199,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var impImageFiles = impAttachmentUrl.Where(url => imageExtensions.Any(ext => url.ImprovementDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).ToList();
                 var impFiles = impAttachmentUrl.Except(impImageFiles).ToList();
 
-                foreach (var url2 in impAttachmentUrl)
+                foreach (var url2 in impImageFiles)
                 {
                     // Add image tag
                     improvementImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
@@ -2213,7 +2208,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 }
                 // Then append other non-image files
-                foreach (var url2 in impAttachmentUrl)
+                foreach (var url2 in impFiles)
                 {
                     string bfrUrl = $"{baseUrl}{url2.ImprovementDocFilePath}";
                     improvementOtherFiles.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
