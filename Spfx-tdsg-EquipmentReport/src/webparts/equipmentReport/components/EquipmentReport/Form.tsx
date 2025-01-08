@@ -1668,7 +1668,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       uid:
                         a.EquipmentCurrSituationAttachmentId?.toString() ?? "",
                       name: a.CurrSituationDocName,
-                      url: `${WEB_URL}/${a.CurrSituationDocFilePath}`,
+                      url: "",
                     }))}
                     setIsLoading={(loading: boolean) => {
                       // setIsLoading(loading);
@@ -1831,7 +1831,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       ...a,
                       uid: a.EquipmentImprovementAttachmentId?.toString() ?? "",
                       name: a.ImprovementDocName,
-                      url: `${WEB_URL}/${a.ImprovementDocFilePath}`,
+                      url: "",
                     }))}
                     setIsLoading={(loading: boolean) => {
                       // setIsLoading(loading);
