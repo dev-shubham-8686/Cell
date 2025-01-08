@@ -104,7 +104,6 @@ console.log("ALLREQUEST",allReq)
       });
     }
   }, []); // Empty dependency array to run only on component mount
-
   React.useEffect(() => {
     setShowWorkflowBtns(
       currentApproverTask?.approverTaskId &&
@@ -328,7 +327,9 @@ if(actionType==="delegate"){
         >
           {/* Conditional Approval Section */}
           {isApprovalSectionVisible && <></>}
-          {departmentHead && currentApproverTask?.seqNumber==LEVELS.Level3&& actionType == ACTION_TYPE.Approve && (
+          {
+          // departmentHead &&    // no need for the dep head id cause it will always be shown om lvl3
+           currentApproverTask?.seqNumber==LEVELS.Level3&& actionType == ACTION_TYPE.Approve && (
             <>
               <Form.Item
                 label="Additional Approval Required?"
@@ -566,7 +567,9 @@ if(actionType==="delegate"){
               )}
             </>
           )}
-          {depDivHead && currentApproverTask?.seqNumber==LEVELS.Level7 && actionType == ACTION_TYPE.Approve && (
+          {
+          // depDivHead &&    // no need for the dep head id cause it will always be shown om lvl7
+           currentApproverTask?.seqNumber==LEVELS.Level7 && actionType == ACTION_TYPE.Approve && (
             <Form.Item
               label="Division Head approval required ?"
               name={"DivisionHeadApprovalRequired"}

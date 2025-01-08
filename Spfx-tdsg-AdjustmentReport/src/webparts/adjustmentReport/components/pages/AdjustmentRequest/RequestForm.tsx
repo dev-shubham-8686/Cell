@@ -1009,7 +1009,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
             </button>
           )}
 
-          {(mode == "add" ||(user?.isAdmin && !isViewMode)|| (!isViewMode && !submitted)) && (
+          {(mode == "add" ||(user?.isAdmin && !isViewMode &&!submitted)|| (!isViewMode && !submitted)) && (
             <button
               className="btn btn-darkgrey "
               onClick={() => onFinish(OPERATION.Submit)}
@@ -1410,14 +1410,14 @@ const RequestForm: React.FC<RequestFormProps> = ({
                 }
               >
                 {/* all types except exe  ,  max size -30MB  , no-10*/}
-                {console.log("USERID", user?.employeeId.toString())}
+                {console.log("USERID", user?.employeeId.toString(),form?.getFieldValue("reportNo"))}
                 <FileUpload
                   disabled={
                     isViewMode || (!isAdmin && submitted && !underamendment)
                   }
                   key={`file-upload-before-images`}
                   folderName={
-                    form.getFieldValue("reportNo") !== ""
+                    form.getFieldValue("reportNo") 
                       ? form.getFieldValue("reportNo")
                       : user?.employeeId.toString()
                   }
@@ -1508,7 +1508,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   }
                   key={`file-upload-after-images`}
                   folderName={
-                    form.getFieldValue("reportNo") !== ""
+                    form.getFieldValue("reportNo") 
                       ? form.getFieldValue("reportNo")
                       : user?.employeeId.toString()
                   }
