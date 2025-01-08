@@ -81,17 +81,26 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     InsertHistoryData(request.FormId, FormType.EquipmentImprovement.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
-                    
-                    var equipmentDelegate = new CellDelegateMaster();
-                    equipmentDelegate.RequestId = request.FormId;
-                    equipmentDelegate.FormName = FormType.EquipmentImprovement.ToString();
-                    equipmentDelegate.EmployeeId = request.activeUserId;
-                    equipmentDelegate.DelegateUserId = request.DelegateUserId;
-                    equipmentDelegate.CreatedDate = DateTime.Now;
-                    equipmentDelegate.CreatedBy = request.UserId;
-                    _context.CellDelegateMasters.Add(equipmentDelegate);
-                    await _context.SaveChangesAsync();
 
+                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.AdjustmentReport.ToString()).FirstOrDefault();
+                    if (existingAdjDelegate != null)
+                    {
+                        existingAdjDelegate.DelegateUserId = request.DelegateUserId;
+                        existingAdjDelegate.ModifiedDate = DateTime.Now;
+                    }
+                    else
+                    {
+                        var adjustmentDelegate = new CellDelegateMaster();
+                        adjustmentDelegate.RequestId = request.FormId;
+                        adjustmentDelegate.FormName = FormType.EquipmentImprovement.ToString();
+                        adjustmentDelegate.EmployeeId = request.activeUserId;
+                        adjustmentDelegate.DelegateUserId = request.DelegateUserId;
+                        adjustmentDelegate.CreatedDate = DateTime.Now;
+                        adjustmentDelegate.CreatedBy = request.UserId;
+                        _context.CellDelegateMasters.Add(adjustmentDelegate);
+                    }
+
+                    await _context.SaveChangesAsync();
                     var equipmentData = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == request.FormId && x.IsDeleted == false).FirstOrDefault();
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
