@@ -603,7 +603,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
                     {
-                        var data = await SubmitRequest(existingReport.AdjustMentReportId, existingReport.CreatedBy, request.AdvisorId);
+                        var data = await SubmitRequest(existingReport.AdjustMentReportId, request.ModifiedBy, request.AdvisorId);
                         if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.AdjustMentSubmit;
@@ -629,7 +629,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                         else
                         {
-                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
+                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
 
                         }
                     }
@@ -710,7 +710,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 }
 
-                await _context.CallAdjustmentReportApproverMaterix(createdBy, adjustmentReportId);
+                await _context.CallAdjustmentReportApproverMaterix(adjustment.CreatedBy, adjustmentReportId);
 
                 //var approverTaskId = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsActive == true && x.Status == ApprovalTaskStatus.InReview.ToString()).Select(x => x.ApproverTaskId).FirstOrDefault();
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
