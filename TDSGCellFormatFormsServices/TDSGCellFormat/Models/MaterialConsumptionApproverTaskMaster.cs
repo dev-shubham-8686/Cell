@@ -47,6 +47,6 @@ public class MaterialConsumptionApproverTaskMaster
 
     public bool? IsActive { get; set; }
 
-    
+    public bool? IsSubstitute {  get; set; }
 }
 

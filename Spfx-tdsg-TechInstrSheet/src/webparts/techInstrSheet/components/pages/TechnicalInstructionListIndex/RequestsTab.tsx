@@ -881,8 +881,8 @@ const RequestsTab: React.FC = () => {
         }}
         onChange={handleTableChange}
         rowKey="TechnicalId"
-        scroll={{ x: true }}
-        className="w-full shadow-sm no-radius-table dashboard-table"
+        scroll={{ x: 'max-content', y: '300px' }} // Ensure 'max-content' for dynamic width
+        className="no-radius-table dashboard-table"
       />
       <Spin spinning={pdfLoading || mailLoading || revisonLoading} fullscreen />
 
