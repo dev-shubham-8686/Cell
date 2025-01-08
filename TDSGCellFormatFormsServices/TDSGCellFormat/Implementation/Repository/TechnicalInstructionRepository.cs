@@ -219,7 +219,16 @@ namespace TDSGCellFormat.Implementation.Repository
 
             if(technicalApprovers != null)
             {
-                res.activeUserId = technicalApprovers.AssignedToUserId;
+                if(technicalApprovers.DelegateUserId > 0)
+                {
+                    res.activeUserId = technicalApprovers.DelegateUserId;
+                }
+                else
+                {
+                    res.activeUserId = technicalApprovers.AssignedToUserId;
+                }
+
+               
             }
 
             if (technicalInstruction != null)
@@ -2741,7 +2750,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var technicalData = _context.TechnicalInstructionSheets.Where(x => x.TechnicalId == request.FormId && x.IsDeleted == false).FirstOrDefault();
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, technicalData.CTINumber, FormType.MaterialConsumption.ToString(), request.Comments);
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, technicalData.CTINumber, FormType.TechnicalInstruction.ToString(), request.Comments, technicalData.TechnicalId);
 
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.Delegate;
