@@ -219,7 +219,16 @@ namespace TDSGCellFormat.Implementation.Repository
 
             if(technicalApprovers != null)
             {
-                res.activeUserId = technicalApprovers.AssignedToUserId;
+                if(technicalApprovers.DelegateUserId > 0)
+                {
+                    res.activeUserId = technicalApprovers.DelegateUserId;
+                }
+                else
+                {
+                    res.activeUserId = technicalApprovers.AssignedToUserId;
+                }
+
+               
             }
 
             if (technicalInstruction != null)
