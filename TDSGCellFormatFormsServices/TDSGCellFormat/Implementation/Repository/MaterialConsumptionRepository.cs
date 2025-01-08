@@ -1296,7 +1296,9 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var material = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId && x.MaterialConsumptionId == request.FormId && x.IsActive == true).ToList();
+                var material = _context.MaterialConsumptionApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId == 0) ||
+                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0)) 
+                                                                                      && x.MaterialConsumptionId == request.FormId && x.IsActive == true).ToList();
                 if (material != null)
                 {
                     foreach (var user in material)
@@ -1309,14 +1311,23 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     InsertHistoryData(request.FormId, FormType.MaterialConsumption.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
-                    var materialDelegate = new CellDelegateMaster();
-                    materialDelegate.RequestId = request.FormId;
-                    materialDelegate.FormName = FormType.EquipmentImprovement.ToString();
-                    materialDelegate.EmployeeId = request.activeUserId;
-                    materialDelegate.DelegateUserId = request.DelegateUserId;
-                    materialDelegate.CreatedDate = DateTime.Now;
-                    materialDelegate.CreatedBy = request.UserId;
-                    _context.CellDelegateMasters.Add(materialDelegate);
+                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.AdjustmentReport.ToString()).FirstOrDefault();
+                    if (existingAdjDelegate != null)
+                    {
+                        existingAdjDelegate.DelegateUserId = request.DelegateUserId;
+                        existingAdjDelegate.ModifiedDate = DateTime.Now;
+                    }
+                    else
+                    {
+                        var adjustmentDelegate = new CellDelegateMaster();
+                        adjustmentDelegate.RequestId = request.FormId;
+                        adjustmentDelegate.FormName = FormType.MaterialConsumption.ToString();
+                        adjustmentDelegate.EmployeeId = request.activeUserId;
+                        adjustmentDelegate.DelegateUserId = request.DelegateUserId;
+                        adjustmentDelegate.CreatedDate = DateTime.Now;
+                        adjustmentDelegate.CreatedBy = request.UserId;
+                        _context.CellDelegateMasters.Add(adjustmentDelegate);
+                    }
                     await _context.SaveChangesAsync();
 
                     var materialData = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == request.FormId && x.IsDeleted == false).FirstOrDefault();

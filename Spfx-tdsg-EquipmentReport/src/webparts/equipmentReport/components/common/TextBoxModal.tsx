@@ -9,8 +9,10 @@ import { DATE_FORMAT, DocumentLibraries } from "../../GLOBAL_CONSTANT";
 import FileUpload from "../fileUpload/FileUpload";
 import { IUser } from "../../apis/user/useUser";
 import { UserContext } from "../../context/userContext";
+import useEmployeeMaster from "../../apis/masters/useEmployeeMaster";
 
 export interface ITextBoxModal {
+  showDelegate?: boolean;
   label: string | JSX.Element;
   titleKey: string;
   initialValue: string;
@@ -30,7 +32,7 @@ export interface ITextBoxModal {
   isQCHead?: boolean;
   approvedByToshiba?: boolean;
   EQReportNo?: string;
-  IsPCRNRequired?:boolean;
+  IsPCRNRequired?: boolean;
 }
 export interface IEmailAttachments {
   EquipmentId: number;
@@ -49,6 +51,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   submitBtnText,
   cancelBtnText,
   toshibaApproval,
+  showDelegate,
   advisorRequired,
   isTargetDateSet,
   isQCHead,
@@ -59,42 +62,40 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   onSubmit,
   approvedByToshiba,
   EQReportNo,
-  IsPCRNRequired
+  IsPCRNRequired,
 }) => {
   const { id } = useParams();
   const [form] = Form.useForm();
   const { TextArea } = Input;
   const { data: advisors, isLoading: advisorIsLoading } = useAdvisorDetails();
-  const [emailAttachments, setEmailAttachments] = useState<
-    IEmailAttachments[] 
-  >([]);
-  const user:IUser = useContext(UserContext);
+  const [emailAttachments, setEmailAttachments] = useState<IEmailAttachments[]>(
+    []
+  );
+  const { data: employees, isLoading: employeeIsLoading } = useEmployeeMaster();
+
+  const user: IUser = useContext(UserContext);
   // const targetDate = useGetTargetDate();
   useEffect(() => {
-    
-      if (isQCHead || user?.isAdmin) {
-        if(toshibaApprovaltargetDate){
+    if (isQCHead || user?.isAdmin) {
+      if (toshibaApprovaltargetDate) {
         form.setFieldsValue({
           TargetDate: dayjs(toshibaApprovaltargetDate, DATE_FORMAT),
         });
-        if(IsPCRNRequired!=null){
-          
+        if (IsPCRNRequired != null) {
           form.setFieldsValue({
-            pcrnAttachmentsRequired: IsPCRNRequired
+            pcrnAttachmentsRequired: IsPCRNRequired,
           });
         }
-      }
-      else if (toshibadiscussiontargetDate && user?.isAdmin) {
+      } else if (toshibadiscussiontargetDate && user?.isAdmin) {
         form.setFieldsValue({
           TargetDate: dayjs(toshibadiscussiontargetDate, DATE_FORMAT),
         });
       }
-      } else if (toshibadiscussiontargetDate) {
-        form.setFieldsValue({
-          TargetDate: dayjs(toshibadiscussiontargetDate, DATE_FORMAT),
-        });
-      }
-    
+    } else if (toshibadiscussiontargetDate) {
+      form.setFieldsValue({
+        TargetDate: dayjs(toshibadiscussiontargetDate, DATE_FORMAT),
+      });
+    }
   }, [isVisible, isTargetDateSet]);
   const handleChange = (): void => {
     const fieldErrors = form.getFieldError(titleKey);
@@ -158,7 +159,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
             <></>
           )}
 
-          {(isQCHead || user?.isAdmin) && toshibaApproval  ? (
+          {(isQCHead || user?.isAdmin) && toshibaApproval ? (
             <>
               <Form.Item
                 label="PCRN  Required"
@@ -175,6 +176,35 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
             <></>
           )}
 
+          { showDelegate ? (
+            <Form.Item
+              name="DelegateUserId"
+              label="Select a Delegate User"
+              rules={[
+                { required: true, message: "Please select a Delegate User." },
+              ]}
+            >
+              <Select
+                showSearch
+                optionFilterProp="children"
+                // style={{ width: "100%" }}
+                placeholder="Select a Delegate User "
+                filterOption={(input, option) =>
+                  option?.label
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={employees?.map((emp) => ({
+                  label: emp.employeeName,
+                  value: emp.employeeId,
+                }))}
+                className="custom-disabled-select"
+              />
+            </Form.Item>
+          ) : (
+            <></>
+          )}
           {advisorRequired ? (
             <Form.Item
               label={<span className="text-muted">Please select Advisor</span>}
@@ -203,11 +233,16 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
 
           {approvedByToshiba ? (
             <Form.Item
-              label={<span className="text-muted">Email Attachments</span>}
+              label={<span className="text-muted">Toshiba Attachments</span>}
               name="emailAttachments"
-               rules={(emailAttachments.length==0)?[{ required: true, message: "Please Upload Attachments" }]:[]}
+              rules={
+                emailAttachments.length == 0
+                  ? [{ required: true, message: "Please Upload Attachments" }]
+                  : []
+              }
             >
               <FileUpload
+                showbutton={true}
                 isEmailAttachments={true}
                 key={`email-Attachments`}
                 folderName={EQReportNo ?? user?.employeeId.toString()}
@@ -245,17 +280,17 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
                   console.log("File Added");
                 }}
                 onRemoveFile={async (documentName: string) => {
-                  const existingAttachments: IEmailAttachments[] = emailAttachments ?? [];
+                  const existingAttachments: IEmailAttachments[] =
+                    emailAttachments ?? [];
 
                   const updatedAttachments = existingAttachments?.filter(
                     (doc) => doc.EmailDocName !== documentName
                   );
                   setEmailAttachments(updatedAttachments);
                   if (updatedAttachments?.length == 0) {
-                    
                     form.setFieldValue("emailAttachments", []);
                   }
-                  await form.validateFields(["emailAttachments"]); 
+                  await form.validateFields(["emailAttachments"]);
                   console.log("File Removed");
                 }}
               />
@@ -283,7 +318,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
               className="btn-outline-primary"
               onClick={() => {
                 form.resetFields();
-                setEmailAttachments([]) // Reset all fields --  for removing comments
+                setEmailAttachments([]); // Reset all fields --  for removing comments
                 onCancel();
               }}
             >
