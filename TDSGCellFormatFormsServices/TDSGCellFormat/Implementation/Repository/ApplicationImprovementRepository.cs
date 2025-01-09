@@ -82,7 +82,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     InsertHistoryData(request.FormId, FormType.EquipmentImprovement.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
 
-                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.AdjustmentReport.ToString()).FirstOrDefault();
+                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == ProjectType.Equipment.ToString()).FirstOrDefault();
                     if (existingAdjDelegate != null)
                     {
                         existingAdjDelegate.DelegateUserId = request.DelegateUserId;
@@ -92,7 +92,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         var adjustmentDelegate = new CellDelegateMaster();
                         adjustmentDelegate.RequestId = request.FormId;
-                        adjustmentDelegate.FormName = FormType.EquipmentImprovement.ToString();
+                        adjustmentDelegate.FormName = ProjectType.Equipment.ToString();
                         adjustmentDelegate.EmployeeId = request.activeUserId;
                         adjustmentDelegate.DelegateUserId = request.DelegateUserId;
                         adjustmentDelegate.CreatedDate = DateTime.Now;
