@@ -69,6 +69,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 var equipment = _context.EquipmentImprovementApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId ==0) || 
                                                                                       (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0))
+                                                                                      && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
                                                                                 && x.EquipmentImprovementId == request.FormId && x.IsActive == true).ToList();
                 if (equipment != null)
                 {
@@ -82,7 +83,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     InsertHistoryData(request.FormId, FormType.EquipmentImprovement.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
 
-                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.AdjustmentReport.ToString()).FirstOrDefault();
+                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == ProjectType.Equipment.ToString() && x.EmployeeId == request.activeUserId).FirstOrDefault();
                     if (existingAdjDelegate != null)
                     {
                         existingAdjDelegate.DelegateUserId = request.DelegateUserId;
@@ -92,7 +93,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         var adjustmentDelegate = new CellDelegateMaster();
                         adjustmentDelegate.RequestId = request.FormId;
-                        adjustmentDelegate.FormName = FormType.EquipmentImprovement.ToString();
+                        adjustmentDelegate.FormName = ProjectType.Equipment.ToString();
                         adjustmentDelegate.EmployeeId = request.activeUserId;
                         adjustmentDelegate.DelegateUserId = request.DelegateUserId;
                         adjustmentDelegate.CreatedDate = DateTime.Now;
