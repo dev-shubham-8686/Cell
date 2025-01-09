@@ -1843,7 +1843,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
   const operations = (
     <div>
       { ((!isViewMode && activeKey === "1" && !submitted) 
-        || (activeKey === "1" && user?.isAdmin))
+        || (!isViewMode && activeKey === "1" && user?.isAdmin))
        && ( //||
           //(currentApproverTask?.userId == user?.employeeId //&& currentApproverTask?.seqNumber != 3)
           <Form.Item
@@ -1882,7 +1882,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       )} */}
 
       { ((!isViewMode && activeKey === "1" && !submitted)
-        || (activeKey === "1" && !submitted && user?.isAdmin))
+        || (!isViewMode && activeKey === "1" && !submitted && user?.isAdmin))
       && (
         <Form.Item
           style={{

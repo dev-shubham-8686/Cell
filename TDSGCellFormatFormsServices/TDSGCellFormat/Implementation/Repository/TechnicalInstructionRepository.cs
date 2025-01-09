@@ -1944,10 +1944,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 converter.Options.AutoFitWidth = SelectPdf.HtmlToPdfPageFitMode.AutoFit;
 
                 // Adjust the page size to accommodate larger content
-                converter.Options.AutoFitHeight = SelectPdf.HtmlToPdfPageFitMode.AutoFit;
+                //converter.Options.AutoFitHeight = SelectPdf.HtmlToPdfPageFitMode.AutoFit;
 
                 // Set a standard page size, such as A4
-                converter.Options.PdfPageSize = SelectPdf.PdfPageSize.A4;
+                //converter.Options.PdfPageSize = SelectPdf.PdfPageSize.A4;
 
                 // Set the orientation to landscape if the content is wide
                 converter.Options.PdfPageOrientation = SelectPdf.PdfPageOrientation.Portrait;
