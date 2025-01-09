@@ -47,7 +47,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const { confirm } = Modal;
   const navigate = useNavigate();
   const location = useLocation();
-  const { isApproverRequest } = location.state || {};
+  const { isApproverRequest=false } = location.state || {};
   const [showModal, setShowModal] = useState(false);
   const [showWorkflowBtns, setShowWorkflowBtns] = useState<boolean>(false);
   const [showDelegate, setshowDelegate] = useState<boolean>(false);
@@ -519,8 +519,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           (eqReport?.WorkflowStatus == REQUEST_STATUS.W1Completed &&
             eqReport?.ResultAfterImplementation?.IsResultAmendSubmit)) &&
         eqReport?.CreatedBy == user?.employeeId ? ( */}
-
-        {(eqReport?.WorkflowLevel === 1 &&
+{console.log("PBCondition",!showWorkflowBtns,!isApproverRequest)}
+        {((eqReport?.WorkflowLevel === 1 &&
           eqReport?.IsSubmit &&
           eqReport?.CreatedBy === user?.employeeId &&
           ![
@@ -528,13 +528,15 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             REQUEST_STATUS.UnderAmendment,
             REQUEST_STATUS.Rejected
             // REQUEST_STATUS.PCRNPending,
-          ].includes(eqReport?.Status)) ||
-        (eqReport?.WorkflowStatus === REQUEST_STATUS.W1Completed &&
+          ].includes(eqReport?.Status))  && 
+          !approverRequest)||
+        ((eqReport?.WorkflowStatus === REQUEST_STATUS.W1Completed &&
           eqReport?.Status !== REQUEST_STATUS.LogicalAmendment &&
           eqReport?.Status !== REQUEST_STATUS.UnderAmendment &&
           eqReport?.Status !== REQUEST_STATUS.Rejected &&
           eqReport?.CreatedBy === user?.employeeId &&
-          eqReport?.ResultAfterImplementation?.IsResultSubmit) ? (
+          eqReport?.ResultAfterImplementation?.IsResultSubmit) && 
+          !approverRequest) ? (
           <button
             className="btn btn-primary"
             onClick={() => {
