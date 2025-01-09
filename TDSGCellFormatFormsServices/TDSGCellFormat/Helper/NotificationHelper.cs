@@ -234,7 +234,12 @@ namespace TDSGCellFormat.Helper
                         if (emailBody?.Length > 0)
                         {
                             //  docLink = documentLink.Replace("#", "?action=approval#") + "edit/" + requestId;
-                            string docLink = documentationLink.Replace("#", "?action=approval#") + "edit/" + requestId; ;
+                            string docLink = documentationLink.Replace("#", "?action=approval#") + "edit/" + requestId;
+
+                            if(formType == FormType.TechnicalInstruction.ToString())
+                            {
+                                docLink = documentationLink.Replace("#", "?action=approval#") + "form/edit/" + requestId;
+                            }
 
                             emailBody = emailBody.Replace("#ControlNo#", reportNo);
                             emailBody = emailBody.Replace("#Comment#", comment);
@@ -242,7 +247,7 @@ namespace TDSGCellFormat.Helper
                             emailBody = emailBody.Replace("#AdminUserName#", EmployeeRequestUser.EmployeeName);
                             emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
                             emailBody = emailBody.Replace("#FormName#", formType);
-                            emailBody = emailBody.Replace("##DocumentationLink##", docLink);
+                            emailBody = emailBody.Replace("#DocumentationLink#", docLink);
 
                             emailToAddressList.Add(DelegateUser.Email);
                             emailCCAddressList.Add(EmployeeRequestUser.Email);

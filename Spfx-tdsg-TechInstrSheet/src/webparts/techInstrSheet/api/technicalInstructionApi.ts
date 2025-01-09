@@ -420,3 +420,20 @@ export const notifyCellDivPart = (technicalId: string): Promise<any> => {
     throw new Error("Error fetching data"); // Handle errors
   });
 };
+
+// Function to insertDelegate technical instruction 
+export const insertDelegate = (data: any): Promise<any> => {
+  return http.post(`${API_URL}/InsertDelegate`, data, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+  .then((response) => {
+    return response.data; // Return the data from the response
+  })
+  .catch((error) => {
+      // Something happened in setting up the request that triggered an Error
+      throw new Error("Error occurred while saving data");
+    
+  });
+};

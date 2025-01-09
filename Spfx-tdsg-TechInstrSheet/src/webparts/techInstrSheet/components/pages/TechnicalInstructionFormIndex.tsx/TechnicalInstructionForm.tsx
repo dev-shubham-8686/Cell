@@ -19,6 +19,7 @@ import {
   deleteTechnicalOutlineAttachment,
   getAllSectionsv2,
   updateOutlineEditor,
+  insertDelegate,
 } from "../../../api/technicalInstructionApi";
 import {
   uploadFile,
@@ -137,7 +138,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
     targetClosureDate: null,
     //lotNo: null,
     relatedDocument: [],
-    applicationStartDate: null,//dayjs(),
+    applicationStartDate: null, //dayjs(),
     applicationLotNo: null,
     applicationEquipment: null,
     equipmentIds: [],
@@ -198,8 +199,6 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           setCtiNumber(returnValue.ctiNumber);
           console.log(ctiNumber);
 
-          
-
           form.setFieldsValue({
             ...returnValue,
             revisionNo:
@@ -231,14 +230,14 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
                 : null,
           });
 
-          if(returnValue.otherEquipment != null){
+          if (returnValue.otherEquipment != null) {
             form.setFieldsValue({
               equipmentIds: ["other"],
             });
             setShowOtherField(true);
             setOtherEquipment(returnValue.otherEquipment);
           }
-          
+
           setEditorModel(returnValue.outline);
 
           if (returnValue.isSubmit) {
@@ -377,7 +376,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       void displayjsx.showErrorMsg("Please enter Outline");
       return false;
     }
-debugger;
+    debugger;
     const technicalInstructionData = {
       TechnicalId: id ? parseInt(id, 10) : 0, // For update
       issueDate: values.issueDate
@@ -428,7 +427,7 @@ debugger;
       sectionId: values.sectionId,
       ...submitFormState,
       comment: reSubmitComment,
-      otherEquipment: values.otherEquipment ?? null
+      otherEquipment: values.otherEquipment ?? null,
     };
 
     //console.log(technicalInstructionData);
@@ -1129,6 +1128,45 @@ debugger;
     //await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
+  const handleDelegate = async (
+    userId: string,
+    comment: string
+  ): Promise<void> => {
+    const data = {
+      FormId: existingTechniaclInstructionSlip.TechnicalId,
+      UserId: user?.employeeId,
+      activeUserId: existingTechniaclInstructionSlip?.activeUserId,
+      DelegateUserId: userId,
+      Comments: comment,
+    };
+    setLoading(true);
+    insertDelegate(data)
+      .then((c) => {
+        setLoading(false);
+        void displayjsx.showSuccess(
+          "Technical Instruction form has been delegate."
+        );
+        if (isFromAllRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "allrequest-tab",
+            },
+          });
+        } else if (isApproverRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+        } else {
+          navigate("/");
+        }
+      })
+      .catch((c) => {
+        setLoading(false);
+      });
+  };
+
   //Handle file upload
   const handleUpload = async (file: any) => {
     const MAX_FILES = 5;
@@ -1536,13 +1574,12 @@ debugger;
     }
 
     // Validate file type (disallow .exe files)
-    if (file.type === DISALLOWED_FILE_TYPE || file.name.endsWith('.exe')) {
+    if (file.type === DISALLOWED_FILE_TYPE || file.name.endsWith(".exe")) {
       void displayjsx.showErrorMsg(
         `File type not allowed. Executable files (.exe) are not supported.`
       );
       return false;
     }
-
 
     if (isViewMode) {
       const folderName = ctiNumber;
@@ -1828,10 +1865,12 @@ debugger;
           onApprove={handleApprove}
           onAskToAmend={handleAskToAmend}
           onPullBack={handlePullBack}
+          onDelegate={handleDelegate}
           currentApproverTask={currentApproverTask}
           existingTechniaclInstructionSlip={existingTechniaclInstructionSlip}
           //isFormModified={isEditMode && isViewMode == false ? true : false}
           isFormModified={isEditMode ? true : false}
+          isFromAllRequest={isFromAllRequest}
         />
       )}
     </div>
