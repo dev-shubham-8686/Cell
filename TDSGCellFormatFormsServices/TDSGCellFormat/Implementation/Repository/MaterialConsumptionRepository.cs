@@ -1297,7 +1297,8 @@ namespace TDSGCellFormat.Implementation.Repository
             try
             {
                 var material = _context.MaterialConsumptionApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId == 0) ||
-                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0)) 
+                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0))
+                                                                                       && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
                                                                                       && x.MaterialConsumptionId == request.FormId && x.IsActive == true).ToList();
                 if (material != null)
                 {
@@ -1311,7 +1312,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     InsertHistoryData(request.FormId, FormType.MaterialConsumption.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
-                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.AdjustmentReport.ToString()).FirstOrDefault();
+                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.MaterialConsumption.ToString()).FirstOrDefault();
                     if (existingAdjDelegate != null)
                     {
                         existingAdjDelegate.DelegateUserId = request.DelegateUserId;
