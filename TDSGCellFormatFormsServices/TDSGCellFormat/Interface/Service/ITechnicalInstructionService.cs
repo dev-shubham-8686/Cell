@@ -56,5 +56,7 @@ namespace TDSGCellFormat.Interface.Service
         Task<AjaxResult> ExportToPdf_v3(int technicalId);
 
         Task<GetTechnicalUser> GetUserRole(string userEmail);
+
+        Task<AjaxResult> InsertDelegate(TecnicalDelegateUser request);
     }
 }

@@ -17,23 +17,27 @@ interface ExtendedUploadFile extends UploadFile {
   type?: string;
 }
 
-
-
 interface IFileUpload {
+  showbutton?: boolean;
   folderName: string;
   libraryName: string;
   subFolderName?: string;
   files: UploadFile<any>[];
-  setIsLoading: (isLoading: boolean) => void;
-  onAddFile: (documentName: string, documentFilePath: string ,file:File) => void;
-  onRemoveFile: (documentName: string) => void;
+  setIsLoading?: (isLoading: boolean) => void;
+  onAddFile?: (
+    documentName: string,
+    documentFilePath: string,
+    file: File
+  ) => void;
+  onRemoveFile?: (documentName: string) => void;
   disabled?: boolean; // disabled when mode is view and submitted
   isLoading?: boolean;
-  ispcrnRequired?:boolean;
-  isEmailAttachments?:boolean;
+  ispcrnRequired?: boolean;
+  isEmailAttachments?: boolean;
 }
 
 const FileUpload: FC<IFileUpload> = ({
+  showbutton,
   folderName,
   libraryName,
   subFolderName,
@@ -41,26 +45,29 @@ const FileUpload: FC<IFileUpload> = ({
   setIsLoading,
   onAddFile,
   onRemoveFile,
-  disabled,ispcrnRequired,
+  disabled,
+  ispcrnRequired,
   isLoading,
-  isEmailAttachments
+  isEmailAttachments,
 }) => {
   const VALIDATIONS = {
     attachment: {
-      fileSize: 32505856 , // 31 MB cause max size is 30 MB
+      fileSize: 32505856, // 31 MB cause max size is 30 MB
       fileSizeErrMsg: "File size must be less than or equal to 30 MB!",
       fileNamingErrMsg: "File must not contain Invalid Characters(*'\"%,&#^@)!",
       notallowedFileTypes: "application/x-msdownload",
       uploadAcceptTypes: ".jpeg,.pdf,.jpg,.png,.xlsx,.xls,.msg,.eml",
-      noOfFiles: `Maximum ${ispcrnRequired?1:10} ${ispcrnRequired?"File is":"Files are"}  allowed! `,
-      maxFileCount: ispcrnRequired?1:10,
-      emailAttachment:  [".eml", ".msg", ".oft"]
+      noOfFiles: `Maximum ${ispcrnRequired ? 1 : 10} ${
+        ispcrnRequired ? "File is" : "Files are"
+      }  allowed! `,
+      maxFileCount: ispcrnRequired ? 1 : 10,
+      emailAttachment: [".eml", ".msg", ".oft"],
     },
   };
   console.log("DISABLEUPLOAD", disabled);
   const webPartContext = React.useContext(WebPartContext);
   const [itemLoading, setItemLoading] = React.useState(false);
-console.log("FILES",files)
+  console.log("FILES", files);
 
   const onBeforeUpload = (file: ExtendedUploadFile): boolean | string => {
     const maxSize = VALIDATIONS.attachment.fileSize;
@@ -74,7 +81,7 @@ console.log("FILES",files)
     if (isDuplicate) {
       description = "This file has already been uploaded.";
     }
-    
+
     if (files.length >= VALIDATIONS.attachment.maxFileCount) {
       description = ` ${VALIDATIONS.attachment.noOfFiles}`;
     }
@@ -84,19 +91,18 @@ console.log("FILES",files)
     } else if (/[*'",%&#^@]/.test(file.name)) {
       description = `${VALIDATIONS.attachment.fileNamingErrMsg}`;
     }
-   // Check file type
-   
+    // Check file type
+
     // if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.includes(fileExtension)){
     //   description= "Only Email Attachments are allowed. "
     // }
-    
     else if (
       file.type &&
-      VALIDATIONS.attachment.notallowedFileTypes==file.type
+      VALIDATIONS.attachment.notallowedFileTypes == file.type
     ) {
       description = `exe Files are not allowed.`;
     }
-    
+
     if (description) {
       void displayjsx.showErrorMsg(description);
       // notification.displayErrorNoti("", description);
@@ -106,10 +112,8 @@ console.log("FILES",files)
   };
 
   const onDelete = async (file: UploadFile<any>) => {
-    
     const confirm = await DeleteFileModal(file.name);
     if (confirm) {
-      
       const url = `${webPartContext.pageContext.web.absoluteUrl}/_api/web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}/${file.name}')/ListItemAllFields`;
       const response = await webPartContext.spHttpClient.post(
         url,
@@ -122,10 +126,10 @@ console.log("FILES",files)
           },
         }
       );
-      
+
       const fileData = await response.json();
       const itemId = fileData.d.Id;
-      
+
       if (itemId) {
         const deleteResponse = await webPartContext.spHttpClient.post(
           `${webPartContext.pageContext.web.absoluteUrl}/_api/web/lists/getbytitle('${libraryName}')/items(${itemId})`,
@@ -140,15 +144,13 @@ console.log("FILES",files)
             },
           }
         );
-        
+
         if (!deleteResponse.ok) {
           console.error(`Error deleting file: ${deleteResponse.statusText}`);
         } else {
-          
-           
           onRemoveFile(file.name);
-          
-           void displayjsx.showSuccess("File deleted successfully ");
+
+          void displayjsx.showSuccess("File deleted successfully ");
         }
       }
 
@@ -170,15 +172,12 @@ console.log("FILES",files)
   };
 
   const onPreviewFile = async (file: UploadFile): Promise<void> => {
-    
     if (file.url) {
-      
       const sharePointUrl = file.url.startsWith(WEB_URL)
         ? file.url
         : `${WEB_URL}/${file.url}`;
       window.open(sharePointUrl, "_blank");
     } else {
-      
       const fileName = encodeURIComponent(file.name);
       const sharePointUrl = `${WEB_URL}/${libraryName}/${folderName}/${subFolderName}/${fileName}`;
 
@@ -188,7 +187,6 @@ console.log("FILES",files)
 
   const uploadFile = async (file: File, fileName: string): Promise<boolean> => {
     try {
-      
       setItemLoading(true);
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
@@ -206,7 +204,7 @@ console.log("FILES",files)
           body: file,
         }
       );
-      
+
       // const response:any="";
       if (response.status !== 200) {
         void showErrorMsg(
@@ -215,10 +213,10 @@ console.log("FILES",files)
         return false;
       } else {
         void showSuccess(`The file ${fileName} is uploaded successfully.`);
-        
+
         const jsonResponse = await response.json();
         const fullPath = jsonResponse.ServerRelativeUrl;
-        
+
         onAddFile(
           jsonResponse.Name,
           fullPath.substring(fullPath.indexOf(`/${libraryName}`)),
@@ -236,13 +234,11 @@ console.log("FILES",files)
 
   const uploadAttachment = async (file: File, fileName: string) => {
     try {
-      
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
       }
 
       const checkOrCreateFolder = async (folderUrl: string) => {
-        
         const checkFolderResponse = await webPartContext.spHttpClient.get(
           folderUrl,
           SPHttpClient.configurations.v1,
@@ -268,7 +264,7 @@ console.log("FILES",files)
           );
         }
       };
-      
+
       // check if folder exists
       const checkFolderUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Lists/getByTitle('${libraryName}')/RootFolder/Folders('${folderName}')`;
       await checkOrCreateFolder(checkFolderUrl);
@@ -284,9 +280,8 @@ console.log("FILES",files)
           },
         }
       );
-      
+
       if (checkSubFolderResponse.status >= 400) {
-        
         // Folder does not exist, create it
         const subFolderCreateUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Folders/add('${libraryName}/${folderName}/${subFolderName}')`;
         await webPartContext.spHttpClient
@@ -298,7 +293,7 @@ console.log("FILES",files)
           })
           .catch((err) => console.error(err));
       }
-      
+
       // Adding the file inside the created folder
       const uploadResult = uploadFile(file, fileName);
       return uploadResult;
@@ -309,7 +304,6 @@ console.log("FILES",files)
 
   const onUpload = async (event: any) => {
     try {
-      
       setIsLoading(true);
 
       if (
@@ -317,9 +311,9 @@ console.log("FILES",files)
         event.file.status !== "removed"
       ) {
         const file = event.file as File;
-        
+
         const res = await uploadAttachment(file, file.name);
-        
+
         return res;
       }
     } catch (error) {
@@ -329,13 +323,13 @@ console.log("FILES",files)
       setIsLoading(false);
     }
   };
-console.log("FILESSS",files)
+  console.log("FILESSS", files);
   return (
-    < >
+    <>
       {itemLoading && <Spin />}
 
       <Upload
-        maxCount={ispcrnRequired?1:10}
+        maxCount={ispcrnRequired ? 1 : 10}
         className="custom-upload"
         disabled={disabled}
         onRemove={onDelete}
@@ -360,9 +354,13 @@ console.log("FILESSS",files)
         }}
         fileList={files}
       >
-        <Button    disabled={disabled} icon={<UploadOutlined />}>
-          Attach Document
-        </Button>
+        {showbutton ? (
+          <Button disabled={disabled} icon={<UploadOutlined />}>
+            Attach Document
+          </Button>
+        ) : (
+          null
+        )}
       </Upload>
     </>
   );

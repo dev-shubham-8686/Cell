@@ -184,5 +184,10 @@ namespace TDSGCellFormat.Implementation.Service
             return await _technicalRepository.GetUserRole(userEmail);
         }
 
+        public async Task<AjaxResult> InsertDelegate(TecnicalDelegateUser request)
+        {
+            return await _technicalRepository.InsertDelegate(request);
+        }
+
     }
 }

@@ -430,8 +430,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           (field) => !fieldsToExclude.includes(field)
         );
         await form.validateFields(fieldsToValidate);
-        await form.validateFields();
         //: TODO Need to update
+        await form.validateFields();
       } else {
         
 
@@ -1420,7 +1420,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               <div className="col">
                 <Form.Item
                   label={
-                    <span className="text-muted w-95">Improvment Category</span>
+                    <span className="text-muted w-95">Improvement Category</span>
                   }
                   name="ImprovementCategory"
                   rules={validationRules.ImprovementCategory}
@@ -1651,6 +1651,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   {console.log("USERID", user?.employeeId.toString())}
                   <FileUpload
+                  showbutton={true}
                     disabled={
                       isModeView || (!isAdmin && submitted && !underAmmendment)
                     }
@@ -1808,6 +1809,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
+                  showbutton={true}
                     disabled={
                       // isModeView ||
                       // !(existingEquipmentReport?.Status==REQUEST_STATUS.LogicalAmendmentInReview)||

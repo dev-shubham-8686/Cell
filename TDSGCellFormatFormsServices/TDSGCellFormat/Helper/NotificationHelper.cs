@@ -234,7 +234,12 @@ namespace TDSGCellFormat.Helper
                         if (emailBody?.Length > 0)
                         {
                             //  docLink = documentLink.Replace("#", "?action=approval#") + "edit/" + requestId;
-                            string docLink = documentationLink.Replace("#", "?action=approval#") + "edit/" + requestId; ;
+                            string docLink = documentationLink.Replace("#", "?action=approval#") + "edit/" + requestId;
+
+                            if(formType == FormType.TechnicalInstruction.ToString())
+                            {
+                                docLink = documentationLink.Replace("#", "?action=approval#") + "form/edit/" + requestId;
+                            }
 
                             emailBody = emailBody.Replace("#ControlNo#", reportNo);
                             emailBody = emailBody.Replace("#Comment#", comment);

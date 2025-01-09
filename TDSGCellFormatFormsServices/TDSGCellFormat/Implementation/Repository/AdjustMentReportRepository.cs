@@ -1931,8 +1931,9 @@ namespace TDSGCellFormat.Implementation.Repository
             try
             {
                 var adjustment = _context.AdjustmentReportApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId == 0) ||
-                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0)) &&
-                                                                                      x.AdjustmentReportId == request.FormId && x.IsActive == true).ToList();
+                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0)) 
+                                                                                       && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
+                                                                                     && x.AdjustmentReportId == request.FormId && x.IsActive == true).ToList();
                 if (adjustment != null)
                 {
                     foreach (var user in adjustment)

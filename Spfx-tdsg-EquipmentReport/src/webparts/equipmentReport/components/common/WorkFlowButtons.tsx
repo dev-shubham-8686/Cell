@@ -18,6 +18,8 @@ import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import useAddOrUpdateTargetDate from "../../apis/workflow/useAddorUpdateTargetDate";
 import usePullBack, { IPullBack } from "../../apis/workflow/usePullBack";
+import useDelegate, { IDelegate } from "../../apis/delegate/useDelegate";
+import { IWorkflowDetail } from "../equipmentReport/Workflow";
 dayjs.extend(isSameOrBefore);
 export interface IApproverTask {
   approverTaskId: number;
@@ -29,11 +31,13 @@ export interface IApproverTask {
 export interface IWorkFlowProps {
   currentApproverTask: IApproverTask;
   eqReport?: IEquipmentImprovementReport;
+  currentApprover?:IWorkflowDetail;
   isTargetDateSet?: boolean;
   ResultMonitoring?: number;
 }
 const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   currentApproverTask,
+  currentApprover,
   eqReport,
   isTargetDateSet,
   ResultMonitoring,
@@ -46,6 +50,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const { isApproverRequest } = location.state || {};
   const [showModal, setShowModal] = useState(false);
   const [showWorkflowBtns, setShowWorkflowBtns] = useState<boolean>(false);
+  const [showDelegate, setshowDelegate] = useState<boolean>(false);
   const [clickedAction, setClickedAction] = useState<WorkflowActionType>();
   const [submitbuttontext, setsubmitbuttontext] = useState<string>("Save");
   const [approverRequest, setApproverRequest] = useState(isApproverRequest);
@@ -58,6 +63,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     useApproveAskToAmmend(id ? parseInt(id) : undefined, user.employeeId);
   const { mutate: addOrUpdateTargetDate, isLoading: updatingTargetDate } =
     useAddOrUpdateTargetDate();
+    const { mutate: delegate, isLoading: delegating } =
+    useDelegate();
   const { mutate: pullBack, isLoading: pullbacking } = usePullBack(
     id ? parseInt(id) : undefined,
     user.employeeId
@@ -228,6 +235,22 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     }
   };
 
+  const handleDeligate = async (comment: string , deligateUserId:number): Promise<void> => {
+    const data: IDelegate = {
+      FormId: id ? parseInt(id) : 0,
+      UserId:user?.employeeId??0,
+      activeUserId:currentApprover?.AssignedToUserId,
+      DelegateUserId:deligateUserId, 
+      // ApproverTaskId:currentApprover?.ApproverTaskId,
+      Comments: comment,
+    };
+    delegate(data, {
+      onSuccess: (data:any) => {
+        navigate("/");
+      },
+    });
+  }
+
   useEffect(() => {
     const url = window.location.href;
     const [baseUrl, queryString] = url.split("?");
@@ -270,13 +293,15 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     actionType: WorkflowActionType,
     toshibaDiscussion?: boolean,
     toshibaRequired?: boolean,
-    advisorRequired?: boolean
+    advisorRequired?: boolean,
+    showDelegate?:boolean,
   ): void => {
     setShowModal(true);
     settoshibaDiscussion(toshibaDiscussion);
     settoshibaApproval(toshibaRequired);
     setadvisorRequired(advisorRequired);
     setClickedAction(actionType);
+    setshowDelegate(showDelegate);
   };
   type WorkflowActionType = keyof typeof WORKFLOW_ACTIONS;
 
@@ -286,7 +311,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
       targetDate: Date,
       advisorId: number,
       pcrnAttachmentsRequired: boolean,
-      emailAttachments?: IEmailAttachments[]
+      emailAttachments?: IEmailAttachments[],
+
     ) =>
       onApproveAmendHandler(
         1,
@@ -294,10 +320,12 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         targetDate,
         advisorId,
         pcrnAttachmentsRequired,
-        emailAttachments
+        emailAttachments,
+        
       ),
     Reject: (comment: string) => onRejectHandler(2, comment),
     LogicalAmendment: (comment: string) => onApproveAmendHandler(4, comment),
+    Delegate: ( comment: string,DelegateUserId?: number) =>   handleDeligate(comment,DelegateUserId)    ,
     Amendment: (comment: string) => onApproveAmendHandler(3, comment),
     PullBack: (comment: string) => onPullbackHandler(comment),
     AddUpdateTargetDate: (
@@ -421,6 +449,24 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         ) : (
           <></>
         )}
+
+{eqReport?.Status==REQUEST_STATUS.InReview&& user?.isAdmin ? (
+  <div className="button-container">
+        <button
+          className="btn btn-primary"
+          onClick={() => 
+          {
+            openCommentsPopup("Delegate",false,false,false,true);
+            setsubmitbuttontext("Delegate");
+            // setshowDelegate(true);
+          }
+          }
+        >
+          Delegate
+        </button>
+        </div>
+      ) : (<></>)}
+
         {showWorkflowBtns &&
         eqReport?.ResultAfterImplementation?.IsResultSubmit &&
         user?.employeeId == eqReport?.SectionHeadId &&
@@ -576,6 +622,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           </button>
         )}
         <TextBoxModal
+        showDelegate={showDelegate}
           EQReportNo={eqReport?.EquipmentImprovementNo}
           label={"Comments"}
           titleKey={"comment"}
@@ -603,23 +650,39 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             advisorId?: number;
             pcrnAttachmentsRequired?: boolean;
             emailAttachments?: IEmailAttachments[];
+            DelegateUserId?:any;
           }) => {
             setShowModal(false);
             if (values.comment && clickedAction) {
               if (WORKFLOW_ACTIONS[clickedAction]) {
-                WORKFLOW_ACTIONS[clickedAction](
-                  values.comment,
-                  values.TargetDate,
-                  values.advisorId,
-                  values.pcrnAttachmentsRequired,
-                  values.emailAttachments
-                ).catch((error) =>
+                try {
+                  if (clickedAction === "Delegate") {
+                    WORKFLOW_ACTIONS[clickedAction](
+                      values.comment,
+                      values.DelegateUserId // Pass only the arguments required for Delegate
+                    ).catch((error) =>
+                      console.error("Error in executing the delegate workflow action:", error)
+                    );
+                  } else {
+                    WORKFLOW_ACTIONS[clickedAction](
+                      values.comment,
+                      values.TargetDate,
+                      values.advisorId,
+                      values.pcrnAttachmentsRequired,
+                      values.emailAttachments
+                    ).catch((error) =>
+                      console.error("Error in executing the workflow action:", error)
+                    );
+                  }
+                }
+                catch(error) { 
                   console.error(
                     "Error in executing the workflow action:",
                     error
                   )
-                ); // Execute the corresponding action
-              } else {
+                 // Execute the corresponding action
+              }
+             } else {
                 console.error(`Unknown action: ${clickedAction}`);
               }
             } else {

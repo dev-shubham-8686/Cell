@@ -69,6 +69,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 var equipment = _context.EquipmentImprovementApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId ==0) || 
                                                                                       (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0))
+                                                                                      && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
                                                                                 && x.EquipmentImprovementId == request.FormId && x.IsActive == true).ToList();
                 if (equipment != null)
                 {
@@ -81,17 +82,26 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     InsertHistoryData(request.FormId, FormType.EquipmentImprovement.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
-                    
-                    var equipmentDelegate = new CellDelegateMaster();
-                    equipmentDelegate.RequestId = request.FormId;
-                    equipmentDelegate.FormName = FormType.EquipmentImprovement.ToString();
-                    equipmentDelegate.EmployeeId = request.activeUserId;
-                    equipmentDelegate.DelegateUserId = request.DelegateUserId;
-                    equipmentDelegate.CreatedDate = DateTime.Now;
-                    equipmentDelegate.CreatedBy = request.UserId;
-                    _context.CellDelegateMasters.Add(equipmentDelegate);
-                    await _context.SaveChangesAsync();
 
+                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == ProjectType.Equipment.ToString() && x.EmployeeId == request.activeUserId).FirstOrDefault();
+                    if (existingAdjDelegate != null)
+                    {
+                        existingAdjDelegate.DelegateUserId = request.DelegateUserId;
+                        existingAdjDelegate.ModifiedDate = DateTime.Now;
+                    }
+                    else
+                    {
+                        var adjustmentDelegate = new CellDelegateMaster();
+                        adjustmentDelegate.RequestId = request.FormId;
+                        adjustmentDelegate.FormName = ProjectType.Equipment.ToString();
+                        adjustmentDelegate.EmployeeId = request.activeUserId;
+                        adjustmentDelegate.DelegateUserId = request.DelegateUserId;
+                        adjustmentDelegate.CreatedDate = DateTime.Now;
+                        adjustmentDelegate.CreatedBy = request.UserId;
+                        _context.CellDelegateMasters.Add(adjustmentDelegate);
+                    }
+
+                    await _context.SaveChangesAsync();
                     var equipmentData = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == request.FormId && x.IsDeleted == false).FirstOrDefault();
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
@@ -2102,12 +2112,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         if (id == -1)
                         {
-                            // Fetch the "Other" category name from the database if id is -1
-                            //var otherCategoryName = _context.ImprovementCategoryMasters
-                            //                                .Where(x => x.Other != null && x.IsDeleted == false)
-                            //                                .Select(x => x.OtherImprovementCategory)
-                            //                                .FirstOrDefault();
-
+                           
                             if (!string.IsNullOrEmpty(equipmentData.OtherImprovementCategory))
                             {
                                 impCategoryNames.Add("Other - " + equipmentData.OtherImprovementCategory); // Add "Other" category with its name
@@ -2172,7 +2177,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var currSitImageFiles = currAttachmentUrl.Where(url => imageExtensions.Any(ext => url.CurrSituationDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).ToList();
                 var currSitFiles = currAttachmentUrl.Except(currSitImageFiles).ToList();
 
-                foreach (var url1 in currAttachmentUrl)
+                foreach (var url1 in currSitImageFiles)
                 {
                     string bfrUrl = $"{baseUrl}{url1.CurrSituationDocFilePath}";
 
@@ -2195,7 +2200,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var impImageFiles = impAttachmentUrl.Where(url => imageExtensions.Any(ext => url.ImprovementDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).ToList();
                 var impFiles = impAttachmentUrl.Except(impImageFiles).ToList();
 
-                foreach (var url2 in impAttachmentUrl)
+                foreach (var url2 in impImageFiles)
                 {
                     // Add image tag
                     improvementImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
@@ -2204,7 +2209,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 }
                 // Then append other non-image files
-                foreach (var url2 in impAttachmentUrl)
+                foreach (var url2 in impFiles)
                 {
                     string bfrUrl = $"{baseUrl}{url2.ImprovementDocFilePath}";
                     improvementOtherFiles.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
