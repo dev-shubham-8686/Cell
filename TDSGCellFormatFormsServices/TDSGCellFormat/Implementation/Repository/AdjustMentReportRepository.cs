@@ -957,6 +957,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 .FirstOrDefault();
                         if (divisionHead != null)
                         {
+                            divisionHead.DelegateUserId = requestTaskData.DelegateUserId;
                             divisionHead.IsActive = true;
                             await _context.SaveChangesAsync();
                         }
