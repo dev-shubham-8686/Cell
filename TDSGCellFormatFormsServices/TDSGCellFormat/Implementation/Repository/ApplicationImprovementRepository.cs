@@ -1231,6 +1231,9 @@ namespace TDSGCellFormat.Implementation.Repository
                                      && x.EquipmentImprovementId == data.EquipmentId
                                      && (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString()
                                      || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString() || x.Status == ApprovalTaskStatus.LogicalAmendmentInReview.ToString())).FirstOrDefault();
+                
+                int substituteUserId = 0;
+                bool IsSubstitute = false;
                 //here change the task as Pending and not approved
                 if (equipmentData == null)
                 {
@@ -1424,6 +1427,12 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         if (nextTask != null)
                         {
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                            nextTask.AssignedToUserId = substituteUserId;
+                            nextTask.IsSubstitute = IsSubstitute;
+                            await _context.SaveChangesAsync();
+
                             if (currentApproverTask.AssignedToUserId == nextTask.AssignedToUserId)
                             {
                                 nextTask.Comments = currentApproverTask.Comments;
@@ -1446,12 +1455,11 @@ namespace TDSGCellFormat.Implementation.Repository
 
                                 if (nextPendingTask != null)
                                 {
-                                    //int substituteUserId = 0;
-                                    //int substitutePer = nextPendingTask.AssignedToUserId ?? 0;
-                                    //substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
-                                    //
-                                    //nextPendingTask.AssignedToUserId = substituteUserId;
+                                    substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextPendingTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                                    IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextPendingTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
 
+                                    nextPendingTask.AssignedToUserId = substituteUserId;
+                                    nextPendingTask.IsSubstitute = IsSubstitute;
                                     nextPendingTask.Status = ApprovalTaskStatus.InReview.ToString();
                                     nextPendingTask.ModifiedDate = DateTime.Now;
                                     await _context.SaveChangesAsync();

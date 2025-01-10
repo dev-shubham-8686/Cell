@@ -925,6 +925,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 var requestTaskData = _context.AdjustmentReportApproverTaskMasters.Where(x => x.ApproverTaskId == asktoAmend.ApproverTaskId && x.IsActive == true
                                      && x.AdjustmentReportId == asktoAmend.AdjustmentId
                                      && x.Status == ApprovalTaskStatus.InReview.ToString()).FirstOrDefault();
+
+                int substituteUserId = 0;
+                bool IsSubstitute = false;
+
                 if (requestTaskData == null)
                 {
                     res.Message = "Adjustment Report request does not have any review task";
@@ -972,8 +976,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             await _context.SaveChangesAsync();
                         }
 
-                        int substituteUserId = 0;
-                        bool IsSubstitute = false;
+          
                         var otherdepartmenthead1 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 1" && x.IsActive == false && x.SequenceNo == 4)
                                                  .OrderByDescending(x => x.ApproverTaskId)
                                                .FirstOrDefault();
@@ -1049,8 +1052,18 @@ namespace TDSGCellFormat.Implementation.Repository
                                                        && x.SequenceNo > currentApproverTask.SequenceNo)
                                                              .OrderBy(x => x.SequenceNo) // Ensure tasks are processed in sequence order
                                                              .FirstOrDefault();
+
+                       
+
                         if (nextApproveTask != null)
                         {
+
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextApproveTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextApproveTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                            nextApproveTask.AssignedToUserId = substituteUserId;
+                            nextApproveTask.IsSubstitute = IsSubstitute;
+                            await _context.SaveChangesAsync();
+
                             if (currentApproverTask.AssignedToUserId == nextApproveTask.AssignedToUserId)
                             {
                                 nextApproveTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
@@ -1071,6 +1084,11 @@ namespace TDSGCellFormat.Implementation.Repository
 
                                 if (nextPendingTask != null)
                                 {
+                                    substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextPendingTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                                    IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextPendingTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+
+                                    nextPendingTask.AssignedToUserId = substituteUserId;
+                                    nextPendingTask.IsSubstitute = IsSubstitute;
                                     nextPendingTask.Status = ApprovalTaskStatus.InReview.ToString();
                                     nextPendingTask.ModifiedDate = DateTime.Now;
                                     await _context.SaveChangesAsync();
@@ -1085,6 +1103,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             }
                             else
                             {
+
                                 nextApproveTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextApproveTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
