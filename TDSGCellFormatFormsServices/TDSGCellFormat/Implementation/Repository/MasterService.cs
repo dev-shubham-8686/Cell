@@ -398,5 +398,1645 @@ namespace TDSGCellFormat.Implementation.Repository
 
             return res;
         }
+
+
+        #region Master Table API Methods
+
+        #region Master Get Methods
+        //public IQueryable<ResultMonitorDtoView> GetAllResultMonitor()
+        //{
+        //    IQueryable<ResultMonitorDtoView> res = _context.ResultMonitoringMaster.Where(x => x.IsActive == true)
+        //                                       .Select(x => new ResultMonitorDtoView
+        //                                       {
+        //                                           resultMonitorId = x.ResultMonitoringId,
+        //                                           resultMonitorName = x.ResultMonitoringName
+        //                                       });
+
+        //    return res;
+        //}
+
+        public IQueryable<CellDivisionRoleView> GetAllCellDivisionRoles()
+        {
+            IQueryable<CellDivisionRoleView> res = null;
+            try
+            {
+                res = _context.CellDivisionRoleMasters
+                    .Where(x => x.IsActive == true)
+                    .Select(x => new CellDivisionRoleView
+                    {
+                        CellDivisionId = x.CellDivisionId,
+                        DivisionId = x.DivisionId,
+                        Head = x.Head,
+                        DeputyDivisionHead = x.DeputyDivisionHead,
+                        FormName = x.FormName,
+                    });
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<CPCGroupMasterView> GetAllCPCGroups()
+        {
+            IQueryable<CPCGroupMasterView> res = null;
+            try
+            {
+                res = _context.CPCGroupMasters
+                    .Where(x => x.IsActive == true)
+                    .Select(x => new CPCGroupMasterView
+                    {
+                        CPCGroupId = x.CPCGroupId,
+                        Email = x.Email,
+                        EmployeeId = x.EmployeeId,
+                        EmployeeName = x.EmployeeName,
+                    });
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<EquipmentMasterView1> GetAllEquipments()
+        {
+            IQueryable<EquipmentMasterView1> res = null;
+            try
+            {
+                res = _context.EquipmentMasters
+                    .Where(x => x.IsActive == true)
+                    .Select(x => new EquipmentMasterView1
+                    {
+                        EquipmentId = x.EquipmentId,
+                        EquipmentName = x.EquipmentName,
+                    });
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<SectionHeadEmpView> GetAllSectionHeadEmps()
+        {
+            IQueryable<SectionHeadEmpView> res = null;
+            try
+            {
+                res = _context.SectionHeadEmpMasters
+                    .Where(x => x.IsActive == true)
+                    .Select(x => new SectionHeadEmpView
+                    {
+                        SectionHeadMasterId = x.SectionHeadMasterId,
+                        SectionHeadName = x.SectionHeadName,
+                        SectionHeadEmail = x.SectionHeadEmail,
+                        SectionId = x.SectionId,
+                        EmployeeId = x.EmployeeId,
+                    });
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+
+
+        public IQueryable<Area> GetAllAreaMaster()
+        {
+            IQueryable<Area> res = null;
+            try
+            {
+                res = _context.Areas;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<Category> GetAllCategoryMaster()
+        {
+            IQueryable<Category> res = null;
+            try
+            {
+                res = _context.Categories;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<CellDivisionRoleMaster> GetAllCellDivisionRoleMaster()
+        {
+            IQueryable<CellDivisionRoleMaster> res = null;
+            try
+            {
+                res = _context.CellDivisionRoleMasters;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<CPCGroupMaster> GetAllCPCGroupMaster()
+        {
+            IQueryable<CPCGroupMaster> res = null;
+            try
+            {
+                res = _context.CPCGroupMasters;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<DeviceMaster> GetAllDeviceMaster()
+        {
+            IQueryable<DeviceMaster> res = null;
+            try
+            {
+                res = _context.DeviceMasters;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<SubDeviceMaster> GetAllSubDeviceMaster()
+        {
+            IQueryable<SubDeviceMaster> res = null;
+            try
+            {
+                res = _context.SubDeviceMaster;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<EquipmentMaster> GetAllEquipmentMaster()
+        {
+            IQueryable<EquipmentMaster> res = null;
+            try
+            {
+                res = _context.EquipmentMasters;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<Models.Machine> GetAllMachineMaster()
+        {
+            IQueryable<Models.Machine> res = null;
+            try
+            {
+                res = _context.Machines;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<SubMachine> GetAllSubMachineMaster()
+        {
+            IQueryable<SubMachine> res = null;
+            try
+            {
+                res = _context.SubMachines;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<Material> GetAllMaterialMaster()
+        {
+            IQueryable<Material> res = null;
+            try
+            {
+                res = _context.Materials;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<ResultMonitoringMaster> GetAllResultMonitoringMaster()
+        {
+            IQueryable<ResultMonitoringMaster> res = null;
+            try
+            {
+                res = _context.ResultMonitoringMaster;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<FunctionMaster> GetAllFunctionMaster()
+        {
+            IQueryable<FunctionMaster> res = null;
+            try
+            {
+                res = _context.FunctionMaster;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<SectionHeadEmpMaster> GetAllSectionHeadEmpMaster()
+        {
+            IQueryable<SectionHeadEmpMaster> res = null;
+            try
+            {
+                res = _context.SectionHeadEmpMasters.
+                    Select(c => new SectionHeadEmpMaster
+                    {
+                        SectionHeadName = c.SectionHeadName,
+                        SectionHeadMasterId = c.SectionHeadMasterId,
+                        EmployeeId = c.EmployeeId,
+                        SectionHeadEmail = c.SectionHeadEmail,
+                        SectionId = c.SectionId,
+                        IsActive = c.IsActive
+                    });
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<SectionMaster> GetAllSectionMaster()
+        {
+            IQueryable<SectionMaster> res = null;
+            try
+            {
+                res = _context.SectionMasters;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<TroubleType> GetAllTroubleTypeMaster()
+        {
+            IQueryable<TroubleType> res = null;
+            try
+            {
+                res = _context.TroubleTypes;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<UnitOfMeasure> GetAllUnitOfMeasureMaster()
+        {
+            IQueryable<UnitOfMeasure> res = null;
+            try
+            {
+                res = _context.UnitOfMeasures;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        #endregion
+
+        #region AddOrUpdate Methods
+
+        public Task<AreaDtoAdd> AddUpdateAreaTableMaster(AreaDtoAdd area)
+        {
+            try
+            {
+                var check_dup = _context.Areas.Where(c => c.AreaName == area.AreaName && c.AreaId != area.AreaId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    area.AreaId = -1;
+                    return Task.FromResult(area);
+                }
+
+                if (area.AreaId > 0)
+                {
+                    var get_record = _context.Areas.Find(area.AreaId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = area.IsActive;
+                        get_record.AreaName = area.AreaName;
+                        get_record.ModifiedBy = area.ModifiedBy;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(area);
+                    }
+                }
+                else
+                {
+                    var new_record = new Area
+                    {
+                        AreaName = area.AreaName,
+                        IsActive = area.IsActive,
+                        CreatedBy = area.CreatedBy,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.Areas.Add(new_record);
+                    _context.SaveChanges();
+
+                    area.AreaId = new_record.AreaId;
+
+                    return Task.FromResult(area);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<CategoryAdd> AddUpdateCategoryMaster(CategoryAdd category)
+        {
+            try
+            {
+                var check_dup = _context.Categories.Where(c => c.Name == category.Name && c.CategoryId != category.CategoryId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    category.CategoryId = -1;
+                    return Task.FromResult(category);
+                }
+
+                if (category.CategoryId > 0)
+                {
+                    var get_record = _context.Categories.Find(category.CategoryId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = category.IsActive;
+                        get_record.Name = category.Name;
+                        get_record.ModifiedBy = category.ModifiedBy;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(category);
+                    }
+                }
+                else
+                {
+                    var new_record = new Category
+                    {
+                        Name = category.Name,
+                        IsActive = category.IsActive,
+                        CreatedBy = category.CreatedBy,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.Categories.Add(new_record);
+                    _context.SaveChanges();
+
+                    category.CategoryId = new_record.CategoryId;
+
+                    return Task.FromResult(category);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<CellDivisionRoleMasterAdd> AddUpdateCellDivisionRoleMaster(CellDivisionRoleMasterAdd cellDivisionRole)
+        {
+            try
+            {
+                var check_dup = _context.CellDivisionRoleMasters.Where(
+                    c => c.CellDivisionId != cellDivisionRole.CellDivisionId &&
+                    c.FormName == cellDivisionRole.FormName &&
+                    c.DivisionId == cellDivisionRole.DivisionId &&
+                    c.Head == cellDivisionRole.Head &&
+                    c.DeputyDivisionHead == cellDivisionRole.DeputyDivisionHead
+                    ).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    cellDivisionRole.CellDivisionId = -1;
+                    return Task.FromResult(cellDivisionRole);
+                }
+
+                //var _emp_head = _MasterEmployeeSelection(cellDivisionRole.Head ?? 0);
+
+                //var _emp_deputy = _MasterEmployeeSelection(cellDivisionRole.DeputyDivisionHead ?? 0);
+
+                if (cellDivisionRole.CellDivisionId > 0)
+                {
+                    var get_record = _context.CellDivisionRoleMasters.Find(cellDivisionRole.CellDivisionId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = cellDivisionRole.IsActive;
+                        get_record.DivisionId = cellDivisionRole.DivisionId;
+                        get_record.FormName = cellDivisionRole.FormName;
+                        get_record.IsActive = true;
+                        get_record.Head = cellDivisionRole.Head;
+                        get_record.DeputyDivisionHead = cellDivisionRole.DeputyDivisionHead;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(cellDivisionRole);
+                    }
+                }
+                else
+                {
+                    var new_record = new CellDivisionRoleMaster
+                    {
+                        DivisionId = cellDivisionRole.DivisionId,
+                        FormName = cellDivisionRole.FormName,
+                        IsActive = true,
+                        Head = cellDivisionRole.Head,
+                        DeputyDivisionHead = cellDivisionRole.DeputyDivisionHead,
+                    };
+
+                    _context.CellDivisionRoleMasters.Add(new_record);
+                    _context.SaveChanges();
+
+                    cellDivisionRole.CellDivisionId = new_record.CellDivisionId;
+
+                    return Task.FromResult(cellDivisionRole);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<CPCGroupMasterAdd> AddUpdateCPCGroupMaster(CPCGroupMasterAdd cPCGroupMasterAdd)
+        {
+            try
+            {
+                var check_dup = _context.CPCGroupMasters.Where(c => c.EmployeeId == cPCGroupMasterAdd.EmployeeId && c.CPCGroupId != cPCGroupMasterAdd.CPCGroupId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    cPCGroupMasterAdd.CPCGroupId = -1;
+                    return Task.FromResult(cPCGroupMasterAdd);
+                }
+
+                var _emp = _MasterEmployeeSelection(cPCGroupMasterAdd.EmployeeId ?? 0);
+
+                if (cPCGroupMasterAdd.CPCGroupId > 0)
+                {
+                    var get_record = _context.CPCGroupMasters.Find(cPCGroupMasterAdd.CPCGroupId);
+
+                    if (get_record != null)
+                    {
+                        get_record.EmployeeId = cPCGroupMasterAdd.EmployeeId;
+                        get_record.EmployeeName = _emp.EmployeeName;
+                        get_record.Email = _emp.Email;
+                        get_record.IsActive = cPCGroupMasterAdd.IsActive;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(cPCGroupMasterAdd);
+                    }
+                }
+                else
+                {
+                    var new_record = new CPCGroupMaster
+                    {
+                        CPCGroupId = cPCGroupMasterAdd.CPCGroupId,
+                        EmployeeId = cPCGroupMasterAdd.EmployeeId,
+                        Email = _emp.Email,
+                        EmployeeName = _emp.EmployeeName
+                    };
+
+                    _context.CPCGroupMasters.Add(new_record);
+                    _context.SaveChanges();
+
+                    cPCGroupMasterAdd.CPCGroupId = new_record.CPCGroupId;
+
+                    return Task.FromResult(cPCGroupMasterAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<DeviceAdd> AddUpdateDeviceMaster(DeviceAdd deviceAdd)
+        {
+            try
+            {
+                var check_dup = _context.DeviceMasters.Where(c => c.DeviceName == deviceAdd.DeviceName && c.DeviceId != deviceAdd.DeviceId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    deviceAdd.DeviceId = -1;
+                    return Task.FromResult(deviceAdd);
+                }
+
+                if (deviceAdd.DeviceId > 0)
+                {
+                    var get_record = _context.DeviceMasters.Find(deviceAdd.DeviceId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = deviceAdd.IsActive;
+                        get_record.DeviceName = deviceAdd.DeviceName;
+                        get_record.ModifiedBy = deviceAdd.ModifiedBy;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(deviceAdd);
+                    }
+                }
+                else
+                {
+                    var new_record = new DeviceMaster
+                    {
+                        DeviceName = deviceAdd.DeviceName,
+                        IsActive = deviceAdd.IsActive,
+                        CreatedBy = deviceAdd.CreatedBy,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.DeviceMasters.Add(new_record);
+                    _context.SaveChanges();
+
+                    deviceAdd.DeviceId = new_record.DeviceId;
+
+                    return Task.FromResult(deviceAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<SubDeviceAdd> AddUpdateSubDeviceMaster(SubDeviceAdd subDeviceAdd)
+        {
+            try
+            {
+                var check_dup = _context.SubDeviceMaster.Where(c => c.SubDeviceName == subDeviceAdd.SubDeviceName && c.SubDeviceId != subDeviceAdd.SubDeviceId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    subDeviceAdd.SubDeviceId = -1;
+                    return Task.FromResult(subDeviceAdd);
+                }
+
+                if (subDeviceAdd.SubDeviceId > 0)
+                {
+                    var get_record = _context.SubDeviceMaster.Find(subDeviceAdd.SubDeviceId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = subDeviceAdd.IsActive;
+                        get_record.SubDeviceName = subDeviceAdd.SubDeviceName;
+                        get_record.DeviceId = subDeviceAdd.DeviceId;
+                        get_record.ModifiedBy = subDeviceAdd.ModifiedBy;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(subDeviceAdd);
+                    }
+                }
+                else
+                {
+                    var new_record = new SubDeviceMaster
+                    {
+                        SubDeviceName = subDeviceAdd.SubDeviceName,
+                        DeviceId = subDeviceAdd.DeviceId,
+                        IsActive = subDeviceAdd.IsActive,
+                        CreatedBy = subDeviceAdd.CreatedBy,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.SubDeviceMaster.Add(new_record);
+                    _context.SaveChanges();
+
+                    subDeviceAdd.SubDeviceId = new_record.SubDeviceId;
+
+                    return Task.FromResult(subDeviceAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<EquipmentMasterAdd> AddUpdateEquipmentMaster(EquipmentMasterAdd equipmentMasterAdd)
+        {
+            try
+            {
+                var check_dup = _context.EquipmentMasters.Where(c => c.EquipmentName == equipmentMasterAdd.EquipmentName && c.EquipmentId != equipmentMasterAdd.EquipmentId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    equipmentMasterAdd.EquipmentId = -1;
+                    return Task.FromResult(equipmentMasterAdd);
+                }
+
+                if (equipmentMasterAdd.EquipmentId > 0)
+                {
+                    var get_record = _context.EquipmentMasters.Find(equipmentMasterAdd.EquipmentId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = equipmentMasterAdd.IsActive;
+                        get_record.EquipmentName = equipmentMasterAdd.EquipmentName;
+                        get_record.ModifiedBy = equipmentMasterAdd.ModifiedBy;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(equipmentMasterAdd);
+                    }
+                }
+                else
+                {
+                    var new_record = new EquipmentMaster
+                    {
+                        EquipmentName = equipmentMasterAdd.EquipmentName,
+                        IsActive = equipmentMasterAdd.IsActive,
+                        CreatedBy = equipmentMasterAdd.CreatedBy,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.EquipmentMasters.Add(new_record);
+                    _context.SaveChanges();
+
+                    equipmentMasterAdd.EquipmentId = new_record.EquipmentId;
+
+                    return Task.FromResult(equipmentMasterAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<MachineAdd> AddUpdateMachineMaster(MachineAdd machineAdd)
+        {
+            try
+            {
+                var check_dup = _context.Machines.Where(c => c.MachineName == machineAdd.MachineName && c.MachineId != machineAdd.MachineId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    machineAdd.MachineId = -1;
+                    return Task.FromResult(machineAdd);
+                }
+
+                if (machineAdd.MachineId > 0)
+                {
+                    var get_record = _context.Machines.Find(machineAdd.MachineId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsDeleted = machineAdd.IsDeleted;
+                        get_record.MachineName = machineAdd.MachineName;
+                        get_record.ModifiedBy = machineAdd.ModifiedBy;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(machineAdd);
+                    }
+                }
+                else
+                {
+                    var new_record = new TDSGCellFormat.Models.Machine
+                    {
+                        MachineName = machineAdd.MachineName,
+                        IsDeleted = machineAdd.IsDeleted,
+                        CreatedBy = machineAdd.CreatedBy,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.Machines.Add(new_record);
+                    _context.SaveChanges();
+
+                    machineAdd.MachineId = new_record.MachineId;
+
+                    return Task.FromResult(machineAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<SubMachineAdd> AddUpdateSubMachineMaster(SubMachineAdd subMachineAdd)
+        {
+            try
+            {
+                var check_dup = _context.SubMachines.Where(c => c.SubMachineName == subMachineAdd.SubMachineName && c.SubMachineId != subMachineAdd.SubMachineId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    subMachineAdd.SubMachineId = -1;
+                    return Task.FromResult(subMachineAdd);
+                }
+
+                if (subMachineAdd.SubMachineId > 0)
+                {
+                    var get_record = _context.SubMachines.Find(subMachineAdd.SubMachineId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsDeleted = subMachineAdd.IsDeleted;
+                        get_record.SubMachineName = subMachineAdd.SubMachineName;
+                        get_record.MachineId = subMachineAdd.MachineId;
+                        get_record.ModifiedBy = subMachineAdd.ModifiedBy;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(subMachineAdd);
+                    }
+                }
+                else
+                {
+                    var new_record = new SubMachine
+                    {
+                        SubMachineName = subMachineAdd.SubMachineName,
+                        MachineId = subMachineAdd.MachineId,
+                        IsDeleted = subMachineAdd.IsDeleted,
+                        CreatedBy = subMachineAdd.CreatedBy,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.SubMachines.Add(new_record);
+                    _context.SaveChanges();
+
+                    subMachineAdd.SubMachineId = new_record.SubMachineId;
+
+                    return Task.FromResult(subMachineAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<MaterialAdd> AddUpdateMaterialMaster(MaterialAdd materialAdd)
+        {
+            try
+            {
+                var check_dup = _context.Materials.Where(c => c.Code == materialAdd.Code && c.MaterialId != materialAdd.MaterialId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    materialAdd.MaterialId = -1;
+                    return Task.FromResult(materialAdd);
+                }
+
+                if (materialAdd.MaterialId > 0)
+                {
+                    var get_record = _context.Materials.Find(materialAdd.MaterialId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = materialAdd.IsActive;
+                        get_record.Code = materialAdd.Code;
+                        get_record.Description = materialAdd.Description;
+                        get_record.Category = materialAdd.Category ?? 0;
+                        get_record.UOM = materialAdd.UOM ?? 0;
+                        get_record.CostCenter = materialAdd.CostCenter ?? 0;
+                        get_record.ModifiedBy = materialAdd.ModifiedBy;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(materialAdd);
+                    }
+                }
+                else
+                {
+                    var new_record = new Material
+                    {
+                        Code = materialAdd.Code,
+                        Description = materialAdd.Description,
+                        Category = materialAdd.Category ?? 0,
+                        UOM = materialAdd.UOM ?? 0,
+                        CostCenter = materialAdd.CostCenter ?? 0,
+                        IsActive = materialAdd.IsActive,
+                        CreatedBy = materialAdd.CreatedBy,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.Materials.Add(new_record);
+                    _context.SaveChanges();
+
+                    materialAdd.MaterialId = new_record.MaterialId;
+
+                    return Task.FromResult(materialAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<ResultMonitoringMasterAdd> AddUpdateResultMonitoringMaster(ResultMonitoringMasterAdd resultMonitoringMasterAdd)
+        {
+            try
+            {
+                var check_dup = _context.ResultMonitoringMaster.Where(c => c.ResultMonitoringName == resultMonitoringMasterAdd.ResultMonitoringName && c.ResultMonitoringId != resultMonitoringMasterAdd.ResultMonitoringId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    resultMonitoringMasterAdd.ResultMonitoringId = -1;
+                    return Task.FromResult(resultMonitoringMasterAdd);
+                }
+
+                if (resultMonitoringMasterAdd.ResultMonitoringId > 0)
+                {
+                    var get_record = _context.ResultMonitoringMaster.Find(resultMonitoringMasterAdd.ResultMonitoringId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = resultMonitoringMasterAdd.IsActive;
+                        get_record.ResultMonitoringName = resultMonitoringMasterAdd.ResultMonitoringName;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(resultMonitoringMasterAdd);
+                    }
+                }
+                else
+                {
+                    var new_record = new ResultMonitoringMaster
+                    {
+                        ResultMonitoringName = resultMonitoringMasterAdd.ResultMonitoringName,
+                        IsActive = resultMonitoringMasterAdd.IsActive,
+                    };
+
+                    _context.ResultMonitoringMaster.Add(new_record);
+                    _context.SaveChanges();
+
+                    resultMonitoringMasterAdd.ResultMonitoringId = new_record.ResultMonitoringId;
+
+                    return Task.FromResult(resultMonitoringMasterAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        //public Task<FunctionMasterAdd> AddUpdateFunctionMaster(FunctionMasterAdd functionMasterAdd)
+        //{
+        //    try
+        //    {
+        //        var check_dup = _context.Categories.Where(c => c.Name == category.Name && c.CategoryId != category.CategoryId).FirstOrDefault();
+        //        if (check_dup != null)
+        //        {
+        //            category.CategoryId = -1;
+        //            return Task.FromResult(category);
+        //        }
+
+        //        if (category.CategoryId > 0)
+        //        {
+        //            var get_record = _context.Categories.Find(category.CategoryId);
+
+        //            if (get_record != null)
+        //            {
+        //                get_record.IsActive = category.IsActive;
+        //                get_record.Name = category.Name;
+        //                get_record.ModifiedBy = category.ModifiedBy;
+        //                get_record.ModifiedDate = DateTime.Now;
+
+        //                _context.SaveChanges();
+
+        //                return Task.FromResult(category);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            var new_record = new Category
+        //            {
+        //                Name = category.Name,
+        //                IsActive = category.IsActive,
+        //                CreatedBy = category.CreatedBy,
+        //                CreatedDate = DateTime.Now
+        //            };
+
+        //            _context.Categories.Add(new_record);
+        //            _context.SaveChanges();
+
+        //            category.CategoryId = new_record.CategoryId;
+
+        //            return Task.FromResult(category);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return null;
+        //    }
+
+        //    return null;
+        //    FunctionMaster? newFunctionMaster = new FunctionMaster();
+
+        //    var existingArea = _context.FunctionMaster.Where(x => x.FunctionId == functionMasterAdd.FunctionId || x.FunctionName == functionMasterAdd.FunctionName).FirstOrDefault();
+        //    if (existingArea == null)
+        //    {
+        //        newFunctionMaster = new FunctionMaster();
+        //        newFunctionMaster.FunctionName = functionMasterAdd.FunctionName;
+        //        newFunctionMaster.IsActive = true;
+        //        newFunctionMaster.CreatedBy = functionMasterAdd.CreatedBy;
+        //        newFunctionMaster.CreatedDate = DateTime.Now;
+        //        _context.FunctionMaster.Add(newFunctionMaster);
+        //        _context.SaveChanges();
+
+        //        return Task.FromResult(new FunctionView()
+        //        {
+        //            functionId = newFunctionMaster.FunctionId,
+        //            functionName = newFunctionMaster.FunctionName,
+        //        });
+        //    }
+        //    else
+        //    {
+        //        existingArea.FunctionName = functionMasterAdd.FunctionName;
+        //        existingArea.IsActive = functionMasterAdd.IsActive ? true : false;
+        //        existingArea.ModifiedBy = functionMasterAdd.ModifiedBy;
+        //        existingArea.ModifiedDate = DateTime.Now;
+        //        _context.SaveChanges();
+
+        //        return Task.FromResult(new FunctionView()
+        //        {
+        //            functionId = existingArea.FunctionId,
+        //            functionName = existingArea.FunctionName,
+        //        });
+        //    }
+        //}
+
+        public Task<SectionHeadEmpMasterAdd> AddUpdateSectionHeadEmpMaster(SectionHeadEmpMasterAdd sectionHeadEmpMasterAdd)
+        {
+            try
+            {
+                var check_dup = _context.SectionHeadEmpMasters.Where(c =>
+                c.EmployeeId == sectionHeadEmpMasterAdd.EmployeeId &&
+                c.SectionId == sectionHeadEmpMasterAdd.SectionId &&
+                c.SectionHeadMasterId != sectionHeadEmpMasterAdd.SectionHeadMasterId).FirstOrDefault();
+
+                if (check_dup != null)
+                {
+                    sectionHeadEmpMasterAdd.SectionHeadMasterId = -1;
+                    return Task.FromResult(sectionHeadEmpMasterAdd);
+                }
+
+                var _emp = _MasterEmployeeSelection(sectionHeadEmpMasterAdd.EmployeeId ?? 0);
+
+                if (sectionHeadEmpMasterAdd.SectionHeadMasterId > 0)
+                {
+                    var get_record = _context.SectionHeadEmpMasters.Find(sectionHeadEmpMasterAdd.SectionHeadMasterId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = sectionHeadEmpMasterAdd.IsActive;
+                        get_record.SectionHeadName = _emp.EmployeeName;
+                        get_record.EmployeeId = sectionHeadEmpMasterAdd.EmployeeId;
+                        get_record.SectionHeadEmail = _emp.Email;
+                        get_record.SectionId = sectionHeadEmpMasterAdd.SectionId;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(sectionHeadEmpMasterAdd);
+                    }
+                }
+                else
+                {
+                    var new_record = new SectionHeadEmpMaster
+                    {
+                        SectionHeadName = _emp.EmployeeName,
+                        EmployeeId = sectionHeadEmpMasterAdd.EmployeeId,
+                        SectionHeadEmail = _emp.Email,
+                        SectionId = sectionHeadEmpMasterAdd.SectionId,
+                        IsActive = sectionHeadEmpMasterAdd.IsActive,
+                    };
+
+                    _context.SectionHeadEmpMasters.Add(new_record);
+                    _context.SaveChanges();
+
+                    sectionHeadEmpMasterAdd.SectionHeadMasterId = new_record.SectionHeadMasterId;
+
+                    return Task.FromResult(sectionHeadEmpMasterAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<SectionMasterAdd> AddUpdateSectionMaster(SectionMasterAdd sectionMasterAdd)
+        {
+            try
+            {
+                var check_dup = _context.SectionMasters.Where(c => c.SectionName == sectionMasterAdd.SectionName && c.SectionId != sectionMasterAdd.SectionId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    sectionMasterAdd.SectionId = -1;
+                    return Task.FromResult(sectionMasterAdd);
+                }
+
+                if (sectionMasterAdd.SectionId > 0)
+                {
+                    var get_record = _context.SectionMasters.Find(sectionMasterAdd.SectionId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = sectionMasterAdd.IsActive;
+                        get_record.SectionName = sectionMasterAdd.SectionName;
+                        get_record.ModifiedBy = sectionMasterAdd.ModifiedBy;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(sectionMasterAdd);
+                    }
+                }
+                else
+                {
+                    var new_record = new SectionMaster
+                    {
+                        SectionName = sectionMasterAdd.SectionName,
+                        IsActive = sectionMasterAdd.IsActive,
+                        CreatedBy = sectionMasterAdd.CreatedBy,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.SectionMasters.Add(new_record);
+                    _context.SaveChanges();
+
+                    sectionMasterAdd.SectionId = new_record.SectionId;
+
+                    return Task.FromResult(sectionMasterAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<TroubleTypeAdd> AddUpdateTroubleTypeMaster(TroubleTypeAdd troubleTypeAdd)
+        {
+            try
+            {
+                var check_dup = _context.TroubleTypes.Where(c => c.Name == troubleTypeAdd.Name && c.TroubleId != troubleTypeAdd.TroubleId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    troubleTypeAdd.TroubleId = -1;
+                    return Task.FromResult(troubleTypeAdd);
+                }
+
+                if (troubleTypeAdd.TroubleId > 0)
+                {
+                    var get_record = _context.TroubleTypes.Find(troubleTypeAdd.TroubleId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = troubleTypeAdd.IsActive;
+                        get_record.Name = troubleTypeAdd.Name;
+                        get_record.ModifiedBy = troubleTypeAdd.ModifiedBy;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(troubleTypeAdd);
+                    }
+                }
+                else
+                {
+                    var new_record = new TroubleType
+                    {
+                        Name = troubleTypeAdd.Name,
+                        IsActive = troubleTypeAdd.IsActive,
+                        CreatedBy = troubleTypeAdd.CreatedBy,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.TroubleTypes.Add(new_record);
+                    _context.SaveChanges();
+
+                    troubleTypeAdd.TroubleId = new_record.TroubleId;
+
+                    return Task.FromResult(troubleTypeAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<UnitOfMeasureDtoAdd> AddUpdateUnitOfMeasureMaster(UnitOfMeasureDtoAdd unitOfMeasureAdd)
+        {
+            try
+            {
+                var check_dup = _context.UnitOfMeasures.Where(c => c.Name == unitOfMeasureAdd.Name && c.UOMId != unitOfMeasureAdd.UOMId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    unitOfMeasureAdd.UOMId = -1;
+                    return Task.FromResult(unitOfMeasureAdd);
+                }
+
+                if (unitOfMeasureAdd.UOMId > 0)
+                {
+                    var get_record = _context.UnitOfMeasures.Find(unitOfMeasureAdd.UOMId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = unitOfMeasureAdd.IsActive;
+                        get_record.Name = unitOfMeasureAdd.Name;
+                        get_record.ModifiedBy = unitOfMeasureAdd.ModifiedBy;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(unitOfMeasureAdd);
+                    }
+                }
+                else
+                {
+                    var new_record = new UnitOfMeasure
+                    {
+                        Name = unitOfMeasureAdd.Name,
+                        IsActive = unitOfMeasureAdd.IsActive,
+                        CreatedBy = unitOfMeasureAdd.CreatedBy,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.UnitOfMeasures.Add(new_record);
+                    _context.SaveChanges();
+
+                    unitOfMeasureAdd.UOMId = new_record.UOMId;
+
+                    return Task.FromResult(unitOfMeasureAdd);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        #endregion
+
+        #region Master Remove Methods
+
+        public Task<bool> DeleteAreaMaster(int id)
+        {
+            var existingArea = _context.Areas.Where(x => x.AreaId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.Areas.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteCategory(int id)
+        {
+            var existingArea = _context.Categories.Where(x => x.CategoryId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.Categories.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteCellDivisionRole(int id)
+        {
+            var existingArea = _context.CellDivisionRoleMasters.Where(x => x.CellDivisionId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.CellDivisionRoleMasters.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteCPCGroup(int id)
+        {
+            var existingArea = _context.CPCGroupMasters.Where(x => x.CPCGroupId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.CPCGroupMasters.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteDevice(int id)
+        {
+            var existingArea = _context.DeviceMasters.Where(x => x.DeviceId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.DeviceMasters.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteSubDevice(int id)
+        {
+            var existingArea = _context.SubDeviceMaster.Where(x => x.SubDeviceId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.SubDeviceMaster.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteEquipment(int id)
+        {
+            var existingArea = _context.EquipmentMasters.Where(x => x.EquipmentId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.EquipmentMasters.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteMachine(int id)
+        {
+            var existingArea = _context.Machines.Where(x => x.MachineId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.Machines.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteSubMachine(int id)
+        {
+            var existingArea = _context.SubMachines.Where(x => x.SubMachineId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.SubMachines.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteMaterial(int id)
+        {
+            var existingArea = _context.Materials.Where(x => x.MaterialId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.Materials.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteResultMonitoring(int id)
+        {
+            var existingArea = _context.ResultMonitoringMaster.Where(x => x.ResultMonitoringId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.ResultMonitoringMaster.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteFunction(int id)
+        {
+            var existingArea = _context.FunctionMaster.Where(x => x.FunctionId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.FunctionMaster.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteSectionHeadEmp(int id)
+        {
+            var existingArea = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.SectionHeadEmpMasters.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteSection(int id)
+        {
+            var existingArea = _context.SectionMasters.Where(x => x.SectionId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.SectionMasters.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteTroubleType(int id)
+        {
+            var existingArea = _context.TroubleTypes.Where(x => x.TroubleId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.TroubleTypes.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteUnitOfMeasure(int id)
+        {
+            var existingArea = _context.UnitOfMeasures.Where(x => x.UOMId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                _context.UnitOfMeasures.Remove(existingArea);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        #endregion
+
+        #region Master Selection Methods
+
+        public IQueryable<DivisionMaster> GetAllDivisionMasterSelection()
+        {
+            IQueryable<DivisionMaster> res = null;
+            try
+            {
+                res = _cloneContext.DivisionMasters.Where(c => c.IsActive == true).Select(c => new DivisionMaster
+                {
+                    Name = c.Name,
+                    DivisionID = c.DivisionID
+                });
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<SubDeviceMaster> GetAllSubDeviceMasterSelection()
+        {
+            IQueryable<SubDeviceMaster> res = null;
+            try
+            {
+                res = _context.SubDeviceMaster.Where(c => c.IsActive == true).Select(c => new SubDeviceMaster
+                {
+                    SubDeviceId = c.SubDeviceId,
+                    SubDeviceName = c.SubDeviceName,
+                    IsActive = c.IsActive,
+                    DeviceId = c.DeviceId
+                });
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<CostCenter> GetAllCostCenterSelection()
+        {
+            IQueryable<CostCenter> res = null;
+            try
+            {
+                res = _context.CostCentres.Where(c => c.IsActive == true).Select(c => new CostCenter
+                {
+                    CostCentreId = c.CostCentreId,
+                    Name = c.Name,
+                    IsActive = c.IsActive
+                });
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<UnitOfMeasure> GetAllUOMSelection()
+        {
+            IQueryable<UnitOfMeasure> res = null;
+            try
+            {
+                res = _context.UnitOfMeasures.Where(c => c.IsActive == true).Select(c => new UnitOfMeasure
+                {
+                    UOMId = c.UOMId,
+                    Name = c.Name,
+                    IsActive = c.IsActive
+                });
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<MasterEmployeeSelection> GetAllMasterEmployeeSelection()
+        {
+            IQueryable<MasterEmployeeSelection> res = _cloneContext.EmployeeMasters.Where(x => x.IsActive == true)
+                                            .Select(x => new MasterEmployeeSelection
+                                            {
+                                                EmployeeId = x.EmployeeID,
+                                                EmployeeName = x.EmployeeName,
+                                                Email = x.Email
+                                            });
+
+            return res;
+        }
+
+        public IQueryable<SectionMaster> GetAllSectionMasterSelection()
+        {
+            IQueryable<SectionMaster> res = null;
+            try
+            {
+                res = _context.SectionMasters.Where(c => c.IsActive == true)
+                    .Select(c => new SectionMaster { SectionId = c.SectionId, SectionName = c.SectionName, IsActive = c.IsActive });
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        public IQueryable<Category> GetAllCategorySelection()
+        {
+            IQueryable<Category> res = null;
+            try
+            {
+                res = _context.Categories.Where(c => c.IsActive == true)
+                    .Select(c => new Category { CategoryId = c.CategoryId, Name = c.Name, IsActive = c.IsActive });
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+        private MasterEmployeeSelection _MasterEmployeeSelection(int EmployeeId)
+        {
+            return _cloneContext.EmployeeMasters.Where(c => c.EmployeeID == EmployeeId).Select(x => new MasterEmployeeSelection
+            {
+                EmployeeId = x.EmployeeID,
+                EmployeeName = x.EmployeeName,
+                Email = x.Email
+            }).SingleOrDefault();
+        }
+
+        #endregion
+
+        #endregion
     }
 }
