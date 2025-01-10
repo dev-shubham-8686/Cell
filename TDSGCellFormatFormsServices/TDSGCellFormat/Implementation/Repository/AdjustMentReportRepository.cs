@@ -603,7 +603,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
                     {
-                        var data = await SubmitRequest(existingReport.AdjustMentReportId, existingReport.CreatedBy, request.AdvisorId);
+                        var data = await SubmitRequest(existingReport.AdjustMentReportId, request.ModifiedBy, request.AdvisorId);
                         if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.AdjustMentSubmit;
@@ -629,7 +629,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                         else
                         {
-                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
+                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
 
                         }
                     }
@@ -710,7 +710,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 }
 
-                await _context.CallAdjustmentReportApproverMaterix(createdBy, adjustmentReportId);
+                await _context.CallAdjustmentReportApproverMaterix(adjustment.CreatedBy, adjustmentReportId);
 
                 //var approverTaskId = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsActive == true && x.Status == ApprovalTaskStatus.InReview.ToString()).Select(x => x.ApproverTaskId).FirstOrDefault();
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
@@ -925,6 +925,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 var requestTaskData = _context.AdjustmentReportApproverTaskMasters.Where(x => x.ApproverTaskId == asktoAmend.ApproverTaskId && x.IsActive == true
                                      && x.AdjustmentReportId == asktoAmend.AdjustmentId
                                      && x.Status == ApprovalTaskStatus.InReview.ToString()).FirstOrDefault();
+
+                int substituteUserId = 0;
+                bool IsSubstitute = false;
+
                 if (requestTaskData == null)
                 {
                     res.Message = "Adjustment Report request does not have any review task";
@@ -953,6 +957,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                 .FirstOrDefault();
                         if (divisionHead != null)
                         {
+                            divisionHead.DelegateUserId = requestTaskData.DelegateUserId;
                             divisionHead.IsActive = true;
                             await _context.SaveChangesAsync();
                         }
@@ -972,8 +977,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             await _context.SaveChangesAsync();
                         }
 
-                        int substituteUserId = 0;
-                        bool IsSubstitute = false;
+          
                         var otherdepartmenthead1 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 1" && x.IsActive == false && x.SequenceNo == 4)
                                                  .OrderByDescending(x => x.ApproverTaskId)
                                                .FirstOrDefault();
@@ -1049,12 +1053,23 @@ namespace TDSGCellFormat.Implementation.Repository
                                                        && x.SequenceNo > currentApproverTask.SequenceNo)
                                                              .OrderBy(x => x.SequenceNo) // Ensure tasks are processed in sequence order
                                                              .FirstOrDefault();
+
+                       
+
                         if (nextApproveTask != null)
                         {
+
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextApproveTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextApproveTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                            nextApproveTask.AssignedToUserId = substituteUserId;
+                            nextApproveTask.IsSubstitute = IsSubstitute;
+                            await _context.SaveChangesAsync();
+
                             if (currentApproverTask.AssignedToUserId == nextApproveTask.AssignedToUserId)
                             {
                                 nextApproveTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
                                 nextApproveTask.ModifiedDate = DateTime.Now;
+                                nextApproveTask.ActionTakenDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
 
                                 InsertHistoryData(asktoAmend.AdjustmentId, FormType.AdjustmentReport.ToString(), requestTaskData.Role, asktoAmend.Comment, requestTaskData.Status, Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.AutoApproved.ToString(), 0);
@@ -1070,6 +1085,11 @@ namespace TDSGCellFormat.Implementation.Repository
 
                                 if (nextPendingTask != null)
                                 {
+                                    substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextPendingTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                                    IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextPendingTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+
+                                    nextPendingTask.AssignedToUserId = substituteUserId;
+                                    nextPendingTask.IsSubstitute = IsSubstitute;
                                     nextPendingTask.Status = ApprovalTaskStatus.InReview.ToString();
                                     nextPendingTask.ModifiedDate = DateTime.Now;
                                     await _context.SaveChangesAsync();
@@ -1084,6 +1104,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             }
                             else
                             {
+
                                 nextApproveTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextApproveTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
@@ -1582,15 +1603,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#conditionafteradjustment#", adjustMentReportData.ConditionAfterAdjustment);
                 sb.Replace("#preparedby#", applicant);
 
-                //  string approveSectioneHead = approvalData.FirstOrDefault(a => a.SequenceNo == 1 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedShiftIncharge = approverData.FirstOrDefault(a => a.SequenceNo == 1 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string approvedBySectionHead = approverData.FirstOrDefault(a => a.SequenceNo == 2 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByDepartmentHead = approverData.FirstOrDefault(a => a.SequenceNo == 3 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByDivisionHead = approverData.FirstOrDefault(a => a.SequenceNo == 7 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
-
-                sb.Replace("#sectionhead#", approvedBySectionHead);
-                sb.Replace("#departmenthead#", approvedByDepartmentHead);
-                sb.Replace("#divisionhead#", approvedByDivisionHead);
-
 
                 // Prepare dynamic headers and cells based on the fetched data
                 string dynamicHeaders = string.Empty;
@@ -1600,6 +1616,22 @@ namespace TDSGCellFormat.Implementation.Repository
                 string approvedByOtherDepartmentHead2 = approverData.FirstOrDefault(a => a.SequenceNo == 5 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string divisionHead = approverData.FirstOrDefault(a => a.SequenceNo == 8 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
 
+
+                if (approvedShiftIncharge != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Shift In Charge</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedShiftIncharge}</td>";
+                }
+                if (approvedBySectionHead != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Section Head</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedBySectionHead}</td>";
+                }
+                if (approvedByDepartmentHead != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Requestor Department Head</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedByDepartmentHead}</td>";
+                }
                 if (approvedByOtherDepartmentHead1 != "N/A")
                 {
                     dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Other Department Head 1</th>";
@@ -1609,6 +1641,11 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Other Department Head 2</th>";
                     dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedByOtherDepartmentHead2}</td>";
+                }
+                if (approvedByDivisionHead != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Deputy Division Head</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedByDivisionHead}</td>";
                 }
                 if (divisionHead != "N/A")
                 {
@@ -1914,8 +1951,9 @@ namespace TDSGCellFormat.Implementation.Repository
             try
             {
                 var adjustment = _context.AdjustmentReportApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId == 0) ||
-                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0)) &&
-                                                                                      x.AdjustmentReportId == request.FormId && x.IsActive == true).ToList();
+                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0)) 
+                                                                                       && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
+                                                                                     && x.AdjustmentReportId == request.FormId && x.IsActive == true).ToList();
                 if (adjustment != null)
                 {
                     foreach (var user in adjustment)
@@ -1926,7 +1964,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         await _context.SaveChangesAsync();
                     }
 
-                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.AdjustmentReport.ToString()).FirstOrDefault();
+                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.AdjustmentReport.ToString() && x.EmployeeId == request.activeUserId).FirstOrDefault();
                     if (existingAdjDelegate != null)
                     {
                         existingAdjDelegate.DelegateUserId = request.DelegateUserId;
