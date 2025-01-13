@@ -14,6 +14,8 @@ using TDSGCellFormat.Models.View;
 using static TDSGCellFormat.Common.Enums;
 using System.Globalization;
 using Org.BouncyCastle.Utilities.Encoders;
+using Microsoft.SharePoint.Client;
+using SelectPdf;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -1486,6 +1488,15 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Append(htmlTemplate);
 
                 var machineName = _context.Machines.Where(x => x.MachineId == adjustMentReportData.MachineName).Select(x => x.MachineName).FirstOrDefault();
+                if (!string.IsNullOrEmpty(machineName))
+                {
+                    sb.Replace("#MachineName#", machineName);
+                }
+                else if (!string.IsNullOrEmpty(adjustMentReportData.OtherMachineName))
+                {
+                    sb.Replace("#MachineName#", "Other - " + adjustMentReportData.OtherMachineName);
+                }
+
                 var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
                 var checkedBy = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CheckedBy).Select(x => x.EmployeeName).FirstOrDefault();
 
@@ -1526,11 +1537,34 @@ namespace TDSGCellFormat.Implementation.Repository
                     subMachineString = string.Join(", ", subMachineNames);
                 }
 
+                StringBuilder changeRiskBuilder = new StringBuilder();
+
                 StringBuilder tableBuilder = new StringBuilder();
                 int serialNumber = 1;
 
                 if (data.Any() && data != null)
                 {
+                    changeRiskBuilder.Append("<div style= 'margin-top: 5px; border: 1px solid black; padding: 10px'>");
+                    changeRiskBuilder.Append("<table style='border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%; align='center'>");
+
+                    changeRiskBuilder.Append("<tr>");
+                    changeRiskBuilder.Append("<th colspan= '9' style='border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px;'>");
+                    changeRiskBuilder.Append(
+                         "< th colspan = '9' style = 'border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px' >Change Risk Management</ th>"
+                        );
+                    changeRiskBuilder.Append("</tr>");
+                    changeRiskBuilder.Append("<tr style='padding: 10px; height: 20px;'>");
+                    changeRiskBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Sr. No</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Changes</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Functions</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Risk associated with changes</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Factors/ Causes</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Counter measures</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Due Date</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Person in charge</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 20%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Results</b></td>");
+                    changeRiskBuilder.Append("</tr>");
+
                     foreach (var item in data)
                     {
                         tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
@@ -1554,7 +1588,12 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         tableBuilder.Append("</tr>");
                     }
+                    tableBuilder.Append("</table>");
+                    tableBuilder.Append("</div>");
+
                 }
+
+                sb.Replace("#changeRiskHeaders#", changeRiskBuilder.ToString());
                 sb.Replace("#ChangeriskTable#", tableBuilder.ToString());
 
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
@@ -1709,6 +1748,26 @@ namespace TDSGCellFormat.Implementation.Repository
                 // Create PDF using SelectPDF
                 var converter = new SelectPdf.HtmlToPdf();
                 converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
+
+                // footer settings
+                converter.Options.DisplayFooter = true;
+                converter.Footer.DisplayOnFirstPage = true;
+                converter.Footer.DisplayOnOddPages = true;
+                converter.Footer.DisplayOnEvenPages = true;
+                converter.Footer.Height = 50;
+
+                // Centered text
+                PdfTextSection centerText = new PdfTextSection(0, 10, "This document is digitally generated. No signature is required.", new System.Drawing.Font("Arial", 8));
+                centerText.HorizontalAlign = PdfTextHorizontalAlign.Center;
+                converter.Footer.Add(centerText);
+
+                // Page numbers on the right
+                PdfTextSection pageNumberText = new PdfTextSection(-5, 10, "Page {page_number}   ", new System.Drawing.Font("Arial", 8));
+                pageNumberText.HorizontalAlign = PdfTextHorizontalAlign.Right;
+
+                //.HorizontalAlign = PdfTextHorizontalAlign.Right;
+                converter.Footer.Add(pageNumberText);
+
                 SelectPdf.PdfDocument pdfDoc = converter.ConvertHtmlString(sb.ToString());
 
                 // Convert the PDF to a byte array
@@ -1930,8 +1989,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var adjustment = _context.AdjustmentReportApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId == 0) ||
-                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0)) 
+                var adjustment = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId
                                                                                        && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
                                                                                      && x.AdjustmentReportId == request.FormId && x.IsActive == true).ToList();
                 if (adjustment != null)
