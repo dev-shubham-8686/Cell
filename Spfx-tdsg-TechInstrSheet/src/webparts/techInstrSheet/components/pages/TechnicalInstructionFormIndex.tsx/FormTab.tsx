@@ -165,6 +165,15 @@ const FormTab: React.FC<any> = ({
   //   setOtherEquipment("");
   // };
 
+  const handleIssueDateChange = (date:any) => {
+    if (date) {
+      // Autofill the "Application Date" field
+      form.setFieldsValue({
+        applicationStartDate: date, // Set the same value as Issue Date
+      });
+    }
+  };
+
   return (
     <div>
       {/* Form tab content */}
@@ -188,6 +197,7 @@ const FormTab: React.FC<any> = ({
                 disabledDate={(current) =>
                   current && current < dayjs().startOf("day") // Disable past dates
                 }
+                onChange={handleIssueDateChange} // Handle date change
                 disabled={isViewMode}
               />
             </Form.Item>
@@ -474,7 +484,7 @@ const FormTab: React.FC<any> = ({
                 disabledDate={(current) =>
                   current && current < dayjs().startOf("day") // Disable past dates
                 }
-                disabled={isViewMode}
+                disabled={true}//{isViewMode}
               />
             </Form.Item>
           </Col>
