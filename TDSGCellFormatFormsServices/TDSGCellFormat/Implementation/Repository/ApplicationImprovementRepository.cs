@@ -64,11 +64,11 @@ namespace TDSGCellFormat.Implementation.Repository
         #region Delegate 
         public async Task<AjaxResult> InsertDelegate(DelegateUser request)
         {
+            //request.ActiveUserId -> actual userId whom the task is Assigned
             var res = new AjaxResult();
             try
             {
-                var equipment = _context.EquipmentImprovementApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId ==0) || 
-                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0))
+                var equipment = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId 
                                                                                       && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
                                                                                 && x.EquipmentImprovementId == request.FormId && x.IsActive == true).ToList();
                 if (equipment != null)
