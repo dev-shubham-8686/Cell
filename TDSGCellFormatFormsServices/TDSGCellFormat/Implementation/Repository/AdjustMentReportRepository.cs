@@ -1070,6 +1070,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             if (currentApproverTask.AssignedToUserId == nextApproveTask.AssignedToUserId)
                             {
                                 nextApproveTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
+                                nextApproveTask.ActionTakenBy = nextApproveTask.AssignedToUserId;
                                 nextApproveTask.ModifiedDate = DateTime.Now;
                                 nextApproveTask.ActionTakenDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
@@ -1547,6 +1548,14 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     foreach (var id in subMachineId)
                     {
+
+                        if (id == -1)
+                        {
+                            if (!string.IsNullOrEmpty(adjustMentReportData.OtherSubMachineName))
+                            {
+                                subMachineNames.Add("Other - " + adjustMentReportData.OtherSubMachineName); // Add "Other" category with its name
+                            }
+                        }
                         // Query database or use a dictionary/cache to get the name
                         var subMachineName = _context.SubMachines.Where(x => x.SubMachineId == id && x.IsDeleted == false).Select(x => x.SubMachineName).FirstOrDefault(); // Replace this with your actual DB logic
                         if (!string.IsNullOrEmpty(subMachineName))
@@ -1695,7 +1704,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 var advisor = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == adjustMentReportId && x.IsActive == true).FirstOrDefault();
                 if (advisor != null)
                 {
-                    sb.Replace("#advisorComments#", advisor.Comment);
+                    string comment = advisor.Comment ?? "N/A";
+                    sb.Replace("#advisorComments#", comment);
                 }
 
                 var baseUrl = _configuration["SPSiteUrl"];
