@@ -1564,14 +1564,11 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (data.Any() && data != null)
                 {
-                    changeRiskBuilder.Append("<div style= 'margin-top: 5px; border: 1px solid black; padding: 10px'>");
+                    changeRiskBuilder.Append("<div style= 'margin-top: 15px; border: 1px solid black; padding: 10px'>");
                     changeRiskBuilder.Append("<table style='border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%; align='center'>");
 
                     changeRiskBuilder.Append("<tr>");
-                    changeRiskBuilder.Append("<th colspan= '9' style='border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px;'>");
-                    changeRiskBuilder.Append(
-                         "< th colspan = '9' style = 'border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px' >Change Risk Management</ th>"
-                        );
+                    changeRiskBuilder.Append("<td style = 'border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px'>Change Risk Management</td>" );
                     changeRiskBuilder.Append("</tr>");
                     changeRiskBuilder.Append("<tr style='padding: 10px; height: 20px;'>");
                     changeRiskBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Sr. No</b></td>");
