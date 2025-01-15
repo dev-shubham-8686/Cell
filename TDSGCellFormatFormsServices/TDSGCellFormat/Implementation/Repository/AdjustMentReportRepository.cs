@@ -979,7 +979,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             await _context.SaveChangesAsync();
                         }
 
-          
+
                         var otherdepartmenthead1 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 1" && x.IsActive == false && x.SequenceNo == 4)
                                                  .OrderByDescending(x => x.ApproverTaskId)
                                                .FirstOrDefault();
@@ -1056,7 +1056,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                                              .OrderBy(x => x.SequenceNo) // Ensure tasks are processed in sequence order
                                                              .FirstOrDefault();
 
-                       
+
 
                         if (nextApproveTask != null)
                         {
@@ -1519,7 +1519,25 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
 
                 var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
-                var checkedBy = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CheckedBy).Select(x => x.EmployeeName).FirstOrDefault();
+
+                string checkedByPer;
+                if (adjustMentReportData.CheckedBy == -1)
+                {
+                    checkedByPer = "Not Applicable";
+                }
+                else
+                {
+                    var checkedBy = _cloneContext.EmployeeMasters
+                                                 .Where(x => x.EmployeeID == adjustMentReportData.CheckedBy)
+                                                 .Select(x => x.EmployeeName)
+                                                 .FirstOrDefault();
+                    checkedByPer = checkedBy ?? "Not Applicable";
+                }
+
+                sb.Replace("#checkedby#", checkedByPer);
+
+
+
 
 
                 var areaIds = adjustMentReportData.Area.Split(',').Select(id => int.Parse(id)).ToList();
@@ -1549,7 +1567,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     foreach (var id in subMachineId)
                     {
 
-                        if (id == -1)
+                        if (id == -2)
                         {
                             if (!string.IsNullOrEmpty(adjustMentReportData.OtherSubMachineName))
                             {
@@ -1577,7 +1595,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     changeRiskBuilder.Append("<table style='border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%; align='center'>");
 
                     changeRiskBuilder.Append("<tr>");
-                    changeRiskBuilder.Append("<td style = 'border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px'>Change Risk Management</td>" );
+                    changeRiskBuilder.Append("<td style = 'border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px'>Change Risk Management</td>");
                     changeRiskBuilder.Append("</tr>");
                     changeRiskBuilder.Append("<tr style='padding: 10px; height: 20px;'>");
                     changeRiskBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Sr. No</b></td>");
@@ -1638,8 +1656,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#area#", areaNamesString);
                 sb.Replace("#reportno#", adjustMentReportData.ReportNo);
                 sb.Replace("#requestor#", applicant);
-                sb.Replace("#machinename#", machineName);
-                sb.Replace("#checkedby#", checkedBy);
                 sb.Replace("#when#", adjustMentReportData.When?.ToString("dd-MM-yyyy HH:mm") ?? "N/A");
                 sb.Replace("#describeproblem#", adjustMentReportData.DescribeProblem);
                 sb.Replace("#observation#", adjustMentReportData.Observation);
