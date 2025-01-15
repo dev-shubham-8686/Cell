@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { IWorkflowDetail } from "../../components/equipmentReport/Workflow";
 import { GET_APPROVER_FLOW_DATA } from "../../URLs";
 import http from "../../http";
+import { IWorkflowDetail } from "../../components/EquipmentReport/Workflow";
 
 export interface IWorkFlow{
   WorkflowOne:IWorkflowDetail[];

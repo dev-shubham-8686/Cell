@@ -33,7 +33,7 @@ export const Message = {
 
 
 export const SERVICE_URL =
-  //"https://localhost:44353"; //dev    TODO: update before deployment
+  // "https://localhost:44353"; //dev    TODO: update before deployment
   // "https://cellformservice-qa.tdsgj.co.in"   // QA
   "https://cellformservice-stage.tdsgj.co.in"; //stage
 

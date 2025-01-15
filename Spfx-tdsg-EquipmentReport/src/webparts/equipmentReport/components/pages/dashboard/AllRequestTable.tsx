@@ -255,7 +255,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
          
-          {/* {(user.isAdmin ||((row.Status === REQUEST_STATUS.LogicalAmendment ||
+          {(user.isAdmin ||((row.Status === REQUEST_STATUS.LogicalAmendment ||
             row.Status === REQUEST_STATUS.UnderImplementation ||
             (row.Status === REQUEST_STATUS.ResultMonitoring && !row.IsResultSubmit) ||
             row.Status === REQUEST_STATUS.Draft ||
@@ -268,13 +268,15 @@ const AllRequestTable: React.FC<{}> = ({}) => {
                 style={{ background: "none", border: "none" }}
                 onClick={() =>
                   navigate(
-                    `/form/edit/${row.EquipmentImprovementId}`
+                    `/form/edit/${row.EquipmentImprovementId}`,{
+                      state: { allReq: true },
+                    }
                   )
                 }
               >
                 <FontAwesomeIcon title="Edit" icon={faEdit} />
               </button>
-            )} */}
+            )}
           {row.Status === REQUEST_STATUS.Completed && (
             <button
               type="button"
