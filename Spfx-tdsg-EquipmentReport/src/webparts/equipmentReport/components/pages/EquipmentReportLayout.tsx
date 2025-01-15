@@ -3,11 +3,8 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Modal } from "antd";
 // import { useAuth } from "../../context/AuthContext";
-import Workflow, { IWorkflowDetail } from "../equipmentReport/Workflow";
-import History from "../equipmentReport/History";
 import Page from "../page/page";
 import { UserContext } from "../../context/userContext";
-import EquipmentReportForm from "../equipmentReport/Form";
 import useEquipmentReportByID from "../../apis/equipmentReport/useEquipmentReport/useEquipmentReportById";
 import WorkFlowButtons, { IApproverTask } from "../common/WorkFlowButtons";
 import useGetApproverFlowData from "../../apis/workflow/useGetApprovalFlowData";
@@ -15,8 +12,11 @@ import useGetCurrentApproverData from "../../apis/workflow/useGetCurrentApprover
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import useGetEmailAttachmentsData from "../../apis/equipmentReport/useEmailAttachments/useEmailAttachmentsData";
-import EmailAttachments from "../equipmentReport/EmailAttachments";
 import { REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
+import EquipmentReportForm from "../EquipmentReport/Form";
+import EmailAttachments from "../EquipmentReport/EmailAttachments";
+import Workflow, { IWorkflowDetail } from "../EquipmentReport/Workflow";
+import History from "../EquipmentReport/History";
 
 type TabName = "form" | "history" | "workflow" | "emailAtachments";
 

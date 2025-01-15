@@ -19,7 +19,7 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import useAddOrUpdateTargetDate from "../../apis/workflow/useAddorUpdateTargetDate";
 import usePullBack, { IPullBack } from "../../apis/workflow/usePullBack";
 import useDelegate, { IDelegate } from "../../apis/delegate/useDelegate";
-import { IWorkflowDetail } from "../equipmentReport/Workflow";
+import { IWorkflowDetail } from "../EquipmentReport/Workflow";
 dayjs.extend(isSameOrBefore);
 export interface IApproverTask {
   approverTaskId: number;
@@ -256,7 +256,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     const [baseUrl, queryString] = url.split("?");
     const params = new URLSearchParams(queryString);
     const actionValue = params.get("action");
-
     if (actionValue) {
       // Removing outlook parameters
       params.delete("action");

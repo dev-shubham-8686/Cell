@@ -1069,7 +1069,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               //     ? dayjs(record?.DueDate).format(DATE_FORMAT) // Pass the date in correct format to dayjs
               //     : undefined
               // }
-              format="DD-MM-YYYY"
+              format={DATE_FORMAT}
               disabled={
                 isModeView ||
                 (!isAdmin &&
@@ -1237,7 +1237,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             )}
 
             {(mode == "add" ||
-              (isAdmin && !isModeView) ||
+              (isAdmin && !isModeView && (!submitted && existingEquipmentReport?.CreatedBy==user?.employeeId) ) ||
               (!isModeView &&
                 ((!submitted &&
                   existingEquipmentReport?.Status !=
