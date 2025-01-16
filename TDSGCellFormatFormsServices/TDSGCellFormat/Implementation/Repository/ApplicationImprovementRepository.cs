@@ -1433,7 +1433,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             nextTask.IsSubstitute = IsSubstitute;
                             await _context.SaveChangesAsync();
 
-                            if (currentApproverTask.AssignedToUserId == nextTask.AssignedToUserId)
+                            if ((currentApproverTask.AssignedToUserId == nextTask.AssignedToUserId || currentApproverTask.DelegateUserId == nextTask.DelegateUserId))
                             {
                                 nextTask.Comments = currentApproverTask.Comments;
                                 nextTask.ActionTakenBy = currentApproverTask.AssignedToUserId;

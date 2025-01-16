@@ -957,7 +957,8 @@ namespace TDSGCellFormat.Implementation.Repository
                         var divisionHead = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.IsActive == false && x.SequenceNo == 8)
                                   .OrderByDescending(x => x.ApproverTaskId)
                                 .FirstOrDefault();
-                        if (divisionHead != null)
+
+                        if (divisionHead != null && requestTaskData.AssignedToUserId == divisionHead.AssignedToUserId)
                         {
                             divisionHead.DelegateUserId = requestTaskData.DelegateUserId;
                             divisionHead.IsActive = true;
@@ -1067,7 +1068,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             nextApproveTask.IsSubstitute = IsSubstitute;
                             await _context.SaveChangesAsync();
 
-                            if (currentApproverTask.AssignedToUserId == nextApproveTask.AssignedToUserId)
+                            if ((currentApproverTask.AssignedToUserId == nextApproveTask.AssignedToUserId || currentApproverTask.DelegateUserId == nextApproveTask.DelegateUserId))
                             {
                                 nextApproveTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
                                 nextApproveTask.ActionTakenBy = nextApproveTask.AssignedToUserId;
