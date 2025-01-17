@@ -1068,7 +1068,12 @@ namespace TDSGCellFormat.Implementation.Repository
                             nextApproveTask.IsSubstitute = IsSubstitute;
                             await _context.SaveChangesAsync();
 
-                            if ((currentApproverTask.AssignedToUserId == nextApproveTask.AssignedToUserId || currentApproverTask.DelegateUserId == nextApproveTask.DelegateUserId))
+
+                            var currentAssignedUser = currentApproverTask.DelegateUserId > 0 ? currentApproverTask.DelegateUserId : currentApproverTask.AssignedToUserId;
+                            var nextAssignedUser = nextApproveTask.DelegateUserId > 0 ? nextApproveTask.DelegateUserId : nextApproveTask.AssignedToUserId;
+
+                            if (currentAssignedUser == nextAssignedUser
+                                && (nextApproveTask.SequenceNo != 3 && nextApproveTask.SequenceNo != 7))
                             {
                                 nextApproveTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
                                 nextApproveTask.ActionTakenBy = nextApproveTask.AssignedToUserId;
@@ -1595,7 +1600,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     changeRiskBuilder.Append("<div style= 'margin-top: 15px; border: 1px solid black; padding: 10px'>");
                     changeRiskBuilder.Append("<table style='border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%; align='center'>");
 
-                    changeRiskBuilder.Append("<tr>");
+                    changeRiskBuilder.Append("<tr style='page-break-inside: avoid;'>");
                     changeRiskBuilder.Append("<td style = 'border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px'>Change Risk Management</td>");
                     changeRiskBuilder.Append("</tr>");
                     changeRiskBuilder.Append("<tr style='padding: 10px; height: 20px;'>");
@@ -1612,17 +1617,17 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     foreach (var item in data)
                     {
-                        tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
+                        tableBuilder.Append("<tr style='padding:10px; height: 20px;'>");
 
                         // Add the serial number to the first column
-                        tableBuilder.Append("<td style=\"width: 3%; border: 1px solid black; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
+                        tableBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; padding: 5px'>" + serialNumber++ + "</td>");
 
                         // Add the rest of the data to the respective columns
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Changes + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.FunctionId + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.RisksWithChanges + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Factors + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.CounterMeasures + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.Changes + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.FunctionId + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.RisksWithChanges + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.Factors + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.CounterMeasures + "</td>");
                         //tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + (item.DueDate.HasValue ? item.DueDate.Value.ToString("dd-MM-yyyy") : "") + "</td>");
                         //tableBuilder.Append($"<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">{(string.IsNullOrEmpty(item.DueDate) ? "" : item.DueDate)}</td>");
                         DateTime parsedDate;
@@ -1750,7 +1755,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     string bfrUrl = $"{baseUrl}{url1.BeforeImageDocFilePath}";
 
-                    beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                    beforeImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
                     beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
                     beforeImages.AppendLine("</div>");
                 }
@@ -1773,7 +1778,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     string bfrUrl = $"{baseUrl}{url1.AfterImageDocFilePath}";
 
-                    afterImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                    afterImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
                     afterImages.AppendLine($"<img src=\"{url1.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
                     afterImages.AppendLine("</div>");
                 }
@@ -1799,6 +1804,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 converter.Footer.DisplayOnOddPages = true;
                 converter.Footer.DisplayOnEvenPages = true;
                 converter.Footer.Height = 50;
+
+                // Use custom CSS to handle the page breaks
+               // converter.Options.KeepImagesTogether = true;
 
                 // Centered text
                 PdfTextSection centerText = new PdfTextSection(0, 10, "This document is digitally generated. No signature is required.", new System.Drawing.Font("Arial", 8));

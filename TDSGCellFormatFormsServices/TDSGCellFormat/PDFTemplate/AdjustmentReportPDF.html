@@ -95,12 +95,36 @@
             input[type="checkbox"]:checked:after {
                 display: block;
             }
+
+        /* Prevent content from breaking within divs */
+        .prevent-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* Ensure new page starts for large content blocks */
+        .new-page {
+            page-break-before: always;
+        }
+
+        /* Apply to content blocks that should not split (like images) */
+        .content-block {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* Force new page for large sections (if needed) */
+        .page-break {
+            page-break-before: always;
+        }
+
     </style>
+
 </head>
 <body style="font-weight: 600; max-width: 1300px; font-size: 16px; margin: 0 auto; margin-top: 15px;">
     <div class="container">
         <h2>Adjustment Report</h2>
-        <table class="table">
+        <table class="table prevent-break">
             <tr>
                 <td class="label-cell">AREA :</td>
                 <td>#area#</td>
@@ -128,7 +152,7 @@
             </tr>
         </table>
 
-        <table class="table">
+        <table class="table prevent-break">
             <tr>
                 <td class="label-cell">Describe the Problem :</td>
             </tr>
@@ -137,7 +161,7 @@
             </tr>
         </table>
 
-        <table class="table">
+        <table class="table prevent-break">
             <tr>
                 <td class="label-cell">Observation :</td>
             </tr>
@@ -155,7 +179,7 @@
             </tr>
         </table>
 
-        <div style="margin-top: 15px; border: 1px solid black; padding: 10px; ">
+        <div class="content-block" style="margin-top: 15px; border: 1px solid black; padding: 10px; ">
             <!-- Heading -->
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 5px;">
                 Before Images:
@@ -166,7 +190,7 @@
             </div>
         </div>
 
-        <div style="margin-top: 15px; border: 1px solid black; padding: 10px; ">
+        <div class="content-block" style="margin-top: 15px; border: 1px solid black; padding: 10px; ">
             <!-- Heading -->
             <div style="font-size: 15px; font-weight: bold; margin-bottom: 5px;">
                 After Images:
@@ -177,7 +201,7 @@
             </div>
         </div>
 
-        <div style="margin-top: 15px; border: 1px solid black; padding: 10px; ">
+        <div class="content-block" style="margin-top: 15px; border: 1px solid black; padding: 10px; ">
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
                 <!-- Title Row -->
                 <tr>
@@ -206,7 +230,7 @@
 
 
 
-        <table class="table">
+        <table class="table prevent-break">
             <tr>
                 <td class="label-cell">Condition After Adjustment :</td>
             </tr>
@@ -215,7 +239,7 @@
             </tr>
         </table>
 
-        <div style="margin-top: 15px; padding: 10px; border: 1px solid black; ">
+        <div class="content-block" style="margin-top: 15px; padding: 10px; border: 1px solid black; ">
             <table style="border-color: black; border-collapse: collapse; font-size: 10px;  text-align: left; width: 100%;">
                 <tr style="padding: 10px;">
                     <th style="border: 1px solid black; padding: 5px; text-align: center;">Prepared By :</th>
@@ -231,7 +255,7 @@
             </table>
         </div>
 
-        <table class="table">
+        <table class="table prevent-break">
             <tr>
                 <td class="label-cell">Advisor Comments</td>
             </tr>
