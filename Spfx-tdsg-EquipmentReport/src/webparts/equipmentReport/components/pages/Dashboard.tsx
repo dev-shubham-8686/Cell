@@ -6,7 +6,7 @@ import EquipmentReportApprovalTable from "./dashboard/EquipmentReportApprovalTab
 import AllRequestTable from "./dashboard/AllRequestTable";
 import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import { Button } from "antd";
 
 type TabName = "myrequest-tab" | "myapproval-tab" | "allrequest-tab";
 
@@ -40,11 +40,17 @@ const TroubleReport: React.FC = () => {
       <div className="content flex-grow-1 p-4">
         <div className="text-end px-4 position-relative">
           <div className="request-btn">
-      
+              {/* {<button
+            className="btn btn-primary masterbutton "
+            onClick={() => navigate("/master")}
+          >
+            MASTER
+          </button>} */}
             <Link to={"/form/add"}>
               {currentTab == "myrequest-tab" && (
                 <button className="btn btn-primary font-16 ">
-                  <FontAwesomeIcon className="me-1 mt-50" icon={faCirclePlus} /> New Request
+                  <FontAwesomeIcon className="me-1 mt-50" icon={faCirclePlus} />{" "}
+                  New Request
                 </button>
               )}
             </Link>
@@ -71,7 +77,7 @@ const TroubleReport: React.FC = () => {
                     navigate("/", {
                       state: {
                         currentTabState: tab.id,
-                        allReq:(tab.id == "allrequest-tab") ? true : false,
+                        allReq: tab.id == "allrequest-tab" ? true : false,
                       },
                     });
                   }}
@@ -93,7 +99,7 @@ const TroubleReport: React.FC = () => {
             <>
               <AllRequestTable />
             </>
-          ): (
+          ) : (
             <></>
           )}
         </div>

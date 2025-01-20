@@ -252,7 +252,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
                   ...a,
                   uid: a.EmailAttachmentId?.toString() ?? "",
                   name: a.EmailDocName,
-                  url: `${a.EmailDocFilePath}`,
+                  url: "",
                 }))}
                 setIsLoading={(loading: boolean) => {
                   // setIsLoading(loading);
