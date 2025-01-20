@@ -12,18 +12,12 @@
     "skipLibCheck": true,
     "outDir": "lib",
     "inlineSources": false,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
-    "strictNullChecks": false,
     "noUnusedLocals": false,
-
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/@microsoft"
-    ],
-    "types": [
-      "webpack-env"
-    ],
+    "strictNullChecks": false,
+    "typeRoots": ["./node_modules/@types", "./node_modules/@microsoft"],
+    "types": ["webpack-env"],
     "lib": [
       "es2020",
       "ES2016",
@@ -33,8 +27,5 @@
       "es2015.promise"
     ]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }
