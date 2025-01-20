@@ -75,9 +75,23 @@ const RequestForm: React.FC<RequestFormProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const { isApproverRequest } = location.state || {};
+  const { data: employeesResult } = useGetAllEmployees();
+
   console.log({ isApproverRequest });
   const [ChangeRiskManagementDetails, setChangeRiskManagementDetails] =
-    useState<IChangeRiskData[]>([]);
+    useState<IChangeRiskData[]>([
+      {
+        key: 0,
+        Changes: "",
+        FunctionId: "",
+        RiskAssociated: "",
+        Factor: "",
+        CounterMeasures: "",
+        DueDate: null, 
+        PersonInCharge: null, 
+        Results: "",
+      },
+    ]);
   const [beforeAdjustmentReportPhotos, setbeforeAdjustmentReportPhotos] =
     useState<IAdjustmentReportPhoto[]>([]);
   const [afterAdjustmentReportPhotos, setafterAdjustmentReportPhotos] =
@@ -94,7 +108,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
   const [beforeImages, setbeforeImages] = useState<IBeforeImages[] | []>([]);
 
   const [afterImages, setafterImages] = useState<IAfterImages[] | []>([]);
-  const { data: employeesResult } = useGetAllEmployees();
 
   const [filteredSubMachines, setFilteredSubMachines] = useState<ISubMachine[]>(
     []
@@ -249,8 +262,8 @@ const RequestForm: React.FC<RequestFormProps> = ({
           reportData?.ReturnValue.ConditionAfterAdjustment,
         describeProblem: reportData?.ReturnValue.DescribeProblem,
       });
-      
-      console.log("DATE",form.getFieldValue("dateTime"))
+
+      console.log("DATE", form.getFieldValue("dateTime"));
       // Pre-filter sub-machines based on the machine from reportData?
       // if (
       //   reportData?.ReturnValue.MachineName &&
@@ -266,7 +279,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
   };
 
   React.useEffect(() => {
-    
     void loadData();
   }, [reportData, isEditMode, isViewMode, subMachinesResult, form]);
 
@@ -503,7 +515,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
             label="Select an advisor"
             rules={[{ required: true, message: "Please select an advisor." }]}
             validateStatus={selectedAdvisor ? "success" : undefined}
-
           >
             <Select
               allowClear
@@ -629,23 +640,39 @@ const RequestForm: React.FC<RequestFormProps> = ({
   };
 
   const handleDelete = (key: React.Key): void => {
+    debugger
     const newData = ChangeRiskManagementDetails.filter(
       (item) => item.key !== key
     ).map((item, index) => {
       return {
         ...item,
         key: index,
-        DueDate: item.DueDate ? dayjs(item.DueDate, DATE_FORMAT) : null,
+        DueDate: item?.DueDate ? dayjs(item.DueDate, DATE_FORMAT).format(DATE_FORMAT) : null,
       };
     });
-
+    debugger
     console.log("after deleting", ChangeRiskManagementDetails, newData);
     setChangeRiskManagementDetails(newData);
     // form.resetFields();
 
-    form.setFieldsValue({
-      ["ChangeRiskManagementDetails"]: newData,
-    });
+    // form.setFieldsValue({
+    //   ["ChangeRiskManagementDetails"]: newData,
+    // });
+  };
+
+  const resetFieldsForKeyZero = () => {
+    const fieldsToReset = [
+      "Changes",
+      "FunctionId",
+      "RiskAssociated",
+      "Factor",
+      "CounterMeasures",
+      "DueDate",
+      "PersonInCharge",
+      "Results",
+    ].map((field) => ["ChangeRiskManagementDetails", 0, field]);
+  
+    form.resetFields(fieldsToReset);
   };
 
   const onChangeTableData = (
@@ -918,7 +945,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   .toLowerCase()
                   .includes(input.toLowerCase())
               }
-              options={employeesResult.ReturnValue?.map((emp) => ({
+              options={employeesResult?.ReturnValue?.map((emp) => ({
                 label: emp.employeeName,
                 value: emp.employeeId,
               }))}
@@ -973,7 +1000,9 @@ const RequestForm: React.FC<RequestFormProps> = ({
           <div className="action-cell">
             <button
               disabled={
-                isViewMode || (!isAdmin && submitted && !underamendment)
+                record.key == 0 ||
+                isViewMode ||
+                (!isAdmin && submitted && !underamendment)
               }
               type="button"
               style={{ background: "none", border: "none" }}
@@ -1009,7 +1038,9 @@ const RequestForm: React.FC<RequestFormProps> = ({
             </button>
           )}
 
-          {(mode == "add" ||(user?.isAdmin && !isViewMode &&!submitted)|| (!isViewMode && !submitted)) && (
+          {(mode == "add" ||
+            (user?.isAdmin && !isViewMode && !submitted) ||
+            (!isViewMode && !submitted)) && (
             <button
               className="btn btn-darkgrey "
               onClick={() => onFinish(OPERATION.Submit)}
@@ -1410,14 +1441,18 @@ const RequestForm: React.FC<RequestFormProps> = ({
                 }
               >
                 {/* all types except exe  ,  max size -30MB  , no-10*/}
-                {console.log("USERID", user?.employeeId.toString(),form?.getFieldValue("reportNo"))}
+                {console.log(
+                  "USERID",
+                  user?.employeeId.toString(),
+                  form?.getFieldValue("reportNo")
+                )}
                 <FileUpload
                   disabled={
                     isViewMode || (!isAdmin && submitted && !underamendment)
                   }
                   key={`file-upload-before-images`}
                   folderName={
-                    form.getFieldValue("reportNo") 
+                    form.getFieldValue("reportNo")
                       ? form.getFieldValue("reportNo")
                       : user?.employeeId.toString()
                   }
@@ -1508,7 +1543,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   }
                   key={`file-upload-after-images`}
                   folderName={
-                    form.getFieldValue("reportNo") 
+                    form.getFieldValue("reportNo")
                       ? form.getFieldValue("reportNo")
                       : user?.employeeId.toString()
                   }
@@ -1598,7 +1633,18 @@ const RequestForm: React.FC<RequestFormProps> = ({
               <Radio.Group
                 onChange={(e: any) => {
                   setCRMRequired(e.target.value);
-                  setChangeRiskManagementDetails([]);
+                  resetFieldsForKeyZero();
+                  setChangeRiskManagementDetails([{
+                    key: 0,
+                    Changes: "",
+                    FunctionId: "",
+                    RiskAssociated: "",
+                    Factor: "",
+                    CounterMeasures: "",
+                    DueDate: null, // Set to current date or adjust as needed
+                    PersonInCharge: null, // Default value for PersonInCharge
+                    Results: "",
+                  },]);
                 }}
                 value={cRMRequired}
                 name="cRMRequired"
@@ -1611,6 +1657,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                       : false
                   }
                   value={true}
+                  // onClick={handleAdd}
                   style={{ marginRight: 16 }}
                 >
                   Yes
@@ -1652,6 +1699,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   </button>
                 )}
               </div>
+              {console.log("savingData", savingData)}
               <Table
                 className="change-risk-table"
                 dataSource={ChangeRiskManagementDetails}
@@ -1671,9 +1719,11 @@ const RequestForm: React.FC<RequestFormProps> = ({
           )}
         </Form>
         {mode == "add" ? (
-          <></>
+          <>
+            <Spin spinning={savingData} fullscreen />
+          </>
         ) : (
-          <Spin spinning={(formisLoading ?? false) || savingData} fullscreen />
+          <Spin spinning={formisLoading || savingData} fullscreen />
         )}
       </div>
     </>
