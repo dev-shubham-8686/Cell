@@ -640,7 +640,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
   };
 
   const handleDelete = (key: React.Key): void => {
-    debugger
+    
     const newData = ChangeRiskManagementDetails.filter(
       (item) => item.key !== key
     ).map((item, index) => {
@@ -650,7 +650,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
         DueDate: item?.DueDate ? dayjs(item.DueDate, DATE_FORMAT).format(DATE_FORMAT) : null,
       };
     });
-    debugger
+    
     console.log("after deleting", ChangeRiskManagementDetails, newData);
     setChangeRiskManagementDetails(newData);
     // form.resetFields();
