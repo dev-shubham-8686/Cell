@@ -1296,8 +1296,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var material = _context.MaterialConsumptionApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId == 0) ||
-                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0))
+                var material = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId 
                                                                                        && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
                                                                                       && x.MaterialConsumptionId == request.FormId && x.IsActive == true).ToList();
                 if (material != null)
