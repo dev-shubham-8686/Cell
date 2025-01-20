@@ -958,10 +958,14 @@ namespace TDSGCellFormat.Implementation.Repository
                                   .OrderByDescending(x => x.ApproverTaskId)
                                 .FirstOrDefault();
 
-                        if (divisionHead != null && requestTaskData.AssignedToUserId == divisionHead.AssignedToUserId)
+                        if (divisionHead != null)
                         {
-                            divisionHead.DelegateUserId = requestTaskData.DelegateUserId;
                             divisionHead.IsActive = true;
+                            if (requestTaskData.AssignedToUserId == divisionHead.AssignedToUserId)
+                            {
+                                divisionHead.DelegateUserId = requestTaskData.DelegateUserId;
+                            }
+
                             await _context.SaveChangesAsync();
                         }
                     }
@@ -1806,7 +1810,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 converter.Footer.Height = 50;
 
                 // Use custom CSS to handle the page breaks
-               // converter.Options.KeepImagesTogether = true;
+                // converter.Options.KeepImagesTogether = true;
 
                 // Centered text
                 PdfTextSection centerText = new PdfTextSection(0, 10, "This document is digitally generated. No signature is required.", new System.Drawing.Font("Arial", 8));
