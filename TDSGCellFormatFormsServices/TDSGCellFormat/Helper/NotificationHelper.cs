@@ -2015,6 +2015,7 @@ namespace TDSGCellFormat.Helper
                                 templateFile = "Adjustment_Resubmitted.html";
                                 emailSubject = string.Format("[Action required!] Adjustment_{0} has been Resubmitted", adjustmentData.ReportNo);
                                 isInReviewTask = true;
+                                isApprovedtask = true;
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
                                 break;
@@ -2060,6 +2061,30 @@ namespace TDSGCellFormat.Helper
 
                             default:
                                 break;
+                        }
+
+                        if (isApprovedtask)
+                        {
+                            if (nextApproverTaskId > 0)
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.Approved.ToString() && item.ApproverTaskId == nextApproverTaskId)
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var item in approverData)
+                                {
+                                    if (item.Status == ApprovalTaskStatus.Approved.ToString())
+                                    {
+                                        emailCCAddressList.Add(item.email);
+                                    }
+                                }
+                            }
                         }
 
                         if (isPullBacked)

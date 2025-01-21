@@ -1,0 +1,289 @@
+import React, { useState, useEffect } from "react";
+import { Table, Button, Modal, Form, Input, Checkbox, Popconfirm } from "antd";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
+import dayjs from "dayjs";
+import {
+  //CloseOutlined,
+  LeftCircleFilled,
+  //SearchOutlined,
+} from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import displayjsx from "../../../utils/displayjsx";
+import { useUserContext } from "../../../context/UserContext";
+import { getAllMachineMaster } from "../../../api/MasterAPIs/MachineMaster.api";
+import { getAllSectionMaster, sectionMasterAddOrUpdate } from "../../../api/MasterAPIs/SectionMaster.api";
+
+interface ISectionMaster {
+  SectionId: number;
+  SectionName?: number;
+  CreatedDate?: string;
+  CreatedBy?: number;
+  ModifiedBy?: number;
+  ModifiedDate?: string;
+  IsActive?: boolean;
+}
+
+const SectionMasterPage: React.FC = () => {
+  const [data, setData] = useState<ISectionMaster[]>([]);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingItem, setEditingItem] =
+    useState<ISectionMaster | null>(null);
+  const [form] = Form.useForm();
+  const [isViewMode, setIsViewMode] = useState<boolean>(false);
+   const { user } = useUserContext();
+ 
+  const fetchData = () => {
+    setLoading(true);
+    getAllSectionMaster()
+      .then((response) => {
+        setLoading(false);
+        setData(response.ReturnValue);
+      })
+      .catch(() => {
+        void displayjsx.showErrorMsg("Error fetching data");
+        setLoading(false);
+      });
+  };
+
+  const handleAdd = () => {
+    setEditingItem(null);
+    setIsViewMode(false);
+    setModalVisible(true);
+    form.resetFields();
+  };
+
+  const handleEdit = (record: ISectionMaster) => {
+    setEditingItem(null);
+    setIsViewMode(false);
+    setEditingItem(record);
+    setModalVisible(true);
+    form.setFieldsValue(record);
+  };
+
+  const handleView = (record: ISectionMaster) => {
+    setEditingItem(null);
+    setEditingItem(record);
+    setIsViewMode(true);
+    setModalVisible(true);
+    form.setFieldsValue(record);
+  };
+
+  const handleDelete = (id: number) => {
+    // getEquipmentMasterTblDelete(id.toString())
+    //   .then(() => {
+    //     void displayjsx.showSuccess("Record deleted successfully");
+    //     fetchData();
+    //   })
+    //   .catch(() => {
+    //     void displayjsx.showErrorMsg("Failed to delete record");
+    //   });
+  };
+
+
+  const handleSave = (values: ISectionMaster) => {
+    if (editingItem) {
+      // Update existing record
+      sectionMasterAddOrUpdate({
+        SectionId: editingItem.SectionId,
+        SectionName: values.SectionName,
+        IsActive: values.IsActive,
+        UserId: user?.employeeId,
+      })
+        .then(() => {
+          void displayjsx.showSuccess("Record updated successfully");
+          
+          fetchData();
+          setModalVisible(false);
+        })
+        .catch(() => {
+          void displayjsx.showErrorMsg("Failed to update record");
+          
+        });
+    } else {
+      // Create new record
+      sectionMasterAddOrUpdate({
+        SectionId: 0,
+        SectionName: values.SectionName,
+        IsActive: values.IsActive,
+        UserId: user?.employeeId,
+      })
+        .then((response) => {
+
+          let result = response.ReturnValue;
+
+          if(result.EquipmentId == -1){
+            void displayjsx.showInfo("Duplicate record found");
+             return false;
+          }
+
+          void displayjsx.showSuccess("Record created successfully");
+          
+          fetchData();
+          setModalVisible(false);
+        })
+        .catch(() => {
+          void displayjsx.showErrorMsg("Failed to create record");
+         
+        });
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const columns = [
+    {
+      title: "Setion Name",
+      dataIndex: "SectionName",
+      key: "SectionName",
+      sorter: (a: any, b: any) =>
+        a.EquipmentName.localeCompare(b.EquipmentName),
+    },
+    {
+      title: "Is Active",
+      dataIndex: "IsActive",
+      key: "IsActive",
+      render: (IsActive: boolean) => (IsActive ? "Yes" : "No"), // Display Yes/No for IsActive
+      sorter: (a: any, b: any) => a.IsActive - b.IsActive,
+    },
+    {
+      title: "Created Date",
+      dataIndex: "CreatedDate",
+      key: "CreatedDate",
+      render: (CreatedDate: string) => (
+        <span>
+          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : ""}
+        </span>
+      ),
+      sorter: (a: any, b: any) =>
+        dayjs(a.CreatedDate).unix() - dayjs(b.CreatedDate).unix(),
+    },
+    {
+      title: "Created By",
+      dataIndex: "UserName",
+      key: "UserName",
+    },
+    {
+      title: "Modified Date",
+      dataIndex: "ModifiedDate",
+      key: "ModifiedDate",
+      render: (ModifiedDate: string) => (
+        <span>
+          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : ""}
+        </span>
+      ),
+      sorter: (a: any, b: any) =>
+        dayjs(a.ModifiedDate).unix() - dayjs(b.ModifiedDate).unix(),
+    },
+    {
+      title: "Modified By",
+      dataIndex: "UpdatedUserName",
+      key: "UpdatedUserName",
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text: any, record: ISectionMaster) => (
+        <span className="action-cell">
+          <Button
+            title="View"
+            className="action-btn"
+            icon={<FontAwesomeIcon title="View" icon={faEye} />}
+            onClick={() => handleView(record)}
+          />
+
+          <Button
+            title="Edit"
+            className="action-btn"
+            icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
+            onClick={() => handleEdit(record)}
+          />
+          <Popconfirm
+            title="Are you sure to delete this record?"
+            onConfirm={() => handleDelete(record.SectionId!)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              title="Delete"
+              className="action-btn"
+              icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
+              //onClick={() => handleDelete(record.EquipmentId)}
+            />
+          </Popconfirm>
+        </span>
+      ),
+    },
+  ];
+
+  return (
+    <div>
+      <h2 className="title">Section Master</h2>
+      <div className="flex justify-between items-center mb-3">
+        <Button
+          type="primary"
+          icon={<LeftCircleFilled />}
+          onClick={() => navigate(`/master`)}
+          className="whitespace-nowrap"
+        >
+          BACK
+        </Button>
+        <Button type="primary" onClick={handleAdd}>
+          Add New
+        </Button>
+      </div>
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        loading={loading}
+        pagination={{ pageSize: 10, 
+          showTotal: () => (
+         <div className="d-flex align-items-center gap-3">
+           <span style={{ marginRight: "auto" }}>
+             Total {data.length} items
+           </span>
+         </div>
+       ), }}
+      />
+      <Modal
+        title={editingItem ? "Edit Item" : "Add Item"}
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        onOk={() => !isViewMode && form.submit()}
+        okButtonProps={{ disabled: isViewMode }}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSave}
+          initialValues={{ EquipmentName: "", IsActive: false }}
+        >
+          <Form.Item
+            name="SectionName"
+            label="Section Name"
+            rules={[{ required: true, message: "Please enter Section Name" }]}
+          >
+            <Input type="text" disabled={isViewMode} />
+          </Form.Item>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <Form.Item
+              name="IsActive"
+              valuePropName="checked"
+              style={{ marginBottom: 0 }}
+            >
+              <Checkbox disabled={isViewMode}>Is Active</Checkbox>
+            </Form.Item>
+          </div>
+        </Form>
+      </Modal>
+    </div>
+  );
+};
+
+export default SectionMasterPage;

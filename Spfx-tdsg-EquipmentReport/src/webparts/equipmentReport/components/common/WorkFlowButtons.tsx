@@ -19,7 +19,7 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import useAddOrUpdateTargetDate from "../../apis/workflow/useAddorUpdateTargetDate";
 import usePullBack, { IPullBack } from "../../apis/workflow/usePullBack";
 import useDelegate, { IDelegate } from "../../apis/delegate/useDelegate";
-import { IWorkflowDetail } from "../equipmentReport/Workflow";
+import { IWorkflowDetail } from "../EquipmentReport/Workflow";
 dayjs.extend(isSameOrBefore);
 export interface IApproverTask {
   approverTaskId: number;
@@ -47,7 +47,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const { confirm } = Modal;
   const navigate = useNavigate();
   const location = useLocation();
-  const { isApproverRequest } = location.state || {};
+  const { isApproverRequest=false } = location.state || {};
   const [showModal, setShowModal] = useState(false);
   const [showWorkflowBtns, setShowWorkflowBtns] = useState<boolean>(false);
   const [showDelegate, setshowDelegate] = useState<boolean>(false);
@@ -256,7 +256,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     const [baseUrl, queryString] = url.split("?");
     const params = new URLSearchParams(queryString);
     const actionValue = params.get("action");
-
     if (actionValue) {
       // Removing outlook parameters
       params.delete("action");
@@ -397,8 +396,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                     },
                   });
                 } else if (
-                  user?.employeeId == eqReport?.SectionHeadId &&
-                  currentApproverTask?.seqNumber == 1 &&
+                  // user?.employeeId == eqReport?.SectionHeadId &&   // --no need for sec head condition cause we need to show advisor dropdown to workflow level one only 
+                  currentApproverTask?.seqNumber == 1 &&              // TODO: need to change if any changes happen in workflow in future 
                   eqReport?.WorkflowStatus != REQUEST_STATUS.W1Completed
                 ) {
                   openCommentsPopup("Approve", false, false, true);
@@ -519,8 +518,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           (eqReport?.WorkflowStatus == REQUEST_STATUS.W1Completed &&
             eqReport?.ResultAfterImplementation?.IsResultAmendSubmit)) &&
         eqReport?.CreatedBy == user?.employeeId ? ( */}
-
-        {(eqReport?.WorkflowLevel === 1 &&
+{console.log("PBCondition",!showWorkflowBtns,!isApproverRequest)}
+        {((eqReport?.WorkflowLevel === 1 &&
           eqReport?.IsSubmit &&
           eqReport?.CreatedBy === user?.employeeId &&
           ![
@@ -528,13 +527,15 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             REQUEST_STATUS.UnderAmendment,
             REQUEST_STATUS.Rejected
             // REQUEST_STATUS.PCRNPending,
-          ].includes(eqReport?.Status)) ||
-        (eqReport?.WorkflowStatus === REQUEST_STATUS.W1Completed &&
+          ].includes(eqReport?.Status))  && 
+          !approverRequest)||
+        ((eqReport?.WorkflowStatus === REQUEST_STATUS.W1Completed &&
           eqReport?.Status !== REQUEST_STATUS.LogicalAmendment &&
           eqReport?.Status !== REQUEST_STATUS.UnderAmendment &&
           eqReport?.Status !== REQUEST_STATUS.Rejected &&
           eqReport?.CreatedBy === user?.employeeId &&
-          eqReport?.ResultAfterImplementation?.IsResultSubmit) ? (
+          eqReport?.ResultAfterImplementation?.IsResultSubmit) && 
+          !approverRequest) ? (
           <button
             className="btn btn-primary"
             onClick={() => {
