@@ -238,7 +238,7 @@ namespace TDSGCellFormat.Helper
 
                             if(formType == FormType.TechnicalInstruction.ToString())
                             {
-                                docLink = documentationLink.Replace("#", "?action=approval#") + "form/edit/" + requestId;
+                                docLink = documentationLink.Replace("#", "?action=approval#") + "form/view/" + requestId;
                             }
 
                             emailBody = emailBody.Replace("#ControlNo#", reportNo);

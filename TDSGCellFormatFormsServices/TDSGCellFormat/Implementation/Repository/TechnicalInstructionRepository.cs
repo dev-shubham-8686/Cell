@@ -1963,6 +1963,11 @@ namespace TDSGCellFormat.Implementation.Repository
                 text.HorizontalAlign = SelectPdf.PdfTextHorizontalAlign.Center;
                 converter.Footer.Add(text);
 
+                // Add document number on the right side of the footer
+                SelectPdf.PdfTextSection documentNumberText = new SelectPdf.PdfTextSection(0, 10, "R-COC01-SC01-F03E, 01 ", new System.Drawing.Font("Arial", 8));
+                documentNumberText.HorizontalAlign = SelectPdf.PdfTextHorizontalAlign.Right;
+                converter.Footer.Add(documentNumberText);
+
                 SelectPdf.PdfDocument pdfDoc = converter.ConvertHtmlString(sb.ToString());
 
                 // Convert the PDF to a byte array

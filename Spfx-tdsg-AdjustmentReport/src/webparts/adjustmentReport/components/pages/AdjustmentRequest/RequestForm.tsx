@@ -1039,7 +1039,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
           )}
 
           {(mode == "add" ||
-            (user?.isAdmin && !isViewMode && !submitted) ||
+            (user?.isAdmin && !isViewMode && (!submitted && reportData?.ReturnValue?.CreatedBy==user?.employeeId)) ||
             (!isViewMode && !submitted)) && (
             <button
               className="btn btn-darkgrey "
@@ -1633,7 +1633,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
               <Radio.Group
                 onChange={(e: any) => {
                   setCRMRequired(e.target.value);
-                  resetFieldsForKeyZero();
                   setChangeRiskManagementDetails([{
                     key: 0,
                     Changes: "",
@@ -1645,6 +1644,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                     PersonInCharge: null, // Default value for PersonInCharge
                     Results: "",
                   },]);
+                  resetFieldsForKeyZero();
                 }}
                 value={cRMRequired}
                 name="cRMRequired"

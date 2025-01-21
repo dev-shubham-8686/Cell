@@ -128,7 +128,7 @@ const RequestsTab: React.FC = () => {
         //const emailList = response.ReturnValue.emails; // Comma-separated emails
         const emailList = "digital-team@tdsgj.co.in";
         const pdfBase64 = response.ReturnValue.pdf; // Base64 string of PDF
-        const subject = `Notification for ${mailTriggerCtinumber}`;
+        const subject = `Release of ${mailTriggerCtinumber}`;
         let pdf_url_link = "";
         //debugger;
 

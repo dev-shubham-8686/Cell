@@ -593,7 +593,10 @@ const AllRequestsTab: React.FC = () => {
               />
             )}
 
-          {user?.isAdmin && ( //|| record.Status == REQUEST_STATUS.Draft
+          {(user?.isAdmin && !(
+            record.Status == REQUEST_STATUS.Closed 
+            || record.Status == REQUEST_STATUS.Approved
+            ||record.Status == REQUEST_STATUS.Completed) &&
             <Button
               title="Delete"
               className="action-btn"
