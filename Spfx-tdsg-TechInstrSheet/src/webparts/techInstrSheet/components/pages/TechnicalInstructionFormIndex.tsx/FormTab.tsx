@@ -282,7 +282,8 @@ const FormTab: React.FC<any> = ({
                 style={{ width: "95%" }}
                 maxLength={50}
                 placeholder="Enter Product Type"
-                disabled={isViewMode}
+                //disabled={isViewMode}
+                disabled={true}
               />
             </Form.Item>
           </Col>
