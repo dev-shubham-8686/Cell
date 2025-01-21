@@ -272,7 +272,8 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
     <>
       {/* Action Buttons */}
       {console.log("approval data", showWorkflowBtns, approverRequest)}{" "}
-      {showWorkflowBtns && approverRequest ? (
+     <div className="d-flex gap-3">
+     {showWorkflowBtns && approverRequest ? (
         <>
           <Button
             className="btn btn-primary"
@@ -320,6 +321,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
           Pull Back
         </Button>
       ) : null}
+     </div>
       {/* Comment Modal */}
       {console.log("IsModalVisible", isModalVisible)}{" "}
       <Modal
