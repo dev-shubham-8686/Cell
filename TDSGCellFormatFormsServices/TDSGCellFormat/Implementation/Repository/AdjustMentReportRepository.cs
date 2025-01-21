@@ -1530,26 +1530,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
 
-                string checkedByPer;
-                if (adjustMentReportData.CheckedBy == -1)
-                {
-                    checkedByPer = "Not Applicable";
-                }
-                else
-                {
-                    var checkedBy = _cloneContext.EmployeeMasters
-                                                 .Where(x => x.EmployeeID == adjustMentReportData.CheckedBy)
-                                                 .Select(x => x.EmployeeName)
-                                                 .FirstOrDefault();
-                    checkedByPer = checkedBy ?? "Not Applicable";
-                }
-
-                sb.Replace("#checkedby#", checkedByPer);
-
-
-
-
-
                 var areaIds = adjustMentReportData.Area.Split(',').Select(id => int.Parse(id)).ToList();
 
                 var areaNames = new List<string>();
@@ -1601,13 +1581,13 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (data.Any() && data != null)
                 {
-                    changeRiskBuilder.Append("<div style= 'margin-top: 15px; border: 1px solid black; padding: 10px'>");
-                    changeRiskBuilder.Append("<table style='border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%; align='center'>");
+                    changeRiskBuilder.Append("<div style= 'margin-top: 15px; border: 1px solid black; padding: 10px; '>");
+                    changeRiskBuilder.Append("<table style='border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%;  align='center'>");
 
-                    changeRiskBuilder.Append("<tr style='page-break-inside: avoid;'>");
+                    changeRiskBuilder.Append("<tr style='page-break-inside: avoid; break-inside: avoid;'>");
                     changeRiskBuilder.Append("<td style = 'border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px'>Change Risk Management</td>");
                     changeRiskBuilder.Append("</tr>");
-                    changeRiskBuilder.Append("<tr style='padding: 10px; height: 20px;'>");
+                    changeRiskBuilder.Append("<tr style='padding: 10px; height: 20px; page-break-inside: avoid;'>");
                     changeRiskBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Sr. No</b></td>");
                     changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Changes</b></td>");
                     changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Functions</b></td>");
@@ -1621,7 +1601,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     foreach (var item in data)
                     {
-                        tableBuilder.Append("<tr style='padding:10px; height: 20px;'>");
+                        tableBuilder.Append("<tr style='padding:10px; height: 20px; page-break-inside: avoid; break-inside: avoid;'>");
 
                         // Add the serial number to the first column
                         tableBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; padding: 5px'>" + serialNumber++ + "</td>");
@@ -1686,6 +1666,23 @@ namespace TDSGCellFormat.Implementation.Repository
                 string approvedByOtherDepartmentHead1 = approverData.FirstOrDefault(a => a.SequenceNo == 4 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByOtherDepartmentHead2 = approverData.FirstOrDefault(a => a.SequenceNo == 5 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string divisionHead = approverData.FirstOrDefault(a => a.SequenceNo == 8 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+
+
+                string checkedByPer;
+                if (adjustMentReportData.CheckedBy == -1)
+                {
+                    checkedByPer = approvedBySectionHead;
+                }
+                else
+                {
+                    var checkedBy = _cloneContext.EmployeeMasters
+                                                 .Where(x => x.EmployeeID == adjustMentReportData.CheckedBy)
+                                                 .Select(x => x.EmployeeName)
+                                                 .FirstOrDefault();
+                    checkedByPer = checkedBy ?? "Not Applicable";
+                }
+
+                sb.Replace("#checkedby#", checkedByPer);
 
 
                 if (approvedShiftIncharge != "N/A")
