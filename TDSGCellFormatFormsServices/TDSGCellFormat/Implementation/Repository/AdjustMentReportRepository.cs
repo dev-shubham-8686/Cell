@@ -1581,7 +1581,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (data.Any() && data != null)
                 {
-                    changeRiskBuilder.Append("<div style= 'margin-top: 15px; border: 1px solid black; padding: 10px; '>");
+                    changeRiskBuilder.Append("<div style= 'margin-top: 15px; border: 1px solid black; padding: 10px; page-break-inside: avoid; break-inside: avoid;'>");
                     changeRiskBuilder.Append("<table style='border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%;  align='center'>");
 
                     changeRiskBuilder.Append("<tr style='page-break-inside: avoid; break-inside: avoid;'>");
