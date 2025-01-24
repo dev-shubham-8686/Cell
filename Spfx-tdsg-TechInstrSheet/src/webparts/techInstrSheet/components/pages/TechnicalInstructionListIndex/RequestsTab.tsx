@@ -521,12 +521,12 @@ const RequestsTab: React.FC = () => {
     },
     {
       title: "Requestor",
-      dataIndex: "IssuedBy",
-      key: "IssuedBy",
+      dataIndex: "Requestor",
+      key: "Requestor",
       width: "10%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("IssuedBy", "Requestor"),
+      ...getColumnSearchProps("Requestor", "Requestor"),
     },
     {
       title: "Current Approver",
@@ -737,8 +737,8 @@ const RequestsTab: React.FC = () => {
         render: (text) => <span className="m-0">{text ?? "-"}</span>,
       },
       {
-        dataIndex: "IssuedBy",
-        key: "IssuedBy",
+        dataIndex: "Requestor",
+        key: "Requestor",
         width: "10%",
         render: (text) => <span className="m-0">{text ?? "-"}</span>,
       },

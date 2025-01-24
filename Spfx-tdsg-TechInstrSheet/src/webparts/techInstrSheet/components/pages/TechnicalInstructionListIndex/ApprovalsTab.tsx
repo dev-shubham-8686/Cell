@@ -262,12 +262,12 @@ const ApprovalsTab: React.FC = () => {
     },
     {
       title: "Requestor",
-      dataIndex: "IssuedBy",
-      key: "IssuedBy",
+      dataIndex: "Requestor",
+      key: "Requestor",
       width: "20%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("IssuedBy", "Requestor"),
+      ...getColumnSearchProps("Requestor", "Requestor"),
     },
     {
       title: "Target Closure Date",
