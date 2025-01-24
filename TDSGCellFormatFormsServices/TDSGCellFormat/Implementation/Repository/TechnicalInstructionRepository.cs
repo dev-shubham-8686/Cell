@@ -198,6 +198,11 @@ namespace TDSGCellFormat.Implementation.Repository
                 otherEquipment = technicalInstruction.OtherEquipment
             };
 
+            if(requestor != null)
+            {
+                res.issuedBy = requestor.EmployeeName;
+            }
+
             var section_head = _context.TechnicalInstructionApproverTaskMasters.Where(x => x.TechnicalId == Id && x.IsActive == true && x.SequenceNo == 1).Select(c => new {c.AssignedToUserId, c.DelegateUserId}).FirstOrDefault();
 
             if(section_head != null)
@@ -1963,6 +1968,11 @@ namespace TDSGCellFormat.Implementation.Repository
                 text.HorizontalAlign = SelectPdf.PdfTextHorizontalAlign.Center;
                 converter.Footer.Add(text);
 
+                // Add document number on the right side of the footer
+                SelectPdf.PdfTextSection documentNumberText = new SelectPdf.PdfTextSection(0, 10, "R-COC01-SC01-F03E, 01 ", new System.Drawing.Font("Arial", 8));
+                documentNumberText.HorizontalAlign = SelectPdf.PdfTextHorizontalAlign.Right;
+                converter.Footer.Add(documentNumberText);
+
                 SelectPdf.PdfDocument pdfDoc = converter.ConvertHtmlString(sb.ToString());
 
                 // Convert the PDF to a byte array
@@ -2393,8 +2403,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     res.Message = Enums.TechnicalReOpen;
                     res.ReturnValue = technicalRevise.TechnicalId;
                     InsertHistoryData(technicalId, FormType.TechnicalInstruction.ToString(), null, comment, ApprovalTaskStatus.ReOpen.ToString(), userId, ApprovalTaskStatus.ReOpen.ToString(), 0);
-                    //var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    //await notificationHelper.SendEmail(technicalId, EmailNotificationAction.Reopen, null, userId);
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.SendTechanicalInstructionEmail(technicalId, EmailNotificationAction.Reopen, comment, 0);
                 }
 
             }
@@ -2445,13 +2455,13 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public async Task<AjaxResult> ChangeRequestOwner(int technicalId, int userId, string comment)
         {
-            var res = new AjaxResult();
+                var res = new AjaxResult();
             try
             {
 
                 var technical = await _context.TechnicalInstructionSheets.Where(x => x.TechnicalId == technicalId).FirstOrDefaultAsync();
                 if (technical != null)
-                {
+                {   
                     //int? OldCreatedBy = technical.CreatedBy;
                     technical.IsReOpen = true;
                     //var internalFlow = _context.TroubleReportReviewerTaskMasters.Where(x => x.TroubleReportId == troubleReportId && x.IsActive == true && x.IsClsoed == false).ToList();
@@ -2547,8 +2557,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     res.Message = Enums.TechnicalReOpen;
                     res.ReturnValue = technicalRevise.TechnicalId;
                     InsertHistoryData(technicalId, FormType.TechnicalInstruction.ToString(), null, comment, ApprovalTaskStatus.ReOpen.ToString(), userId, ApprovalTaskStatus.ReOpen.ToString(), 0);
-                    //var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    //await notificationHelper.SendEmail(technicalId, EmailNotificationAction.Reopen, null, userId);
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.SendTechanicalInstructionEmail(technicalId, EmailNotificationAction.Reopen, comment, 0, userId);
                 }
 
             }

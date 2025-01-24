@@ -169,6 +169,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         modelBuilder.Entity<AdjustmentReportApprovalExcelView>().HasNoKey();
 
         modelBuilder.Entity<AdjustmentReportView>().HasNoKey();
+        modelBuilder.Entity<AdjustmentReportAllView>().HasNoKey();
         modelBuilder.Entity<AdjustmentReportApproverView>().HasNoKey();
         modelBuilder.Entity<DepartmentHeadsView>().HasNoKey();
         modelBuilder.Entity<CellDepartment>().HasNoKey();
@@ -578,7 +579,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
             .ToListAsync();
     }
 
-    public async Task<List<AdjustmentReportView>> GetAdjustmentReportList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+    public async Task<List<AdjustmentReportAllView>> GetAdjustmentReportList(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
     {
         var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@createdOne", createdBy);
         var skipParam = new Microsoft.Data.SqlClient.SqlParameter("@skip", skip);
@@ -588,7 +589,7 @@ public partial class TdsgCellFormatDivisionContext : DbContext
         var columnParam = new Microsoft.Data.SqlClient.SqlParameter("@searchColumn", searchColumn ?? string.Empty);
         var valueParam = new Microsoft.Data.SqlClient.SqlParameter("@searchValue", searchValue ?? string.Empty);
 
-        return await this.Set<AdjustmentReportView>()
+        return await this.Set<AdjustmentReportAllView>()
             .FromSqlRaw("EXEC SPP_GetAllAdjustMentReportData @createdOne,@skip,@take,@order,@orderBy,@searchColumn,@searchValue", createdParam, skipParam, takeParam, orderParam, orderByParam, columnParam, valueParam)
             .ToListAsync();
     }

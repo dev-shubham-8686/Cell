@@ -146,7 +146,10 @@ const AllRequestsTab: React.FC = () => {
   };
 
   // Column-specific search filter
-  const getColumnSearchProps = (dataIndex: string, placeholderString: string) => ({
+  const getColumnSearchProps = (
+    dataIndex: string,
+    placeholderString: string
+  ) => ({
     filterDropdown: ({
       setSelectedKeys,
       selectedKeys,
@@ -197,11 +200,15 @@ const AllRequestsTab: React.FC = () => {
   });
 
   const handleView = (id: string): void => {
-    navigate(`/form/view/${id}`, { state: { isApproverRequest:false, isFromAllRequest: true } });
+    navigate(`/form/view/${id}`, {
+      state: { isApproverRequest: false, isFromAllRequest: true },
+    });
   };
 
   const handleEdit = (id: string): void => {
-    navigate(`/form/edit/${id}`, { state: { isApproverRequest: true, isFromAllRequest: true } });
+    navigate(`/form/edit/${id}`, {
+      state: { isApproverRequest: true, isFromAllRequest: true },
+    });
   };
 
   const handleDelete = (id: string): void => {
@@ -337,11 +344,13 @@ const AllRequestsTab: React.FC = () => {
 
   const handleFinalSubmit = () => {
     if (comment.length > 1000) {
-      void displayjsx.showErrorMsg("Comment length cannot exceed 1000 characters.");
+      void displayjsx.showErrorMsg(
+        "Comment length cannot exceed 1000 characters."
+      );
       return; // Stop further execution if validation fails
     }
     handleFetchEmps();
-  }
+  };
 
   const handleAddRevision = (id: string): void => {
     setSelectedTICId(null);
@@ -480,12 +489,12 @@ const AllRequestsTab: React.FC = () => {
     },
     {
       title: "Requestor",
-      dataIndex: "IssuedBy",
-      key: "IssuedBy",
+      dataIndex: "Requestor",
+      key: "Requestor",
       width: "10%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("IssuedBy", "Requestor"),
+      ...getColumnSearchProps("Requestor", "Requestor"),
     },
     {
       title: "Current Approver",
@@ -548,10 +557,9 @@ const AllRequestsTab: React.FC = () => {
             onClick={() => handleRevise(record.TechnicalId)}
           /> */}
 
-          {(user?.isAdmin // ||
+          {user?.isAdmin && ( // ||
             //record.Status === REQUEST_STATUS.Draft ||
             //record.Status === REQUEST_STATUS.UnderAmendment
-          ) && (
             <Button
               title="Edit"
               className="action-btn"
@@ -580,9 +588,8 @@ const AllRequestsTab: React.FC = () => {
               />
             )} */}
 
-          {record.IsReOpen == false &&
-            (//user?.isAdmin ||
-              record.Status == REQUEST_STATUS.Closed ||
+          {record.IsReOpen == false && //user?.isAdmin ||
+            (record.Status == REQUEST_STATUS.Closed ||
               record.Status == REQUEST_STATUS.Completed ||
               record.Status == REQUEST_STATUS.Approved) && (
               <Button
@@ -593,17 +600,23 @@ const AllRequestsTab: React.FC = () => {
               />
             )}
 
-          {user?.isAdmin && ( //|| record.Status == REQUEST_STATUS.Draft
-            <Button
-              title="Delete"
-              className="action-btn"
-              icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
-              onClick={() => showDeleteConfirm(record.TechnicalId)}
-            />
-          )}
+          {user?.isAdmin &&
+            !(
+              record.Status == REQUEST_STATUS.Closed ||
+              record.Status == REQUEST_STATUS.Approved ||
+              record.Status == REQUEST_STATUS.Completed
+            ) && (
+              <Button
+                title="Delete"
+                className="action-btn"
+                icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
+                onClick={() => showDeleteConfirm(record.TechnicalId)}
+              />
+            )}
 
           {record.IsReOpen == false &&
-            (user?.isAdmin && record.Status == REQUEST_STATUS.Completed) && (
+            user?.isAdmin &&
+            record.Status == REQUEST_STATUS.Completed && (
               <Button
                 title="Add Revision"
                 className="action-btn"
@@ -669,8 +682,8 @@ const AllRequestsTab: React.FC = () => {
         render: (text) => <span className="m-0">{text ?? "-"}</span>,
       },
       {
-        dataIndex: "IssuedBy",
-        key: "IssuedBy",
+        dataIndex: "Requestor",
+        key: "Requestor",
         width: "10%",
         render: (text) => <span className="m-0">{text ?? "-"}</span>,
       },
@@ -719,11 +732,11 @@ const AllRequestsTab: React.FC = () => {
               onClick={() => handleView(record.TechnicalId)}
             />
             <Button
-                title="PDF"
-                className="action-btn"
-                icon={<FontAwesomeIcon title="PDF" icon={faFilePdf} />}
-                onClick={() => handlePdf(record.TechnicalId, record.CTINumber)}
-              />
+              title="PDF"
+              className="action-btn"
+              icon={<FontAwesomeIcon title="PDF" icon={faFilePdf} />}
+              onClick={() => handlePdf(record.TechnicalId, record.CTINumber)}
+            />
           </span>
         ),
         sorter: false,
@@ -747,6 +760,8 @@ const AllRequestsTab: React.FC = () => {
 
   const handleEmpSelctionFinalSubmit = () => {
     setReOpenLoading(true);
+    setVisible(false);
+    setIsSecondModalVisible(false);
     changeRequestOwner(
       selectedTICId?.toString() ?? "",
       selectedOwner?.toString() ?? "",
@@ -759,6 +774,8 @@ const AllRequestsTab: React.FC = () => {
       })
       .catch((error) => {
         setReOpenLoading(false);
+        setVisible(true);
+        setIsSecondModalVisible(true);
       });
   };
 
@@ -771,12 +788,18 @@ const AllRequestsTab: React.FC = () => {
               type="text"
               placeholder="Search Here"
               value={searchText}
-              onChange={(e) => {setSearchText(e.target.value); setSearchColumn("");}}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                setSearchColumn("");
+              }}
               style={{ width: "300px" }}
             />
             {searchText && (
               <CloseOutlined
-              onClick={() => {setSearchText(""); setSearchColumn(""); }}
+                onClick={() => {
+                  setSearchText("");
+                  setSearchColumn("");
+                }}
                 className="text-gray-400 cursor-pointer"
                 style={{
                   position: "absolute",
@@ -830,7 +853,7 @@ const AllRequestsTab: React.FC = () => {
         }}
         onChange={handleTableChange}
         rowKey="TechnicalId"
-        scroll={{ x: 'max-content', y: '300px' }} // Ensure 'max-content' for dynamic width
+        scroll={{ x: "max-content", y: "300px" }} // Ensure 'max-content' for dynamic width
         className="no-radius-table dashboard-table"
       />
       <Spin spinning={pdfLoading || reOpenLoading} fullscreen />
@@ -885,44 +908,46 @@ const AllRequestsTab: React.FC = () => {
       </>
 
       <>
-      {
-        <Modal
-        title={
-          <>
-            <FontAwesomeIcon
-              icon={faCircleExclamation}
-              style={{ marginRight: "10px", marginTop: "5px" }}
-            />
-            Are you sure you want to revise the request?
-          </>
-        }
-        maskClosable={false}
-        open={visible}
-        onCancel={() => setVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setVisible(false)}>
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            onClick={handleFinalSubmit}
-            disabled={comment.trim() === ""} // Disable if comment is empty
+        {
+          <Modal
+            title={
+              <>
+                <FontAwesomeIcon
+                  icon={faCircleExclamation}
+                  style={{ marginRight: "10px", marginTop: "5px" }}
+                />
+                Are you sure you want to revise the request?
+              </>
+            }
+            maskClosable={false}
+            open={visible}
+            onCancel={() => setVisible(false)}
+            footer={[
+              <Button key="cancel" onClick={() => setVisible(false)}>
+                Cancel
+              </Button>,
+              <Button
+                key="submit"
+                type="primary"
+                onClick={handleFinalSubmit}
+                disabled={comment.trim() === ""} // Disable if comment is empty
+              >
+                Submit
+              </Button>,
+            ]}
           >
-            Submit
-          </Button>,
-        ]}
-      >
-        <Input.TextArea
-          placeholder="Enter Comment"
-          rows={4}
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          style={{margin:"10px 0px 10px 0px"}}
-        />
-      </Modal>
-      }
+            <Input.TextArea
+              placeholder="Enter Comment"
+              rows={4}
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              style={{ margin: "10px 0px 10px 0px" }}
+            />
+          </Modal>
+        }
       </>
+
+      {/* <Spin spinning={reOpenLoading} fullscreen /> */}
     </div>
   );
 };

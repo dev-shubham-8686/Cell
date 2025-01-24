@@ -131,7 +131,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
     ctiNumber: null, //`CTI-${uniqueId}`,
     revisionNo: null,
     purpose: null,
-    productType: null,
+    productType: "6Ah",
     quantity: null,
     outline: null,
     tisApplicabilityDate: null,
