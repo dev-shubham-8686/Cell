@@ -1648,7 +1648,7 @@ namespace TDSGCellFormat.Helper
             return emailSent;
         }
 
-        public async Task<bool> SendTechanicalInstructionEmail(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0)
+        public async Task<bool> SendTechanicalInstructionEmail(int requestId, EmailNotificationAction emailNotification, string comment = null, int nextApproverTaskId = 0, int reOpenDeleateUserId = 0)
         {
             bool emailSent = false;
             try
@@ -1679,6 +1679,8 @@ namespace TDSGCellFormat.Helper
                 bool allPersonInCc = false;
                 //string? documentLink = _configuration["SPSiteUrl"] +
                 //"/SitePages/TechInstructionSheet.aspx#/";
+                bool isRopenDelegateUser = false;
+                string? reOpenUserDelegateEmail = null;
 
                 if (requestId > 0)
                 {
@@ -1698,6 +1700,16 @@ namespace TDSGCellFormat.Helper
                             EmployeeMaster? departMentHeadDetails = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == departMentHead && x.IsActive == true).FirstOrDefault();
                             departmentHeadName = departMentHeadDetails?.EmployeeName;
                             departmentHeadEmail = departMentHeadDetails?.Email;
+
+                            if(reOpenDeleateUserId > 0 && reOpenDeleateUserId != materialData.CreatedBy)
+                            {
+                                EmployeeMaster? getReOpenEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == reOpenDeleateUserId && x.IsActive == true).FirstOrDefault();
+                                reOpenUserDelegateEmail = getReOpenEmail?.Email;
+                            }
+                            else
+                            {
+                                reOpenUserDelegateEmail = requestorUserDetails?.Email;
+                            }
                         }
 
                         var approverData = await _context.GetTechnicalWorkFlowData(requestId);
@@ -1767,6 +1779,13 @@ namespace TDSGCellFormat.Helper
                                 allPersonInCc = true;
                                 break;
 
+                            case EmailNotificationAction.Reopen:
+                                templateFile = "TechnicalInstruction_ReOpen.html";
+                                emailSubject = string.Format("[Action Taken] TIS_{0} has been ReOpen", materialData.CTINumber);
+                                isRopenDelegateUser = true;
+                                allPersonInCc = true;
+                                break;
+
                             default:
                                 break;
                         }
@@ -1780,6 +1799,24 @@ namespace TDSGCellFormat.Helper
                         if (isRequestorinCCEmail)
                         {
                             emailCCAddressList.Add(requesterUserEmail);
+                        }
+
+                        if(isRopenDelegateUser == true)
+                        {
+                            if(reOpenUserDelegateEmail == requesterUserEmail)
+                            {
+                                emailToAddressList.Add(reOpenUserDelegateEmail);
+                            }
+                            else if(reOpenUserDelegateEmail != requesterUserEmail)
+                            {
+                                emailToAddressList.Add(reOpenUserDelegateEmail);
+                                emailCCAddressList.Add(requesterUserEmail);
+                            }
+                            else
+                            {
+                                emailToAddressList.Add(reOpenUserDelegateEmail);
+                            }
+                           
                         }
 
                         if (isInReviewTask)
