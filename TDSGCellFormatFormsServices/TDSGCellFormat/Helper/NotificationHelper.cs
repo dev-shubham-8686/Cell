@@ -2257,7 +2257,7 @@ namespace TDSGCellFormat.Helper
                             {
                                 if (approvelink)
                                 {
-                                    docLink = documentLink.Replace("#", "?action=approval#") + "edit/" + requestId;
+                                    docLink = documentLink + "edit/" + requestId + "/approval";
                                 }
                                 else
                                 {
