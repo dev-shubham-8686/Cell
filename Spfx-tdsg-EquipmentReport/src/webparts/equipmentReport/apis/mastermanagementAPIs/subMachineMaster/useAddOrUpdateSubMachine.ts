@@ -7,7 +7,7 @@ export const addOrUpdateSubMachineMaster = async (data: any) => {
     SHOW_NOTIFICATION: true,
   };
     const response = await http.post(
-      `/AddUpdateSubMachine`,
+      `/MasterTbl/AddUpdateSubMachine`,
       data,
       {      ...config,
         headers: {

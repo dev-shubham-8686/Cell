@@ -14,12 +14,14 @@ const Header: React.FC<IHeader> = ({ title }) => {
     <nav className="navbar border-bottom-1">
       <div className="container-fluid justify-content-between align-items-center px-0 mx-2rem">
         <p className="title">{title}</p>
-        {/* {user?.isAdmin ?<Link
+        {
+        // user?.isAdmin
+        true ?<Link
         to="/master"
             className=""
           >
             MASTER
-          </Link>:<></>} */}
+          </Link>:<></>}
       </div>
     </nav>
   </header>

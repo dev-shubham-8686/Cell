@@ -37,7 +37,7 @@ const MachineMasterPage: React.FC = () => {
   const [form] = Form.useForm();
   const user: IUser = useContext(UserContext);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
-  const { data: data, isLoading: MachineLoading } =
+  const { data: data, isLoading: MachineLoading,refetch } =
     useGetMachineMaster();
     const { mutate: machineMasterAddOrUpdate, isLoading: addingMachine } =
     useAddOrUpdateMachine();
@@ -81,7 +81,15 @@ const MachineMasterPage: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    deleteMachineMaster(id.toString())
+    deleteMachineMaster(id.toString(),{
+      onSuccess:async (Response: any) => {
+        console.log("ondelete RES", Response);
+        await refetch();
+      },
+      onError: (error) => {
+        console.error("ondelete error:", error);
+      },
+    })
   };
 
 
@@ -93,6 +101,15 @@ const MachineMasterPage: React.FC = () => {
         MachineName: values.MachineName,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
+      },{
+        onSuccess:async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+          await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       });
     } else {
       // Create new record
@@ -101,6 +118,15 @@ const MachineMasterPage: React.FC = () => {
         MachineName: values.MachineName,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
+      },{
+        onSuccess:async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+          await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       })
     }
   };
@@ -217,7 +243,7 @@ const MachineMasterPage: React.FC = () => {
                     Back
                   </button>
                 </div>
-                <div style={{ marginLeft: "1600px" }}>
+                <div>
                   <Button
                     type="primary"
                     className="btn btn-primary"

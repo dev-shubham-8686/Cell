@@ -26,7 +26,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import displayjsx from "../../../utils/displayjsx";
 import { IUser, UserContext } from "../../../context/userContext";
-import useMachineMaster from "../../../apis/masters/useMachineMaster";
+import useMachineMaster, { IMachineMaster } from "../../../apis/masters/useMachineMaster";
 import { useGetSubMachineMaster } from "../../../apis/mastermanagementAPIs/subMachineMaster/useGetSubMachineMaster";
 import useAddOrUpdateSubMachine from "../../../apis/mastermanagementAPIs/subMachineMaster/useAddOrUpdateSubMachine";
 import useDeleteSubMachineMaster from "../../../apis/mastermanagementAPIs/subMachineMaster/useDeleteSubMachine";
@@ -56,7 +56,7 @@ const SubMachineMasterPage: React.FC = () => {
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
   const { data: machinesResult, isLoading: machineloading } =
     useMachineMaster();
-  const { data: data, isLoading: MachineLoading } = useGetSubMachineMaster();
+  const { data: data, isLoading: SubMachineLoading,refetch } = useGetSubMachineMaster();
   const { mutate: subMachineMasterAddOrUpdate, isLoading: addingMachine } =
     useAddOrUpdateSubMachine();
   const { mutate: deleteSubMachineMaster, isLoading: deletingMachine } =
@@ -99,7 +99,15 @@ const SubMachineMasterPage: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    deleteSubMachineMaster(id.toString());
+    deleteSubMachineMaster(id.toString(),{
+      onSuccess:async (Response: any) => {
+        console.log("ondelete RES", Response);
+        await refetch();
+      },
+      onError: (error) => {
+        console.error("ondelete error:", error);
+      },
+    });
   };
 
   const handleSave = (values: ISubMachineMaster) => {
@@ -111,6 +119,15 @@ const SubMachineMasterPage: React.FC = () => {
         MachineId: values.MachineId,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       });
     } else {
       // Create new record
@@ -120,6 +137,15 @@ const SubMachineMasterPage: React.FC = () => {
         MachineId: values.MachineId,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       });
     }
   };
@@ -142,6 +168,12 @@ const SubMachineMasterPage: React.FC = () => {
       key: "MachineId",
       sorter: (a: any, b: any) =>
         a.MachineId.localeCompare(b.MachineId),
+      render: (MachineId: number, record: any) => {
+        const machine = machinesResult?.find(
+          (m: IMachineMaster) => m.MachineId === MachineId
+        );
+        return machine?.MachineName || "-"; // Show MachineName or fallback to "Unknown Machine"
+      }
     },
     {
       title: "Is Active",
@@ -243,7 +275,7 @@ const SubMachineMasterPage: React.FC = () => {
             Back
           </button>
         </div>
-        <div style={{ marginLeft: "1600px" }}>
+        <div >
           <Button
             type="primary"
             className="btn btn-primary"

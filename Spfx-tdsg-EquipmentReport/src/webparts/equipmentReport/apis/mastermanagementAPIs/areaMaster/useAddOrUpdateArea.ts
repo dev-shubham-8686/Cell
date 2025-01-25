@@ -7,7 +7,7 @@ export const addOrUpdateAreaMaster = async (data: any) => {
           SHOW_NOTIFICATION: true,
         };
     const response = await http.post(
-      `/AddUpdateArea`,
+      `/MasterTbl/AddUpdateArea`,
       data,
       {
         ...config,

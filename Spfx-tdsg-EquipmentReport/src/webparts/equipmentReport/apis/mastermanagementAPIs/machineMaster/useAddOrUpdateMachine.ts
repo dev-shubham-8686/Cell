@@ -7,7 +7,7 @@ export const addOrUpdateMachineMaster = async (data: any) => {
             SHOW_NOTIFICATION: true,
           };
     const response = await http.post(
-      `/AddUpdateMachine`,
+      `/MasterTbl/AddUpdateMachine`,
       data,
       {      ...config,
         headers: {

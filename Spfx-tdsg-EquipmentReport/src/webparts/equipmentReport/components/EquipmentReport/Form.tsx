@@ -65,7 +65,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
   const navigate = useNavigate();
   const { confirm } = Modal;
-  const webPartContext = React.useContext(WebPartContext);
+    const webPartContext = React.useContext(WebPartContext);
   const { id, mode } = useParams();
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState<

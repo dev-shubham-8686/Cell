@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export const fetchAreaMaster = async () => {
     const response = await http.get<{ ReturnValue: any[] }>(
-      `/GetAllAreas`
+      `/MasterTbl/GetAreaMaster`
     );
     return response.data.ReturnValue ?? [];
   };

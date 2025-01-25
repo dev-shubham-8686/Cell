@@ -43,7 +43,7 @@ const AreaMasterPage: React.FC = () => {
   const [form] = Form.useForm();
   const user: IUser = useContext(UserContext);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
-  const { data: data, isLoading: areaLoading } = useGetAreaMaster();
+  const { data: data, isLoading: AreaLoading ,refetch} = useGetAreaMaster();
   const { mutate: areaMasterAddOrUpdate, isLoading: addingarea } =
     useAddOrUpdateArea();
   const { mutate: deleteAreaMaster, isLoading: deletingarea } =
@@ -87,7 +87,15 @@ const AreaMasterPage: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    deleteAreaMaster(id.toString());
+    deleteAreaMaster(id.toString(),{
+      onSuccess:async (Response: any) => {
+        console.log("ondelete RES", Response);
+        await refetch();
+      },
+      onError: (error) => {
+        console.error("ondelete error:", error);
+      },
+    });
   };
 
   // const handleSearch = () => {
@@ -112,6 +120,15 @@ const AreaMasterPage: React.FC = () => {
         AreaName: values.AreaName,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       });
     } else {
       // Create new record
@@ -120,6 +137,15 @@ const AreaMasterPage: React.FC = () => {
         AreaName: values.AreaName,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
+      },{
+        onSuccess:async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+          await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       });
     }
   };
@@ -306,6 +332,11 @@ const AreaMasterPage: React.FC = () => {
         onCancel={() => setModalVisible(false)}
         onOk={() => !isViewMode && form.submit()}
         okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
+        footer={
+          isViewMode
+            ? null // No footer for view mode
+            : undefined // Default footer for edit/add mode
+        }
         cancelButtonProps={{ className:"btn btn-outline-primary"}}
       >
         <Form

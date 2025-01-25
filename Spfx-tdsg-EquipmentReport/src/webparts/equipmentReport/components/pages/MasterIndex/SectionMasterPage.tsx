@@ -37,7 +37,7 @@ const SectionMasterPage: React.FC = () => {
   const [form] = Form.useForm();
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
   const user: IUser = useContext(UserContext);
-  const { data: data, isLoading: MachineLoading } =
+  const { data: data, isLoading: SectionLoading,refetch } =
   useGetSectionMaster();
   const { mutate: sectionMasterAddOrUpdate, isLoading: addingMachine } =
   useAddOrUpdateSection();
@@ -100,6 +100,15 @@ const SectionMasterPage: React.FC = () => {
         SectionName: values.SectionName,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       })
         
     } else {
@@ -109,6 +118,15 @@ const SectionMasterPage: React.FC = () => {
         SectionName: values.SectionName,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       })
        
     }

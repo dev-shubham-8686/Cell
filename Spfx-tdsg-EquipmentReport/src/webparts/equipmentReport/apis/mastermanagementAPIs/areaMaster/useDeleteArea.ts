@@ -6,7 +6,7 @@ export const deleteAreaMaster = async (id: string) => {
   const config: ICustomAxiosConfig = {
     SHOW_NOTIFICATION: true,
   };
-    const response = await http.delete(`/DeleteArea`, {
+    const response = await http.delete(`/MasterTbl/DeleteArea`, {
       params: { Id: id },
       ...config,
 

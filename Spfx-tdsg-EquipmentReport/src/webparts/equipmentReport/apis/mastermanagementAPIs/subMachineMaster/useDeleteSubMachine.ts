@@ -6,7 +6,7 @@ export const deleteSubMachineMaster = async (id: string) => {
   const config: ICustomAxiosConfig = {
     SHOW_NOTIFICATION: true,
   };
-    const response = await http.delete(`/DeleteSubMachine`, {
+    const response = await http.delete(`/MasterTbl/DeleteSubMachine`, {
       params: { Id: id },
       ...config,
 

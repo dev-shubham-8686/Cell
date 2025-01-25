@@ -42,7 +42,7 @@ const ImpCategoryMasterPage: React.FC = () => {
   const [form] = Form.useForm();
   const user: IUser = useContext(UserContext);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
-  const { data: data, isLoading: areaLoading } =
+  const { data: data, isLoading: ImpCatLoading,refetch } =
     useGetImpCategoryMaster();
     const { mutate: impCategoryMasterAddOrUpdate, isLoading: addingarea } =
     useAddOrUpdateImpCategory();
@@ -87,7 +87,15 @@ const ImpCategoryMasterPage: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    deleteImpCategoryMaster(id.toString());
+    deleteImpCategoryMaster(id.toString(),{
+      onSuccess:async (Response: any) => {
+        console.log("ondelete RES", Response);
+        await refetch();
+      },
+      onError: (error) => {
+        console.error("ondelete error:", error);
+      },
+    });
   };
 
   // const handleSearch = () => {
@@ -112,6 +120,15 @@ const ImpCategoryMasterPage: React.FC = () => {
         AreaName: values.ImpCateogoryName,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       })
         
     }
@@ -122,6 +139,15 @@ const ImpCategoryMasterPage: React.FC = () => {
         AreaName: values.ImpCateogoryName,
         IsActive: values.IsActive,
         UserId: user?.employeeId,
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       })
         
     }
@@ -226,64 +252,29 @@ const ImpCategoryMasterPage: React.FC = () => {
     <Page title="Improvement Category Master">
         <div className="content flex-grow-1 p-4">
       <div className="d-flex justify-content-between items-center mb-3">
-        {/* <div className="flex gap-3 items-center">
-                     <div style={{ position: "relative", display: "inline-block" }}>
-                       <Input
-                         type="text"
-                         placeholder="Search Here"
-                         value={searchText}
-                         onChange={(e) => setSearchText(e.target.value)}
-                         style={{ width: 300 }}
-                       />
-                       {searchText && (
-                         <CloseOutlined
-                           onClick={() => {
-                             setSearchText("");
-                             setFilteredData(data);
-                           }}
-                           className="text-gray-400 cursor-pointer"
-                           style={{
-                             position: "absolute",
-                             right: "10px",
-                             top: "50%",
-                             transform: "translateY(-50%)",
-                             zIndex: 1,
-                             cursor: "pointer",
-                           }}
-                         />
-                       )}
-                     </div>
-                     <Button
-                       type="primary"
-                       icon={<SearchOutlined />}
-                       onClick={handleSearch}
-                       className="whitespace-nowrap"
-                     >
-                       Search
-                     </Button>
-                   </div> */}
+      
       <div>
-                <button
-                  className="btn btn-link btn-back"
-                  type="button"
-                  onClick={() => navigate(`/master`)}
-                >
-                  <FontAwesomeIcon
-                    style={{ marginRight: "5px" }}
-                    icon={faCircleChevronLeft}
-                  />
-                  Back
-                </button>
-              </div>
-              <div style={{ marginLeft: "1600px" }}>
-                <Button
-                  type="primary"
-                  className="btn btn-primary"
-                  onClick={handleAdd}
-                >
-                  Add Item
-                </Button>
-              </div>
+               <button
+                 className="btn btn-link btn-back"
+                 type="button"
+                 onClick={() => navigate(`/master`)}
+               >
+                 <FontAwesomeIcon
+                   style={{ marginRight: "5px" }}
+                   icon={faCircleChevronLeft}
+                 />
+                 Back
+               </button>
+             </div>
+             <div >
+               <Button
+                 type="primary"
+                 className="btn btn-primary"
+                 onClick={handleAdd}
+               >
+                 Add Item
+               </Button>
+             </div>
       </div>
       <div className="table-container pt-0">
       <Table
