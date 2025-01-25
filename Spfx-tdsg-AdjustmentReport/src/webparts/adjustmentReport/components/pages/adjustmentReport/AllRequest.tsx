@@ -223,7 +223,9 @@ const AllRequest: React.FC<{}> = ({}) => {
           {(user?.isAdmin ||
             ((record.Status === REQUEST_STATUS.Draft ||
               record.Status === REQUEST_STATUS.UnderAmendment) &&
-              record.EmployeeId === user?.employeeId)) && (
+              record.EmployeeId === user?.employeeId) ||
+            (record.AdvisorId == user?.employeeId &&
+              record.Status == REQUEST_STATUS.InReview)) && (
             <button
               type="button"
               style={{ background: "none", border: "none" }}
