@@ -6,6 +6,7 @@ import RequestsTab from "./RequestsTab";
 import ApprovalsTab from "./ApprovalsTab";
 import "../../../../../../src/styles/customStyles.css";
 import AllRequestsTab from "./AllRequestsTab";
+import { UserContext } from "../../../context/userContext";
 
 const TAB_KEYS = {
   REQUESTS: "1",
@@ -15,6 +16,7 @@ const TAB_KEYS = {
 
 const TechnicalInstructionList: React.FC = () => {
   const location = useLocation();
+  const user = React.useContext(UserContext);
   const [activeKey, setActiveKey] = useState(() => {
     if (location.state?.currentTabState === "myapproval-tab") {
       return TAB_KEYS.APPROVALS;
@@ -35,6 +37,16 @@ const TechnicalInstructionList: React.FC = () => {
           icon={<PlusCircleFilled />}
         >
           New Request
+        </Button>
+      )}
+
+      {user?.isAdmin && (
+        <Button
+          type="primary"
+          style={{ marginLeft: "4px" }}
+          onClick={() => navigate("/masterlist")}
+        >
+          Master
         </Button>
       )}
     </div>
