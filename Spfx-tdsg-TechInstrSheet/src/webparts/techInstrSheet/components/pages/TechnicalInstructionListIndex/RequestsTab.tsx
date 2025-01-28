@@ -448,12 +448,14 @@ const RequestsTab: React.FC = () => {
       return; // Stop further execution if validation fails
     }
     setRevisonLoading(true);
+    setVisible(false);
     try {
       await technicalReopen(revTecId, user?.employeeId.toString() ?? "", comment);
       void displayjsx.showSuccess("Revision added successfully.");
       window.location.reload(); // Reload the page after success
     } catch (error) {
       setRevisonLoading(false);
+      setVisible(true);
     }finally{
       setRevisonLoading(false);
     }
