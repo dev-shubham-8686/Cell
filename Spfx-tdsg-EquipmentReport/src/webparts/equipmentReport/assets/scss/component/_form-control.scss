@@ -207,4 +207,9 @@
   overflow-y: auto;
 }
 
+.upload-red-only .ant-upload-list-item-name,
+.upload-red-only .ant-upload-list-item .anticon {
+  color: #c50017 !important;
+  //cursor: pointer !important;
+}
 // Form Layout ends

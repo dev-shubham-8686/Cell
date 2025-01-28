@@ -3,7 +3,7 @@
   "solution": {
     "name": "spfx-tdsg-adjustment-report-client-side-solution",
     "id": "c66b9971-3770-4684-afac-0d8e6627e7a9",
-    "version": "1.0.0.9",
+    "version": "1.0.0.1",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,

@@ -430,8 +430,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           (field) => !fieldsToExclude.includes(field)
         );
         await form.validateFields(fieldsToValidate);
-        await form.validateFields();
         //: TODO Need to update
+        await form.validateFields();
       } else {
         
 
@@ -1069,7 +1069,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               //     ? dayjs(record?.DueDate).format(DATE_FORMAT) // Pass the date in correct format to dayjs
               //     : undefined
               // }
-              format="DD-MM-YYYY"
+              format={DATE_FORMAT}
               disabled={
                 isModeView ||
                 (!isAdmin &&
@@ -1213,7 +1213,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
   return (
     <div className="d-flex flex-column gap-3 w-100 h-100">
-      <div style={{ position: "absolute", right: "40px", top: "105px" }}>
+      <div className={user?.isAdmin?"admin-form-btn-row":"form-btn-row"}>
         <>
           <div className="d-flex gap-3">
             {(mode == "add" ||
@@ -1237,7 +1237,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             )}
 
             {(mode == "add" ||
-              (isAdmin && !isModeView) ||
+              (isAdmin && !isModeView && (!submitted && existingEquipmentReport?.CreatedBy==user?.employeeId) ) ||
               (!isModeView &&
                 ((!submitted &&
                   existingEquipmentReport?.Status !=
@@ -1420,7 +1420,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               <div className="col">
                 <Form.Item
                   label={
-                    <span className="text-muted w-95">Improvment Category</span>
+                    <span className="text-muted w-95">Improvement Category</span>
                   }
                   name="ImprovementCategory"
                   rules={validationRules.ImprovementCategory}
@@ -1651,6 +1651,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   {console.log("USERID", user?.employeeId.toString())}
                   <FileUpload
+                  showbutton={true}
                     disabled={
                       isModeView || (!isAdmin && submitted && !underAmmendment)
                     }
@@ -1667,7 +1668,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       uid:
                         a.EquipmentCurrSituationAttachmentId?.toString() ?? "",
                       name: a.CurrSituationDocName,
-                      url: `${WEB_URL}/${a.CurrSituationDocFilePath}`,
+                      url: "",
                     }))}
                     setIsLoading={(loading: boolean) => {
                       // setIsLoading(loading);
@@ -1808,6 +1809,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 >
                   {/* all types except exe  ,  max size -30MB  , no-10*/}
                   <FileUpload
+                  showbutton={true}
                     disabled={
                       // isModeView ||
                       // !(existingEquipmentReport?.Status==REQUEST_STATUS.LogicalAmendmentInReview)||
@@ -1829,7 +1831,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       ...a,
                       uid: a.EquipmentImprovementAttachmentId?.toString() ?? "",
                       name: a.ImprovementDocName,
-                      url: `${WEB_URL}/${a.ImprovementDocFilePath}`,
+                      url: "",
                     }))}
                     setIsLoading={(loading: boolean) => {
                       // setIsLoading(loading);

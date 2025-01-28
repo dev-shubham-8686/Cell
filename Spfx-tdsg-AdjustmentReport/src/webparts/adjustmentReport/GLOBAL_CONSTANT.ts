@@ -1,7 +1,8 @@
 export const DATE_FORMAT = "DD-MM-YYYY";
 export const basePath = 
 // `https://localhost:44353`;                      //    ---  local
-`https://cellformservice-qa.tdsgj.co.in`;         //   ---  stage
+`https://cellformservice-qa.tdsgj.co.in`;         //   ---  QA
+// "https://cellformservice-stage.tdsgj.co.in";      //  ----- stage
 
 
 
@@ -50,7 +51,8 @@ export const LEVELS = {
 
 export const ACTION_TYPE={
   Approve:"approve",
-  AskToAmend:"amend"
+  AskToAmend:"amend",
+  Deligate:"delegate"
 }
 // It returns the background colour class for the status
 export const STATUS_COLOUR_CLASS: { [key: string]: string } = {
@@ -102,7 +104,7 @@ export const REQUEST_STATUS = {
 };
 
 export const MESSAGES = {
-  approvalInfoMsg:
+  approvalInfoMsg:  
     "Kindly ensure the Effectiveness Monitoring and Horizontal Deployment (if Any) before approval.",
   notifyManager:
     "Do you wish to proceed with notifying your reporting manager?",

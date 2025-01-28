@@ -19,6 +19,7 @@ import {
   deleteTechnicalOutlineAttachment,
   getAllSectionsv2,
   updateOutlineEditor,
+  insertDelegate,
 } from "../../../api/technicalInstructionApi";
 import {
   uploadFile,
@@ -130,14 +131,14 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
     ctiNumber: null, //`CTI-${uniqueId}`,
     revisionNo: null,
     purpose: null,
-    productType: null,
+    productType: "6Ah",
     quantity: null,
     outline: null,
     tisApplicabilityDate: null,
     targetClosureDate: null,
     //lotNo: null,
     relatedDocument: [],
-    applicationStartDate: null,//dayjs(),
+    applicationStartDate: null, //dayjs(),
     applicationLotNo: null,
     applicationEquipment: null,
     equipmentIds: [],
@@ -169,7 +170,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
   const [otherEquipment, setOtherEquipment] = React.useState("");
   const handleChangeEquipment = (value: any) => {
     // Check if "Other" is selected
-    debugger;
+    //debugger;
     if (value.includes("other")) {
       setShowOtherField(true);
       form.setFieldsValue({
@@ -196,9 +197,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           const returnValue = data.ReturnValue;
           setexistingTechniaclInstructionSlip(returnValue);
           setCtiNumber(returnValue.ctiNumber);
-          console.log(ctiNumber);
-
-          
+          //console.log(ctiNumber);
 
           form.setFieldsValue({
             ...returnValue,
@@ -231,20 +230,20 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
                 : null,
           });
 
-          if(returnValue.otherEquipment != null){
+          if (returnValue.otherEquipment != null) {
             form.setFieldsValue({
               equipmentIds: ["other"],
             });
             setShowOtherField(true);
             setOtherEquipment(returnValue.otherEquipment);
           }
-          
+
           setEditorModel(returnValue.outline);
 
           if (returnValue.isSubmit) {
             setsubmitted(true);
           }
-          debugger;
+          //debugger;
 
           if (
             returnValue?.status == REQUEST_STATUS.UnderAmendment &&
@@ -262,7 +261,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       getCurrentApprover(id!, user?.employeeId.toString() ?? "")
         .then((data) => {
           setLoading(false);
-          debugger;
+          //debugger;
           const returnValue = data.ReturnValue;
           setcurrentApproverTask(returnValue);
           // setShowWorkflowBtns(
@@ -377,7 +376,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       void displayjsx.showErrorMsg("Please enter Outline");
       return false;
     }
-debugger;
+    //debugger;
     const technicalInstructionData = {
       TechnicalId: id ? parseInt(id, 10) : 0, // For update
       issueDate: values.issueDate
@@ -428,7 +427,7 @@ debugger;
       sectionId: values.sectionId,
       ...submitFormState,
       comment: reSubmitComment,
-      otherEquipment: values.otherEquipment ?? null
+      otherEquipment: values.otherEquipment ?? null,
     };
 
     //console.log(technicalInstructionData);
@@ -438,7 +437,7 @@ debugger;
       .then(async (response) => {
         setLoading(false);
         //console.log("Response from API: ", response);
-        debugger;
+        //debugger;
 
         const getResObj = response.ReturnValue;
 
@@ -501,7 +500,7 @@ debugger;
           {
             if (outlineImageFiles && Array.isArray(outlineImageFiles)) {
               // Check and create folder if necessary
-              debugger;
+              //debugger;
 
               const isValidFolderOutline = await checkAndCreateFolder(
                 webPartContext,
@@ -515,7 +514,7 @@ debugger;
               const uploadedUrls = await Promise.all(
                 outlineImageFiles.map(async (file, index) => {
                   // Generate unique filename for each image
-                  debugger;
+                  //debugger;
                   const uniqueFileName = `image-${Date.now()}-${index}.jpg`; // or extract from metadata if available
 
                   // Convert the Blob URL to a File object
@@ -542,7 +541,7 @@ debugger;
               // Filter out null values (failed uploads)
               // const successfulUploads = uploadedUrls.filter(Boolean);
 
-              debugger;
+              //debugger;
 
               console.log(uploadedUrls);
 
@@ -556,7 +555,7 @@ debugger;
               //   ); // Replace base64 with SharePoint URL
               // });
 
-              debugger;
+              //debugger;
 
               for (const url of outlineImageFiles) {
                 const base64String = await getBase64StringFromBlobUrl(url);
@@ -575,7 +574,7 @@ debugger;
                 outlineImageBytes: __updatedContent,
               })
                 .then((c) => {
-                  debugger;
+                  //debugger;
                   setLoading(false);
                   //navigate("/");
                   // navigate("/", {
@@ -644,7 +643,22 @@ debugger;
         }
 
         // Navigate back to the list after successful submission
-        navigate("/");
+        if (isFromAllRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "allrequest-tab",
+            },
+          });
+        } else if (isApproverRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+        } else {
+          navigate("/");
+        }
+        //navigate("/");
       })
       .catch((error) => {
         setLoading(false);
@@ -911,7 +925,7 @@ debugger;
       })
       .catch((error) => {
         // If validation fails, handle the error (e.g., show error messages)
-        console.log("Form validation failed", error);
+        //console.log("Form validation failed", error);
       });
   };
 
@@ -960,7 +974,7 @@ debugger;
       })
       .catch((error) => {
         // If validation fails, handle the error (e.g., show error messages)
-        console.log("Form validation failed", error);
+        //console.log("Form validation failed", error);
       });
   };
 
@@ -1013,7 +1027,7 @@ debugger;
       })
       .catch((error) => {
         // If validation fails, handle the error (e.g., show error messages)
-        console.log("Form validation failed", error);
+        //console.log("Form validation failed", error);
       });
   };
 
@@ -1046,7 +1060,7 @@ debugger;
   // };
 
   const handleApprove = async (comment: string): Promise<void> => {
-    console.log("Approved with comment:", comment);
+    //console.log("Approved with comment:", comment);
     const data = {
       ApproverTaskId: currentApproverTask.approverTaskId,
       CurrentUserId: user?.employeeId,
@@ -1062,11 +1076,26 @@ debugger;
         void displayjsx.showSuccess(
           "Technical Instruction form has been approved."
         );
-        navigate("/", {
-          state: {
-            currentTabState: "myapproval-tab",
-          },
-        });
+        if (isFromAllRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "allrequest-tab",
+            },
+          });
+        } else if (isApproverRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+        } else {
+          navigate("/");
+        }
+        // navigate("/", {
+        //   state: {
+        //     currentTabState: "myapproval-tab",
+        //   },
+        // });
       })
       .catch((c) => {
         setLoading(false);
@@ -1092,11 +1121,26 @@ debugger;
         void displayjsx.showSuccess(
           "Technical Instruction form has been requested to amend."
         );
-        navigate("/", {
-          state: {
-            currentTabState: "myapproval-tab",
-          },
-        });
+        if (isFromAllRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "allrequest-tab",
+            },
+          });
+        } else if (isApproverRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+        } else {
+          navigate("/");
+        }
+        // navigate("/", {
+        //   state: {
+        //     currentTabState: "myapproval-tab",
+        //   },
+        // });
       })
       .catch((c) => {
         setLoading(false);
@@ -1119,7 +1163,21 @@ debugger;
         void displayjsx.showSuccess(
           "Technical Instruction form has been pulled back."
         );
-        navigate("/");
+        if (isFromAllRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "allrequest-tab",
+            },
+          });
+        } else if (isApproverRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+        } else {
+          navigate("/");
+        }
       })
       .catch((c) => {
         setLoading(false);
@@ -1127,6 +1185,45 @@ debugger;
 
     // Simulate API call
     //await new Promise((resolve) => setTimeout(resolve, 1000));
+  };
+
+  const handleDelegate = async (
+    userId: string,
+    comment: string
+  ): Promise<void> => {
+    const data = {
+      FormId: existingTechniaclInstructionSlip.TechnicalId,
+      UserId: user?.employeeId,
+      activeUserId: existingTechniaclInstructionSlip?.activeUserId,
+      DelegateUserId: userId,
+      Comments: comment,
+    };
+    setLoading(true);
+    insertDelegate(data)
+      .then((c) => {
+        setLoading(false);
+        void displayjsx.showSuccess(
+          "Technical Instruction form has been delegate."
+        );
+        if (isFromAllRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "allrequest-tab",
+            },
+          });
+        } else if (isApproverRequest) {
+          navigate("/", {
+            state: {
+              currentTabState: "myapproval-tab",
+            },
+          });
+        } else {
+          navigate("/");
+        }
+      })
+      .catch((c) => {
+        setLoading(false);
+      });
   };
 
   //Handle file upload
@@ -1536,13 +1633,12 @@ debugger;
     }
 
     // Validate file type (disallow .exe files)
-    if (file.type === DISALLOWED_FILE_TYPE || file.name.endsWith('.exe')) {
+    if (file.type === DISALLOWED_FILE_TYPE || file.name.endsWith(".exe")) {
       void displayjsx.showErrorMsg(
         `File type not allowed. Executable files (.exe) are not supported.`
       );
       return false;
     }
-
 
     if (isViewMode) {
       const folderName = ctiNumber;
@@ -1746,9 +1842,9 @@ debugger;
 
   const operations = (
     <div>
-      {!isViewMode &&
-        activeKey === "1" &&
-        !submitted && ( //||
+      { ((!isViewMode && activeKey === "1" && !submitted) 
+        || (!isViewMode && activeKey === "1" && user?.isAdmin))
+       && ( //||
           //(currentApproverTask?.userId == user?.employeeId //&& currentApproverTask?.seqNumber != 3)
           <Form.Item
             style={{
@@ -1767,7 +1863,27 @@ debugger;
           </Form.Item>
         )}
 
-      {!isViewMode && activeKey === "1" && !submitted && (
+      {/* {!isViewMode && activeKey === "1" && !submitted && (
+        <Form.Item
+          style={{
+            display: "inline-block", // Inline display for second button as well
+            marginRight: "10px",
+          }}
+        >
+          <Button
+            color="default"
+            variant="solid"
+            //loading={loading}
+            onClick={handleSubmit}
+          >
+            Submit
+          </Button>
+        </Form.Item>
+      )} */}
+
+      { ((!isViewMode && activeKey === "1" && !submitted)
+        || (!isViewMode && activeKey === "1" && !submitted && user?.isAdmin))
+      && (
         <Form.Item
           style={{
             display: "inline-block", // Inline display for second button as well
@@ -1828,10 +1944,12 @@ debugger;
           onApprove={handleApprove}
           onAskToAmend={handleAskToAmend}
           onPullBack={handlePullBack}
+          onDelegate={handleDelegate}
           currentApproverTask={currentApproverTask}
           existingTechniaclInstructionSlip={existingTechniaclInstructionSlip}
           //isFormModified={isEditMode && isViewMode == false ? true : false}
           isFormModified={isEditMode ? true : false}
+          isFromAllRequest={isFromAllRequest}
         />
       )}
     </div>

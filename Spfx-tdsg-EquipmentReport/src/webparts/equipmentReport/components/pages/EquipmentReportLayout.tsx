@@ -3,19 +3,22 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Modal } from "antd";
 // import { useAuth } from "../../context/AuthContext";
-import Workflow from "../equipmentReport/Workflow";
-import History from "../equipmentReport/History";
 import Page from "../page/page";
 import { UserContext } from "../../context/userContext";
-import EquipmentReportForm from "../equipmentReport/Form";
 import useEquipmentReportByID from "../../apis/equipmentReport/useEquipmentReport/useEquipmentReportById";
-import WorkFlowButtons from "../common/WorkFlowButtons";
+import WorkFlowButtons, { IApproverTask } from "../common/WorkFlowButtons";
 import useGetApproverFlowData from "../../apis/workflow/useGetApprovalFlowData";
 import useGetCurrentApproverData from "../../apis/workflow/useGetCurrentApprover";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import useGetEmailAttachmentsData from "../../apis/equipmentReport/useEmailAttachments/useEmailAttachmentsData";
+import { REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
+import EquipmentReportForm from "../EquipmentReport/Form";
+import EmailAttachments from "../EquipmentReport/EmailAttachments";
+import Workflow, { IWorkflowDetail } from "../EquipmentReport/Workflow";
+import History from "../EquipmentReport/History";
 
-type TabName = "form" | "history" | "workflow";
+type TabName = "form" | "history" | "workflow" | "emailAtachments";
 
 interface EquipmentReportLayoutProps {}
 
@@ -27,17 +30,42 @@ const EquipmentReportLayout: React.FC<EquipmentReportLayoutProps> = ({}) => {
   const { isApproverRequest, currentTabState, fromReviewTab ,allReq } =
     location.state || {};
   const [currentTab, setCurrentTab] = useState<TabName>("form");
+  const [currentApproverDetail, setCurrentApproverDetail] = useState<IWorkflowDetail | null>(null);
+
   const equipmentReport = useEquipmentReportByID(id ? parseInt(id) : undefined);
 
 console.log("allReq",equipmentReport?.data,location.state)
 const {data:approverFlowData} = useGetApproverFlowData(
   id ? parseInt(id) : undefined
 );
+const {data:emailAttachmentData} = useGetEmailAttachmentsData(
+  id ? parseInt(id) : undefined
+);
+console.log("EMDTA",emailAttachmentData)
 const currentApprover = useGetCurrentApproverData(
   id ? parseInt(id) : undefined,
   user.employeeId
 );
 
+useEffect(() => {
+  if (approverFlowData) {
+    let approverInReview = null;
+
+    if (approverFlowData.WorkflowTwo?.length > 0) {
+      approverInReview = approverFlowData?.WorkflowTwo.find(
+        (approver) => approver.Status === REQUEST_STATUS.InReview
+      );
+    }
+
+    if (!approverInReview && approverFlowData.WorkflowOne?.length > 0) {
+      approverInReview = approverFlowData?.WorkflowOne.find(
+        (approver) => approver.Status === REQUEST_STATUS.InReview
+      );
+    }
+
+    setCurrentApproverDetail(approverInReview || null);
+  }
+}, [approverFlowData]);
   const onBackClick = (): void => {
     console.log("CURRENTSTATE", currentTabState, fromReviewTab ,allReq);
     navigate("/", {
@@ -63,6 +91,10 @@ const currentApprover = useGetCurrentApproverData(
       id: "workflow",
       name: "Workflow",
     },
+    emailAttachmentData?.length>0 && {
+      id: "emailAtachments",
+      name: "Toshiba Attachments",
+    },
   ];
 
   return (
@@ -83,7 +115,9 @@ const currentApprover = useGetCurrentApproverData(
             Back
           </button>
           <div className=" justify-content-right mr-50">
-            <WorkFlowButtons currentApproverTask={currentApprover?.data}
+            <WorkFlowButtons
+                currentApprover={currentApproverDetail}
+            currentApproverTask={currentApprover?.data}
             eqReport={equipmentReport?.data}
             isTargetDateSet={equipmentReport?.data?.ToshibaApprovalRequired ||equipmentReport?.data?.ToshibaTeamDiscussion } 
             />
@@ -140,7 +174,11 @@ const currentApprover = useGetCurrentApproverData(
                approverTasks={approverFlowData??{ WorkflowOne: [], WorkflowTwo: [] }}
               />
             </div>
-          ) : (
+          ) :currentTab === "emailAtachments" ? (
+            <div>
+              <EmailAttachments EQReportNo={equipmentReport?.data?.EquipmentImprovementNo} emailAttachments={emailAttachmentData??[]}/>
+            </div>
+          ): (
             <></>
           )}
         </div>
