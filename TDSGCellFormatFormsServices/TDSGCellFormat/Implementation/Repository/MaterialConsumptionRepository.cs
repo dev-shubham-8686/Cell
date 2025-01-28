@@ -63,7 +63,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 return jsonResult;
 
-
             }
         }
 
@@ -1288,7 +1287,6 @@ namespace TDSGCellFormat.Implementation.Repository
             return char.ToUpper(input[0]) + input.Substring(1);
         }
         #endregion
-
 
         #region Delegate 
         public async Task<AjaxResult> InsertDelegate(DelegateUser request)
