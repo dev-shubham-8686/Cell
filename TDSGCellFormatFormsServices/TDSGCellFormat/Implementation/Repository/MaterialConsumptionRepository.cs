@@ -598,6 +598,8 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             var res = new AjaxResult();
             var commonHelper = new CommonHelper(_context, _cloneContext);
+            int substituteUserId = 0;
+            bool IsSubstitute = false;
             try
             {
                 var requestTaskData = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.ApproverTaskId == ApproverTaskId && x.IsActive == true
@@ -637,12 +639,10 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             foreach (var nextTask in nextApproveTask)
                             {
-                               // int substituteUserId = 0;
-                               // int substitutePer = nextTask.AssignedToUserId ?? 0;
-                               // substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
-                               //
-                               // nextTask.AssignedToUserId = substituteUserId;
-
+                                substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextTask.AssignedToUserId, ProjectType.MaterialConsumption.ToString());
+                                IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextTask.AssignedToUserId, ProjectType.MaterialConsumption.ToString());
+                                nextTask.AssignedToUserId = substituteUserId;
+                                nextTask.IsSubstitute = IsSubstitute;
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
