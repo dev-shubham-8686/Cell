@@ -50,6 +50,7 @@ namespace TDSGCellFormat.Interface.Service
         //-->Task<AreaAdd> AddUpdateAreaMaster(AreaAdd area);
 
         Task<CategoryAdd> AddUpdateCategoryMaster(CategoryAdd category);
+        Task<CostCenterAdd> AddUpdateCostCenterMaster(CostCenterAdd costCenter);
 
         Task<CellDivisionRoleMasterAdd> AddUpdateCellDivisionRoleMaster(CellDivisionRoleMasterAdd cellDivisionRole);
 
@@ -79,9 +80,9 @@ namespace TDSGCellFormat.Interface.Service
 
         Task<UnitOfMeasureDtoAdd> AddUpdateUnitOfMeasureMaster(UnitOfMeasureDtoAdd unitOfMeasure);
 
-        IQueryable<Area> GetAllAreaMaster();
+        IQueryable<AreaDtoAdd> GetAllAreaMaster();
 
-        IQueryable<Category> GetAllCategoryMaster();
+        IQueryable<CategoryAdd> GetAllCategoryMaster();
 
         IQueryable<CellDivisionRoleMaster> GetAllCellDivisionRoleMaster();
 
@@ -93,19 +94,19 @@ namespace TDSGCellFormat.Interface.Service
 
         IQueryable<EquipmentMaster> GetAllEquipmentMaster();
 
-        IQueryable<Models.Machine> GetAllMachineMaster();
+        IQueryable<MachineAdd> GetAllMachineMaster();
 
-        IQueryable<SubMachine> GetAllSubMachineMaster();
+        IQueryable<SubMachineAdd> GetAllSubMachineMaster();
 
-        IQueryable<Material> GetAllMaterialMaster();
+        IQueryable<MaterialAdd> GetAllMaterialMaster();
 
         IQueryable<ResultMonitoringMaster> GetAllResultMonitoringMaster();
 
         IQueryable<FunctionMaster> GetAllFunctionMaster();
 
-        IQueryable<SectionHeadEmpMaster> GetAllSectionHeadEmpMaster();
+        IQueryable<SectionHeadEmpMasterAdd> GetAllSectionHeadEmpMaster();
 
-        IQueryable<SectionMaster> GetAllSectionMaster();
+        IQueryable<SectionMasterAdd> GetAllSectionMaster();
 
         IQueryable<TroubleType> GetAllTroubleTypeMaster();
 
@@ -114,6 +115,7 @@ namespace TDSGCellFormat.Interface.Service
         Task<bool> DeleteAreaMaster(int areaId);
 
         Task<bool> DeleteCategory(int areaId);
+        Task<bool> DeleteCostCenter(int id);
 
         Task<bool> DeleteCellDivisionRole(int areaId);
 
@@ -145,7 +147,7 @@ namespace TDSGCellFormat.Interface.Service
 
         IQueryable<DivisionMaster> GetAllDivisionMasterSelection();
         IQueryable<SubDeviceMaster> GetAllSubDeviceMasterSelection();
-        IQueryable<CostCenter> GetAllCostCenterSelection();
+        IQueryable<CostCenterAdd> GetAllCostCenterSelection();
         IQueryable<UnitOfMeasure> GetAllUOMSelection();
         IQueryable<MasterEmployeeSelection> GetAllMasterEmployeeSelection();
         IQueryable<SectionMaster> GetAllSectionMasterSelection();

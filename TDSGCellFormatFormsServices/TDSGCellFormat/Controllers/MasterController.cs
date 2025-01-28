@@ -661,6 +661,34 @@ namespace TDSGCellFormat.Controllers
             }
         }
 
+        [HttpGet("MasterTbl/AddUpdateCostCenterMaster")]
+        public async Task<IActionResult> AddUpdateCostCenterMaster(CostCenterAdd costCenter)
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
+            var createdarea = _masterService.AddUpdateCostCenterMaster(costCenter);
+            if (createdarea == null)
+            {
+                var ajaxResponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.NotSave), createdarea);
+                return BadRequest(ajaxResponse);
+            }
+            else
+            {
+                var ajaxResponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.Delete), createdarea);
+                return Ok(ajaxResponse);
+            }
+        }
+
+
         [HttpPost("MasterTbl/AddUpdateCellDivisionRole")]
         public async Task<IActionResult> AddUpdateCellDivisionRoleMaster([FromBody] CellDivisionRoleMasterAdd cellDivisionRoleMasterAdd)
         {
@@ -1083,6 +1111,33 @@ namespace TDSGCellFormat.Controllers
                 return Unauthorized(Ajaxresponse);
             }
             var createdarea = await _masterService.DeleteCategory(id);
+            if (createdarea == null)
+            {
+                var ajaxResponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.NotSave), createdarea);
+                return BadRequest(ajaxResponse);
+            }
+            else
+            {
+                var ajaxResponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.Delete), createdarea);
+                return Ok(ajaxResponse);
+            }
+        }
+
+        [HttpDelete("MasterTbl/DeleteCostCenter")]
+        public async Task<IActionResult> DeleteCostCenter(int id)
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
+            var createdarea = await _masterService.DeleteCostCenter(id);
             if (createdarea == null)
             {
                 var ajaxResponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.NotSave), createdarea);
@@ -1624,6 +1679,8 @@ namespace TDSGCellFormat.Controllers
                 return Ok(ajaxResponse);
             }
         }
+
+       
 
         [HttpGet("MasterTbl/GetCellDivisionRoleMaster")]
         public async Task<IActionResult> GetCellDivisionRoleMaster()

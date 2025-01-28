@@ -28,7 +28,7 @@
     {
         public int CategoryId { get; set; }
 
-        public string? Name { get; set; }
+        public string? CategoryName { get; set; }
 
         public bool? IsActive { get; set; }
 
@@ -40,6 +40,26 @@
 
         public DateTime? ModifiedDate { get; set; }
     }
+
+    public class CostCenterAdd
+    {
+        public int CostCenterId { get; set; }
+
+        public string? CostCenterName { get; set; }
+
+        public bool? IsActive { get; set; }
+
+        public int? CreatedBy { get; set; }
+
+        public int? ModifiedBy { get; set; }
+
+        public DateTime? CreatedDate { get; set; }
+
+        public DateTime? ModifiedDate { get; set; }
+    }
+
+    
+
 
     public class UnitOfMeasureDtoAdd
     {
@@ -147,7 +167,7 @@
 
         public int? CreatedBy { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public bool IsActive { get; set; }
 
         public int? ModifiedBy { get; set; }
 
@@ -166,7 +186,7 @@
 
         public int? CreatedBy { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public bool IsActive { get; set; }
 
         public int? ModifiedBy { get; set; }
 

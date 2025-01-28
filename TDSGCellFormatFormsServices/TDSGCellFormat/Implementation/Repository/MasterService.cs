@@ -1,6 +1,4 @@
-﻿using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Spreadsheet;
-using TDSGCellFormat.Interface.Service;
+﻿using TDSGCellFormat.Interface.Service;
 using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
 using TDSGCellFormat.Models.View;
@@ -509,12 +507,21 @@ namespace TDSGCellFormat.Implementation.Repository
 
 
 
-        public IQueryable<Area> GetAllAreaMaster()
+        public IQueryable<AreaDtoAdd> GetAllAreaMaster()
         {
-            IQueryable<Area> res = null;
+            IQueryable<AreaDtoAdd> res = null;
             try
             {
-                res = _context.Areas;
+                res = _context.Areas.Select(x => new AreaDtoAdd
+                { 
+                    AreaId = x.AreaId,
+                    AreaName = x.AreaName,
+                    IsActive = (bool)x.IsActive,
+                    CreatedDate = x.CreatedDate, 
+                    CreatedBy = x.CreatedBy,
+                    ModifiedDate = x.ModifiedDate,
+                    ModifiedBy = x.ModifiedBy
+                });
             }
             catch (Exception ex)
             {
@@ -523,12 +530,21 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public IQueryable<Category> GetAllCategoryMaster()
+        public IQueryable<CategoryAdd> GetAllCategoryMaster()
         {
-            IQueryable<Category> res = null;
+            IQueryable<CategoryAdd> res = null;
             try
             {
-                res = _context.Categories;
+                res = _context.Categories.Select(x => new CategoryAdd
+                {
+                    CategoryId = x.CategoryId,
+                    CategoryName = x.Name,
+                    CreatedBy = x.CreatedBy,
+                    CreatedDate = x.CreatedDate,
+                    ModifiedBy = x.ModifiedBy,
+                    ModifiedDate = x.ModifiedDate,
+                    IsActive = x.IsActive
+                });
             }
             catch (Exception ex)
             {
@@ -607,12 +623,21 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public IQueryable<Models.Machine> GetAllMachineMaster()
+        public IQueryable<MachineAdd> GetAllMachineMaster()
         {
-            IQueryable<Models.Machine> res = null;
+            IQueryable<MachineAdd> res = null;
             try
             {
-                res = _context.Machines;
+                res = _context.Machines.Select(x => new MachineAdd
+                {
+                    MachineId = x.MachineId,
+                    MachineName = x.MachineName,
+                    CreatedBy = x.CreatedBy,
+                    CreatedDate = x.CreatedDate,
+                    ModifiedBy = x.ModifiedBy,
+                    ModifiedDate = x.ModifiedDate,
+                    IsActive = x.IsDeleted == false ? true : false
+                });
             }
             catch (Exception ex)
             {
@@ -621,12 +646,22 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public IQueryable<SubMachine> GetAllSubMachineMaster()
+        public IQueryable<SubMachineAdd> GetAllSubMachineMaster()
         {
-            IQueryable<SubMachine> res = null;
+            IQueryable<SubMachineAdd> res = null;
             try
             {
-                res = _context.SubMachines;
+                res = _context.SubMachines.Select(x => new SubMachineAdd
+                {
+                    SubMachineId = x.SubMachineId,
+                    SubMachineName = x.SubMachineName,
+                    MachineId = x.MachineId,
+                    CreatedBy = x.CreatedBy,
+                    CreatedDate = x.CreatedDate,
+                    ModifiedBy = x.ModifiedBy,
+                    ModifiedDate = x.ModifiedDate,
+                    IsActive = x.IsDeleted == false ? true : false
+                });
             }
             catch (Exception ex)
             {
@@ -635,12 +670,25 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public IQueryable<Material> GetAllMaterialMaster()
+        public IQueryable<MaterialAdd> GetAllMaterialMaster()
         {
-            IQueryable<Material> res = null;
+            IQueryable<MaterialAdd> res = null;
             try
             {
-                res = _context.Materials;
+                res = _context.Materials.Select(x => new MaterialAdd
+                {
+                    MaterialId = x.MaterialId,
+                    Code = x.Code,
+                    UOM = x.UOM,
+                    Description = x.Description,
+                    Category =  x.Category,
+                    CostCenter = x.CostCenter,
+                    CreatedBy = x.CreatedBy,
+                    CreatedDate = x.CreatedDate,
+                    ModifiedBy = x.ModifiedBy,
+                    ModifiedDate = x.ModifiedDate, 
+                    IsActive = (bool)x.IsActive
+                });
             }
             catch (Exception ex)
             {
@@ -677,13 +725,13 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public IQueryable<SectionHeadEmpMaster> GetAllSectionHeadEmpMaster()
+        public IQueryable<SectionHeadEmpMasterAdd> GetAllSectionHeadEmpMaster()
         {
-            IQueryable<SectionHeadEmpMaster> res = null;
+            IQueryable<SectionHeadEmpMasterAdd> res = null;
             try
             {
                 res = _context.SectionHeadEmpMasters.
-                    Select(c => new SectionHeadEmpMaster
+                    Select(c => new SectionHeadEmpMasterAdd
                     {
                         SectionHeadName = c.SectionHeadName,
                         SectionHeadMasterId = c.SectionHeadMasterId,
@@ -700,12 +748,21 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public IQueryable<SectionMaster> GetAllSectionMaster()
+        public IQueryable<SectionMasterAdd> GetAllSectionMaster()
         {
-            IQueryable<SectionMaster> res = null;
+            IQueryable<SectionMasterAdd> res = null;
             try
             {
-                res = _context.SectionMasters;
+                res = _context.SectionMasters.Select(x => new SectionMasterAdd 
+                { 
+                    SectionId = x.SectionId,
+                    SectionName = x.SectionName,
+                    IsActive = (bool)x.IsActive,
+                    CreatedBy = x.CreatedBy,
+                    CreatedDate = x.CreatedDate,
+                    ModifiedBy = x.ModifiedBy,
+                    ModifiedDate = x.ModifiedDate
+                });
             }
             catch (Exception ex)
             {
@@ -803,7 +860,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
-                var check_dup = _context.Categories.Where(c => c.Name == category.Name && c.CategoryId != category.CategoryId).FirstOrDefault();
+                var check_dup = _context.Categories.Where(c => c.Name == category.CategoryName && c.CategoryId != category.CategoryId).FirstOrDefault();
                 if (check_dup != null)
                 {
                     category.CategoryId = -1;
@@ -817,7 +874,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     if (get_record != null)
                     {
                         get_record.IsActive = category.IsActive;
-                        get_record.Name = category.Name;
+                        get_record.Name = category.CategoryName;
                         get_record.ModifiedBy = category.ModifiedBy;
                         get_record.ModifiedDate = DateTime.Now;
 
@@ -830,7 +887,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     var new_record = new Category
                     {
-                        Name = category.Name,
+                        Name = category.CategoryName,
                         IsActive = category.IsActive,
                         CreatedBy = category.CreatedBy,
                         CreatedDate = DateTime.Now
@@ -842,6 +899,59 @@ namespace TDSGCellFormat.Implementation.Repository
                     category.CategoryId = new_record.CategoryId;
 
                     return Task.FromResult(category);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        public Task<CostCenterAdd> AddUpdateCostCenterMaster(CostCenterAdd costCenter)
+        {
+            try
+            {
+                var check_dup = _context.CostCentres.Where(c => c.Name == costCenter.CostCenterName && c.CostCentreId != costCenter.CostCenterId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    costCenter.CostCenterId = -1;
+                    return Task.FromResult(costCenter);
+                }
+
+                if (costCenter.CostCenterId > 0)
+                {
+                    var get_record = _context.CostCentres.Find(costCenter.CostCenterId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = costCenter.IsActive;
+                        get_record.Name = costCenter.CostCenterName;
+                        get_record.ModifiedBy = costCenter.ModifiedBy;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(costCenter);
+                    }
+                }
+                else
+                {
+                    var new_record = new CostCenter
+                    {
+                        Name = costCenter.CostCenterName,
+                        IsActive = costCenter.IsActive,
+                        CreatedBy = costCenter.CreatedBy,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.CostCentres.Add(new_record);
+                    _context.SaveChanges();
+
+                    costCenter.CostCenterId = new_record.CostCentreId;
+
+                    return Task.FromResult(costCenter);
                 }
             }
             catch (Exception ex)
@@ -1151,7 +1261,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     if (get_record != null)
                     {
-                        get_record.IsDeleted = machineAdd.IsDeleted;
+                        get_record.IsDeleted = machineAdd.IsActive = true ? false : true;
                         get_record.MachineName = machineAdd.MachineName;
                         get_record.ModifiedBy = machineAdd.ModifiedBy;
                         get_record.ModifiedDate = DateTime.Now;
@@ -1166,7 +1276,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var new_record = new TDSGCellFormat.Models.Machine
                     {
                         MachineName = machineAdd.MachineName,
-                        IsDeleted = machineAdd.IsDeleted,
+                        IsDeleted = machineAdd.IsActive = true ? false : true,
                         CreatedBy = machineAdd.CreatedBy,
                         CreatedDate = DateTime.Now
                     };
@@ -1204,7 +1314,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     if (get_record != null)
                     {
-                        get_record.IsDeleted = subMachineAdd.IsDeleted;
+                        get_record.IsDeleted = subMachineAdd.IsActive == true ? false : true;
                         get_record.SubMachineName = subMachineAdd.SubMachineName;
                         get_record.MachineId = subMachineAdd.MachineId;
                         get_record.ModifiedBy = subMachineAdd.ModifiedBy;
@@ -1221,7 +1331,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         SubMachineName = subMachineAdd.SubMachineName,
                         MachineId = subMachineAdd.MachineId,
-                        IsDeleted = subMachineAdd.IsDeleted,
+                        IsDeleted = subMachineAdd.IsActive == true ? false : true,
                         CreatedBy = subMachineAdd.CreatedBy,
                         CreatedDate = DateTime.Now
                     };
@@ -1671,7 +1781,7 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             else
             {
-                _context.Areas.Remove(existingArea);
+                existingArea.IsActive = false;
                 _context.SaveChanges();
                 return Task.FromResult(true);
             }
@@ -1679,14 +1789,29 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public Task<bool> DeleteCategory(int id)
         {
-            var existingArea = _context.Categories.Where(x => x.CategoryId == id).FirstOrDefault();
-            if (existingArea == null)
+            var existingCategory = _context.Categories.Where(x => x.CategoryId == id).FirstOrDefault();
+            if (existingCategory == null)
             {
                 return Task.FromResult(false);
             }
             else
             {
-                _context.Categories.Remove(existingArea);
+                existingCategory.IsActive = false;
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteCostCenter(int id)
+        {
+            var existingcost = _context.CostCentres.Where(x => x.CostCentreId == id).FirstOrDefault();
+            if (existingcost == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                existingcost.IsActive = false;
                 _context.SaveChanges();
                 return Task.FromResult(true);
             }
@@ -1769,14 +1894,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public Task<bool> DeleteMachine(int id)
         {
-            var existingArea = _context.Machines.Where(x => x.MachineId == id).FirstOrDefault();
-            if (existingArea == null)
+            var existingMachine = _context.Machines.Where(x => x.MachineId == id).FirstOrDefault();
+            if (existingMachine == null)
             {
                 return Task.FromResult(false);
             }
             else
             {
-                _context.Machines.Remove(existingArea);
+                existingMachine.IsDeleted = true;
                 _context.SaveChanges();
                 return Task.FromResult(true);
             }
@@ -1784,14 +1909,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public Task<bool> DeleteSubMachine(int id)
         {
-            var existingArea = _context.SubMachines.Where(x => x.SubMachineId == id).FirstOrDefault();
-            if (existingArea == null)
+            var existingSubMachine = _context.SubMachines.Where(x => x.SubMachineId == id).FirstOrDefault();
+            if (existingSubMachine == null)
             {
                 return Task.FromResult(false);
             }
             else
             {
-                _context.SubMachines.Remove(existingArea);
+                existingSubMachine.IsDeleted = true;
                 _context.SaveChanges();
                 return Task.FromResult(true);
             }
@@ -1799,14 +1924,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public Task<bool> DeleteMaterial(int id)
         {
-            var existingArea = _context.Materials.Where(x => x.MaterialId == id).FirstOrDefault();
-            if (existingArea == null)
+            var existingMaterial = _context.Materials.Where(x => x.MaterialId == id).FirstOrDefault();
+            if (existingMaterial == null)
             {
                 return Task.FromResult(false);
             }
             else
             {
-                _context.Materials.Remove(existingArea);
+                existingMaterial.IsActive = false; 
                 _context.SaveChanges();
                 return Task.FromResult(true);
             }
@@ -1859,14 +1984,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public Task<bool> DeleteSection(int id)
         {
-            var existingArea = _context.SectionMasters.Where(x => x.SectionId == id).FirstOrDefault();
-            if (existingArea == null)
+            var existingSection = _context.SectionMasters.Where(x => x.SectionId == id).FirstOrDefault();
+            if (existingSection == null)
             {
                 return Task.FromResult(false);
             }
             else
             {
-                _context.SectionMasters.Remove(existingArea);
+                existingSection.IsActive = false;
                 _context.SaveChanges();
                 return Task.FromResult(true);
             }
@@ -1944,16 +2069,20 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public IQueryable<CostCenter> GetAllCostCenterSelection()
+        public IQueryable<CostCenterAdd> GetAllCostCenterSelection()
         {
-            IQueryable<CostCenter> res = null;
+            IQueryable<CostCenterAdd> res = null;
             try
             {
-                res = _context.CostCentres.Where(c => c.IsActive == true).Select(c => new CostCenter
+                res = _context.CostCentres.Where(c => c.IsActive == true).Select(c => new CostCenterAdd
                 {
-                    CostCentreId = c.CostCentreId,
-                    Name = c.Name,
-                    IsActive = c.IsActive
+                    CostCenterId = c.CostCentreId,
+                    CostCenterName = c.Name,
+                    IsActive = c.IsActive,
+                    CreatedBy = c.CreatedBy,
+                    CreatedDate = c.CreatedDate,
+                    ModifiedBy = c.ModifiedBy,
+                    ModifiedDate = c.ModifiedDate
                 });
             }
             catch (Exception ex)
