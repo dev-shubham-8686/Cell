@@ -72,6 +72,10 @@
         public string? OtherMachineName { get; set; }
         public string? SubMachineName { get; set; }
         public string? OtherSubMachine { get; set; }
+
+        public string? ImprovementCategory { get; set; }
+        public string? OtherImprovementCategory { get; set; }
+
         public string? SectionName { get; set; }
         public string? ImprovementName { get; set; }
         public string? Requestor { get; set; }
@@ -88,6 +92,8 @@
         public string? OtherMachineName { get; set; }
         public string? SubMachineName { get; set; }
         public string? OtherSubMachine { get; set; }
+        public string? ImprovementCategory { get; set; }
+        public string? OtherImprovementCategory { get; set; }
         public string? SectionName { get; set; }
         public string? ImprovementName { get; set; }
         public string? Requestor { get; set; }

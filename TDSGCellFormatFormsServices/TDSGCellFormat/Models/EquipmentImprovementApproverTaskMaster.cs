@@ -49,7 +49,7 @@ public class EquipmentImprovementApproverTaskMaster
 
     public bool? IsActive { get; set; }
 
-
+    public bool? IsSubstitute { get; set; }
 }
 
 

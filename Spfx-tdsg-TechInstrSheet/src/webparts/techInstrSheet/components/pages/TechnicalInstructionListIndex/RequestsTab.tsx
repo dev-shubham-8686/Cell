@@ -128,7 +128,7 @@ const RequestsTab: React.FC = () => {
         //const emailList = response.ReturnValue.emails; // Comma-separated emails
         const emailList = "digital-team@tdsgj.co.in";
         const pdfBase64 = response.ReturnValue.pdf; // Base64 string of PDF
-        const subject = `Notification for ${mailTriggerCtinumber}`;
+        const subject = `Release of ${mailTriggerCtinumber}`;
         let pdf_url_link = "";
         //debugger;
 
@@ -448,12 +448,14 @@ const RequestsTab: React.FC = () => {
       return; // Stop further execution if validation fails
     }
     setRevisonLoading(true);
+    setVisible(false);
     try {
       await technicalReopen(revTecId, user?.employeeId.toString() ?? "", comment);
       void displayjsx.showSuccess("Revision added successfully.");
       window.location.reload(); // Reload the page after success
     } catch (error) {
       setRevisonLoading(false);
+      setVisible(true);
     }finally{
       setRevisonLoading(false);
     }
@@ -521,12 +523,12 @@ const RequestsTab: React.FC = () => {
     },
     {
       title: "Requestor",
-      dataIndex: "IssuedBy",
-      key: "IssuedBy",
+      dataIndex: "Requestor",
+      key: "Requestor",
       width: "10%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("IssuedBy", "Requestor"),
+      ...getColumnSearchProps("Requestor", "Requestor"),
     },
     {
       title: "Current Approver",
@@ -737,8 +739,8 @@ const RequestsTab: React.FC = () => {
         render: (text) => <span className="m-0">{text ?? "-"}</span>,
       },
       {
-        dataIndex: "IssuedBy",
-        key: "IssuedBy",
+        dataIndex: "Requestor",
+        key: "Requestor",
         width: "10%",
         render: (text) => <span className="m-0">{text ?? "-"}</span>,
       },
@@ -881,8 +883,8 @@ const RequestsTab: React.FC = () => {
         }}
         onChange={handleTableChange}
         rowKey="TechnicalId"
-        scroll={{ x: true }}
-        className="w-full shadow-sm no-radius-table dashboard-table"
+        scroll={{ x: 'max-content', y: '300px' }} // Ensure 'max-content' for dynamic width
+        className="no-radius-table dashboard-table"
       />
       <Spin spinning={pdfLoading || mailLoading || revisonLoading} fullscreen />
 

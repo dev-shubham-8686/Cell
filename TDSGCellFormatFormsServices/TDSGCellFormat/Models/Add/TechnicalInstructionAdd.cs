@@ -162,6 +162,8 @@ namespace TDSGCellFormat.Models.Add
         public string? status { get; set; }
         public int? seqNumber { get; set; }
 
+        public bool? isSubstitute { get; set; }
+
     }
 
     public class Technical_ScrapNoteAdd
@@ -272,5 +274,15 @@ namespace TDSGCellFormat.Models.Add
         public int isAdminId { get; set; }
         public bool isQcTeamUser { get; set; }
         public bool isQcTeamHead { get; set; }
+    }
+
+
+    public class TecnicalDelegateUser
+    {
+        public int FormId { get; set; }
+        public int? UserId { get; set; }   // who is delegating(admin id)
+        public int activeUserId { get; set; }     // who u want to delegate
+        public int DelegateUserId { get; set; } // with whom u want to delegate
+        public string? Comments { get; set; }
     }
 }

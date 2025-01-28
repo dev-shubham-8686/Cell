@@ -1,10 +1,6 @@
 ﻿using ClosedXML.Excel;
 using Dapper;
-using DocumentFormat.OpenXml.InkML;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
 using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Text;
@@ -16,13 +12,10 @@ using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
 using TDSGCellFormat.Models.View;
 using static TDSGCellFormat.Common.Enums;
-using Microsoft.Graph.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using System.Buffers;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
-using Microsoft.VisualBasic;
 using System.Globalization;
+using Org.BouncyCastle.Utilities.Encoders;
+using Microsoft.SharePoint.Client;
+using SelectPdf;
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -81,7 +74,7 @@ namespace TDSGCellFormat.Implementation.Repository
     string? searchColumn,
     string? searchValue)
         {
-           
+
             // Fetch all the data from the database
             var listData = await _context.GetAdjustmentReportList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
 
@@ -153,36 +146,6 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public Photos? GetAdjustmentReportPhotos(int adjustmentReportId)
-        {
-            var a = _context.Photos.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsDeleted == false).ToList();
-            var beforeImages = a.Where(x => x.IsOldPhoto == true)
-                .Select(x => new AdjustmentReportPhoto
-                {
-                    AdjustmentReportPhotoId = x.AdjustmentReportPhotoId,
-                    AdjustmentReportId = x.AdjustmentReportId,
-                    DocumentName = x.DocumentName,
-                    DocumentFilePath = x.DocumentFilePath,
-                    IsOldPhoto = x.IsOldPhoto,
-                    SequenceId = x.SequenceId,
-                }).OrderBy(o => o.SequenceId)
-                .ToList();
-
-            var afterImages = a.Where(x => x.IsOldPhoto == false)
-                .Select(x => new AdjustmentReportPhoto
-                {
-                    AdjustmentReportPhotoId = x.AdjustmentReportPhotoId,
-                    AdjustmentReportId = x.AdjustmentReportId,
-                    DocumentName = x.DocumentName,
-                    DocumentFilePath = x.DocumentFilePath,
-                    IsOldPhoto = x.IsOldPhoto,
-                    SequenceId = x.SequenceId,
-                }).OrderBy(o => o.SequenceId)
-                .ToList();
-
-            return new Photos() { BeforeImages = beforeImages, AfterImages = afterImages };
-        }
-
         public AdjustMentReportRequest GetById(int Id)
         {
             var res = _context.AdjustmentReports.FirstOrDefault(x => x.AdjustMentReportId == Id && (!x.IsDeleted.HasValue || !x.IsDeleted.Value));
@@ -208,6 +171,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 OtherMachineName = res.OtherMachineName,
                 SubMachineName = !string.IsNullOrEmpty(res.SubMachineName) ? res.SubMachineName.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
                 OtherSubMachineName = res.OtherSubMachineName,
+                //ImprovementCategory = !string.IsNullOrEmpty(res.ImprovementCategory) ? res.ImprovementCategory.Split(',').Select(s => int.Parse(s.Trim())).ToList() : new List<int>(),
+                // OtherImprovementCategory = res.OtherImprovementCategory,
                 RequestBy = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == res.CreatedBy && x.IsActive == true).Select(x => x.EmployeeName).FirstOrDefault(),
                 CheckedBy = res.CheckedBy,
                 DescribeProblem = res.DescribeProblem,
@@ -293,6 +258,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.OtherSubMachineName = request.SubMachineName != null && request.SubMachineName.Contains(-2)
                           ? request.OtherSubMachineName
                           : "";
+                    //newReport.ImprovementCategory = request.ImprovementCategory != null && request.ImprovementCategory.Count > 0 ? string.Join(",", request.ImprovementCategory) : "";
+                    //newReport.OtherImprovementCategory = request.ImprovementCategory != null && request.ImprovementCategory.Contains(-2)
+                    //      ? request.OtherSubMachineName
+                    //      : "";
                     newReport.SectionId = request.SectionId;
                     newReport.CheckedBy = request.CheckedBy;
                     //  EmployeeId = request.EmployeeId,
@@ -316,17 +285,17 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     else if (request.SectionId == 2)
                     {
-                        newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 2 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); 
+                        newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 2 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
                     }
                     else if (request.SectionId == 3)
                     {
                         if (request.Area != null && request.Area.Contains(1))
                         {
-                            newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 3 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); 
+                            newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 3 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
                         }
                         else if (request.Area != null && (request.Area.Contains(2) || request.Area.Contains(3)))
                         {
-                            newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 4 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault(); 
+                            newReport.SectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.SectionHeadMasterId == 4 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
                         }
                     }
 
@@ -353,7 +322,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                            : (DateTime?)null,
 
                                 //!string.IsNullOrEmpty(changeReport.DueDate) ? DateTime.Parse(changeReport.DueDate) : (DateTime?)null,
-                                
+
                                 PersonInCharge = changeReport.PersonInCharge,
                                 Results = changeReport.Results,
                                 CreatedBy = changeReport.CreatedBy,
@@ -456,6 +425,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     existingReport.OtherSubMachineName = request.SubMachineName != null && request.SubMachineName.Contains(-2)
                           ? request.OtherSubMachineName
                           : "";
+                    // existingReport.ImprovementCategory = request.ImprovementCategory != null && request.ImprovementCategory.Count > 0 ? string.Join(",", request.ImprovementCategory) : "";
+                    // existingReport.OtherImprovementCategory = request.ImprovementCategory != null && request.ImprovementCategory.Contains(-2)
+                    //       ? request.OtherSubMachineName
+                    //       : "";
                     existingReport.SectionId = request.SectionId;
                     existingReport.CheckedBy = request.CheckedBy;
                     existingReport.DescribeProblem = request.DescribeProblem;
@@ -632,7 +605,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     if (request.IsSubmit == true && request.IsAmendReSubmitTask == false)
                     {
-                        var data = await SubmitRequest(existingReport.AdjustMentReportId, existingReport.CreatedBy, request.AdvisorId);
+                        var data = await SubmitRequest(existingReport.AdjustMentReportId, request.ModifiedBy, request.AdvisorId);
                         if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.AdjustMentSubmit;
@@ -658,7 +631,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                         else
                         {
-                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(request.CreatedBy), HistoryAction.Save.ToString(), 0);
+                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
 
                         }
                     }
@@ -739,7 +712,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 }
 
-                await _context.CallAdjustmentReportApproverMaterix(createdBy, adjustmentReportId);
+                await _context.CallAdjustmentReportApproverMaterix(adjustment.CreatedBy, adjustmentReportId);
 
                 //var approverTaskId = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == adjustmentReportId && x.IsActive == true && x.Status == ApprovalTaskStatus.InReview.ToString()).Select(x => x.ApproverTaskId).FirstOrDefault();
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
@@ -805,7 +778,6 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             return res;
         }
-
 
         public async Task<string> GenerateAdjustmentReportNumberAsync()
         {
@@ -949,11 +921,16 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             ///bool result = false;
             var commonHelper = new CommonHelper(_context, _cloneContext);
+            var notificationHelper = new NotificationHelper(_context, _cloneContext);
             try
             {
                 var requestTaskData = _context.AdjustmentReportApproverTaskMasters.Where(x => x.ApproverTaskId == asktoAmend.ApproverTaskId && x.IsActive == true
                                      && x.AdjustmentReportId == asktoAmend.AdjustmentId
                                      && x.Status == ApprovalTaskStatus.InReview.ToString()).FirstOrDefault();
+
+                int substituteUserId = 0;
+                bool IsSubstitute = false;
+
                 if (requestTaskData == null)
                 {
                     res.Message = "Adjustment Report request does not have any review task";
@@ -980,9 +957,15 @@ namespace TDSGCellFormat.Implementation.Repository
                         var divisionHead = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.IsActive == false && x.SequenceNo == 8)
                                   .OrderByDescending(x => x.ApproverTaskId)
                                 .FirstOrDefault();
+
                         if (divisionHead != null)
                         {
                             divisionHead.IsActive = true;
+                            if (requestTaskData.AssignedToUserId == divisionHead.AssignedToUserId)
+                            {
+                                divisionHead.DelegateUserId = requestTaskData.DelegateUserId;
+                            }
+
                             await _context.SaveChangesAsync();
                         }
                     }
@@ -1001,18 +984,24 @@ namespace TDSGCellFormat.Implementation.Repository
                             await _context.SaveChangesAsync();
                         }
 
+
                         var otherdepartmenthead1 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 1" && x.IsActive == false && x.SequenceNo == 4)
                                                  .OrderByDescending(x => x.ApproverTaskId)
                                                .FirstOrDefault();
                         var departmentHead1 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 1 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
                         var departmentId1 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 1 && x.IsActive == true).Select(x => x.DepartmentId).FirstOrDefault();
                         var departMentName1 = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID == departmentId1).Select(x => x.Name).FirstOrDefault();
-                       
+
                         if (otherdepartmenthead1 != null && departmentHead1 > 0)
                         {
-                            otherdepartmenthead1.AssignedToUserId = departmentHead1;
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)departmentHead1, ProjectType.AdjustMentReport.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)departmentHead1, ProjectType.AdjustMentReport.ToString());
+
+                            otherdepartmenthead1.AssignedToUserId = substituteUserId;
                             otherdepartmenthead1.IsActive = true;
                             otherdepartmenthead1.DisplayName = departMentName1;
+                            otherdepartmenthead1.IsSubstitute = IsSubstitute;
+                            otherdepartmenthead1.ModifiedDate = DateTime.Now;
                             await _context.SaveChangesAsync();
                         }
 
@@ -1022,11 +1011,17 @@ namespace TDSGCellFormat.Implementation.Repository
                         var departmentHead2 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 2 && x.IsActive == true).Select(x => x.EmployeeId).FirstOrDefault();
                         var departmentId2 = _context.AdjustmentAdditionalDepartmentHeadMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.ApprovalSequence == 2 && x.IsActive == true).Select(x => x.DepartmentId).FirstOrDefault();
                         var departMentName2 = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID == departmentId2).Select(x => x.Name).FirstOrDefault();
+
                         if (otherdepartmenthead2 != null && departmentHead2 > 0)
                         {
-                            otherdepartmenthead2.AssignedToUserId = departmentHead2;
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)departmentHead2, ProjectType.AdjustMentReport.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)departmentHead2, ProjectType.AdjustMentReport.ToString());
+
+                            otherdepartmenthead2.AssignedToUserId = substituteUserId;
                             otherdepartmenthead2.IsActive = true;
                             otherdepartmenthead2.DisplayName = departMentName2;
+                            otherdepartmenthead2.IsSubstitute = IsSubstitute;
+                            otherdepartmenthead2.ModifiedDate = DateTime.Now;
                             await _context.SaveChangesAsync();
                         }
 
@@ -1039,9 +1034,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         if (otherdepartmenthead3 != null && departmentHead3 > 0)
                         {
-                            otherdepartmenthead3.AssignedToUserId = departmentHead3;
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)departmentHead3, ProjectType.AdjustMentReport.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)departmentHead3, ProjectType.AdjustMentReport.ToString());
+
+                            otherdepartmenthead3.AssignedToUserId = substituteUserId;
                             otherdepartmenthead3.IsActive = true;
                             otherdepartmenthead3.DisplayName = departMentName3;
+                            otherdepartmenthead3.IsSubstitute = IsSubstitute;
+                            otherdepartmenthead3.ModifiedDate = DateTime.Now;
                             await _context.SaveChangesAsync();
                         }
 
@@ -1060,31 +1060,76 @@ namespace TDSGCellFormat.Implementation.Repository
                                                        && x.SequenceNo > currentApproverTask.SequenceNo)
                                                              .OrderBy(x => x.SequenceNo) // Ensure tasks are processed in sequence order
                                                              .FirstOrDefault();
+
+
+
                         if (nextApproveTask != null)
                         {
-                           // int substituteUserId = 0;
-                           // int substitutePer = nextApproveTask.AssignedToUserId ?? 0;
-                           // substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
-                           // 
-                           // nextApproveTask.AssignedToUserId = substituteUserId;
-                            nextApproveTask.Status = ApprovalTaskStatus.InReview.ToString();
-                            nextApproveTask.ModifiedDate = DateTime.Now;
+
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextApproveTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextApproveTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                            nextApproveTask.AssignedToUserId = substituteUserId;
+                            nextApproveTask.IsSubstitute = IsSubstitute;
                             await _context.SaveChangesAsync();
 
-                            var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                            await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Approved, asktoAmend.Comment, nextApproveTask.ApproverTaskId);
+
+                            var currentAssignedUser = currentApproverTask.DelegateUserId > 0 ? currentApproverTask.DelegateUserId : currentApproverTask.AssignedToUserId;
+                            var nextAssignedUser = nextApproveTask.DelegateUserId > 0 ? nextApproveTask.DelegateUserId : nextApproveTask.AssignedToUserId;
+
+                            if (currentAssignedUser == nextAssignedUser
+                                && (nextApproveTask.SequenceNo != 3 && nextApproveTask.SequenceNo != 7))
+                            {
+                                nextApproveTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
+                                nextApproveTask.ActionTakenBy = nextApproveTask.AssignedToUserId;
+                                nextApproveTask.ModifiedDate = DateTime.Now;
+                                nextApproveTask.ActionTakenDate = DateTime.Now;
+                                await _context.SaveChangesAsync();
+
+                                InsertHistoryData(asktoAmend.AdjustmentId, FormType.AdjustmentReport.ToString(), requestTaskData.Role, asktoAmend.Comment, requestTaskData.Status, Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.AutoApproved.ToString(), 0);
+                                await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.AutoApproved, asktoAmend.Comment, nextApproveTask.ApproverTaskId);
+
+                                var nextPendingTask = _context.AdjustmentReportApproverTaskMasters
+                                                      .Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId
+                                                       && x.IsActive == true
+                                                       && x.Status == ApprovalTaskStatus.Pending.ToString()
+                                                       && x.SequenceNo > currentApproverTask.SequenceNo)
+                                                             .OrderBy(x => x.SequenceNo) // Ensure tasks are processed in sequence order
+                                                             .FirstOrDefault();
+
+                                if (nextPendingTask != null)
+                                {
+                                    substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextPendingTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                                    IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextPendingTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+
+                                    nextPendingTask.AssignedToUserId = substituteUserId;
+                                    nextPendingTask.IsSubstitute = IsSubstitute;
+                                    nextPendingTask.Status = ApprovalTaskStatus.InReview.ToString();
+                                    nextPendingTask.ModifiedDate = DateTime.Now;
+                                    await _context.SaveChangesAsync();
+
+                                    await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Approved, asktoAmend.Comment, nextApproveTask.ApproverTaskId);
+
+                                }
+                                else
+                                {
+                                    await CompleteFormTask(asktoAmend);
+                                }
+                            }
+                            else
+                            {
+
+                                nextApproveTask.Status = ApprovalTaskStatus.InReview.ToString();
+                                nextApproveTask.ModifiedDate = DateTime.Now;
+                                await _context.SaveChangesAsync();
+
+
+                                await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Approved, asktoAmend.Comment, nextApproveTask.ApproverTaskId);
+                            }
+
                         }
                         else
                         {
-                            var adjustmentData = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == asktoAmend.AdjustmentId && x.IsDeleted == false && x.IsDeleted == false).FirstOrDefault();
-                            if (adjustmentData != null)
-                            {
-                                adjustmentData.Status = ApprovalTaskStatus.Completed.ToString();
-                                await _context.SaveChangesAsync();
-                            }
-
-                            var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                            await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Completed, asktoAmend.Comment);
+                            await CompleteFormTask(asktoAmend);
                         }
                     }
 
@@ -1110,7 +1155,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     InsertHistoryData(asktoAmend.AdjustmentId, FormType.AdjustmentReport.ToString(), requestTaskData.Role, asktoAmend.Comment, ApprovalTaskStatus.UnderAmendment.ToString(), Convert.ToInt32(asktoAmend.CurrentUserId), HistoryAction.AskToAmend.ToString(), 0);
 
-                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    //var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Amended, asktoAmend.Comment, asktoAmend.ApproverTaskId);
                 }
 
@@ -1126,7 +1171,31 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+        private async Task CompleteFormTask(ApproveAsktoAmend asktoAmend)
+        {
+            var res = new AjaxResult();
+            var notificationHelper = new NotificationHelper(_context, _cloneContext);
+            try
+            {
+                var adjustmentData = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == asktoAmend.AdjustmentId && x.IsDeleted == false && x.IsDeleted == false).FirstOrDefault();
+                if (adjustmentData != null)
+                {
+                    adjustmentData.Status = ApprovalTaskStatus.Completed.ToString();
+                    await _context.SaveChangesAsync();
+                }
 
+                // notificationHelper = new NotificationHelper(_context, _cloneContext);
+                await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Completed, asktoAmend.Comment);
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context, _cloneContext);
+                commonHelper.LogException(ex, "Adjustment CompleteFormTask");
+
+            }
+        }
         public async Task<AjaxResult> PullBackRequest(PullBackRequest data)
         {
             var res = new AjaxResult();
@@ -1197,14 +1266,26 @@ namespace TDSGCellFormat.Implementation.Repository
         public async Task<AjaxResult> GetCurrentApproverTask(int Id, int userId)
         {
             var res = new AjaxResult();
-            var materialApprovers = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.AssignedToUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
             var data = new ApproverTaskId_dto();
-            if (materialApprovers != null)
+
+            var adjustmentDelegateApprover = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.DelegateUserId == userId && x.DelegateUserId != 0 && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+
+            if (adjustmentDelegateApprover != null)
             {
-                data.approverTaskId = materialApprovers.ApproverTaskId;
-                data.userId = materialApprovers.AssignedToUserId ?? 0;
-                data.status = materialApprovers.Status;
-                data.seqNumber = materialApprovers.SequenceNo;
+                data.approverTaskId = adjustmentDelegateApprover.ApproverTaskId;
+                data.userId = adjustmentDelegateApprover.AssignedToUserId ?? 0;
+                data.status = adjustmentDelegateApprover.Status;
+                data.seqNumber = adjustmentDelegateApprover.SequenceNo;
+            }
+
+            var adjustmentApprover = await _context.AdjustmentReportApproverTaskMasters.FirstOrDefaultAsync(x => x.AdjustmentReportId == Id && x.AssignedToUserId == userId && x.DelegateUserId == 0 && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+
+            if (adjustmentApprover != null)
+            {
+                data.approverTaskId = adjustmentApprover.ApproverTaskId;
+                data.userId = adjustmentApprover.AssignedToUserId ?? 0;
+                data.status = adjustmentApprover.Status;
+                data.seqNumber = adjustmentApprover.SequenceNo;
             }
             res.ReturnValue = data;
             return res;
@@ -1438,9 +1519,16 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Append(htmlTemplate);
 
                 var machineName = _context.Machines.Where(x => x.MachineId == adjustMentReportData.MachineName).Select(x => x.MachineName).FirstOrDefault();
-                var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
-                var checkedBy = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CheckedBy).Select(x => x.EmployeeName).FirstOrDefault();
+                if (!string.IsNullOrEmpty(machineName))
+                {
+                    sb.Replace("#MachineName#", machineName);
+                }
+                else if (!string.IsNullOrEmpty(adjustMentReportData.OtherMachineName))
+                {
+                    sb.Replace("#MachineName#", "Other - " + adjustMentReportData.OtherMachineName);
+                }
 
+                var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
 
                 var areaIds = adjustMentReportData.Area.Split(',').Select(id => int.Parse(id)).ToList();
 
@@ -1468,6 +1556,14 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     foreach (var id in subMachineId)
                     {
+
+                        if (id == -2)
+                        {
+                            if (!string.IsNullOrEmpty(adjustMentReportData.OtherSubMachineName))
+                            {
+                                subMachineNames.Add("Other - " + adjustMentReportData.OtherSubMachineName); // Add "Other" category with its name
+                            }
+                        }
                         // Query database or use a dictionary/cache to get the name
                         var subMachineName = _context.SubMachines.Where(x => x.SubMachineId == id && x.IsDeleted == false).Select(x => x.SubMachineName).FirstOrDefault(); // Replace this with your actual DB logic
                         if (!string.IsNullOrEmpty(subMachineName))
@@ -1478,24 +1574,44 @@ namespace TDSGCellFormat.Implementation.Repository
                     subMachineString = string.Join(", ", subMachineNames);
                 }
 
+                StringBuilder changeRiskBuilder = new StringBuilder();
+
                 StringBuilder tableBuilder = new StringBuilder();
                 int serialNumber = 1;
 
                 if (data.Any() && data != null)
                 {
+                    changeRiskBuilder.Append("<div style= 'margin-top: 15px; border: 1px solid black; padding: 10px; '>");
+                    changeRiskBuilder.Append("<table style='border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%;  align='center'>");
+
+                    changeRiskBuilder.Append("<tr style='page-break-inside: avoid; break-inside: avoid;'>");
+                    changeRiskBuilder.Append("<td style = 'border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px'>Change Risk Management</td>");
+                    changeRiskBuilder.Append("</tr>");
+                    changeRiskBuilder.Append("<tr style='padding: 10px; height: 20px; page-break-inside: avoid;'>");
+                    changeRiskBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Sr. No</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Changes</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Functions</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Risk associated with changes</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Factors/ Causes</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Counter measures</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Due Date</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Person in charge</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 20%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Results</b></td>");
+                    changeRiskBuilder.Append("</tr>");
+
                     foreach (var item in data)
                     {
-                        tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
+                        tableBuilder.Append("<tr style='padding:10px; height: 20px; page-break-inside: avoid; break-inside: avoid;'>");
 
                         // Add the serial number to the first column
-                        tableBuilder.Append("<td style=\"width: 3%; border: 1px solid black; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
+                        tableBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; padding: 5px'>" + serialNumber++ + "</td>");
 
                         // Add the rest of the data to the respective columns
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Changes + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.FunctionId + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.RisksWithChanges + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Factors + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.CounterMeasures + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.Changes + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.FunctionId + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.RisksWithChanges + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.Factors + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.CounterMeasures + "</td>");
                         //tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + (item.DueDate.HasValue ? item.DueDate.Value.ToString("dd-MM-yyyy") : "") + "</td>");
                         //tableBuilder.Append($"<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">{(string.IsNullOrEmpty(item.DueDate) ? "" : item.DueDate)}</td>");
                         DateTime parsedDate;
@@ -1506,7 +1622,12 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         tableBuilder.Append("</tr>");
                     }
+                    tableBuilder.Append("</table>");
+                    tableBuilder.Append("</div>");
+
                 }
+
+                sb.Replace("#changeRiskHeaders#", changeRiskBuilder.ToString());
                 sb.Replace("#ChangeriskTable#", tableBuilder.ToString());
 
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
@@ -1525,8 +1646,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#area#", areaNamesString);
                 sb.Replace("#reportno#", adjustMentReportData.ReportNo);
                 sb.Replace("#requestor#", applicant);
-                sb.Replace("#machinename#", machineName);
-                sb.Replace("#checkedby#", checkedBy);
                 sb.Replace("#when#", adjustMentReportData.When?.ToString("dd-MM-yyyy HH:mm") ?? "N/A");
                 sb.Replace("#describeproblem#", adjustMentReportData.DescribeProblem);
                 sb.Replace("#observation#", adjustMentReportData.Observation);
@@ -1534,99 +1653,174 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#adjustmentdesciption#", adjustMentReportData.AdjustmentDescription);
                 sb.Replace("#conditionafteradjustment#", adjustMentReportData.ConditionAfterAdjustment);
                 sb.Replace("#preparedby#", applicant);
-                //preparedby
-                //sb.Replace("#Remarks#", data.FirstOrDefault()?.Remarks);
 
-                //StringBuilder tableBuilder = new StringBuilder();
+                string approvedShiftIncharge = approverData.FirstOrDefault(a => a.SequenceNo == 1 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedBySectionHead = approverData.FirstOrDefault(a => a.SequenceNo == 2 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByDepartmentHead = approverData.FirstOrDefault(a => a.SequenceNo == 3 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByDivisionHead = approverData.FirstOrDefault(a => a.SequenceNo == 7 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
 
-                string approvedBySectionHead = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDepartmentHead = approverData.FirstOrDefault(a => a.SequenceNo == 3)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDivisionHead = approverData.FirstOrDefault(a => a.SequenceNo == 7)?.employeeNameWithoutCode ?? "N/A";
+                // Prepare dynamic headers and cells based on the fetched data
+                string dynamicHeaders = string.Empty;
+                string dynamicCells = string.Empty;
 
-                sb.Replace("#sectionhead#", approvedBySectionHead);
-                sb.Replace("#departmenthead#", approvedByDepartmentHead);
-                sb.Replace("#divisionhead#", approvedByDivisionHead);
+                string approvedByOtherDepartmentHead1 = approverData.FirstOrDefault(a => a.SequenceNo == 4 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByOtherDepartmentHead2 = approverData.FirstOrDefault(a => a.SequenceNo == 5 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string divisionHead = approverData.FirstOrDefault(a => a.SequenceNo == 8 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
 
-                //local
-                //var baseUrl = "https://synopsandbox.sharepoint.com/sites/Training2024";
-                //stage
-                // var baseUrl = "https://tdsgj.sharepoint.com/sites/e-app-stage";
-                //QA
-                var baseUrl = "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA/";
+
+                string checkedByPer;
+                if (adjustMentReportData.CheckedBy == -1)
+                {
+                    checkedByPer = approvedBySectionHead;
+                }
+                else
+                {
+                    var checkedBy = _cloneContext.EmployeeMasters
+                                                 .Where(x => x.EmployeeID == adjustMentReportData.CheckedBy)
+                                                 .Select(x => x.EmployeeName)
+                                                 .FirstOrDefault();
+                    checkedByPer = checkedBy ?? "Not Applicable";
+                }
+
+                sb.Replace("#checkedby#", checkedByPer);
+
+
+                if (approvedShiftIncharge != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Shift In Charge</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedShiftIncharge}</td>";
+                }
+                if (approvedBySectionHead != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Section Head</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedBySectionHead}</td>";
+                }
+                if (approvedByDepartmentHead != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Requestor Department Head</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedByDepartmentHead}</td>";
+                }
+                if (approvedByOtherDepartmentHead1 != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Other Department Head 1</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedByOtherDepartmentHead1}</td>";
+                }
+                if (approvedByOtherDepartmentHead2 != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Other Department Head 2</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedByOtherDepartmentHead2}</td>";
+                }
+                if (approvedByDivisionHead != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Deputy Division Head</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedByDivisionHead}</td>";
+                }
+                if (divisionHead != "N/A")
+                {
+                    dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Division Head</th>";
+                    dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{divisionHead}</td>";
+                }
+
+                sb.Replace("#dynamicHeaders#", dynamicHeaders);
+                sb.Replace("#dynamicCells#", dynamicCells);
+
+                var advisor = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == adjustMentReportId && x.IsActive == true).FirstOrDefault();
+                if (advisor != null)
+                {
+                    string comment = advisor.Comment ?? "N/A";
+                    sb.Replace("#advisorComments#", comment);
+                }
+
+                var baseUrl = _configuration["SPSiteUrl"];
                 var beforeImageUrl = _context.AdjustmentBeforeImages.Where(x => x.AdjustmentReportId == adjustMentReportId
                          && x.IsDeleted == false)
-                          // .Select(x => $"{baseUrl}{x.BeforeImageDocFilePath}")
                           .ToList();
 
                 var afterImageUrl = _context.AdjustmentAfterImages.Where(x => x.AdjustmentReportId == adjustMentReportId
                                  && x.IsDeleted == false)
-                                  //.Select(x => $"{baseUrl}{x.AfterImageDocFilePath}")
                                   .ToList();
 
                 StringBuilder beforeImages = new StringBuilder();
-                StringBuilder afterImages = new StringBuilder();
+                StringBuilder beforeOtherFiles = new StringBuilder();
 
-                foreach (var url1 in beforeImageUrl)
+                StringBuilder afterImages = new StringBuilder();
+                StringBuilder afterOtherFiles = new StringBuilder();
+
+                var imageExtensions = new List<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".svg",".heif",".heic",".cr2",".nef",
+                                        ".arw",".dng",".psd",".ico", ".cur",".apng", ".tga",".pcx",".xcf"};
+                // Separate images and non-images
+                var beforeImageFiles = beforeImageUrl.Where(url => imageExtensions.Any(ext => url.BeforeImageDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).ToList();
+                var beforeFiles = beforeImageUrl.Except(beforeImageFiles).ToList();
+                // Append image files first
+                foreach (var url1 in beforeImageFiles)
                 {
                     string bfrUrl = $"{baseUrl}{url1.BeforeImageDocFilePath}";
 
-                    if (url1.BeforeImageDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.BeforeImageDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.BeforeImageDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.BeforeImageDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Add image to a grid container
-                        // beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
-                        // beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto;\" />");
-                        // beforeImages.AppendLine("</div>");
-
-                        beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
-                        beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
-                        beforeImages.AppendLine("</div>");
-
-                        // Add image tag
-                        //beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
-                    }
-                    else
-                    {
-                        beforeImages.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
-                    }
-
+                    beforeImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
+                    beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                    beforeImages.AppendLine("</div>");
                 }
-                // Wrap the images in a container for the grid structure
-                // string finalHtml = $"<div style=\"display: flex; flex-wrap: wrap; justify-content: space-between;\">{beforeImages}</div>";
 
-                foreach (var url2 in afterImageUrl)
+                // Then append other non-image files
+                foreach (var url1 in beforeFiles)
                 {
-                    string AftrUrl = $"{baseUrl}{url2.AfterImageDocFilePath}";
-                    if (url2.AfterImageDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.AfterImageDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.AfterImageDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.AfterImageDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Add image to a grid container
-                        afterImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
-                        afterImages.AppendLine($"<img src=\"{url2.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
-                        afterImages.AppendLine("</div>");
-                        // Add image tag
-                        //afterImages.AppendLine($"<img src=\"{url2.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
-                    }
-                    else
-                    {
-                        afterImages.Append($"<a href=\"{AftrUrl}\" target=\"_blank\">{Path.GetFileName(AftrUrl)}</a><br>");
-
-                    }
+                    string bfrUrl = $"{baseUrl}{url1.BeforeImageDocFilePath}";
+                    beforeOtherFiles.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
                 }
-                // string afterhtml = $"<div style=\"display: flex; flex-wrap: wrap; justify-content: space-between;\">{afterImages}</div>";
-                // Replace placeholders in the HTML template
 
-                sb.Replace("#BeforeImg#", beforeImages.ToString());
-                sb.Replace("#AfterImg#", afterImages.ToString());
+                // Combine both image and non-image content
+                sb.Replace("#BeforeImg#", beforeImages.ToString() + beforeOtherFiles.ToString());
+
+
+                var afterImageFiles = afterImageUrl.Where(url => imageExtensions.Any(ext => url.AfterImageDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).ToList();
+                var afterFiles = afterImageUrl.Except(afterImageFiles).ToList();
+
+                foreach (var url1 in afterImageFiles)
+                {
+                    string bfrUrl = $"{baseUrl}{url1.AfterImageDocFilePath}";
+
+                    afterImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
+                    afterImages.AppendLine($"<img src=\"{url1.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                    afterImages.AppendLine("</div>");
+                }
+
+                // Then append other non-image files
+                foreach (var url1 in afterFiles)
+                {
+                    string bfrUrl = $"{baseUrl}{url1.AfterImageDocFilePath}";
+                    afterOtherFiles.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
+                }
+
+
+                sb.Replace("#AfterImg#", afterImages.ToString() + afterOtherFiles.ToString());
 
 
                 // Create PDF using SelectPDF
                 var converter = new SelectPdf.HtmlToPdf();
                 converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
+
+                // footer settings
+                converter.Options.DisplayFooter = true;
+                converter.Footer.DisplayOnFirstPage = true;
+                converter.Footer.DisplayOnOddPages = true;
+                converter.Footer.DisplayOnEvenPages = true;
+                converter.Footer.Height = 50;
+
+                // Use custom CSS to handle the page breaks
+                // converter.Options.KeepImagesTogether = true;
+
+                // Centered text
+                PdfTextSection centerText = new PdfTextSection(0, 10, "This document is digitally generated. No signature is required.", new System.Drawing.Font("Arial", 8));
+                centerText.HorizontalAlign = PdfTextHorizontalAlign.Center;
+                converter.Footer.Add(centerText);
+
+                // Page numbers on the right
+                PdfTextSection pageNumberText = new PdfTextSection(-5, 10, "Page {page_number}   ", new System.Drawing.Font("Arial", 8));
+                pageNumberText.HorizontalAlign = PdfTextHorizontalAlign.Right;
+
+                //.HorizontalAlign = PdfTextHorizontalAlign.Right;
+                converter.Footer.Add(pageNumberText);
+
                 SelectPdf.PdfDocument pdfDoc = converter.ConvertHtmlString(sb.ToString());
 
                 // Convert the PDF to a byte array
@@ -1641,33 +1835,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.ReturnValue = base64String; // Send the Base64 string to the frontend
 
                 return res;
-                //using (var ms = new MemoryStream())
-                //{
-                //    Document document = new Document(iTextSharp.text.PageSize.A3, 10f, 10f, 10f, 30f);
-                //    PdfWriter writer = PdfWriter.GetInstance(document, ms);
-                //    document.Open();
-
-                //    // Convert the StringBuilder HTML content to a PDF using iTextSharp
-                //    using (var sr = new StringReader(sb.ToString()))
-                //    {
-                //        iTextSharp.tool.xml.XMLWorkerHelper.GetInstance().ParseXHtml(writer, document, sr);
-                //    }
-
-                //    document.Close();
-
-                //    // Convert the PDF to a byte array
-                //    byte[] pdfBytes = ms.ToArray();
-
-                //    // Encode the PDF as a Base64 string
-                //    string base64String = Convert.ToBase64String(pdfBytes);
-
-                //    // Set response values
-                //    res.StatusCode = Enums.Status.Success;
-                //    res.Message = Enums.AdjustMentPdf;
-                //    res.ReturnValue = base64String; // Send the Base64 string to the frontend
-
-                //    return res;
-                //}
             }
 
             catch (Exception ex)
@@ -1787,34 +1954,8 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        //public async Task<AjaxResult> GetAdditionalDepartmentHeads(int departmentId)
-        //{
-        //    var res = new AjaxResult();
-        //    var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
-        //    var result = await _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAdditionalDepartmentHeads] @DepartmentId")
-        //        .ExecuteStoredProcedureAsync<DepartmentHeadsView>();
-
-        //    if (result == null)
-        //    {
-        //        res.Message = "Data not found";
-        //        res.StatusCode = Enums.Status.Error;
-        //        return res;
-        //    }
-        //    else
-        //    {
-        //        res.Message = "Employee Details Fetched Successfully";
-        //        res.StatusCode = Enums.Status.Success;
-        //        res.ReturnValue = result;
-        //    }
-        //    return res;
-        //}
-
         public async Task<List<DepartmentHeadsView>> GetAdditionalDepartmentHeads(int departmentId)
         {
-            // var res = new AjaxResult();
-            // var createdParam = new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", departmentId);
-            // var result = await _sprocRepository.GetStoredProcedure("[dbo].[SPP_GetAdditionalDepartmentHeads] @DepartmentId")
-            //  .ExecuteStoredProcedureAsync<DepartmentHeadsView>();
             var listData = await _context.GetAdditionalDepartmenthead(departmentId);
             var additionalDepHead = new List<DepartmentHeadsView>();
             foreach (var item in listData)
@@ -1867,7 +2008,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public List<TroubleReportHistoryView> GetHistoryData(int adjustmentId)
         {
-            if(adjustmentId != 0)
+            if (adjustmentId != 0)
             {
                 var troubleHistorydata = _context.AdjustmentHistoryMasters.Where(x => x.FormID == adjustmentId && x.IsActive == true).ToList();
 
@@ -1890,10 +2031,72 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 return null;
             }
-            
+
         }
         #endregion
 
-      
+        #region Insert delegate
+
+        public async Task<AjaxResult> InsertDelegate(DelegateUser request)
+        {
+            var res = new AjaxResult();
+            try
+            {
+                var adjustment = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId
+                                                                                       && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
+                                                                                     && x.AdjustmentReportId == request.FormId && x.IsActive == true).ToList();
+                if (adjustment != null)
+                {
+                    foreach (var user in adjustment)
+                    {
+                        user.DelegateUserId = request.DelegateUserId;
+                        user.DelegateBy = request.UserId;
+                        user.DelegateOn = DateTime.Now;
+                        await _context.SaveChangesAsync();
+                    }
+
+                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.AdjustmentReport.ToString() && x.EmployeeId == request.activeUserId).FirstOrDefault();
+                    if (existingAdjDelegate != null)
+                    {
+                        existingAdjDelegate.DelegateUserId = request.DelegateUserId;
+                        existingAdjDelegate.ModifiedDate = DateTime.Now;
+                    }
+                    else
+                    {
+                        var adjustmentDelegate = new CellDelegateMaster();
+                        adjustmentDelegate.RequestId = request.FormId;
+                        adjustmentDelegate.FormName = FormType.AdjustmentReport.ToString();
+                        adjustmentDelegate.EmployeeId = request.activeUserId;
+                        adjustmentDelegate.DelegateUserId = request.DelegateUserId;
+                        adjustmentDelegate.CreatedDate = DateTime.Now;
+                        adjustmentDelegate.CreatedBy = request.UserId;
+                        _context.CellDelegateMasters.Add(adjustmentDelegate);
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                    InsertHistoryData(request.FormId, FormType.AdjustmentReport.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
+
+                    var adjustmentNo = _context.AdjustmentReports.Where(x => x.AdjustMentReportId == request.FormId && x.IsDeleted == false).FirstOrDefault();
+
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, adjustmentNo.ReportNo, FormType.AdjustmentReport.ToString(), request.Comments, request.FormId);
+
+                    res.StatusCode = Enums.Status.Success;
+                    res.Message = Enums.Delegate;
+                }
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context, _cloneContext);
+                commonHelper.LogException(ex, "Adjustment AddOrUpdate");
+
+            }
+            return res;
+        }
+
+        #endregion
     }
 }

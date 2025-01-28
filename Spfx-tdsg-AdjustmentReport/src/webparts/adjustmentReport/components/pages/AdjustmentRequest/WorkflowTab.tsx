@@ -1,7 +1,6 @@
 import * as React from "react";
 
-import { format } from "date-fns";
-import {  DATE_TIME_FORMAT, DATETIME, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
+import {  DATE_FORMAT, DATETIME, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
 import { Button, message, Tooltip } from "antd";
 import { displayRequestStatus } from "../../../utils/utility";
 import { useUserContext } from "../../../context/UserContext";
@@ -12,6 +11,7 @@ import { useGetAdvisorCommentsById } from "../../../hooks/useGetAdvisorCommentsB
 import { useParams } from "react-router-dom";
 import { useAddOrUpdateAdvisorComment } from "../../../hooks/useAddOrUpdateAdvisorCommentData";
 import { IAdvisorCommentsData } from "../../../api/AddorUpdateAdvisorComments.api";
+import dayjs from "dayjs";
 
 export interface IRequestStatus {
   formStatus: string;
@@ -125,8 +125,9 @@ const Workflow: React.FC<IProps> = ({
       cellValues:
         approverTasks?.map((item) =>
           item.ActionTakenDate
-            ? format(item.ActionTakenDate, DATETIME)
-            : // ?item.ActionTakenDate
+    ? dayjs(item.ActionTakenDate).format(DATE_FORMAT)
+            //  (item.ActionTakenDate, DATETIME)
+            : 
               ""
         ) ?? [],
     },
@@ -187,7 +188,7 @@ const Workflow: React.FC<IProps> = ({
           rows={4}
           placeholder="Enter your comments here"
         />
-       { (advisorId == user?.employeeId && status!=REQUEST_STATUS.Completed) ? 
+       { ((advisorId == user?.employeeId && status!=REQUEST_STATUS.Completed) || user?.isAdmin)? 
        (<Button
           type="primary"
           onClick={()=>handleSave()}

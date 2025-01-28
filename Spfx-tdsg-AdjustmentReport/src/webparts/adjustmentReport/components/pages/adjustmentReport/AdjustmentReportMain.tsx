@@ -13,9 +13,7 @@ import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 const AdjustmentReportMain: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const currentTabState =
-  location.state?.currentTabState || "myrequest-tab";
-
+  const currentTabState = location.state?.currentTabState || "myrequest-tab";
 
   const onAddRequest = () => {
     navigate("/form/add");
@@ -42,20 +40,32 @@ const AdjustmentReportMain: React.FC = () => {
             ? "myapproval-tab"
             : key == "3"
             ? "allrequest-tab"
-            : ""
+            : "",
       },
     });
   };
   const operations = (
-    <Button
-      type="primary"
-      className="btn btn-primary mb-8"
-      onClick={() => onAddRequest()}
-      icon={
-      <span style={{marginRight:"5px"}} ><FontAwesomeIcon className="me-1 mt-50" icon={faCirclePlus} /></span>}
-    >
-     New Request
-    </Button>
+    <>
+      {/* <Button
+        type="primary"
+        onClick={() => navigate("/master")}
+        style={{ float: "right" }}
+      >
+        MASTER
+      </Button> */}
+      <Button
+        type="primary"
+        className="btn btn-primary mb-8"
+        onClick={() => onAddRequest()}
+        icon={
+          <span style={{ marginRight: "5px" }}>
+            <FontAwesomeIcon className="me-1 mt-50" icon={faCirclePlus} />
+          </span>
+        }
+      >
+        New Request
+      </Button>
+    </>
   );
 
   const items: TabsProps["items"] = [
@@ -82,15 +92,15 @@ const AdjustmentReportMain: React.FC = () => {
     // <Page title="Equipment Improvement Dashboard">
     <PageLayout title={"Adjustment Report Dashboard"}>
       <div>
-    <div className="p-6">
-      <Tabs
-        tabBarExtraContent={operations}
-        items={items}
-        onChange={handleTabChange}
-        activeKey={getKeyFromTabState(currentTabState)}
-      />
-    </div>
-    </div>
+        <div className="p-6">
+          <Tabs
+            tabBarExtraContent={operations}
+            items={items}
+            onChange={handleTabChange}
+            activeKey={getKeyFromTabState(currentTabState)}
+          />
+        </div>
+      </div>
     </PageLayout>
   );
 };

@@ -61,6 +61,68 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+        #region Delegate 
+        public async Task<AjaxResult> InsertDelegate(DelegateUser request)
+        {
+            //request.ActiveUserId -> actual userId whom the task is Assigned
+            var res = new AjaxResult();
+            try
+            {
+                var equipment = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId 
+                                                                                      && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
+                                                                                && x.EquipmentImprovementId == request.FormId && x.IsActive == true).ToList();
+                if (equipment != null)
+                {
+                    foreach (var user in equipment)
+                    {
+                        user.DelegateUserId = request.DelegateUserId;
+                        user.DelegateBy = request.UserId;
+                        user.DelegateOn = DateTime.Now;
+                        await _context.SaveChangesAsync();
+                    }
+                    InsertHistoryData(request.FormId, FormType.EquipmentImprovement.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
+
+
+                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == ProjectType.Equipment.ToString() && x.EmployeeId == request.activeUserId).FirstOrDefault();
+                    if (existingAdjDelegate != null)
+                    {
+                        existingAdjDelegate.DelegateUserId = request.DelegateUserId;
+                        existingAdjDelegate.ModifiedDate = DateTime.Now;
+                    }
+                    else
+                    {
+                        var adjustmentDelegate = new CellDelegateMaster();
+                        adjustmentDelegate.RequestId = request.FormId;
+                        adjustmentDelegate.FormName = ProjectType.Equipment.ToString();
+                        adjustmentDelegate.EmployeeId = request.activeUserId;
+                        adjustmentDelegate.DelegateUserId = request.DelegateUserId;
+                        adjustmentDelegate.CreatedDate = DateTime.Now;
+                        adjustmentDelegate.CreatedBy = request.UserId;
+                        _context.CellDelegateMasters.Add(adjustmentDelegate);
+                    }
+
+                    await _context.SaveChangesAsync();
+                    var equipmentData = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == request.FormId && x.IsDeleted == false).FirstOrDefault();
+
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, equipmentData.EquipmentImprovementNo, FormType.EquipmentImprovement.ToString(), request.Comments, request.FormId);
+
+                    res.StatusCode = Enums.Status.Success;
+                    res.Message = Enums.Delegate;
+                }
+            }
+            catch (Exception ex)
+            {
+                res.Message = "Fail " + ex;
+                res.StatusCode = Enums.Status.Error;
+                var commonHelper = new CommonHelper(_context, _cloneContext);
+                commonHelper.LogException(ex, "Adjustment AddOrUpdate");
+
+            }
+            return res;
+        }
+        #endregion
+
         #region GetUserRole
         public async Task<GetEquipmentUser> GetUserRole(string userEmail)
         {
@@ -228,7 +290,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.Status = ApprovalTaskStatus.Draft.ToString();
                     newReport.WorkFlowLevel = 0;
                     newReport.IsLogicalAmend = false;
-                  //  newReport.ToshibaApprovalRequired = null;
+                    //  newReport.ToshibaApprovalRequired = null;
                     newReport.WorkFlowStatus = ApprovalTaskStatus.Draft.ToString();
 
                     // Assign SectionHeadId based on the conditions
@@ -433,10 +495,19 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.IsSubmit = true;
                     await _context.SaveChangesAsync();
                 }
-                InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.Submit.ToString(), 0);
 
+                var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+                if (createdBy == adminId)
+                {
+                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Admin", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.Submit.ToString(), 0);
 
-                await _context.CallEquipmentApproverMaterix(createdBy, equipmentId);
+                }
+                else
+                {
+                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.Submit.ToString(), 0);
+
+                }
+                await _context.CallEquipmentApproverMaterix(equipment.CreatedBy, equipmentId);
 
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 await notificationHelper.SendEquipmentEmail(equipmentId, EmailNotificationAction.Submitted, string.Empty, 0);
@@ -606,12 +677,11 @@ namespace TDSGCellFormat.Implementation.Repository
                     foreach (var attach in report.EquipmentCurrSituationAttachmentDetails)
                     {
                         var updatedUrl = attach.CurrSituationDocFilePath.Replace($"/{report.CreatedBy}/", $"/{existingReport.EquipmentImprovementNo}/");
-                        var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == attach.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == report.EquipmentImprovementId).FirstOrDefault();
+                        var existingAttachData = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == report.EquipmentImprovementId && x.EquipmentCurrentSituationAttachmentId == attach.EquipmentCurrSituationAttachmentId).FirstOrDefault();
                         if (existingAttachData != null)
                         {
                             existingAttachData.CurrSituationDocName = attach.CurrSituationDocName;
                             existingAttachData.CurrSituationDocFilePath = attach.CurrSituationDocFilePath;
-                            //existingAttachData.CurrImageBytes = attach.CurrentImgBytes;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -649,7 +719,6 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             existingAttachData.ImprovementDocName = attach.ImprovementDocName;
                             existingAttachData.ImprovementDocFilePath = attach.ImprovementDocFilePath;
-                            // existingAttachData.ImpImageBytes = attach.ImprovementImgBytes;
                             existingAttachData.IsDeleted = false;
                             existingAttachData.ModifiedBy = attach.ModifiedBy;
                             existingAttachData.ModifiedDate = DateTime.Now;
@@ -683,7 +752,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
                 if (report.IsSubmit == true && report.IsAmendReSubmitTask == false && existingReport.IsLogicalAmend == false)
                 {
-                    var data = await SubmitRequest(existingReport.EquipmentImprovementId, existingReport.CreatedBy);
+                    var data = await SubmitRequest(existingReport.EquipmentImprovementId, report.ModifiedBy);
                     if (data.StatusCode == Enums.Status.Success)
                     {
                         res.Message = Enums.EquipmentSubmit;
@@ -834,7 +903,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     else
                     {
-                        InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Result after Implementation in Form", existingReport.Status, Convert.ToInt32(report.CreatedBy), HistoryAction.Save.ToString(), 0);
+                        InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Requestor", "Update Result after Implementation in Form", existingReport.Status, Convert.ToInt32(report.ModifiedBy), HistoryAction.Save.ToString(), 0);
 
                     }
                 }
@@ -885,13 +954,14 @@ namespace TDSGCellFormat.Implementation.Repository
                 var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
                 if (userId == adminId)
                 {
-                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Admin", "Submit the form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.Submit.ToString(), 0);
+                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Admin", "Submit the form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.Submit.ToString(), 0);
                 }
                 else
                 {
                     InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Requestor", "Submit the form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.Submit.ToString(), 0);
                 }
-                await _context.CallEquipmentApproverMaterix(userId, equipmentId);
+
+                await _context.CallEquipmentApproverMaterix(equipment.CreatedBy, equipmentId);
 
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 await notificationHelper.SendEquipmentEmail(equipmentId, EmailNotificationAction.ResultSubmit, string.Empty, 0);
@@ -934,7 +1004,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
                 if (userId == adminId)
                 {
-                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.ReSubmitted.ToString(), 0);
+                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.ReSubmitted.ToString(), 0);
                 }
                 else
                 {
@@ -942,7 +1012,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
 
 
-                await _context.CallEquipmentApproverMaterix(userId, equipmentId);
+                await _context.CallEquipmentApproverMaterix(equipment.CreatedBy, equipmentId);
 
 
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
@@ -1085,6 +1155,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         equipmentTask.WorkFlowStatus = ApprovalTaskStatus.Draft.ToString();
                         equipmentTask.WorkFlowLevel = 1;
                         equipmentTask.ModifiedBy = data.userId;
+                        equipmentTask.ModifiedDate = DateTime.Now;
                         equipmentTask.IsPcrnRequired = false;
                         // mention the WorkFlow status 
                         await _context.SaveChangesAsync();
@@ -1111,6 +1182,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         equipmentTask.WorkFlowStatus = ApprovalTaskStatus.W1Completed.ToString();
                         equipmentTask.WorkFlowLevel = 2;
                         equipmentTask.ModifiedBy = data.userId;
+                        equipmentTask.ModifiedDate = DateTime.Now;
                         equipmentTask.IsPcrnRequired = false;
                         // mention the WorkFlow status 
                         await _context.SaveChangesAsync();
@@ -1151,6 +1223,7 @@ namespace TDSGCellFormat.Implementation.Repository
         public async Task<AjaxResult> UpdateApproveAskToAmend(EquipmentApproveAsktoAmend data)
         {
             var res = new AjaxResult();
+            var commonHelper = new CommonHelper(_context, _cloneContext);
             try
             {
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
@@ -1158,6 +1231,9 @@ namespace TDSGCellFormat.Implementation.Repository
                                      && x.EquipmentImprovementId == data.EquipmentId
                                      && (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString()
                                      || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString() || x.Status == ApprovalTaskStatus.LogicalAmendmentInReview.ToString())).FirstOrDefault();
+                
+                int substituteUserId = 0;
+                bool IsSubstitute = false;
                 //here change the task as Pending and not approved
                 if (equipmentData == null)
                 {
@@ -1315,7 +1391,16 @@ namespace TDSGCellFormat.Implementation.Repository
                             equipment.IsPcrnRequired = approvalData.IsPcrnRequired;
 
                             InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.ToshibaApprovalRequired.ToString(), 0);
+                            if (equipment.IsPcrnRequired == true)
+                            {
+                                InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.PCRNRequired.ToString(), 0);
 
+                            }
+                            else
+                            {
+                                InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.PCRNNotRequired.ToString(), 0);
+
+                            }
                             //var notificationHelper = new NotificationHelper(_context, _cloneContext);
                             await notificationHelper.SendEquipmentEmail(data.EquipmentId, EmailNotificationAction.ToshibaTeamApproval, data.Comment, 0);
                         }
@@ -1342,9 +1427,22 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         if (nextTask != null)
                         {
-                            if (currentApproverTask.AssignedToUserId == nextTask.AssignedToUserId)
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextTask.AssignedToUserId, ProjectType.Equipment.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextTask.AssignedToUserId, ProjectType.Equipment.ToString());
+                            nextTask.AssignedToUserId = substituteUserId;
+                            nextTask.IsSubstitute = IsSubstitute;
+                            await _context.SaveChangesAsync();
+
+                            var currentAssignedUser = currentApproverTask.DelegateUserId > 0 ? currentApproverTask.DelegateUserId : currentApproverTask.AssignedToUserId;
+                            var nextAssignedUser = nextTask.DelegateUserId > 0 ? nextTask.DelegateUserId : nextTask.AssignedToUserId;
+
+                            if (currentAssignedUser == nextAssignedUser)
                             {
-                                //nextTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
+                                nextTask.Comments = currentApproverTask.Comments;
+                                nextTask.ActionTakenBy = currentApproverTask.AssignedToUserId;
+                                nextTask.ActionTakenDate = currentApproverTask.ActionTakenDate;
+                                nextTask.ModifiedBy = data.CurrentUserId;
+                                nextTask.ModifiedDate = DateTime.Now;
                                 nextTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
@@ -1360,6 +1458,11 @@ namespace TDSGCellFormat.Implementation.Repository
 
                                 if (nextPendingTask != null)
                                 {
+                                    substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextPendingTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                                    IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextPendingTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+
+                                    nextPendingTask.AssignedToUserId = substituteUserId;
+                                    nextPendingTask.IsSubstitute = IsSubstitute;
                                     nextPendingTask.Status = ApprovalTaskStatus.InReview.ToString();
                                     nextPendingTask.ModifiedDate = DateTime.Now;
                                     await _context.SaveChangesAsync();
@@ -1383,6 +1486,12 @@ namespace TDSGCellFormat.Implementation.Repository
                             }
                             else
                             {
+                                // int substituteUserId = 0;
+                                // int substitutePer = nextTask.AssignedToUserId ?? 0;
+                                // substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
+                                //
+                                // nextTask.AssignedToUserId = substituteUserId;
+
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
@@ -1433,14 +1542,13 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context, _cloneContext);
+                //var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Equipment UpdateApproveAskToAmend");
-                
+
             }
             return res;
 
         }
-
 
         private async Task CompleteFormTask(EquipmentApproveAsktoAmend data)
         {
@@ -1503,8 +1611,8 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
-                var commonHelper = new CommonHelper(_context,_cloneContext);
-                commonHelper.LogException(ex, "CompleteFormTask");
+                var commonHelper = new CommonHelper(_context, _cloneContext);
+                commonHelper.LogException(ex, "Equipment CompleteFormTask");
 
             }
             //return res;
@@ -1587,11 +1695,33 @@ namespace TDSGCellFormat.Implementation.Repository
                     if (data.EmployeeId == adminId)
                     {
                         InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(adminId), HistoryAction.UpdateTargetDate.ToString(), 0);
+                        if (equipment.IsPcrnRequired == true)
+                        {
+                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(adminId), HistoryAction.PCRNRequired.ToString(), 0);
+
+                        }
+                        else
+                        {
+                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(adminId), HistoryAction.PCRNNotRequired.ToString(), 0);
+
+                        }
                     }
                     else
                     {
                         InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(approverdata), HistoryAction.UpdateTargetDate.ToString(), 0);
+                        if (equipment.IsPcrnRequired == true)
+                        {
+                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(approverdata), HistoryAction.PCRNRequired.ToString(), 0);
+
+                        }
+                        else
+                        {
+                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(approverdata), HistoryAction.PCRNNotRequired.ToString(), 0);
+
+                        }
                     }
+
+
 
 
                 }
@@ -1660,11 +1790,25 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public ApproverTaskId_dto GetCurrentApproverTask(int equipmentId, int userId)
         {
-            var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId &&
+            var materialDelegateApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.DelegateUserId == userId && x.DelegateUserId != 0 &&
+           (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString()
+           || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString() || x.Status == ApprovalTaskStatus.LogicalAmendmentInReview.ToString()) && x.IsActive == true);
+
+            var data = new ApproverTaskId_dto();
+
+            if (materialDelegateApprovers != null)
+            {
+                data.approverTaskId = materialDelegateApprovers.ApproverTaskId;
+                data.userId = materialDelegateApprovers.AssignedToUserId ?? 0;
+                data.status = materialDelegateApprovers.Status;
+                data.seqNumber = materialDelegateApprovers.SequenceNo;
+            }
+
+            var materialApprovers = _context.EquipmentImprovementApproverTaskMasters.FirstOrDefault(x => x.EquipmentImprovementId == equipmentId && x.AssignedToUserId == userId && x.DelegateUserId == 0 &&
             (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString()
             || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString() || x.Status == ApprovalTaskStatus.LogicalAmendmentInReview.ToString()) && x.IsActive == true);
 
-            var data = new ApproverTaskId_dto();
+            //var data = new ApproverTaskId_dto();
             if (materialApprovers != null)
             {
                 data.approverTaskId = materialApprovers.ApproverTaskId;
@@ -1674,6 +1818,33 @@ namespace TDSGCellFormat.Implementation.Repository
 
             }
             return data;
+        }
+
+        public async Task<AjaxResult> GetEmailAttachment(int id)
+        {
+            var res = new AjaxResult();
+            var processedDataList = new List<EquipmentAttachment>();
+            var equipment = _context.EquipmentEmailAttachments.Where(x => x.EquipmentImprovementId == id && x.IsDeleted == false).ToList();
+            if (equipment != null && equipment.Any())
+            {
+                // Process each found attachment
+                foreach (var item in equipment)
+                {
+                    var processedData = new EquipmentAttachment
+                    {
+                        EquipmentId = (int)item.EquipmentImprovementId,
+                        EmailAttachmentId = item.EquipmentEmailAttachmenId,
+                        EmailDocFilePath = item.EmailFilePath,
+                        EmailDocName = item.EmailDocName
+                    };
+                    processedDataList.Add(processedData);
+                }
+
+            }
+
+            res.ReturnValue = processedDataList;
+
+            return res;
         }
         #endregion
 
@@ -1892,7 +2063,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 {"OtherSubMachine","Other Sub Machine Name" },
                  {"SectionName","Section Name" },
                    {"ImprovementName","Improvement Name" },
-                    {"CurrentApprover","Current Approver" }
+                    {"CurrentApprover","Current Approver" },
+                {"ImprovementCategory","Improvement Category" },
+                 {"OtherImprovementCategory","Other Improvement Category" }
 
 };
 
@@ -1946,25 +2119,27 @@ namespace TDSGCellFormat.Implementation.Repository
                         sb.Replace("#MachineName#", "Other - " + equipmentData.OtherMachineName);
                     }
 
-                    sb.Replace("#ApplicantName#", applicant);
-                    sb.Replace("#clsReq#", applicant);
-                }
-                sb.Replace("#Purpose#", equipmentData?.Purpose);
-                sb.Replace("#currentSituations#", equipmentData?.CurrentSituation);
-                sb.Replace("#Improvement#", equipmentData?.Imrovement);
+                    var impCategoryId = string.IsNullOrEmpty(equipmentData.ImprovementCategory)
+                                            ? new List<int>()  // Return an empty list if the string is null or empty
+                                            : equipmentData.ImprovementCategory.Split(',')
+                                                                                .Select(id => int.Parse(id))
+                                        .ToList();
+                    // var impCategoryId = equipmentData.ImprovementCategory.Split(',').Select(id => int.Parse(id)).ToList();
+                    var impCategoryNames = new List<string>();
+                    var impCategoryString = string.Empty;
 
-                var impCategoryId = equipmentData.ImprovementCategory.Split(',').Select(id => int.Parse(id)).ToList();
-                var impCategoryNames = new List<string>();
-                var impCategoryString = string.Empty;
 
-                if (impCategoryId.Contains(-1))
-                {
-                    impCategoryString = "Other - "+ equipmentData.OtherImprovementCategory;
-                }
-                else
-                {
                     foreach (var id in impCategoryId)
                     {
+                        if (id == -1)
+                        {
+                           
+                            if (!string.IsNullOrEmpty(equipmentData.OtherImprovementCategory))
+                            {
+                                impCategoryNames.Add("Other - " + equipmentData.OtherImprovementCategory); // Add "Other" category with its name
+                            }
+                        }
+
                         // Query database or use a dictionary/cache to get the name
                         var impCatName = _context.ImprovementCategoryMasters.Where(x => x.ImprovementCategoryId == id && x.IsDeleted == false).Select(x => x.ImprovementCategoryName).FirstOrDefault(); // Replace this with your actual DB logic
                         if (!string.IsNullOrEmpty(impCatName))
@@ -1973,9 +2148,18 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                     }
                     impCategoryString = string.Join(", ", impCategoryNames);
-                }
 
-                sb.Replace("#ImpCategory#", impCategoryString);
+
+                    sb.Replace("#ImpCategory#", impCategoryString);
+
+                    sb.Replace("#ApplicantName#", applicant);
+                    sb.Replace("#clsReq#", applicant);
+                }
+                sb.Replace("#Purpose#", equipmentData?.Purpose);
+                sb.Replace("#currentSituations#", equipmentData?.CurrentSituation);
+                sb.Replace("#Improvement#", equipmentData?.Imrovement);
+
+
 
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
                 if (equipmentData?.ToshibaApprovalRequired == true)
@@ -1992,67 +2176,67 @@ namespace TDSGCellFormat.Implementation.Repository
                 //local
                 //var baseUrl = "https://synopsandbox.sharepoint.com/sites/Training2024";
                 //stage
-                var baseUrl = "https://tdsgj.sharepoint.com/sites/e-app-stage";
+                var baseUrl = _configuration["SPSiteUrl"];
 
                 var currAttachmentUrl = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == equipmentId
                          && x.IsDeleted == false)
-                          // .Select(x => $"{baseUrl}{x.CurrSituationDocFilePath}")
                           .ToList();
 
                 var impAttachmentUrl = _context.EquipmentImprovementAttachment.Where(x => x.EquipmentImprovementId == equipmentId
                                  && x.IsDeleted == false)
-                                  // .Select(x => $"{baseUrl}{x.ImprovementDocFilePath}")
                                   .ToList();
 
-                StringBuilder currentSituationAttachments = new StringBuilder();
-                StringBuilder improvementAttachments = new StringBuilder();
+                StringBuilder currentSituationImages = new StringBuilder();
+                StringBuilder currentSituationOtherFiles = new StringBuilder();
 
-                foreach (var url1 in currAttachmentUrl)
+                StringBuilder improvementImages = new StringBuilder();
+                StringBuilder improvementOtherFiles = new StringBuilder();
+
+                var imageExtensions = new List<string> { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".svg",".heif",".heic", ".cr2", ".nef", ".arw",".dng",".psd",".ico",".cur",
+                                ".apng", ".tga",".pcx",".xcf" };
+                // Separate images and non-images
+                var currSitImageFiles = currAttachmentUrl.Where(url => imageExtensions.Any(ext => url.CurrSituationDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).ToList();
+                var currSitFiles = currAttachmentUrl.Except(currSitImageFiles).ToList();
+
+                foreach (var url1 in currSitImageFiles)
                 {
                     string bfrUrl = $"{baseUrl}{url1.CurrSituationDocFilePath}";
-                    if (url1.CurrSituationDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrSituationDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrSituationDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url1.CurrSituationDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Add image tag
-                        currentSituationAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
-                        currentSituationAttachments.AppendLine($"<img src=\"{url1.CurrImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
-                        currentSituationAttachments.AppendLine("</div>");
-                        //currentSituationAttachments.AppendLine($"<img src=\"{url1.CurrImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
-                    }
-                    else
-                    {
-                        currentSituationAttachments.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
-                    }
+
+                    currentSituationImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                    currentSituationImages.AppendLine($"<img src=\"{url1.CurrImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                    currentSituationImages.AppendLine("</div>");
 
                 }
+                // Then append other non-image files
+                foreach (var url1 in currSitFiles)
+                {
+                    string bfrUrl = $"{baseUrl}{url1.CurrSituationDocFilePath}";
+                    currentSituationOtherFiles.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
+                }
 
+                // Combine both image and non-image content
+                sb.Replace("#CurrentSituationAttachments#", currentSituationImages.ToString() + currentSituationOtherFiles.ToString());
 
-                foreach (var url2 in impAttachmentUrl)
+                // Separate images and non-images
+                var impImageFiles = impAttachmentUrl.Where(url => imageExtensions.Any(ext => url.ImprovementDocFilePath.EndsWith(ext, StringComparison.OrdinalIgnoreCase))).ToList();
+                var impFiles = impAttachmentUrl.Except(impImageFiles).ToList();
+
+                foreach (var url2 in impImageFiles)
+                {
+                    // Add image tag
+                    improvementImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                    improvementImages.AppendLine($"<img src=\"{url2.ImpImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                    improvementImages.AppendLine("</div>");
+
+                }
+                // Then append other non-image files
+                foreach (var url2 in impFiles)
                 {
                     string bfrUrl = $"{baseUrl}{url2.ImprovementDocFilePath}";
-                    if (url2.ImprovementDocFilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImprovementDocFilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImprovementDocFilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                 url2.ImprovementDocFilePath.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Add image tag
-                        improvementAttachments.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
-                        improvementAttachments.AppendLine($"<img src=\"{url2.ImpImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
-                        improvementAttachments.AppendLine("</div>");
-                        //improvementAttachments.AppendLine($"<img src=\"{url2.ImpImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; margin-top: 10px;\" />");
-                    }
-                    else
-                    {
-                        improvementAttachments.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
-
-                    }
+                    improvementOtherFiles.Append($"<a href=\"{bfrUrl}\" target=\"_blank\">{Path.GetFileName(bfrUrl)}</a><br>");
                 }
 
-                // Replace placeholders in the HTML template
-                sb.Replace("#CurrentSituationAttachments#", currentSituationAttachments.ToString());
-                sb.Replace("#ImprovementAttachments#", improvementAttachments.ToString());
+                sb.Replace("#ImprovementAttachments#", improvementImages.ToString() + improvementOtherFiles.ToString());
 
                 StringBuilder tableBuilder = new StringBuilder();
                 int serialNumber = 1;
@@ -2072,8 +2256,6 @@ namespace TDSGCellFormat.Implementation.Repository
                         tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.RiskAssociatedWithChanges + "</td>");
                         tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Factor + "</td>");
                         tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.CounterMeasures + "</td>");
-                        //tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + (item.DueDate.HasValue ? item.DueDate.Value.ToString("dd-MM-yyyy") : "") + "</td>");
-                        //tableBuilder.Append($"<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">{(string.IsNullOrEmpty(item.DueDate) ? "" : item.DueDate)}</td>");
                         DateTime parsedDate;
                         tableBuilder.Append($"<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">{(DateTime.TryParse(item.DueDate, out parsedDate) ? parsedDate.ToString("dd-MM-yyyy") : "")}</td>");
 
@@ -2090,24 +2272,24 @@ namespace TDSGCellFormat.Implementation.Repository
                 string approveSectioneHead = approvalData.FirstOrDefault(a => a.SequenceNo == 1 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByDepHead = approvalData.FirstOrDefault(a => a.SequenceNo == 3 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 5 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByDeptDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 4 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByQT= approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
 
                 string approvedByAdvisor = approvalData.FirstOrDefault(a => a.SequenceNo == 2 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+
                 string advisorComment = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.Comments ?? "N/A";
                 string advisorDate = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? "N/A";
-                //string approverByQT = approvalData.FirstOrDefault(a => a.SequenceNo == 5)?.Comments ?? "N/A";
-                //string QtTeamDate = approvalData.FirstOrDefault(a => a.SequenceNo == 5)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? "N/A";
-                //string approvedByQT = approvalData.FirstOrDefault(a => a.SequenceNo == 5)?.employeeNameWithoutCode ?? "N/A";
 
                 sb.Replace("#SectionHeadName#", approveSectioneHead);
                 sb.Replace("#DepartmentHeadName#", approvedByDepHead);
                 sb.Replace("#DivisionHeadName#", approvedByDivHead);
+                sb.Replace("#Advisor#", approvedByAdvisor);
+                sb.Replace("#DeputyDivisionHeadName#", approvedByDeptDivHead);
+                sb.Replace("#QualityTeamReview#", approvedByQT);
 
                 sb.Replace("#AdvisorName#", approvedByAdvisor);
                 sb.Replace("#AdvisorComment#", advisorComment);
-                 sb.Replace("#AdvisorDate#", advisorDate);
-                // sb.Replace("#QTOneComment#", approverByQT);
-                //sb.Replace("#QTOneDate#", QtTeamDate);
-                //sb.Replace("#QCmanagername#", approvedByQT);
+                sb.Replace("#AdvisorDate#", advisorDate);
 
                 if (equipmentData.WorkFlowLevel == 2 && equipmentData.Status == ApprovalTaskStatus.InReview.ToString())
                 {
@@ -2139,34 +2321,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.ReturnValue = base64String; // Send the Base64 string to the frontend
 
                 return res;
-
-                //using (var ms = new MemoryStream())
-                //{
-                //    Document document = new Document(PageSize.A3, 10f, 10f, 10f, 30f);
-                //    PdfWriter writer = PdfWriter.GetInstance(document, ms);
-                //    document.Open();
-
-                //    // Convert the StringBuilder HTML content to a PDF using iTextSharp
-                //    using (var sr = new StringReader(sb.ToString()))
-                //    {
-                //        XMLWorkerHelper.GetInstance().ParseXHtml(writer, document, sr);
-                //    }
-
-                //    document.Close();
-
-                //    // Convert the PDF to a byte array
-                //    byte[] pdfBytes = ms.ToArray();
-
-                //    // Encode the PDF as a Base64 string
-                //    string base64String = Convert.ToBase64String(pdfBytes);
-
-                //    // Set response values
-                //    res.StatusCode = Enums.Status.Success;
-                //    res.Message = Enums.MaterialPdf;
-                //    res.ReturnValue = base64String; // Send the Base64 string to the frontend
-
-                //    return res;
-                //}
             }
             catch (Exception ex)
             {
