@@ -2692,14 +2692,14 @@ namespace TDSGCellFormat.Implementation.Repository
             try
             {
                 // Fetch the employee data first
-                //var employeeMasters = await _cloneContext.EmployeeMasters
-                //    .Select(x => new
-                //    {
-                //        x.EmployeeID,
-                //        x.EmployeeName,
-                //        x.Email
-                //    })
-                //    .ToListAsync();
+                var employeeMasters = await _cloneContext.EmployeeMasters
+                    .Select(x => new
+                    {
+                        x.EmployeeID,
+                        x.EmployeeName,
+                        x.Email
+                    })
+                    .ToListAsync();
 
                 // Fetch the equipment data first
                 var equipmentMasters = await _context.EquipmentMasters.Select(c => new equipment_master_list
@@ -2716,25 +2716,25 @@ namespace TDSGCellFormat.Implementation.Repository
                     .ToListAsync();
 
                 //// Perform the left join using LINQ query expression
-                //var result = from equipment in equipmentMasters
-                //             join createdEmployee in employeeMasters on equipment.CreatedBy equals createdEmployee.EmployeeID into createdEmployeeGroup
-                //             from createdEmployee in createdEmployeeGroup.DefaultIfEmpty() // Left join for CreatedBy
-                //             join modifiedEmployee in employeeMasters on equipment.ModifiedBy equals modifiedEmployee.EmployeeID into modifiedEmployeeGroup
-                //             from modifiedEmployee in modifiedEmployeeGroup.DefaultIfEmpty() // Left join for ModifiedBy
-                //             select new equipment_master_list
-                //             {
-                //                 EquipmentId = equipment.EquipmentId,
-                //                 EquipmentName = equipment.EquipmentName,
-                //                 CreatedDate = equipment.CreatedDate,
-                //                 CreatedBy = equipment.CreatedBy,
-                //                 IsActive = equipment.IsActive,
-                //                 ModifiedBy = equipment.ModifiedBy,
-                //                 ModifiedDate = equipment.ModifiedDate,
-                //                 UserName = createdEmployee != null ? createdEmployee.EmployeeName : null, // CreatedBy UserName
-                //                 UpdatedUserName = modifiedEmployee != null ? modifiedEmployee.EmployeeName : null // ModifiedBy UpdatedUserName
-                //             };
+                var result = from equipment in equipmentMasters
+                             join createdEmployee in employeeMasters on equipment.CreatedBy equals createdEmployee.EmployeeID into createdEmployeeGroup
+                             from createdEmployee in createdEmployeeGroup.DefaultIfEmpty() // Left join for CreatedBy
+                             join modifiedEmployee in employeeMasters on equipment.ModifiedBy equals modifiedEmployee.EmployeeID into modifiedEmployeeGroup
+                             from modifiedEmployee in modifiedEmployeeGroup.DefaultIfEmpty() // Left join for ModifiedBy
+                             select new equipment_master_list
+                             {
+                                 EquipmentId = equipment.EquipmentId,
+                                 EquipmentName = equipment.EquipmentName,
+                                 CreatedDate = equipment.CreatedDate,
+                                 CreatedBy = equipment.CreatedBy,
+                                 IsActive = equipment.IsActive,
+                                 ModifiedBy = equipment.ModifiedBy,
+                                 ModifiedDate = equipment.ModifiedDate,
+                                 UserName = createdEmployee != null ? createdEmployee.EmployeeName : null, // CreatedBy UserName
+                                 UpdatedUserName = modifiedEmployee != null ? modifiedEmployee.EmployeeName : null // ModifiedBy UpdatedUserName
+                             };
 
-                return equipmentMasters;
+                return result;
 
             }
             catch (Exception ex)

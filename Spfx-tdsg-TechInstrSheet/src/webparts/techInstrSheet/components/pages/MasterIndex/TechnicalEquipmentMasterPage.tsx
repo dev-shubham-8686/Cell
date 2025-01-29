@@ -184,6 +184,20 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
         a.EquipmentName.localeCompare(b.EquipmentName),
     },
     {
+      title: "Created By",
+      dataIndex: "UserName",
+      key: "UserName",
+      sorter: (a: any, b: any) =>
+        a.UserName.localeCompare(b.UserName),
+    },
+    {
+      title: "Updated By",
+      dataIndex: "UpdatedUserName",
+      key: "UpdatedUserName",
+      sorter: (a: any, b: any) =>
+        a.UpdatedUserName.localeCompare(b.UpdatedUserName),
+    },
+    {
       title: "Is Active",
       dataIndex: "IsActive",
       key: "IsActive",
