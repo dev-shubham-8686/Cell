@@ -688,7 +688,7 @@ namespace TDSGCellFormat.Controllers
             }
         }
 
-        [HttpGet("MasterTbl/AddUpdateCostCenterMaster")]
+        [HttpPost("MasterTbl/AddUpdateCostCenterMaster")]
         public async Task<IActionResult> AddUpdateCostCenterMaster(CostCenterAdd costCenter)
         {
             var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
