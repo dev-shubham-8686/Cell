@@ -285,4 +285,34 @@ namespace TDSGCellFormat.Models.Add
         public int DelegateUserId { get; set; } // with whom u want to delegate
         public string? Comments { get; set; }
     }
+
+    public class equipment_master_list
+    {
+        public int EquipmentId { get; set; }
+
+        public string? EquipmentName { get; set; }
+
+        public DateTime? CreatedDate { get; set; }
+
+        public int? CreatedBy { get; set; }
+
+        public bool? IsActive { get; set; }
+
+        public int? ModifiedBy { get; set; }
+
+        public DateTime? ModifiedDate { get; set; }
+
+        public string? UserName { get; set; }
+
+        public string? UpdatedUserName { get; set; }
+    }
+
+    public class equipment_master_add
+    {
+        public int EquipmentId { get; set; }
+        public string? EquipmentName { get; set; }
+        public bool? IsActive { get; set; }
+
+        public int? UserId { get; set; }
+    }
 }
