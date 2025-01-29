@@ -340,9 +340,9 @@
 
     public partial class ImprovementCategoryAdd
     {
-        public int ImpCateogoryId { get; set; }
+        public int ImpCategoryId { get; set; }
 
-        public string? ImpCateogoryName { get; set; }
+        public string? ImpCategoryName { get; set; }
 
         public int? CreatedBy { get; set; }
 

@@ -817,8 +817,8 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 res = _context.ImprovementCategoryMasters.Select(x => new ImprovementCategoryAdd
                 {
-                    ImpCateogoryId = x.ImprovementCategoryId,
-                    ImpCateogoryName = x.ImprovementCategoryName,
+                    ImpCategoryId = x.ImprovementCategoryId,
+                    ImpCategoryName = x.ImprovementCategoryName,
                     IsActive = x.IsDeleted == false ? true : false,
                     CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate,
@@ -994,21 +994,21 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
-                var check_dup = _context.ImprovementCategoryMasters.Where(c => c.ImprovementCategoryName == category.ImpCateogoryName && c.ImprovementCategoryId != category.ImpCateogoryId).FirstOrDefault();
+                var check_dup = _context.ImprovementCategoryMasters.Where(c => c.ImprovementCategoryName == category.ImpCategoryName && c.ImprovementCategoryId != category.ImpCategoryId).FirstOrDefault();
                 if (check_dup != null)
                 {
-                    category.ImpCateogoryId = -1;
+                    category.ImpCategoryId = -1;
                     return Task.FromResult(category);
                 }
 
-                if (category.ImpCateogoryId > 0)
+                if (category.ImpCategoryId > 0)
                 {
-                    var get_record = _context.ImprovementCategoryMasters.Find(category.ImpCateogoryId);
+                    var get_record = _context.ImprovementCategoryMasters.Find(category.ImpCategoryId);
 
                     if (get_record != null)
                     {
                         get_record.IsDeleted = category.IsActive == false ? true : false;
-                        get_record.ImprovementCategoryName = category.ImpCateogoryName;
+                        get_record.ImprovementCategoryName = category.ImpCategoryName;
                         get_record.ModifiedBy = category.ModifiedBy;
                         get_record.ModifiedDate = DateTime.Now;
 
@@ -1021,7 +1021,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     var new_record = new ImprovementCategoryMaster
                     {
-                        ImprovementCategoryName = category.ImpCateogoryName,
+                        ImprovementCategoryName = category.ImpCategoryName,
                         IsDeleted = category.IsActive == true ? false : true,
                         CreatedBy = category.CreatedBy,
                         CreatedDate = DateTime.Now
@@ -1030,7 +1030,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     _context.ImprovementCategoryMasters.Add(new_record);
                     _context.SaveChanges();
 
-                    category.ImpCateogoryId = new_record.ImprovementCategoryId;
+                    category.ImpCategoryId = new_record.ImprovementCategoryId;
 
                     return Task.FromResult(category);
                 }
