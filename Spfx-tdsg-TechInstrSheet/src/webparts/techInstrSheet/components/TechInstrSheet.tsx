@@ -41,6 +41,8 @@ import "froala-editor/css/plugins/colors.min.css";
 import "froala-editor/css/plugins/emoticons.min.css";
 import "froala-editor/css/plugins/file.min.css";
 import "froala-editor/css/plugins/code_view.css"
+import MasterTab from "./pages/MasterIndex/MasterTab";
+import TechnicalEquipmentMasterPage from "./pages/MasterIndex/TechnicalEquipmentMasterPage";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +91,8 @@ const TechInstrSheet: React.FC<ITechInstrSheetProps> = ({
                 <Route path="/form/create" element={<TechnicalInstructionFrom isViewMode={false} />} />
                 <Route path="/form/edit/:id" element={<TechnicalInstructionFrom isViewMode={false} />} />
                 <Route path="/form/view/:id" element={<TechnicalInstructionFrom isViewMode={true} />} />
+                <Route path="/masterlist" element={<MasterTab />} />
+                <Route path="/masterlist/equipment" element={<TechnicalEquipmentMasterPage />} />
               </Routes>
             </main>
           </Router>
