@@ -1427,8 +1427,8 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         if (nextTask != null)
                         {
-                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
-                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextTask.AssignedToUserId, ProjectType.Equipment.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextTask.AssignedToUserId, ProjectType.Equipment.ToString());
                             nextTask.AssignedToUserId = substituteUserId;
                             nextTask.IsSubstitute = IsSubstitute;
                             await _context.SaveChangesAsync();
