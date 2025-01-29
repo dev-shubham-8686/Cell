@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Office2013.Drawing.Chart;
+using System.Linq;
 using TDSGCellFormat.Interface.Service;
 using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
@@ -767,6 +768,9 @@ namespace TDSGCellFormat.Implementation.Repository
             IQueryable<SectionMasterAdd> res = null;
             try
             {
+
+                var employeeNames = _cloneContext.EmployeeMasters
+                                 .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
                 res = _context.SectionMasters.Select(x => new SectionMasterAdd 
                 { 
                     SectionId = x.SectionId,
@@ -776,8 +780,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     CreatedDate = x.CreatedDate,
                     ModifiedBy = x.ModifiedBy,
                     ModifiedDate = x.ModifiedDate,
-                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
-                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
+                    CreatedByName = x.CreatedBy.HasValue && employeeNames.ContainsKey(x.CreatedBy.Value) ? employeeNames[x.CreatedBy.Value] : null,
+                    ModifiedByName = x.ModifiedBy.HasValue && employeeNames.ContainsKey(x.ModifiedBy.Value) ? employeeNames[x.ModifiedBy.Value] : null
                 });
             }
             catch (Exception ex)
@@ -827,12 +831,24 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
-        public IQueryable<UnitOfMeasure> GetAllUnitOfMeasureMaster()
+        public IQueryable<UnitOfMeasureDtoAdd> GetAllUnitOfMeasureMaster()
         {
-            IQueryable<UnitOfMeasure> res = null;
+            IQueryable<UnitOfMeasureDtoAdd> res = null;
             try
             {
-                res = _context.UnitOfMeasures;
+                res = _context.UnitOfMeasures.Select(x => new UnitOfMeasureDtoAdd 
+                {
+                    UOMId = x.UOMId,
+                    UOMName = x.Name,
+                    CreatedBy = x.CreatedBy,
+                    CreatedDate = x.CreatedDate,
+                    ModifiedBy = x.ModifiedBy,
+                    ModifiedDate = x.ModifiedDate,
+                    IsActive = x.IsActive,
+                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
+                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
+
+                });
             }
             catch (Exception ex)
             {
@@ -1817,7 +1833,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
-                var check_dup = _context.UnitOfMeasures.Where(c => c.Name == unitOfMeasureAdd.Name && c.UOMId != unitOfMeasureAdd.UOMId).FirstOrDefault();
+                var check_dup = _context.UnitOfMeasures.Where(c => c.Name == unitOfMeasureAdd.UOMName && c.UOMId != unitOfMeasureAdd.UOMId).FirstOrDefault();
                 if (check_dup != null)
                 {
                     unitOfMeasureAdd.UOMId = -1;
@@ -1831,7 +1847,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     if (get_record != null)
                     {
                         get_record.IsActive = unitOfMeasureAdd.IsActive;
-                        get_record.Name = unitOfMeasureAdd.Name;
+                        get_record.Name = unitOfMeasureAdd.UOMName;
                         get_record.ModifiedBy = unitOfMeasureAdd.ModifiedBy;
                         get_record.ModifiedDate = DateTime.Now;
 
@@ -1844,7 +1860,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     var new_record = new UnitOfMeasure
                     {
-                        Name = unitOfMeasureAdd.Name,
+                        Name = unitOfMeasureAdd.UOMName,
                         IsActive = unitOfMeasureAdd.IsActive,
                         CreatedBy = unitOfMeasureAdd.CreatedBy,
                         CreatedDate = DateTime.Now
@@ -2127,14 +2143,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public Task<bool> DeleteUnitOfMeasure(int id)
         {
-            var existingArea = _context.UnitOfMeasures.Where(x => x.UOMId == id).FirstOrDefault();
-            if (existingArea == null)
+            var existingUOM = _context.UnitOfMeasures.Where(x => x.UOMId == id).FirstOrDefault();
+            if (existingUOM == null)
             {
                 return Task.FromResult(false);
             }
             else
             {
-                _context.UnitOfMeasures.Remove(existingArea);
+                existingUOM.IsActive = false;
                 _context.SaveChanges();
                 return Task.FromResult(true);
             }

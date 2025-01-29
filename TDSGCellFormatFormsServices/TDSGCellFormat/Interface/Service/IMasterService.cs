@@ -111,7 +111,7 @@ namespace TDSGCellFormat.Interface.Service
 
         IQueryable<TroubleType> GetAllTroubleTypeMaster();
 
-        IQueryable<UnitOfMeasure> GetAllUnitOfMeasureMaster();
+        IQueryable<UnitOfMeasureDtoAdd> GetAllUnitOfMeasureMaster();
         IQueryable<ImprovementCategoryAdd> GetImpCategoryMaster();
 
         Task<bool> DeleteImpCategoryMaster(int id);

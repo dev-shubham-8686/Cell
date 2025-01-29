@@ -69,7 +69,7 @@
     {
         public int UOMId { get; set; }
 
-        public string? Name { get; set; }
+        public string? UOMName { get; set; }
 
         public int? CreatedBy { get; set; }
 
