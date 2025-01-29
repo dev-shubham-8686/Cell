@@ -39,6 +39,8 @@
         public DateTime? CreatedDate { get; set; }
 
         public DateTime? ModifiedDate { get; set; }
+        public string? CreatedByName { get; set; }
+        public string? ModifiedByName { get; set; }
     }
 
     public class CostCenterAdd
@@ -56,6 +58,8 @@
         public DateTime? CreatedDate { get; set; }
 
         public DateTime? ModifiedDate { get; set; }
+        public string? CreatedByName { get; set; }
+        public string? ModifiedByName { get; set; }
     }
 
     
@@ -76,6 +80,8 @@
         public DateTime? ModifiedDate { get; set; }
 
         public bool? IsActive { get; set; }
+        public string? CreatedByName { get; set; }
+        public string? ModifiedByName { get; set; }
     }
 
     public class CellDivisionRoleMasterAdd
@@ -174,6 +180,8 @@
         public DateTime? CreatedDate { get; set; }
 
         public DateTime? ModifiedDate { get; set; }
+        public string? CreatedByName { get; set; }
+        public string? ModifiedByName { get; set; }
     }
 
     public class SubMachineAdd
@@ -193,6 +201,8 @@
         public DateTime? CreatedDate { get; set; }
 
         public DateTime? ModifiedDate { get; set; }
+        public string? CreatedByName { get; set; }
+        public string? ModifiedByName { get; set; }
     }
 
     public class MaterialAdd
@@ -218,6 +228,8 @@
         public DateTime? CreatedDate { get; set; }
 
         public DateTime? ModifiedDate { get; set; }
+        public string? CreatedByName { get; set; }
+        public string? ModifiedByName { get; set; }
     }
 
     public class ResultMonitoringMasterAdd
@@ -276,6 +288,8 @@
         public DateTime? CreatedDate { get; set; }
 
         public DateTime? ModifiedDate { get; set; }
+        public string? CreatedByName { get; set; }
+        public string? ModifiedByName { get; set; }
     }
 
     public class TroubleTypeAdd
@@ -319,6 +333,9 @@
         public int? ModifiedBy { get; set; }
 
         public DateTime? ModifiedDate { get; set; }
+
+        public string? CreatedByName { get; set; }
+        public string? ModifiedByName { get; set; }
     }
 
     #endregion

@@ -513,14 +513,16 @@ namespace TDSGCellFormat.Implementation.Repository
             try
             {
                 res = _context.Areas.Select(x => new AreaDtoAdd
-                { 
+                {
                     AreaId = x.AreaId,
                     AreaName = x.AreaName,
                     IsActive = (bool)x.IsActive,
-                    CreatedDate = x.CreatedDate, 
+                    CreatedDate = x.CreatedDate,
                     CreatedBy = x.CreatedBy,
                     ModifiedDate = x.ModifiedDate,
-                    ModifiedBy = x.ModifiedBy
+                    ModifiedBy = x.ModifiedBy,
+                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
+                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
                 });
             }
             catch (Exception ex)
@@ -543,7 +545,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     CreatedDate = x.CreatedDate,
                     ModifiedBy = x.ModifiedBy,
                     ModifiedDate = x.ModifiedDate,
-                    IsActive = x.IsActive
+                    IsActive = x.IsActive,
+                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
+                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
                 });
             }
             catch (Exception ex)
@@ -636,7 +640,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     CreatedDate = x.CreatedDate,
                     ModifiedBy = x.ModifiedBy,
                     ModifiedDate = x.ModifiedDate,
-                    IsActive = x.IsDeleted == false ? true : false
+                    IsActive = x.IsDeleted == false ? true : false,
+                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
+                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
                 });
             }
             catch (Exception ex)
@@ -660,7 +666,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     CreatedDate = x.CreatedDate,
                     ModifiedBy = x.ModifiedBy,
                     ModifiedDate = x.ModifiedDate,
-                    IsActive = x.IsDeleted == false ? true : false
+                    IsActive = x.IsDeleted == false ? true : false,
+                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
+                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
                 });
             }
             catch (Exception ex)
@@ -687,7 +695,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     CreatedDate = x.CreatedDate,
                     ModifiedBy = x.ModifiedBy,
                     ModifiedDate = x.ModifiedDate, 
-                    IsActive = (bool)x.IsActive
+                    IsActive = (bool)x.IsActive,
+                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
+                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
+
                 });
             }
             catch (Exception ex)
@@ -761,7 +772,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     CreatedBy = x.CreatedBy,
                     CreatedDate = x.CreatedDate,
                     ModifiedBy = x.ModifiedBy,
-                    ModifiedDate = x.ModifiedDate
+                    ModifiedDate = x.ModifiedDate,
+                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
+                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
                 });
             }
             catch (Exception ex)
@@ -1261,7 +1274,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     if (get_record != null)
                     {
-                        get_record.IsDeleted = machineAdd.IsActive = true ? false : true;
+                        get_record.IsDeleted = machineAdd.IsActive == true ? false : true;
                         get_record.MachineName = machineAdd.MachineName;
                         get_record.ModifiedBy = machineAdd.ModifiedBy;
                         get_record.ModifiedDate = DateTime.Now;
@@ -1276,7 +1289,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var new_record = new TDSGCellFormat.Models.Machine
                     {
                         MachineName = machineAdd.MachineName,
-                        IsDeleted = machineAdd.IsActive = true ? false : true,
+                        IsDeleted = machineAdd.IsActive == true ? false : true,
                         CreatedBy = machineAdd.CreatedBy,
                         CreatedDate = DateTime.Now
                     };
@@ -1864,14 +1877,14 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public Task<bool> DeleteSubDevice(int id)
         {
-            var existingArea = _context.SubDeviceMaster.Where(x => x.SubDeviceId == id).FirstOrDefault();
-            if (existingArea == null)
+            var existingUOM = _context.SubDeviceMaster.Where(x => x.SubDeviceId == id).FirstOrDefault();
+            if (existingUOM == null)
             {
                 return Task.FromResult(false);
             }
             else
             {
-                _context.SubDeviceMaster.Remove(existingArea);
+                existingUOM.IsActive = false;
                 _context.SaveChanges();
                 return Task.FromResult(true);
             }
@@ -2082,7 +2095,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     CreatedBy = c.CreatedBy,
                     CreatedDate = c.CreatedDate,
                     ModifiedBy = c.ModifiedBy,
-                    ModifiedDate = c.ModifiedDate
+                    ModifiedDate = c.ModifiedDate,
+                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == c.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
+                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == c.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
+
                 });
             }
             catch (Exception ex)
@@ -2130,7 +2146,8 @@ namespace TDSGCellFormat.Implementation.Repository
             try
             {
                 res = _context.SectionMasters.Where(c => c.IsActive == true)
-                    .Select(c => new SectionMaster { SectionId = c.SectionId, SectionName = c.SectionName, IsActive = c.IsActive });
+                    .Select(c => new SectionMaster 
+                    { SectionId = c.SectionId, SectionName = c.SectionName, IsActive = c.IsActive });
             }
             catch (Exception ex)
             {
