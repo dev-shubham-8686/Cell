@@ -1067,8 +1067,8 @@ namespace TDSGCellFormat.Controllers
             }
         }
 
-        [HttpPost("MasterTbl/unitsOfMeasures/create")]
-        public async Task<IActionResult> CreateUnitOfMeasure([FromBody] UnitOfMeasureDtoAdd unitOfMeasure)
+        [HttpPost("MasterTbl/AddUpdateUnitOfMeasureMaster")]
+        public async Task<IActionResult> AddUpdateUnitOfMeasureMaster([FromBody] UnitOfMeasureDtoAdd unitOfMeasure)
         {
             var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
             // Call the IsValidAuthentication method
