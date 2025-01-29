@@ -338,5 +338,24 @@
         public string? ModifiedByName { get; set; }
     }
 
+    public partial class ImprovementCategoryAdd
+    {
+        public int ImpCateogoryId { get; set; }
+
+        public string? ImpCateogoryName { get; set; }
+
+        public int? CreatedBy { get; set; }
+
+        public DateTime? CreatedDate { get; set; }
+
+        public int? ModifiedBy { get; set; }
+
+        public DateTime? ModifiedDate { get; set; }
+
+        public bool? IsActive { get; set; }
+        public string? CreatedByName { get; set; }
+        public string? ModifiedByName { get; set; }
+    }
+
     #endregion
 }

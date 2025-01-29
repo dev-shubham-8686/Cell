@@ -1,4 +1,5 @@
-﻿using TDSGCellFormat.Interface.Service;
+﻿using DocumentFormat.OpenXml.Office2013.Drawing.Chart;
+using TDSGCellFormat.Interface.Service;
 using TDSGCellFormat.Models;
 using TDSGCellFormat.Models.Add;
 using TDSGCellFormat.Models.View;
@@ -532,6 +533,8 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+      
+
         public IQueryable<CategoryAdd> GetAllCategoryMaster()
         {
             IQueryable<CategoryAdd> res = null;
@@ -784,6 +787,32 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+        public IQueryable<ImprovementCategoryAdd> GetImpCategoryMaster()
+        {
+            IQueryable<ImprovementCategoryAdd> res = null;
+            try
+            {
+                res = _context.ImprovementCategoryMasters.Select(x => new ImprovementCategoryAdd
+                {
+                    ImpCateogoryId = x.ImprovementCategoryId,
+                    ImpCateogoryName = x.ImprovementCategoryName,
+                    IsActive = x.IsDeleted == false ? true : false,
+                    CreatedBy = x.CreatedBy,
+                    CreatedDate = x.CreatedDate,
+                    ModifiedBy = x.ModifiedBy,
+                    ModifiedDate = x.ModifiedDate,
+                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
+                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
+                });
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return res;
+        }
+
+
         public IQueryable<TroubleType> GetAllTroubleTypeMaster()
         {
             IQueryable<TroubleType> res = null;
@@ -921,6 +950,62 @@ namespace TDSGCellFormat.Implementation.Repository
 
             return null;
         }
+
+
+        public Task<ImprovementCategoryAdd> AddUpdateImpCategoryMaster(ImprovementCategoryAdd category)
+        {
+            try
+            {
+                var check_dup = _context.ImprovementCategoryMasters.Where(c => c.ImprovementCategoryName == category.ImpCateogoryName && c.ImprovementCategoryId != category.ImpCateogoryId).FirstOrDefault();
+                if (check_dup != null)
+                {
+                    category.ImpCateogoryId = -1;
+                    return Task.FromResult(category);
+                }
+
+                if (category.ImpCateogoryId > 0)
+                {
+                    var get_record = _context.ImprovementCategoryMasters.Find(category.ImpCateogoryId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsDeleted = category.IsActive == false ? true : false;
+                        get_record.ImprovementCategoryName = category.ImpCateogoryName;
+                        get_record.ModifiedBy = category.ModifiedBy;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        _context.SaveChanges();
+
+                        return Task.FromResult(category);
+                    }
+                }
+                else
+                {
+                    var new_record = new ImprovementCategoryMaster
+                    {
+                        ImprovementCategoryName = category.ImpCateogoryName,
+                        IsDeleted = category.IsActive == true ? false : true,
+                        CreatedBy = category.CreatedBy,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.ImprovementCategoryMasters.Add(new_record);
+                    _context.SaveChanges();
+
+                    category.ImpCateogoryId = new_record.ImprovementCategoryId;
+
+                    return Task.FromResult(category);
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+
 
         public Task<CostCenterAdd> AddUpdateCostCenterMaster(CostCenterAdd costCenter)
         {
@@ -1795,6 +1880,21 @@ namespace TDSGCellFormat.Implementation.Repository
             else
             {
                 existingArea.IsActive = false;
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+        }
+
+        public Task<bool> DeleteImpCategoryMaster(int id)
+        {
+            var existingArea = _context.ImprovementCategoryMasters.Where(x => x.ImprovementCategoryId == id).FirstOrDefault();
+            if (existingArea == null)
+            {
+                return Task.FromResult(false);
+            }
+            else
+            {
+                existingArea.IsDeleted = true;
                 _context.SaveChanges();
                 return Task.FromResult(true);
             }

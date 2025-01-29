@@ -79,6 +79,7 @@ namespace TDSGCellFormat.Interface.Service
         Task<TroubleTypeAdd> AddUpdateTroubleTypeMaster(TroubleTypeAdd troubleTypeAdd);
 
         Task<UnitOfMeasureDtoAdd> AddUpdateUnitOfMeasureMaster(UnitOfMeasureDtoAdd unitOfMeasure);
+        Task<ImprovementCategoryAdd> AddUpdateImpCategoryMaster(ImprovementCategoryAdd category);
 
         IQueryable<AreaDtoAdd> GetAllAreaMaster();
 
@@ -111,6 +112,9 @@ namespace TDSGCellFormat.Interface.Service
         IQueryable<TroubleType> GetAllTroubleTypeMaster();
 
         IQueryable<UnitOfMeasure> GetAllUnitOfMeasureMaster();
+        IQueryable<ImprovementCategoryAdd> GetImpCategoryMaster();
+
+        Task<bool> DeleteImpCategoryMaster(int id);
 
         Task<bool> DeleteAreaMaster(int areaId);
 

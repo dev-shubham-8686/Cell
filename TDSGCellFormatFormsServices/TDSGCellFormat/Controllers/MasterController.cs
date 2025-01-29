@@ -661,6 +661,33 @@ namespace TDSGCellFormat.Controllers
             }
         }
 
+        [HttpPost("MasterTbl/AddUpdateImpCategoryMaster")]
+        public async Task<IActionResult> AddUpdateImpCategoryMaster(ImprovementCategoryAdd category)
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
+            var createdCategory = await _masterService.AddUpdateImpCategoryMaster(category);
+            if (createdCategory == null)
+            {
+                var ajaxResponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.NotSave), createdCategory);
+                return BadRequest(ajaxResponse);
+            }
+            else
+            {
+                var ajaxResponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.Save), createdCategory);
+                return Created("Category", ajaxResponse);
+            }
+        }
+
         [HttpGet("MasterTbl/AddUpdateCostCenterMaster")]
         public async Task<IActionResult> AddUpdateCostCenterMaster(CostCenterAdd costCenter)
         {
@@ -1122,6 +1149,34 @@ namespace TDSGCellFormat.Controllers
                 return Ok(ajaxResponse);
             }
         }
+
+        [HttpDelete("MasterTbl/DeleteImpCategoryMaster")]
+        public async Task<IActionResult> DeleteImpCategoryMaster(int id)
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
+            var createdarea = await _masterService.DeleteImpCategoryMaster(id);
+            if (createdarea == null)
+            {
+                var ajaxResponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.NotSave), createdarea);
+                return BadRequest(ajaxResponse);
+            }
+            else
+            {
+                var ajaxResponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.Delete), createdarea);
+                return Ok(ajaxResponse);
+            }
+        }
+
 
         [HttpDelete("MasterTbl/DeleteCostCenter")]
         public async Task<IActionResult> DeleteCostCenter(int id)
@@ -1967,6 +2022,33 @@ namespace TDSGCellFormat.Controllers
                 return Unauthorized(Ajaxresponse);
             }
             var createdarea = _masterService.GetAllSectionMaster();
+            if (createdarea == null)
+            {
+                var ajaxResponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.NotSave), createdarea);
+                return BadRequest(ajaxResponse);
+            }
+            else
+            {
+                var ajaxResponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.Delete), createdarea);
+                return Ok(ajaxResponse);
+            }
+        }
+
+        [HttpGet("MasterTbl/GetImpCategoryMaster")]
+        public async Task<IActionResult> GetImpCategoryMaster()
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            // Call the IsValidAuthentication method
+            AjaxResult authResult;
+            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+
+            if (!isValidAuth)
+            {
+                // Return unauthorized response if authentication fails
+                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+                return Unauthorized(Ajaxresponse);
+            }
+            var createdarea = _masterService.GetImpCategoryMaster();
             if (createdarea == null)
             {
                 var ajaxResponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.NotSave), createdarea);
