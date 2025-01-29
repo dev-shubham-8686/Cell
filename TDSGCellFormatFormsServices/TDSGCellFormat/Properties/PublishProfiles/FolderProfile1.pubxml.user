@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>D:\Synoptek_DevOps\TDSG_Cell_Format_Forms_Git\TDSGCellFormatFormsServices\Publish</_PublishTargetUrl>
-    <History>True|2025-01-28T13:55:21.5115584Z||;True|2025-01-24T19:35:24.4244344+05:30||;True|2025-01-22T11:30:41.0847888+05:30||;False|2025-01-22T11:28:46.4535259+05:30||;True|2025-01-21T22:16:04.7950204+05:30||;</History>
+    <History>True|2025-01-29T07:17:45.3577534Z||;False|2025-01-29T12:46:42.6177481+05:30||;True|2025-01-28T19:25:21.5115584+05:30||;True|2025-01-24T19:35:24.4244344+05:30||;True|2025-01-22T11:30:41.0847888+05:30||;False|2025-01-22T11:28:46.4535259+05:30||;True|2025-01-21T22:16:04.7950204+05:30||;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>
