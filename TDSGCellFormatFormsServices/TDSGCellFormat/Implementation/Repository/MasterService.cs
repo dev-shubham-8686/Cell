@@ -544,6 +544,10 @@ namespace TDSGCellFormat.Implementation.Repository
             IQueryable<CategoryAdd> res = null;
             try
             {
+
+                var employeeNames = _cloneContext.EmployeeMasters
+                                 .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
+
                 res = _context.Categories.Select(x => new CategoryAdd
                 {
                     CategoryId = x.CategoryId,
@@ -553,8 +557,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     ModifiedBy = x.ModifiedBy,
                     ModifiedDate = x.ModifiedDate,
                     IsActive = x.IsActive,
-                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
-                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
+                    CreatedByName = x.CreatedBy.HasValue && employeeNames.ContainsKey(x.CreatedBy.Value) ? employeeNames[x.CreatedBy.Value] : null,
+                    ModifiedByName = x.ModifiedBy.HasValue && employeeNames.ContainsKey(x.ModifiedBy.Value) ? employeeNames[x.ModifiedBy.Value] : null
                 });
             }
             catch (Exception ex)
@@ -696,6 +700,9 @@ namespace TDSGCellFormat.Implementation.Repository
             IQueryable<MaterialAdd> res = null;
             try
             {
+                var employeeNames = _cloneContext.EmployeeMasters
+                                 .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
+
                 res = _context.Materials.Select(x => new MaterialAdd
                 {
                     MaterialId = x.MaterialId,
@@ -709,8 +716,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     ModifiedBy = x.ModifiedBy,
                     ModifiedDate = x.ModifiedDate, 
                     IsActive = (bool)x.IsActive,
-                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
-                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
+                    CreatedByName = x.CreatedBy.HasValue && employeeNames.ContainsKey(x.CreatedBy.Value) ? employeeNames[x.CreatedBy.Value] : null,
+                    ModifiedByName = x.ModifiedBy.HasValue && employeeNames.ContainsKey(x.ModifiedBy.Value) ? employeeNames[x.ModifiedBy.Value] : null
 
                 });
             }
@@ -848,6 +855,9 @@ namespace TDSGCellFormat.Implementation.Repository
             IQueryable<UnitOfMeasureDtoAdd> res = null;
             try
             {
+                var employeeNames = _cloneContext.EmployeeMasters
+                                 .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
+
                 res = _context.UnitOfMeasures.Select(x => new UnitOfMeasureDtoAdd 
                 {
                     UOMId = x.UOMId,
@@ -857,8 +867,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     ModifiedBy = x.ModifiedBy,
                     ModifiedDate = x.ModifiedDate,
                     IsActive = x.IsActive,
-                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
-                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == x.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
+                    CreatedByName = x.CreatedBy.HasValue && employeeNames.ContainsKey(x.CreatedBy.Value) ? employeeNames[x.CreatedBy.Value] : null,
+                    ModifiedByName = x.ModifiedBy.HasValue && employeeNames.ContainsKey(x.ModifiedBy.Value) ? employeeNames[x.ModifiedBy.Value] : null
 
                 });
             }
@@ -2215,6 +2225,8 @@ namespace TDSGCellFormat.Implementation.Repository
             IQueryable<CostCenterAdd> res = null;
             try
             {
+                var employeeNames = _cloneContext.EmployeeMasters
+                                 .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
                 res = _context.CostCentres.Where(c => c.IsActive == true).Select(c => new CostCenterAdd
                 {
                     CostCenterId = c.CostCentreId,
@@ -2224,8 +2236,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     CreatedDate = c.CreatedDate,
                     ModifiedBy = c.ModifiedBy,
                     ModifiedDate = c.ModifiedDate,
-                    CreatedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == c.CreatedBy).Select(t => t.EmployeeName).FirstOrDefault(),
-                    ModifiedByName = _cloneContext.EmployeeMasters.Where(t => t.EmployeeID == c.ModifiedBy).Select(t => t.EmployeeName).FirstOrDefault()
+                    CreatedByName = c.CreatedBy.HasValue && employeeNames.ContainsKey(c.CreatedBy.Value) ? employeeNames[c.CreatedBy.Value] : null,
+                    ModifiedByName = c.ModifiedBy.HasValue && employeeNames.ContainsKey(c.ModifiedBy.Value) ? employeeNames[c.ModifiedBy.Value] : null
 
                 });
             }
