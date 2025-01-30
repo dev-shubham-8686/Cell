@@ -17,6 +17,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 using Microsoft.SharePoint.Client;
 using SelectPdf;
 
+
 namespace TDSGCellFormat.Implementation.Repository
 {
     public class AdjustMentReportRepository : BaseRepository<AdjustmentReport>, IAdjustMentReportRepository

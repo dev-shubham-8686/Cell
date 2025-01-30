@@ -32,6 +32,7 @@ import {
 import { Modal } from "antd";
 import {
   DOCUMENT_LIBRARIES,
+  EmailListOfNotifyCellDiv,
   REQUEST_STATUS,
   STATUS_COLOUR_CLASS,
   WEB_URL,
@@ -126,7 +127,7 @@ const RequestsTab: React.FC = () => {
       .then(async (response) => {
         setMailLoading(false);
         //const emailList = response.ReturnValue.emails; // Comma-separated emails
-        const emailList = "digital-team@tdsgj.co.in";
+        const emailList = EmailListOfNotifyCellDiv;
         const pdfBase64 = response.ReturnValue.pdf; // Base64 string of PDF
         const subject = `Release of ${mailTriggerCtinumber}`;
         let pdf_url_link = "";
@@ -448,12 +449,14 @@ const RequestsTab: React.FC = () => {
       return; // Stop further execution if validation fails
     }
     setRevisonLoading(true);
+    setVisible(false);
     try {
       await technicalReopen(revTecId, user?.employeeId.toString() ?? "", comment);
       void displayjsx.showSuccess("Revision added successfully.");
       window.location.reload(); // Reload the page after success
     } catch (error) {
       setRevisonLoading(false);
+      setVisible(true);
     }finally{
       setRevisonLoading(false);
     }

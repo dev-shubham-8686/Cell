@@ -306,14 +306,15 @@ namespace TDSGCellFormat.Helper
 
                 //prod link
                 // string? documentLink = _configuration["SPSiteUrl"] +
-                // "/SitePages/Trouble-Report.aspx#/";_configuration["AdjustmentURL"];
+                // "/SitePages/Trouble-Report.aspx#/";
+                // _configuration["AdjustmentURL"];
 
                 //stage link
                 //string? documentLink = _configuration["SPSiteUrl"] +
                 // "/SitePages/CellFormatStage.aspx#/";
 
                 string? documentLink = _configuration["SPSiteUrl"] +
-                _configuration["AdjustmentURL"]; ;
+                _configuration["TroubleURL"]; ;
 
                 StringBuilder emailBody = new StringBuilder();
                 if (requestId > 0)
