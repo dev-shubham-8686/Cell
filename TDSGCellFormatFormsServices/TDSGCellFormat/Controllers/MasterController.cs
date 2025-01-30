@@ -641,7 +641,7 @@ namespace TDSGCellFormat.Controllers
             // Call the IsValidAuthentication method
             AjaxResult authResult;
             bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
-
+            
             if (!isValidAuth)
             {
                 // Return unauthorized response if authentication fails
@@ -695,14 +695,14 @@ namespace TDSGCellFormat.Controllers
             // Call the IsValidAuthentication method
             AjaxResult authResult;
             bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
-
+            
             if (!isValidAuth)
             {
                 // Return unauthorized response if authentication fails
                 Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
                 return Unauthorized(Ajaxresponse);
             }
-            var createdarea = _masterService.AddUpdateCostCenterMaster(costCenter);
+            var createdarea = await _masterService.AddUpdateCostCenterMaster(costCenter);
             if (createdarea == null)
             {
                 var ajaxResponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.NotSave), createdarea);
