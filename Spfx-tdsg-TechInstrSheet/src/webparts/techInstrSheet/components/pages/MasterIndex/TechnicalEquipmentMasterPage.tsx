@@ -184,13 +184,10 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
         a.EquipmentName.localeCompare(b.EquipmentName),
     },
     {
-<<<<<<< HEAD
-=======
       title: "Created By",
       dataIndex: "UserName",
       key: "UserName",
-      sorter: (a: any, b: any) =>
-        a.UserName.localeCompare(b.UserName),
+      sorter: (a: any, b: any) => a.UserName.localeCompare(b.UserName),
     },
     {
       title: "Updated By",
@@ -200,7 +197,6 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
         a.UpdatedUserName.localeCompare(b.UpdatedUserName),
     },
     {
->>>>>>> c8be2304b24aece2102cb21636eb7e4240453e35
       title: "Is Active",
       dataIndex: "IsActive",
       key: "IsActive",
@@ -361,9 +357,19 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
           <Form.Item
             name="EquipmentName"
             label="Equipment Name"
-            rules={[{ required: true, message: "Please enter Equipment Name" }]}
+            rules={[
+              {
+                required: true,
+                max: 100,
+                message: "Please enter Equipment Name",
+              },
+            ]}
           >
-            <Input type="text" placeholder="Equipment Name" disabled={isViewMode} />
+            <Input
+              type="text"
+              placeholder="Equipment Name"
+              disabled={isViewMode}
+            />
           </Form.Item>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <Form.Item
