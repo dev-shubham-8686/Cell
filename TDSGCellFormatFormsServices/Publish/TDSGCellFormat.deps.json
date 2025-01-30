@@ -24,6 +24,7 @@
           "Microsoft.SharePointOnline.CSOM": "16.1.25221.12000",
           "PnP.Core": "1.14.0",
           "PnP.Framework": "1.17.0",
+          "PugPDF.Core": "1.0.9",
           "Select.HtmlToPdf.NetCore": "24.1.0",
           "Swashbuckle.AspNetCore": "6.4.0",
           "System.Data.SqlClient": "4.8.6",
@@ -1281,6 +1282,14 @@
           }
         }
       },
+      "PugPDF.Core/1.0.9": {
+        "runtime": {
+          "lib/netstandard2.1/PugPdf.Core.dll": {
+            "assemblyVersion": "1.0.9.0",
+            "fileVersion": "1.0.9.0"
+          }
+        }
+      },
       "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {},
       "runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {},
       "runtime.fedora.24-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {},
@@ -2295,6 +2304,7 @@
           "Newtonsoft.Json": "13.0.3",
           "PnP.Core": "1.14.0",
           "PnP.Framework": "1.17.0",
+          "PugPDF.Core": "1.0.9",
           "Select.HtmlToPdf.NetCore": "24.1.0",
           "System.Data.SqlClient": "4.8.6",
           "System.ServiceModel.Web": "1.0.0",
@@ -3108,6 +3118,13 @@
       "sha512": "sha512-QQ3TwfgLTg5uAphAH8hIsnWXOicEhXVyR1Mk9jBzjqy+1YiigtpHIqhUzZeh02R/4OlXuXH+4i1FlGok5mzFkQ==",
       "path": "portable.xaml/0.26.0",
       "hashPath": "portable.xaml.0.26.0.nupkg.sha512"
+    },
+    "PugPDF.Core/1.0.9": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-dfaSMq9hsgJk8N+3NoV02prugF6x7+xpmVu1hQs+u2C+ZkkQwletbFyhXWnFpk5eBZGAS9ZhcwC7qOaytUsfBQ==",
+      "path": "pugpdf.core/1.0.9",
+      "hashPath": "pugpdf.core.1.0.9.nupkg.sha512"
     },
     "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {
       "type": "package",
