@@ -109,7 +109,7 @@ const FormTab: React.FC<any> = ({
   // Log updated imageFiles after state change
   React.useEffect(() => {
     if (isMountedRef.current) {
-      console.log("Updated image files:", imageFiles);
+      //console.log("Updated image files:", imageFiles);
     }
   }, [imageFiles]); // Run when imageFiles changes
 
