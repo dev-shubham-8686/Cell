@@ -46,7 +46,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
   const [empData, setEmpData] = React.useState<any[]>([]);
   const [empVisibale, setEmpVisibale] = useState(false);
   React.useEffect(() => {
-    debugger;
+    //debugger;
     // Check if this is an approver request based on the `isApproverRequest` variable
     if (isApproverRequest) {
       setApproverRequest(true); // Set the approver request state to true
