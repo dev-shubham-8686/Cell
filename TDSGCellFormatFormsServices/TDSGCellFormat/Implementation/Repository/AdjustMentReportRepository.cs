@@ -17,6 +17,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 using Microsoft.SharePoint.Client;
 using SelectPdf;
 
+
 namespace TDSGCellFormat.Implementation.Repository
 {
     public class AdjustMentReportRepository : BaseRepository<AdjustmentReport>, IAdjustMentReportRepository
@@ -65,7 +66,7 @@ namespace TDSGCellFormat.Implementation.Repository
         #endregion
 
         #region Listing screen 
-        public async Task<List<AdjustmentReportView>> GetAllAdjustmentData(
+        public async Task<List<AdjustmentReportAllView>> GetAllAdjustmentData(
     int createdBy,
     int skip,
     int take,
@@ -79,7 +80,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var listData = await _context.GetAdjustmentReportList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
 
             // Check if the user is an admin
-            var adjustmentData = new List<AdjustmentReportView>();
+            var adjustmentData = new List<AdjustmentReportAllView>();
             foreach (var item in listData)
             {
                 adjustmentData.Add(item);
@@ -1310,7 +1311,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = Enums.AdvisorComment;
                 res.StatusCode = Enums.Status.Success;
 
-                InsertHistoryData((int)request.AdjustmentReportId, FormType.AdjustmentReport.ToString(), "Advisor", request.Comment, adj.Status, Convert.ToInt32(request.AdvisorId), HistoryAction.AdvisorUpdate.ToString(), 0);
+                InsertHistoryData((int)request.AdjustmentReportId, FormType.AdjustmentReport.ToString(), "Advisor", request.Comment, adj.Status, Convert.ToInt32(request.ModifiedBy), HistoryAction.AdvisorUpdate.ToString(), 0);
 
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 await notificationHelper.SendAdjustmentEmail(request.AdjustmentReportId, EmailNotificationAction.AdvisorData, string.Empty, 0);

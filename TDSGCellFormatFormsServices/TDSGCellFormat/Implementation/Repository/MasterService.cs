@@ -517,7 +517,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 var employeeNames = _cloneContext.EmployeeMasters
                                  .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
 
-                res = _context.Areas.Select(x => new AreaDtoAdd
+                res = _context.Areas
+                    .OrderByDescending(x => x.AreaId)
+                    .Select(x => new AreaDtoAdd
                 {
                     AreaId = x.AreaId,
                     AreaName = x.AreaName,
@@ -548,7 +550,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 var employeeNames = _cloneContext.EmployeeMasters
                                  .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
 
-                res = _context.Categories.Select(x => new CategoryAdd
+                res = _context.Categories
+                    .OrderByDescending(x => x.CategoryId)
+                    .Select(x => new CategoryAdd
                 {
                     CategoryId = x.CategoryId,
                     CategoryName = x.Name,
@@ -646,7 +650,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 var employeeNames = _cloneContext.EmployeeMasters
                                  .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
 
-                res = _context.Machines.Select(x => new MachineAdd
+                res = _context.Machines
+                    .OrderByDescending(x => x.MachineId)
+                    .Select(x => new MachineAdd
                 {
                     MachineId = x.MachineId,
                     MachineName = x.MachineName,
@@ -674,7 +680,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 var employeeNames = _cloneContext.EmployeeMasters
                                  .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
 
-                res = _context.SubMachines.Select(x => new SubMachineAdd
+                res = _context.SubMachines
+                    .OrderByDescending(x => x.SubMachineId)
+                    .Select(x => new SubMachineAdd
                 {
                     SubMachineId = x.SubMachineId,
                     SubMachineName = x.SubMachineName,
@@ -703,7 +711,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 var employeeNames = _cloneContext.EmployeeMasters
                                  .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
 
-                res = _context.Materials.Select(x => new MaterialAdd
+                res = _context.Materials
+                    .OrderByDescending(x => x.MaterialId)
+                    .Select(x => new MaterialAdd
                 {
                     MaterialId = x.MaterialId,
                     Code = x.Code,
@@ -787,7 +797,9 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 var employeeNames = _cloneContext.EmployeeMasters
                                  .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
-                res = _context.SectionMasters.Select(x => new SectionMasterAdd 
+                res = _context.SectionMasters
+                    .OrderByDescending(x => x.SectionId)
+                    .Select(x => new SectionMasterAdd 
                 { 
                     SectionId = x.SectionId,
                     SectionName = x.SectionName,
@@ -815,7 +827,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 var employeeNames = _cloneContext.EmployeeMasters
                                  .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
 
-                res = _context.ImprovementCategoryMasters.Select(x => new ImprovementCategoryAdd
+                res = _context.ImprovementCategoryMasters
+                    .OrderByDescending(x => x.ImprovementCategoryId)
+                    .Select(x => new ImprovementCategoryAdd
                 {
                     ImpCategoryId = x.ImprovementCategoryId,
                     ImpCategoryName = x.ImprovementCategoryName,
@@ -858,7 +872,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 var employeeNames = _cloneContext.EmployeeMasters
                                  .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
 
-                res = _context.UnitOfMeasures.Select(x => new UnitOfMeasureDtoAdd 
+                res = _context.UnitOfMeasures
+                    .OrderByDescending(x => x.UOMId)
+                    .Select(x => new UnitOfMeasureDtoAdd 
                 {
                     UOMId = x.UOMId,
                     UOMName = x.Name,
@@ -2227,7 +2243,9 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 var employeeNames = _cloneContext.EmployeeMasters
                                  .ToDictionary(t => t.EmployeeID, t => t.EmployeeName);
-                res = _context.CostCentres.Where(c => c.IsActive == true).Select(c => new CostCenterAdd
+                res = _context.CostCentres
+                    .OrderByDescending(x => x.CostCentreId)
+                    .Select(c => new CostCenterAdd
                 {
                     CostCenterId = c.CostCentreId,
                     CostCenterName = c.Name,

@@ -26,7 +26,7 @@ namespace TDSGCellFormat.Implementation.Service
             return _adjustMentRepository.GetUserRole(email);
         }
 
-        public async Task<List<AdjustmentReportView>> GetAllAdjustmentData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
+        public async Task<List<AdjustmentReportAllView>> GetAllAdjustmentData(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
             return await _adjustMentRepository.GetAllAdjustmentData(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
         }
