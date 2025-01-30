@@ -662,7 +662,7 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpPost("MasterTbl/AddUpdateImpCategoryMaster")]
-        public async Task<IActionResult> AddUpdateImpCategoryMaster(ImprovementCategoryAdd category)
+        public async Task<IActionResult> AddUpdateImpCategoryMaster([FromBody] ImprovementCategoryAdd category)
         {
             var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
             // Call the IsValidAuthentication method
@@ -689,7 +689,7 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpPost("MasterTbl/AddUpdateCostCenterMaster")]
-        public async Task<IActionResult> AddUpdateCostCenterMaster(CostCenterAdd costCenter)
+        public async Task<IActionResult> AddUpdateCostCenterMaster([FromBody] CostCenterAdd costCenter)
         {
             var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
             // Call the IsValidAuthentication method
