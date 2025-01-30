@@ -184,8 +184,6 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
         a.EquipmentName.localeCompare(b.EquipmentName),
     },
     {
-<<<<<<< HEAD
-=======
       title: "Created By",
       dataIndex: "UserName",
       key: "UserName",
@@ -199,7 +197,6 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
         a.UpdatedUserName.localeCompare(b.UpdatedUserName),
     },
     {
->>>>>>> c8be2304b24aece2102cb21636eb7e4240453e35
       title: "Is Active",
       dataIndex: "IsActive",
       key: "IsActive",
