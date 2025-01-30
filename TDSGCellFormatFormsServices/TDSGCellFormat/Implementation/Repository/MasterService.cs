@@ -360,7 +360,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             IQueryable<AdvisorMasterView> res = _cloneContext.EmployeeMasters
                                       .Where(x => x.IsActive == true
-                                             && x.EmpDesignation.StartsWith("Advisor") // Filter for designation
+                                             && x.EmpDesignation.Contains("Advisor") // Filter for designation
                                              && _cloneContext.DepartmentMasters
                                                 .Where(d => d.DivisionID == 1)
                                                 .Select(d => d.DepartmentID)
