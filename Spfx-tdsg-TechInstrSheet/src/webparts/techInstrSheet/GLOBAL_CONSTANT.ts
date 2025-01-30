@@ -16,9 +16,9 @@ export const StatusColors = {
 };
 
 // TODO: change URLs
-export const WEB_URL = 
-//"https://synopsandbox.sharepoint.com/sites/Training2024"
- "https://synopsandbox.sharepoint.com/sites/e-app-stage"
+export const WEB_URL =
+  //"https://synopsandbox.sharepoint.com/sites/Training2024"
+  "https://synopsandbox.sharepoint.com/sites/e-app-stage";
 //"https://tdsgj.sharepoint.com/sites/e-app-stage"
 
 export const DOCUMENT_LIBRARIES = {
@@ -26,17 +26,16 @@ export const DOCUMENT_LIBRARIES = {
   Technical_Attachment__Related_Document: "RelatedDocuments",
   Technical_Attachment__Outline_Attachment: "OutlineAttachment",
   Technical_Attchment__Closure_Attachment: "ClosureAttachment",
-  Technical_Attchment__NotificationPdf_Attachment: "NotificationPdf_Attachment"
+  Technical_Attchment__NotificationPdf_Attachment: "NotificationPdf_Attachment",
 };
 
-export const SERVICE_URL = 
+export const SERVICE_URL =
   //"http://localhost:5246"
-  "https://localhost:44353"
-  //"https://cellformservice-qa.tdsgj.co.in/"
-  //"https://cellformservice-stage.tdsgj.co.in"
-  //"https://localhost:7190"
- //"https://localhost:7190/api/Technical"
-;
+  "https://localhost:44353";
+//"https://cellformservice-qa.tdsgj.co.in/"
+//"https://cellformservice-stage.tdsgj.co.in"
+//"https://localhost:7190"
+//"https://localhost:7190/api/Technical"
 
 //export const TECNICAL_API_SERVICE_URL = "https://localhost:7190/api/Technical";
 export const TECNICAL_API_SERVICE_URL = "https://localhost:44353/api/Technical";
@@ -91,3 +90,4 @@ export const STATUS_COLOUR_CLASS: { [key: string]: string } = {
   Reviewed: "reviewed",
 };
 
+export const EmailListOfNotifyCellDiv = "digital-team@tdsgj.co.in";
