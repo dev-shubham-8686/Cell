@@ -1830,56 +1830,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 // Encode the PDF as a Base64 string
                 string base64String = Convert.ToBase64String(pdfBytes);
 
-                /*// Create a new instance of PugPdf.HtmlToPdf
-                var pugPdf = new PugPdf.Core.HtmlToPdf();
-
-                // Set the page margins
-                pugPdf.PrintOptions.MarginLeft = 0;
-                pugPdf.PrintOptions.MarginBottom = 0;
-                pugPdf.PrintOptions.MarginRight = 0;
-                pugPdf.PrintOptions.MarginTop = 0;
-
-                // Your HTML content
-                string htmlContent = sb.ToString(); // Your existing HTML content
-
-                // Add footer HTML with page number and centered text in the HTML content
-                htmlContent += @"
-    <style>
-        @page {
-            size: auto;
-            margin: 0;
-        }
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;    
-            width: 100%;
-            text-align: center;
-            font-size: 8px;
-            font-family: Arial, sans-serif;
-        }
-        .footer .page-number {
-            position: absolute;
-            right: 0;
-            font-size: 8px;
-        }
-    </style>
-    <div class='footer'>
-        <div>This document is digitally generated. No signature is required.</div>
-        <div class='page-number'>Page {PAGE_NUM}</div>
-    </div>
-";
-
-
-                // Render HTML with external links and images
-                var ppdf = await pugPdf.RenderHtmlAsPdfAsync(htmlContent);
-
-                // Get the PDF as a byte array
-                var byteArray = ppdf.BinaryData;
-
-                // Encode the PDF as a Base64 string
-                string base64String = Convert.ToBase64String(byteArray);*/
-
                 // Set response values
                 res.StatusCode = Enums.Status.Success;
                 res.Message = Enums.MaterialPdf;
