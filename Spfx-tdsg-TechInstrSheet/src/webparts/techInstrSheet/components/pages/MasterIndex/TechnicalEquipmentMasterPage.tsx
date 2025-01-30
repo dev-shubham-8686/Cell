@@ -187,8 +187,7 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
       title: "Created By",
       dataIndex: "UserName",
       key: "UserName",
-      sorter: (a: any, b: any) =>
-        a.UserName.localeCompare(b.UserName),
+      sorter: (a: any, b: any) => a.UserName.localeCompare(b.UserName),
     },
     {
       title: "Updated By",
@@ -358,9 +357,19 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
           <Form.Item
             name="EquipmentName"
             label="Equipment Name"
-            rules={[{ required: true, message: "Please enter Equipment Name" }]}
+            rules={[
+              {
+                required: true,
+                max: 100,
+                message: "Please enter Equipment Name",
+              },
+            ]}
           >
-            <Input type="text" placeholder="Equipment Name" disabled={isViewMode} />
+            <Input
+              type="text"
+              placeholder="Equipment Name"
+              disabled={isViewMode}
+            />
           </Form.Item>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <Form.Item
