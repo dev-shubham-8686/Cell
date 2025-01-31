@@ -8,7 +8,8 @@ interface IHeader {
 
 const Header: React.FC<IHeader> = ({ title }) => {
     const { user } = useUserContext();
-  
+    const url=location.pathname;
+    console.log("ADMINBUTTTTTONN",location)
   return (
     
     <header className="header">
@@ -17,7 +18,7 @@ const Header: React.FC<IHeader> = ({ title }) => {
       style={{borderBottom:"1px Solid lightgray"}}>   
            <p className="title m-0 px-2">{title}</p>
         {
-         user?.isAdmin ?
+         (user?.isAdmin && title === "Adjustment Report Dashboard")? 
         (<Link
         to="/master"
         className="px-3 py-1"
