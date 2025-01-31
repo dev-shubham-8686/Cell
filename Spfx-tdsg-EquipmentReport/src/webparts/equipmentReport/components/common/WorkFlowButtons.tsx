@@ -374,7 +374,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
               }
               className="btn btn-primary"
               onClick={() => {
-                if (user?.isQcTeamHead) {
+                if (user?.isQcTeamHead && currentApproverTask?.seqNumber === 6) {
                   confirm({
                     title: "Is Toshiba approval required ?",
                     icon: (

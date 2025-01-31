@@ -111,7 +111,7 @@ useEffect(() => {
             type="button"
             onClick={onBackClick}
           >
-            <FontAwesomeIcon style={{marginRight:"5px"}} icon={faCircleChevronLeft} />
+            <FontAwesomeIcon  className="me-2"icon={faCircleChevronLeft} />
             Back
           </button>
           <div className=" justify-content-right mr-50">

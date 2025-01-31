@@ -12,15 +12,17 @@ const Header: React.FC<IHeader> = ({ title }) => {
   return (
     <header className="header">
     <nav className="navbar border-bottom-1">
-      <div className="container-fluid justify-content-between align-items-center px-0 mx-2rem">
-        <p className="title">{title}</p>
+      <div className="container-fluid justify-content-between align-items-center px-0 mx-2rem px-2 py-2"
+      style={{borderBottom:"1px Solid lightgray"}}>
+        <p className="title m-0 px-2">{title}</p>
         {
         // user?.isAdmin
         true ?<Link
         to="/master"
-            className=""
+            className="px-3 py-1"
+            style={{textDecoration:"none", backgroundColor:"rgba(255,0,0,0.1)",borderRadius:"4px",fontWeight:"600",}}
           >
-            MASTER
+            Master Configuration
           </Link>:<></>}
       </div>
     </nav>

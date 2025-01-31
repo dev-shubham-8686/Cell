@@ -19,9 +19,9 @@ import useAddOrUpdateImpCategory from "../../../apis/mastermanagementAPIs/improv
 import useDeleteImpCategoryMaster from "../../../apis/mastermanagementAPIs/improvementCategoryMaster/useDeleteImpCategory";
 import Page from "../../page/page";
 
-interface IImpCategory {
-  ImpCateogoryId: number;
-  ImpCateogoryName?: number;
+export interface IImpCategory {
+  ImpCategoryId: number;
+  ImpCategoryName?: string;
   CreatedDate?: string;
   CreatedBy?: number;
   ModifiedBy?: number;
@@ -116,10 +116,10 @@ const ImpCategoryMasterPage: React.FC = () => {
       // Update existing record
 
       impCategoryMasterAddOrUpdate({
-        AreaId: editingItem.ImpCateogoryId,
-        AreaName: values.ImpCateogoryName,
+        ImpCategoryId: editingItem.ImpCategoryId,
+        ImpCategoryName: values.ImpCategoryName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        ModifiedBy:user?.employeeId
       },{
         onSuccess: async (Response: any) => {
           console.log("ONSUBMIT RES", Response);
@@ -135,14 +135,21 @@ const ImpCategoryMasterPage: React.FC = () => {
       else {
       // Create new record
       impCategoryMasterAddOrUpdate({
-        AreaId: 0,
-        AreaName: values.ImpCateogoryName,
+        ImpCategoryId: 0,
+        ImpCategoryName: values.ImpCategoryName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        CreatedBy: user?.employeeId,
       },{
         onSuccess: async (Response: any) => {
           console.log("ONSUBMIT RES", Response);
           setModalVisible(false);
+            let result = Response?.ReturnValue;
+          
+                    if(result.ImpCategoryId == -1){
+                      void displayjsx.showInfo("Duplicate record found");
+                       return false;
+                    }
+          
          await refetch();
         },
         onError: (error) => {
@@ -160,8 +167,8 @@ const ImpCategoryMasterPage: React.FC = () => {
   const columns = [
     {
       title: "Improvement Category Name",
-      dataIndex: "ImprovementCategoryName",
-      key: "ImprovementCategoryName",
+      dataIndex: "ImpCategoryName",
+      key: "ImpCategoryName",
       sorter: (a: any, b: any) =>
         a.ImprovementCategoryName.localeCompare(b.ImprovementCategoryName),
     },
@@ -178,7 +185,7 @@ const ImpCategoryMasterPage: React.FC = () => {
       key: "CreatedDate",
       render: (CreatedDate: string) => (
         <span>
-          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : ""}
+          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -186,8 +193,16 @@ const ImpCategoryMasterPage: React.FC = () => {
     },
     {
       title: "Created By",
-      dataIndex: "UserName",
-      key: "UserName",
+      dataIndex: "CreatedByName",
+      key: "CreatedByName",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        {
+          console.log("DATA",a,b);
+          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      },
     },
     {
       title: "Modified Date",
@@ -195,7 +210,7 @@ const ImpCategoryMasterPage: React.FC = () => {
       key: "ModifiedDate",
       render: (ModifiedDate: string) => (
         <span>
-          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : ""}
+          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -203,14 +218,22 @@ const ImpCategoryMasterPage: React.FC = () => {
     },
     {
       title: "Modified By",
-      dataIndex: "UpdatedUserName",
-      key: "UpdatedUserName",
+      dataIndex: "ModifiedByName",
+      key: "ModifiedByName",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        {
+          console.log("DATA",a,b);
+          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      },
     },
     {
       title: "Actions",
       key: "actions",
       render: (text: any, record: IImpCategory) => (
-        <span className="action-cell">
+        <span className="">
           <Button
             title="View"
             className="action-btn"
@@ -230,9 +253,11 @@ const ImpCategoryMasterPage: React.FC = () => {
           />
           <Popconfirm
             title="Are you sure to delete this record?"
-            onConfirm={() => handleDelete(record.ImpCateogoryId!)}
+            onConfirm={() => handleDelete(record.ImpCategoryId!)}
             okText="Yes"
             cancelText="No"
+            okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
+            cancelButtonProps={{ className:"btn btn-outline-primary"}}
           >
             <Button
               title="Delete"
@@ -255,12 +280,13 @@ const ImpCategoryMasterPage: React.FC = () => {
       
       <div>
                <button
-                 className="btn btn-link btn-back"
+                style={{ marginRight: "5px" }}
+                 className="btn btn-link btn-back px-0"
                  type="button"
                  onClick={() => navigate(`/master`)}
                >
                  <FontAwesomeIcon
-                   style={{ marginRight: "5px" }}
+                 className="me-2"
                    icon={faCircleChevronLeft}
                  />
                  Back
@@ -299,6 +325,11 @@ const ImpCategoryMasterPage: React.FC = () => {
         onOk={() => !isViewMode && form.submit()}
         okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
         cancelButtonProps={{ className:"btn btn-outline-primary"}}
+        footer={
+          isViewMode
+            ? null 
+            : undefined 
+        }
       >
         <Form
           form={form}
@@ -307,9 +338,18 @@ const ImpCategoryMasterPage: React.FC = () => {
           initialValues={{ EquipmentName: "", IsActive: false }}
         >
           <Form.Item
-            name="ImprovementCategoryName"
+            name="ImpCategoryName"
             label="Improvement Category Name"
-            rules={[{ required: true, message: "Please enter Improvement Category Name" }]}
+            rules={[{ required: true, message: "Please enter Improvement Category Name" },
+              {
+                validator: (_, value) => {
+                  if (value && value.trim() === "") {
+                    return Promise.reject(new Error("Only spaces are not allowed"));
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
           >
             <Input type="text" disabled={isViewMode} />
           </Form.Item>

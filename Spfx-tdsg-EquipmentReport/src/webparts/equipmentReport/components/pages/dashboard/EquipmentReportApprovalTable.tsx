@@ -207,7 +207,7 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
       title: <p className="text-center p-0 m-0">Actions</p>,
       key: "action",
       render: (row) => (
-        <div className="action-cell">
+        <div className="">
           {console.log("Approval EQ Data", row)}
           <button
             type="button"

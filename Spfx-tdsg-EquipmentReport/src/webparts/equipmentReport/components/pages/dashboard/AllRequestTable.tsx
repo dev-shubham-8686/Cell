@@ -240,7 +240,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       key: "action",
       // width: 120,
       render: (row) => (
-        <div className="action-cell">
+        <div className="">
           <button
             type="button"
             style={{ background: "none", border: "none" }}

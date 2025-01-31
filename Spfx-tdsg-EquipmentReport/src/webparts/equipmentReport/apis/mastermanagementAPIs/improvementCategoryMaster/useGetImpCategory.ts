@@ -1,9 +1,10 @@
 import http from "../../../http";
 import { useQuery } from "@tanstack/react-query";
+import { MASTER_URL } from "../../../URLs";
 
 export const fetchImpCategoryMaster = async () => {
     const response = await http.get<{ ReturnValue: any[] }>(
-      `/GetAllImprovementCategories`
+      `${MASTER_URL}/GetImpCategoryMaster`
     );
     return response.data.ReturnValue ?? [];
   };
