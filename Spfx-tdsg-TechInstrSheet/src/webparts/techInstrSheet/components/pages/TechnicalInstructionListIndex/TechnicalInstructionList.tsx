@@ -40,7 +40,7 @@ const TechnicalInstructionList: React.FC = () => {
         </Button>
       )}
 
-      {user?.isAdmin && (
+      {/* {user?.isAdmin && (
         <Button
           type="primary"
           style={{ marginLeft: "4px" }}
@@ -48,7 +48,7 @@ const TechnicalInstructionList: React.FC = () => {
         >
           Master
         </Button>
-      )}
+      )} */}
     </div>
   );
 
@@ -134,6 +134,32 @@ const TechnicalInstructionList: React.FC = () => {
 
   return (
     <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginRight: "34px",
+          marginBottom: "-50px",
+        }}
+      >
+        {user?.isAdmin && (
+          <Button
+            type="primary"
+            style={{
+              textDecoration: "none",
+              backgroundColor: "rgba(255, 0, 0, 0.1)",
+              borderRadius: "4px",
+              fontWeight: "600",
+              color: "black", // Ensure text color is visible
+              border: "none", // Remove border if needed
+              margin: "8px"
+            }}
+            onClick={() => navigate("/masterlist")}
+          >
+            Master Configuration
+          </Button>
+        )}
+      </div>
       <h2 className="title">TECHNICAL INSTRUCTIONS DASHBOARD</h2>
       <Tabs
         tabBarExtraContent={tabOperations}
