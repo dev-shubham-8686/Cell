@@ -15,6 +15,7 @@ import { useUserContext } from "../../../context/UserContext";
 import { getAllMachineMaster } from "../../../api/MasterAPIs/MachineMaster.api";
 import { deleteSectionMaster, getAllSectionMaster, sectionMasterAddOrUpdate } from "../../../api/MasterAPIs/SectionMaster.api";
 import Page from "../../page/page";
+import { scrollToElementsTop } from "../../../utils/utility";
 
 interface ISectionMaster {
   SectionId: number;
@@ -221,7 +222,7 @@ const SectionMasterPage: React.FC = () => {
             onClick={() => handleEdit(record)}
           />
           <Popconfirm
-            title="Are you sure to delete this record?"
+            title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.SectionId!)}
             okText="Yes"
             cancelText="No"
@@ -266,14 +267,30 @@ const SectionMasterPage: React.FC = () => {
         dataSource={data}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 10, 
-          showTotal: () => (
-         <div className="d-flex align-items-center gap-3">
-           <span style={{ marginRight: "auto" }}>
-             Total {data.length} items
-           </span>
-         </div>
-       ), }}
+      //   pagination={{ pageSize: 10, 
+      //     showTotal: () => (
+      //    <div className="d-flex align-items-center gap-3">
+      //      <span style={{ marginRight: "auto" }}>
+      //        Total {data.length} items
+      //      </span>
+      //    </div>
+      //  ), }}
+       pagination={{
+              onChange:()=>{
+                scrollToElementsTop("table-container");
+              },
+             
+              showTotal: (total, range) => (
+                <div className="d-flex align-items-center gap-3">
+                  <span style={{ marginRight: "auto" }}>
+                    Showing {range[0]}-{range[1]} of {total} items
+                  </span>
+      
+                 
+                </div>
+              ),
+              itemRender: (_, __, originalElement) => originalElement,
+            }}
       />
       </div>
       <Modal

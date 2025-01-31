@@ -17,6 +17,7 @@ import { deleteSubMachineMaster, getAllSubMachineMaster, subMachineMasterAddOrUp
 import Page from "../../page/page";
 import { IMachineMaster } from "./MachineMasterPage";
 import { IMachine } from "../../../api/GetAllMachines.api";
+import { scrollToElementsTop } from "../../../utils/utility";
 
 interface ISubMachineMaster {
   SubMachineId: number;
@@ -251,7 +252,7 @@ const SubMachineMasterPage: React.FC = () => {
             onClick={() => handleEdit(record)}
           />
           <Popconfirm
-            title="Are you sure to delete this record?"
+            title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.SubMachineId!)}
             okText="Yes"
             cancelText="No"
@@ -296,14 +297,30 @@ const SubMachineMasterPage: React.FC = () => {
         dataSource={data}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 10, 
-          showTotal: () => (
-         <div className="d-flex align-items-center gap-3">
-           <span style={{ marginRight: "auto" }}>
-             Total {data.length} items
-           </span>
-         </div>
-       ), }}
+      //   pagination={{ pageSize: 10, 
+      //     showTotal: () => (
+      //    <div className="d-flex align-items-center gap-3">
+      //      <span style={{ marginRight: "auto" }}>
+      //        Total {data.length} items
+      //      </span>
+      //    </div>
+      //  ), }}
+      pagination={{
+        onChange:()=>{
+          scrollToElementsTop("table-container");
+        },
+       
+        showTotal: (total, range) => (
+          <div className="d-flex align-items-center gap-3">
+            <span style={{ marginRight: "auto" }}>
+              Showing {range[0]}-{range[1]} of {total} items
+            </span>
+
+           
+          </div>
+        ),
+        itemRender: (_, __, originalElement) => originalElement,
+      }}
       />
       </div>
       <Modal

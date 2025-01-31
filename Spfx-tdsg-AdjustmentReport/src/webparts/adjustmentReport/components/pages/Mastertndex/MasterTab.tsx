@@ -30,10 +30,17 @@ const MasterTab: React.FC = () => {
   // Columns for the table
   const columns = [
     {
+      title: "Sr. No",
+      key: "srNo",
+      dataIndex: "srNo",
+      width: "10%",
+      render: (_: any, __: any, index: number) => index + 1, 
+    },
+    {
       title: "Master Table Name",
       dataIndex: "name",
       key: "name",
-      width: "90%", // Set width for this column
+      width: "80%", // Set width for this column
       sorter: (a: any, b: any) => a.name.localeCompare(b.name),
     },
     {
