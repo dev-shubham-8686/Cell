@@ -616,7 +616,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     else if (request.IsSubmit == true && request.IsAmendReSubmitTask == true)
                     {
-                        var data = await Resubmit(existingReport.AdjustMentReportId, existingReport.CreatedBy);
+                        var data = await Resubmit(existingReport.AdjustMentReportId, request.ModifiedBy);
                         if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.AdjustMentSubmit;
@@ -627,12 +627,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         if (request.ModifiedBy == adminId)
                         {
-                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Admin", "Update the Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
+                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Admin", "Update the Form", existingReport.Status, Convert.ToInt32(request.ModifiedBy), HistoryAction.Save.ToString(), 0);
 
                         }
                         else
                         {
-                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
+                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(request.ModifiedBy), HistoryAction.Save.ToString(), 0);
 
                         }
                     }
@@ -701,17 +701,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
                 }
 
-                var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
-                if (createdBy == adminId)
-                {
-                    InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Admin", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.Submit.ToString(), 0);
+                // var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
 
-                }
-                else
-                {
+                
                     InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.Submit.ToString(), 0);
 
-                }
+                
 
                 await _context.CallAdjustmentReportApproverMaterix(adjustment.CreatedBy, adjustmentReportId);
 
@@ -755,7 +750,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
                 if (createdBy == adminId)
                 {
-                    InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.ReSubmitted.ToString(), 0);
+                    InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
 
                 }
                 else
