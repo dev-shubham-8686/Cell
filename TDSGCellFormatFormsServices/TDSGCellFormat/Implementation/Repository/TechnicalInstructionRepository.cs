@@ -2687,6 +2687,156 @@ namespace TDSGCellFormat.Implementation.Repository
         #endregion
 
         #region Master
+        public async Task<IEnumerable<equipment_master_list>> equipment_master_list()
+        {
+            try
+            {
+                // Fetch the employee data first
+                var employeeMasters = await _cloneContext.EmployeeMasters
+                    .Select(x => new
+                    {
+                        x.EmployeeID,
+                        x.EmployeeName,
+                        x.Email
+                    })
+                    .ToListAsync();
+
+                // Fetch the equipment data first
+                var equipmentMasters = await _context.EquipmentMasters.Select(c => new equipment_master_list
+                {
+                    EquipmentId = c.EquipmentId,
+                    EquipmentName = c.EquipmentName,
+                    CreatedDate = c.CreatedDate,
+                    CreatedBy = c.CreatedBy,
+                    IsActive = c.IsActive,
+                    ModifiedBy = c.ModifiedBy,
+                    ModifiedDate = c.ModifiedDate
+
+                })
+                    .ToListAsync();
+
+                //// Perform the left join using LINQ query expression
+                var result = from equipment in equipmentMasters
+                             join createdEmployee in employeeMasters on equipment.CreatedBy equals createdEmployee.EmployeeID into createdEmployeeGroup
+                             from createdEmployee in createdEmployeeGroup.DefaultIfEmpty() // Left join for CreatedBy
+                             join modifiedEmployee in employeeMasters on equipment.ModifiedBy equals modifiedEmployee.EmployeeID into modifiedEmployeeGroup
+                             from modifiedEmployee in modifiedEmployeeGroup.DefaultIfEmpty() // Left join for ModifiedBy
+                             select new equipment_master_list
+                             {
+                                 EquipmentId = equipment.EquipmentId,
+                                 EquipmentName = equipment.EquipmentName,
+                                 CreatedDate = equipment.CreatedDate,
+                                 CreatedBy = equipment.CreatedBy,
+                                 IsActive = equipment.IsActive,
+                                 ModifiedBy = equipment.ModifiedBy,
+                                 ModifiedDate = equipment.ModifiedDate,
+                                 UserName = createdEmployee != null ? createdEmployee.EmployeeName : null, // CreatedBy UserName
+                                 UpdatedUserName = modifiedEmployee != null ? modifiedEmployee.EmployeeName : null // ModifiedBy UpdatedUserName
+                             };
+
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                var commonHelper = new CommonHelper(_context, _cloneContext);
+                commonHelper.LogException(ex, "equipment_master_list");
+            }
+
+
+            return null;
+
+        }
+
+
+        public async Task<equipment_master_add> equipment_master_AddOrUpdate(equipment_master_add equipment_Master_Add)
+        {
+            try
+            {
+                var check_dup = await _context.EquipmentMasters.Where(c => c.EquipmentName == equipment_Master_Add.EquipmentName
+                && c.EquipmentId != equipment_Master_Add.EquipmentId).FirstOrDefaultAsync();
+
+                if (check_dup != null)
+                {
+                    equipment_Master_Add.EquipmentId = -1;
+                    return equipment_Master_Add;
+                }
+
+                if (equipment_Master_Add.EquipmentId > 0)
+                {
+                    var get_record = await _context.EquipmentMasters.FindAsync(equipment_Master_Add.EquipmentId);
+
+                    if (get_record != null)
+                    {
+                        get_record.IsActive = equipment_Master_Add.IsActive;
+                        get_record.EquipmentName = equipment_Master_Add.EquipmentName;
+                        get_record.ModifiedBy = equipment_Master_Add.UserId;
+                        get_record.ModifiedDate = DateTime.Now;
+
+                        await _context.SaveChangesAsync();
+
+                        return equipment_Master_Add;
+                    }
+                }
+                else
+                {
+
+
+                    var new_record = new EquipmentMaster
+                    {
+                        EquipmentName = equipment_Master_Add.EquipmentName,
+                        IsActive = equipment_Master_Add.IsActive,
+                        CreatedBy = equipment_Master_Add.UserId,
+                        CreatedDate = DateTime.Now
+                    };
+
+                    _context.EquipmentMasters.Add(new_record);
+                    await _context.SaveChangesAsync();
+
+                    equipment_Master_Add.EquipmentId = new_record.EquipmentId;
+
+                    return equipment_Master_Add;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var commonHelper = new CommonHelper(_context, _cloneContext);
+                commonHelper.LogException(ex, "equipment_master_AddOrUpdate");
+            }
+
+            return null;
+        }
+
+        public async Task<AjaxResult> equipment_master_Remove(int Id)
+        {
+            var res = new AjaxResult();
+            var report = await _context.EquipmentMasters.FindAsync(Id);
+            if (report == null)
+            {
+                res.StatusCode = Status.Error;
+                res.Message = "Record Not Found";
+            }
+            else
+            {
+                _context.EquipmentMasters.Remove(report);
+
+                int rowsAffected = await _context.SaveChangesAsync();
+
+                if (rowsAffected > 0)
+                {
+                    res.StatusCode = Status.Success;
+                    res.Message = "Record deleted successfully.";
+                }
+                else
+                {
+                    res.StatusCode = Status.Error;
+                    res.Message = "Record deletion failed.";
+                }
+            }
+            return res;
+        }
+
         #endregion
 
         #region GetUserRole

@@ -17,6 +17,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 using Microsoft.SharePoint.Client;
 using SelectPdf;
 
+
 namespace TDSGCellFormat.Implementation.Repository
 {
     public class AdjustMentReportRepository : BaseRepository<AdjustmentReport>, IAdjustMentReportRepository
@@ -65,7 +66,7 @@ namespace TDSGCellFormat.Implementation.Repository
         #endregion
 
         #region Listing screen 
-        public async Task<List<AdjustmentReportView>> GetAllAdjustmentData(
+        public async Task<List<AdjustmentReportAllView>> GetAllAdjustmentData(
     int createdBy,
     int skip,
     int take,
@@ -79,7 +80,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var listData = await _context.GetAdjustmentReportList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
 
             // Check if the user is an admin
-            var adjustmentData = new List<AdjustmentReportView>();
+            var adjustmentData = new List<AdjustmentReportAllView>();
             foreach (var item in listData)
             {
                 adjustmentData.Add(item);
@@ -615,7 +616,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     else if (request.IsSubmit == true && request.IsAmendReSubmitTask == true)
                     {
-                        var data = await Resubmit(existingReport.AdjustMentReportId, existingReport.CreatedBy);
+                        var data = await Resubmit(existingReport.AdjustMentReportId, request.ModifiedBy);
                         if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.AdjustMentSubmit;
@@ -626,12 +627,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         if (request.ModifiedBy == adminId)
                         {
-                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Admin", "Update the Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
+                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Admin", "Update the Form", existingReport.Status, Convert.ToInt32(request.ModifiedBy), HistoryAction.Save.ToString(), 0);
 
                         }
                         else
                         {
-                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
+                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(request.ModifiedBy), HistoryAction.Save.ToString(), 0);
 
                         }
                     }
@@ -700,17 +701,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
                 }
 
-                var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
-                if (createdBy == adminId)
-                {
-                    InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Admin", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.Submit.ToString(), 0);
+                // var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
 
-                }
-                else
-                {
+                
                     InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.Submit.ToString(), 0);
 
-                }
+                
 
                 await _context.CallAdjustmentReportApproverMaterix(adjustment.CreatedBy, adjustmentReportId);
 
@@ -754,7 +750,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
                 if (createdBy == adminId)
                 {
-                    InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.ReSubmitted.ToString(), 0);
+                    InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
 
                 }
                 else
@@ -1310,7 +1306,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = Enums.AdvisorComment;
                 res.StatusCode = Enums.Status.Success;
 
-                InsertHistoryData((int)request.AdjustmentReportId, FormType.AdjustmentReport.ToString(), "Advisor", request.Comment, adj.Status, Convert.ToInt32(request.AdvisorId), HistoryAction.AdvisorUpdate.ToString(), 0);
+                InsertHistoryData((int)request.AdjustmentReportId, FormType.AdjustmentReport.ToString(), "Advisor", request.Comment, adj.Status, Convert.ToInt32(request.ModifiedBy), HistoryAction.AdvisorUpdate.ToString(), 0);
 
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 await notificationHelper.SendAdjustmentEmail(request.AdjustmentReportId, EmailNotificationAction.AdvisorData, string.Empty, 0);
@@ -1581,7 +1577,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (data.Any() && data != null)
                 {
-                    changeRiskBuilder.Append("<div style= 'margin-top: 15px; border: 1px solid black; padding: 10px; '>");
+                    changeRiskBuilder.Append("<div style= 'margin-top: 15px; border: 1px solid black; padding: 10px; page-break-inside: avoid; break-inside: avoid;'>");
                     changeRiskBuilder.Append("<table style='border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%;  align='center'>");
 
                     changeRiskBuilder.Append("<tr style='page-break-inside: avoid; break-inside: avoid;'>");

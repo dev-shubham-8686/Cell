@@ -137,4 +137,60 @@
 
         public string? ImpCategoryName { get; set; }
     }
+
+    #region Master Table View Models
+
+    public class CellDivisionRoleView
+    {
+        public int CellDivisionId { get; set; }
+
+        public int? DivisionId { get; set; }
+
+        public string FormName { get; set; }
+
+        public int? Head { get; set; }
+
+        public int? DeputyDivisionHead { get; set; }
+    }
+
+    public class CPCGroupMasterView
+    {
+        public int CPCGroupId { get; set; }
+
+        public int? EmployeeId { get; set; }
+
+        public string? Email { get; set; }
+
+        public string? EmployeeName { get; set; }
+    }
+
+    public class SectionHeadEmpView
+    {
+        public int SectionHeadMasterId { get; set; }
+
+        public int? EmployeeId { get; set; }
+
+        public string? SectionHeadName { get; set; }
+
+        public string? SectionHeadEmail { get; set; }
+
+        public int? SectionId { get; set; }
+    }
+
+    public class EquipmentMasterView1
+    {
+        public int EquipmentId { get; set; }
+
+        public string? EquipmentName { get; set; }
+    }
+
+    public class ResultMonitoringMasterView
+    {
+        public int ResultMonitoringId { get; set; }
+
+        public string ResultMonitoringName { get; set; }
+    }
+
+    #endregion
+
 }

@@ -1,8 +1,9 @@
 export const DATE_FORMAT = "DD-MM-YYYY";
 export const basePath = 
 // `https://localhost:44353`;                      //    ---  local
-`https://cellformservice-qa.tdsgj.co.in`;         //   ---  QA
+// `https://cellformservice-qa.tdsgj.co.in`;         //   ---  QA
 // "https://cellformservice-stage.tdsgj.co.in";      //  ----- stage
+ "https://tdsg-eapp-cellforms.tdsgj.co.in";         //  -----  prod
 
 
 
@@ -17,12 +18,15 @@ export const DATE_TIME_FORMAT = "DD-MM-YYYY HH:mm:ss";
 export const DATETIME = "dd-MM-yyyy HH:mm:ss";
 export const EXCEL_DATE_FORMAT = "YYYY-MM-DD";
 
+export const APP_NAME="AdjustmentReport.aspx";
 export const WEB_URL = 
 // "https://synopsandbox.sharepoint.com/sites/Training2024"
 //  "https://synopsandbox.sharepoint.com/sites/e-app-stage"  // -- local
- "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA"    // --QA
-// "https://tdsgj.sharepoint.com/sites/e-app-stage"        // -stage 
-//Process Status
+//  "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA"    // --QA
+//"https://tdsgj.sharepoint.com/sites/e-app-stage"        // -stage 
+ "https://tdsgj.sharepoint.com/sites/e-app"            // prod
+
+// Process Status
 export const ProcessStatus = [
   "approved",
   "rejected",
@@ -67,7 +71,7 @@ export const STATUS_COLOUR_CLASS: { [key: string]: string } = {
   Completed: "completed",
   Close: "rejected",
   Skipped: "pending",
-  AutoApproved: "approved",
+  AutoApproved: "autoapproved",
   Cancelled: "rejected",
   Revised: "pending",
   Submitted: "submitted",

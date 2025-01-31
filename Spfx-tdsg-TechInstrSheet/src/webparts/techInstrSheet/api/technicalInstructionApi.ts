@@ -437,3 +437,45 @@ export const insertDelegate = (data: any): Promise<any> => {
     
   });
 };
+
+
+//Master Tables
+// #region Master Tables
+//--EquipmentMaster--//
+export const getEquipmentMasterTblList = (): Promise<any> => {
+  return http.get(`${API_URL}/GetEquipmentMasterTblList`)
+  .then((response) => {
+    return response.data; // Return the data from the response
+  })
+  .catch((error) => {
+    throw new Error("Error fetching data"); // Handle errors
+  });
+};
+
+export const getEquipmentMasterTblAddOrUpdate = (data: any): Promise<any> => {
+  return http.post(`${API_URL}/GetEquipmentMasterTblAddOrUpdate`, data, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+  .then((response) => {
+    return response.data; // Return the data from the response
+  })
+  .catch((error) => {
+      // Something happened in setting up the request that triggered an Error
+      throw new Error("Error occurred while saving data");
+    
+  });
+};
+
+export const getEquipmentMasterTblDelete = (Id: string): Promise<any> => {
+  return http.delete(`${API_URL}/GetEquipmentMasterTblDelete`, {
+    params: { Id: Id },
+  })
+  .then((response) => {
+    return response.data; // Return the response data
+  })
+  .catch((error) => {
+    throw new Error("Error deleting data"); // Handle errors
+  });
+};

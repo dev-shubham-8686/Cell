@@ -202,12 +202,12 @@ const AllRequest: React.FC<{}> = ({}) => {
       ),
     },
     {
-      title: <p className="text-center p-0 m-0">Actions</p>,
+      title: <p className=" p-0 m-0">Actions</p>,
       key: "action",
       width: 140,
       sorter: false,
       render: (record) => (
-        <div className="action-cell">
+        <div className="">
           <button
             type="button"
             style={{ background: "none", border: "none" }}
@@ -223,7 +223,9 @@ const AllRequest: React.FC<{}> = ({}) => {
           {(user?.isAdmin ||
             ((record.Status === REQUEST_STATUS.Draft ||
               record.Status === REQUEST_STATUS.UnderAmendment) &&
-              record.EmployeeId === user?.employeeId)) && (
+              record.EmployeeId === user?.employeeId) ||
+            (record.AdvisorId == user?.employeeId &&
+              record.Status == REQUEST_STATUS.InReview)) && (
             <button
               type="button"
               style={{ background: "none", border: "none" }}
