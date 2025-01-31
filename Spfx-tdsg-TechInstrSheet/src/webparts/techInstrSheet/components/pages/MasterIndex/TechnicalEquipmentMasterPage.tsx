@@ -263,7 +263,7 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
 
   return (
     <div>
-      <h2 className="title">Technical Equipment Master</h2>
+      <h2 className="title">Equipment Master</h2>
       <div className="flex justify-between items-center mb-3">
         <div className="flex gap-2">
           <Button
@@ -301,7 +301,7 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
         }}
       />
       <Modal
-        title={editingItem ? "Edit Item" : "Add Item"}
+        title={isViewMode ? "View Item" : editingItem ? "Edit Item" : "Add Item"}
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         onOk={() => !isViewMode && form.submit()}
