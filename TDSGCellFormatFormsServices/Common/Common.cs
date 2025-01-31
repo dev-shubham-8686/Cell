@@ -185,7 +185,7 @@ namespace TDSGCellFormat.Common
             Save,
             [Description("Record Updated Successfully")]
             Edit,
-            [Description("Record Deleted Successfully")]
+            [Description("Record InActivated Successfully")]
             Delete,
             [Description("Are you sure you want to Delete?")]
             ConfirmDelete,
