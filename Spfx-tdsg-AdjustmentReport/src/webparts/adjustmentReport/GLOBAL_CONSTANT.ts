@@ -1,7 +1,7 @@
 export const DATE_FORMAT = "DD-MM-YYYY";
 export const basePath = 
-`https://localhost:44353`;                      //    ---  local
-// `https://cellformservice-qa.tdsgj.co.in`;         //   ---  QA
+// `https://localhost:44353`;                      //    ---  local
+`https://cellformservice-qa.tdsgj.co.in`;         //   ---  QA
 // "https://cellformservice-stage.tdsgj.co.in";      //  ----- stage
 
 

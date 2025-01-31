@@ -94,7 +94,13 @@ const MachineMasterPage: React.FC = () => {
         IsActive: values.IsActive,
         ModifiedBy:user?.employeeId
       })
-        .then(() => {
+        .then((response) => {
+           let result = response?.ReturnValue;
+          
+                    if (result.MachineId == -1) {
+                      void displayjsx.showInfo("Duplicate record found");
+                      return false;
+                    }
           void displayjsx.showSuccess("Record updated successfully");
           
           fetchData();
@@ -221,7 +227,7 @@ const MachineMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-          <Popconfirm
+          {record?.IsActive && <Popconfirm
             title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.MachineId!)}
             okText="Yes"
@@ -235,7 +241,7 @@ const MachineMasterPage: React.FC = () => {
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm>
+          </Popconfirm>}
         </span>
       ),
     },
