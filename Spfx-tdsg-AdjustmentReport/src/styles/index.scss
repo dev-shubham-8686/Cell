@@ -433,6 +433,11 @@ html {
     background-color: $green-bg;
   }
 
+  td.status-cell-autoapproved {
+    color: $green-1;
+    background-color: $green-bg;
+  }
+
   td.status-cell-underamendment {
     color: $warning;
     background-color: rgba($warning, 0.1);
