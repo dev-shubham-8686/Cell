@@ -274,7 +274,11 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
           >
             BACK
           </Button>
-          <Button type="primary" onClick={handleAdd} style={{marginLeft: "4px"}}>
+          <Button
+            type="primary"
+            onClick={handleAdd}
+            style={{ marginLeft: "4px" }}
+          >
             Add New
           </Button>
         </div>
@@ -316,7 +320,17 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
               {
                 required: true,
                 max: 100,
-                //message: "Please enter Equipment Name",
+                message: "Please enter Equipment Name",
+              },
+              {
+                validator: (_, value) => {
+                  if (value && value.trim() === "") {
+                    return Promise.reject(
+                      new Error("Only spaces are not allowed")
+                    );
+                  }
+                  return Promise.resolve();
+                },
               },
             ]}
           >
@@ -326,6 +340,7 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
               disabled={isViewMode}
             />
           </Form.Item>
+
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <Form.Item
               name="IsActive"
