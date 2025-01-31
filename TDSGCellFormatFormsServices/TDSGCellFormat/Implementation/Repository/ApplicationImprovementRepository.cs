@@ -2154,11 +2154,45 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     sb.Replace("#ApplicantName#", applicant);
                     sb.Replace("#clsReq#", applicant);
+
+
+                    var subMachineId = equipmentData.SubMachineId.Split(',').Select(id => int.Parse(id)).ToList();
+                    var subMachineNames = new List<string>();
+                    var subMachineString = string.Empty;
+
+                    if (subMachineId.Contains(-1))
+                    {
+                        subMachineString = "All";
+                    }
+                    else
+                    {
+                        foreach (var id in subMachineId)
+                        {
+
+                            if (id == -2)
+                            {
+                                if (!string.IsNullOrEmpty(equipmentData.OtherSubMachine))
+                                {
+                                    subMachineNames.Add("Other - " + equipmentData.OtherSubMachine);
+                                }
+                            }
+                            // Query database or use a dictionary/cache to get the name
+                            var subMachineName = _context.SubMachines.Where(x => x.SubMachineId == id && x.IsDeleted == false).Select(x => x.SubMachineName).FirstOrDefault(); // Replace this with your actual DB logic
+                            if (!string.IsNullOrEmpty(subMachineName))
+                            {
+                                subMachineNames.Add(subMachineName);
+                            }
+                        }
+                        subMachineString = string.Join(", ", subMachineNames);
+                    }
+
+                    sb.Replace("#SubMachineName#", subMachineString);
                 }
                 sb.Replace("#Purpose#", equipmentData?.Purpose);
                 sb.Replace("#currentSituations#", equipmentData?.CurrentSituation);
                 sb.Replace("#Improvement#", equipmentData?.Imrovement);
 
+                
 
 
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
