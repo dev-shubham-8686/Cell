@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { Table, Button, Modal, Form, Input, Checkbox, Popconfirm } from "antd";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faCircleChevronLeft, faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import dayjs from "dayjs";
 import {
   //CloseOutlined,
@@ -14,9 +14,10 @@ import { UserContext } from "../../../context/userContext";
 import useUnitsOfMeasure from "../../../apis/unitOfMeasure/useUnitsOfMeasure";
 import displayjsx from "../../../utility/displayjsx";
 import { deleteUOMMaster, getAllUOMMaster, uomMasterAddOrUpdate } from "../../../apis/MasterAPIs/UOMMaster";
+import Page from "../../page/page";
 interface IUnitOfMeasureMaster {
   UOMId: number;
-  Name: string;
+  UOMName: string;
     CreatedDate?: string;
   CreatedBy?: number;
   ModifiedBy?: number;
@@ -89,9 +90,9 @@ const UOMMasterPage: React.FC = () => {
     if (editingItem) {
         uomMasterAddOrUpdate({
         UomId: editingItem.UOMId,
-        Name: values.Name,
+        UOMName: values.UOMName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        ModifiedBy:user?.employeeId
       })
         .then(() => {
           void displayjsx.showSuccess("Record updated successfully");
@@ -107,15 +108,15 @@ const UOMMasterPage: React.FC = () => {
       // Create new record
       uomMasterAddOrUpdate({
         UomId: 0,
-        Name: values.Name,
+        UOMName: values.UOMName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        CreatedBy: user?.employeeId,
       })
         .then((response) => {
 
           let result = response.ReturnValue;
 
-          if(result.MachineId == -1){
+          if(result.UomId == -1){
             void displayjsx.showInfo("Duplicate record found");
              return false;
           }
@@ -139,10 +140,10 @@ const UOMMasterPage: React.FC = () => {
   const columns = [
     {
       title: "UOM Name",
-      dataIndex: "Name",
-      key: "Name",
+      dataIndex: "UOMName",
+      key: "UOMName",
       sorter: (a: any, b: any) =>
-        a.EquipmentName.localeCompare(b.EquipmentName),
+        a.UOMName.localeCompare(b.UOMName),
     },
     {
       title: "Is Active",
@@ -157,7 +158,7 @@ const UOMMasterPage: React.FC = () => {
       key: "CreatedDate",
       render: (CreatedDate: string) => (
         <span>
-          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : ""}
+          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -165,8 +166,13 @@ const UOMMasterPage: React.FC = () => {
     },
     {
       title: "Created By",
-      dataIndex: "UserName",
-      key: "UserName",
+      dataIndex: "CreatedByName",
+      key: "CreatedByName",
+      render: (text:any) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        a.CreatedByName.localeCompare(b.CreatedByName)
     },
     {
       title: "Modified Date",
@@ -174,7 +180,7 @@ const UOMMasterPage: React.FC = () => {
       key: "ModifiedDate",
       render: (ModifiedDate: string) => (
         <span>
-          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : ""}
+          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -182,14 +188,19 @@ const UOMMasterPage: React.FC = () => {
     },
     {
       title: "Modified By",
-      dataIndex: "UpdatedUserName",
-      key: "UpdatedUserName",
+      dataIndex: "ModifiedByName",
+      key: "ModifiedByName",
+      render: (text:any) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        a.ModifiedByName.localeCompare(b.ModifiedByName)
     },
     {
       title: "Actions",
       key: "actions",
       render: (text: any, record: IUnitOfMeasureMaster) => (
-        <span className="action-cell">
+        <span className="">
           <Button
             title="View"
             className="action-btn"
@@ -215,7 +226,7 @@ const UOMMasterPage: React.FC = () => {
               title="Delete"
               className="action-btn"
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
-              //onClick={() => handleDelete(record.EquipmentId)}
+              // onClick={() => handleDelete(record.UOMId)}
             />
           </Popconfirm>
         </span>
@@ -224,20 +235,25 @@ const UOMMasterPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <h2 className="title">Unit of Measure Master</h2>
-      <div className="d-flex justify-between items-center mb-3">
+    <Page title="Material Master">
+    <div className="content flex-grow-1 p-4">
+
+      <div className="d-flex justify-content-between items-center mb-3">
         <div>
-        <Button
-          icon={<LeftCircleFilled />}
-          onClick={() => navigate(`/master`)}
-          className="btn btn-primary"
-        >
-          BACK
-        </Button>
+        <button
+                 className="btn btn-link btn-back px-0"
+                 type="button"
+                 onClick={() => navigate(`/master`)}
+               >
+                 <FontAwesomeIcon
+            className="me-2"
+            icon={faCircleChevronLeft}
+                 />
+                 Back
+               </button>
         </div>
         
-        <div style={{marginLeft:"1700px"}}>
+        <div>
         <Button type="primary"
                   className="btn btn-primary"
                   onClick={handleAdd}>
@@ -245,6 +261,7 @@ const UOMMasterPage: React.FC = () => {
         </Button>
       </div>
       </div>
+      <div className="table-container pt-0">
       <Table
         columns={columns}
         dataSource={data}
@@ -259,23 +276,29 @@ const UOMMasterPage: React.FC = () => {
          </div>
        ), }}
       />
+      </div>
       <Modal
-        title={editingItem ? "Edit Item" : "Add Item"}
+        title={isViewMode?"View Item":editingItem ? "Edit Item" : "Add Item"}
         open={modalVisible}
         
         onCancel={() => setModalVisible(false)}
         onOk={() => !isViewMode && form.submit()}
         okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
         cancelButtonProps={{ className:"btn btn-outline-primary"}}
+        footer={
+          isViewMode
+            ? null 
+            : undefined 
+        }
       >
         <Form
           form={form}
           layout="vertical"
           onFinish={handleSave}
-          initialValues={{ EquipmentName: "", IsActive: false }}
+          initialValues={{ UOMName: "", IsActive: false }}
         >
           <Form.Item
-            name="Name"
+            name="UOMName"
             label="UOM Name"
             rules={[{ required: true, message: "Please enter UOM Name" }]}
           >
@@ -294,6 +317,7 @@ const UOMMasterPage: React.FC = () => {
         </Form>
       </Modal>
     </div>
+    </Page>
   );
 };
 

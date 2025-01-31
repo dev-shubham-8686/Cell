@@ -5,7 +5,7 @@ export const GET_LOGIN_SESSION = "/api/TroubleReport/GetLoginSession";
 export const GET_CATEGORIES = "/GetAllCategories";
 
 export const GET_MATERIALS = "/GetAllMaterials";
-export const GET_MATERIAL_Master = "/GetMaterialMaster";
+export const GET_MATERIAL_Master = "/MasterTbl/GetMaterialMaster";
 
 export const GET_UNITS_OF_MEASURE = "/unitsOfMeasures";
 

@@ -1,7 +1,7 @@
 .btn-primary {
   color: $white;
   background-color: $primary !important;
-
+   height :100%;
   &:hover,
   &:active,
   &:focus {
@@ -16,6 +16,7 @@
 }
 .btn-outline-primary {
   color: $primary;
+  height :100%;
 
   &:hover,
   &:active {
@@ -23,6 +24,9 @@
     border-color: $primary !important;
   }
 }
+// .table-container {
+//   padding :24px;
+// }
 
 .table {
   &.table-theme {
@@ -69,6 +73,12 @@ button {
   }
 }
 
+.action-btn {
+  background:none !important;
+   border: none !important;
+  //  border-color: red !important;
+
+}
 .h2 {
   color: $primary;
   font-size: 1rem;

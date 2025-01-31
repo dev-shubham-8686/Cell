@@ -7,7 +7,8 @@ import {
   //SearchOutlined,
 } from "@ant-design/icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
+import { faCircleChevronLeft, faEye } from "@fortawesome/free-solid-svg-icons";
+import Page from "../../page/page";
 
 const MasterTab: React.FC = () => {
   //   const [searchText, setSearchText] = useState("");
@@ -36,12 +37,12 @@ const MasterTab: React.FC = () => {
       key: "action",
       width: "10%", // Set width for this column
       render: (_: any, record: any) => (
-        <span className="action-cell">
+        <span className="">
           <Button
-            style={{ marginLeft: "22px" }}
+            style={{ marginLeft: "22px" ,background: "none", border: "none"}}
             title="View"
             className="action-btn"
-            icon={<FontAwesomeIcon title="View" icon={faEye} />}
+            icon={ <FontAwesomeIcon title="View" icon={faEye} />}
             onClick={() => {
               if (record.name == "UOM") {
                 navigate(`/master/uom`);
@@ -62,12 +63,11 @@ const MasterTab: React.FC = () => {
   ];
 
   return (
-    <div>
-      <Row>
-        <Col span={24}>
-          <h2 className="title">Master List</h2>
-          <div className="flex justify-between items-center mb-3">
-            {/* <div className="flex gap-3 items-center">
+    <Page title="Master List">
+    <div className="content flex-grow-1 p-4">
+
+          <div className="d-flex justify-content-between items-center mb-3">
+          {/* <div className="flex gap-3 items-center">
               <div style={{ position: "relative", display: "inline-block" }}>
                 <Input
                   type="text"
@@ -102,15 +102,19 @@ const MasterTab: React.FC = () => {
                 Search
               </Button>
             </div> */}
-            <Button
-              type="primary"
-              icon={<LeftCircleFilled />}
-              onClick={() => navigate(`/`)}
-              className="btn btn-primary"
-            >
-              BACK
-            </Button>
+            <button
+                 className="btn btn-link btn-back px-0" 
+                 type="button"
+                 onClick={() => navigate(`/`)}
+               >
+                 <FontAwesomeIcon
+            className="me-2"
+            icon={faCircleChevronLeft}
+                 />
+                 Back
+               </button>
           </div>
+          <div className="table-container pt-0">
           <Table
             columns={columns}
             dataSource={data}
@@ -127,9 +131,10 @@ const MasterTab: React.FC = () => {
             rowKey="key"
             bordered
           />
-        </Col>
-      </Row>
+          </div>
+        
     </div>
+    </Page>
   );
 };
 

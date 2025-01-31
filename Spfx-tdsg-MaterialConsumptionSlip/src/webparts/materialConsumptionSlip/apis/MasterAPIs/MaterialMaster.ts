@@ -16,7 +16,7 @@ export const getAllMaterialMaster = (): Promise<any> => {
   
 
   export const addUpdateMaterialMaster = (data: any): Promise<any> => {
-    return http.post(`/AddUpdateMaterial`, data, {
+    return http.post(`/MasterTbl/AddUpdateMaterial`, data, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -32,8 +32,8 @@ export const getAllMaterialMaster = (): Promise<any> => {
   };
 
   export const deleteMaterial = (MaterialId: string): Promise<any> => {
-    return http.delete(`/Material`, {
-      params: { MaterialId: MaterialId },
+    return http.delete(`/MasterTbl/DeleteMaterial`, {
+      params: { id: MaterialId },
     })
     .then((response) => {
       return response.data; // Return the response data

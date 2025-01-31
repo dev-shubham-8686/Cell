@@ -2,7 +2,7 @@ import http from "../../http";
 
 
 export const getAllCategoryMaster = (): Promise<any> => {
-    return http.get(`/GetAllCategorySelection`)
+    return http.get(`/MasterTbl/GetCategoryMaster`)
     .then((response) => {
       return response.data; // Return the data from the response
     })
@@ -14,7 +14,7 @@ export const getAllCategoryMaster = (): Promise<any> => {
   export const categoryMasterAddOrUpdate = (data: any): Promise<any> => {
     console.log("Add or update area payload", data);
     // return ;
-    return http.post(`/AddUpdateCategory`, data, {
+    return http.post(`/MasterTbl/AddUpdateCategory`, data, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -31,7 +31,7 @@ export const getAllCategoryMaster = (): Promise<any> => {
 
   export const deleteCategoryMaster = (Id: string): Promise<any> => {
     // return ;
-    return http.delete(`/DeleteCategory`, {
+    return http.delete(`/MasterTbl/DeleteCategory`, {
       params: { Id: Id },
     })
     .then((response) => {

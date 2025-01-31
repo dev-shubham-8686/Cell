@@ -2,7 +2,7 @@ import http from "../../http";
 
 
 export const getAllCostCenterMaster = (): Promise<any> => {
-    return http.get(`/GetAllCostCenterMaster`)
+    return http.get(`/MasterTbl/GetAllCostCenterSelection`)
     .then((response) => {
       return response.data; // Return the data from the response
     })
@@ -13,25 +13,24 @@ export const getAllCostCenterMaster = (): Promise<any> => {
 
   export const costCenterMasterAddOrUpdate = (data: any): Promise<any> => {
     console.log("Add or update area payload", data);
-    return ;
-    // return http.post(`${basePath}/GetCostCenterAddOrUpdate`, data, {
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    // })
-    // .then((response) => {
-    //   return response.data; // Return the data from the response
-    // })
-    // .catch((error) => {
-    //     // Something happened in setting up the request that triggered an Error
-    //     throw new Error("Error occurred while saving data");
+    return http.post(`/MasterTbl/AddUpdateCostCenterMaster`, data, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((response) => {
+      return response.data; // Return the data from the response
+    })
+    .catch((error) => {
+        // Something happened in setting up the request that triggered an Error
+        throw new Error("Error occurred while saving data");
       
-    // });
+    });
   };
 
   export const deleteCostCenterMaster = (Id: string): Promise<any> => {
     return ;
-    // return http.delete(`${basePath}/GetCostCenterMasterTblDelete`, {
+    // return http.delete(`/MasterTbl/DeleteCostCenter`, {
     //   params: { Id: Id },
     // })
     // .then((response) => {

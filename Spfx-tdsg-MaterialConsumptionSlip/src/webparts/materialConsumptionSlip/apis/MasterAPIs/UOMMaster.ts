@@ -2,7 +2,7 @@ import http from "../../http";
 
 
 export const getAllUOMMaster = (): Promise<any> => {
-    return http.get(`/GetAllUOMSelection`)
+    return http.get(`/MasterTbl/GetUnitOfMeasureMaster`)
     .then((response) => {
       return response.data; // Return the data from the response
     })
@@ -14,7 +14,7 @@ export const getAllUOMMaster = (): Promise<any> => {
   export const uomMasterAddOrUpdate = (data: any): Promise<any> => {
     console.log("Add or update area payload", data);
     // return ;
-    return http.post(`/unitsOfMeasures`, data, {
+    return http.post(`/MasterTbl/AddUpdateUnitOfMeasureMaster`, data, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -31,7 +31,7 @@ export const getAllUOMMaster = (): Promise<any> => {
 
   export const deleteUOMMaster = (Id: string): Promise<any> => {
     // return ;
-    return http.delete(`/DeleteUnitOfMeasure`, {
+    return http.delete(`/MasterTbl/DeleteUnitOfMeasure`, {
       params: { Id: Id },
     })
     .then((response) => {

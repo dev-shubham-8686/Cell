@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Checkbox, Select, Input, Popconfirm } from "antd";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faCircleChevronLeft, faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { UserContext } from "../../../context/userContext";
 import {
   //CloseOutlined,
@@ -16,15 +16,16 @@ import useUnitsOfMeasure from "../../../apis/unitOfMeasure/useUnitsOfMeasure";
 import useCostCenters from "../../../apis/costCenter/useCostCenters";
 import displayjsx from "../../../utility/displayjsx";
 import { ICostCenter } from "../../../apis/costCenter/useCostCenters/useCostCenters";
-import { addUpdateMaterialMaster, getAllMaterialMaster } from "../../../apis/MasterAPIs/MaterialMaster";
+import { addUpdateMaterialMaster, deleteMaterial, getAllMaterialMaster } from "../../../apis/MasterAPIs/MaterialMaster";
 import { getAllUOMMaster } from "../../../apis/MasterAPIs/UOMMaster";
 import { categoryMasterAddOrUpdate, deleteCategoryMaster, getAllCategoryMaster } from "../../../apis/MasterAPIs/CategoryMaster";
+import Page from "../../page/page";
 
 export interface Material {
   MaterialId: number;
   Code?: string;
-  Description?: string;
-  Category?: string;
+  Description?: number;
+  Category?: number;
   UOM?: number;
   CostCenter?: number;
   CreatedDate?: string;
@@ -114,7 +115,7 @@ const MaterialMasterPage: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    deleteCategoryMaster(id.toString())
+    deleteMaterial(id.toString())
       .then(() => {
         void displayjsx.showSuccess("Record deleted successfully");
         fetchData();
@@ -156,7 +157,7 @@ const MaterialMasterPage: React.FC = () => {
         });
     } else {
       // Create new record
-      categoryMasterAddOrUpdate({
+      addUpdateMaterialMaster({
         MaterialId: 0,
         Code: values.Code,
         Description: values.Description,
@@ -185,7 +186,7 @@ const MaterialMasterPage: React.FC = () => {
         });
     }
   };
-
+console.log("UOMS",UOM)
   useEffect(() => {
     fetchData();
   }, []);
@@ -209,6 +210,48 @@ const MaterialMasterPage: React.FC = () => {
       key: "IsActive",
       render: (IsActive: boolean) => (IsActive ? "Yes" : "No"), // Display Yes/No for IsActive
       sorter: (a: any, b: any) => a.IsActive - b.IsActive,
+    },
+    {
+      title: "UOM",
+      dataIndex: "UOM",
+      key: "UOM",
+      // render: (UOM:any) => (UOM ? UOM : "-"), // Display Yes/No for IsActive
+      sorter: (a: any, b: any) => a.UOM - b.UOM,
+      render: ( value: any) => {
+        
+        const uom = UOM?.find(
+          (m: any) => m.UOMId === value
+        );
+        return uom?.UOMName || "-"; // Show MachineName or fallback to "Unknown Machine"
+      }
+    },
+    {
+      title: "Category",
+      dataIndex: "Category",
+      key: "Category",
+      // render: (Category: boolean) => (Category ? Category : "-"), // Display Yes/No for IsActive
+      sorter: (a: any, b: any) => a.Category - b.IsCategoryActive,
+      render: ( value: any) => {
+        
+        const category = Category?.find(
+          (m: any) => m.CategoryId === value
+        );
+        return category?.CategoryName || "-"; // Show MachineName or fallback to "Unknown Machine"
+      }
+    },
+    {
+      title: "CostCenter",
+      dataIndex: "CostCenter",
+      key: "CostCenter",
+      // render: (CostCenter: boolean) => (CostCenter ? CostCenter : "-"), // Display Yes/No for IsActive
+      sorter: (a: any, b: any) => a.CostCenter - b.CostCenter,
+      render: ( value: any) => {
+        
+        const costcenter = costCenters?.find(
+          (m: any) => m.costCenterId === value
+        );
+        return costcenter?.name || "-"; // Show MachineName or fallback to "Unknown Machine"
+      }
     },
     // {
     //   title: "Created Date",
@@ -248,7 +291,7 @@ const MaterialMasterPage: React.FC = () => {
       title: "Actions",
       key: "actions",
       render: (text: any, record: Material) => (
-        <span className="action-cell">
+        <span className="">
           <Button
             title="View"
             className="action-btn"
@@ -283,20 +326,25 @@ const MaterialMasterPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <h2 className="title">Material Master</h2>
-      <div className="d-flex justify-between items-center mb-3">
+    <Page title="Material Master">
+    <div className="content flex-grow-1 p-4">
+
+      <div className="d-flex justify-content-between items-center mb-3">
         <div>
-        <Button
-          icon={<LeftCircleFilled />}
-          onClick={() => navigate(`/master`)}
-          className="btn btn-primary"
-        >
-          BACK
-        </Button>
+        <button
+                 className="btn btn-link btn-back px-0"
+                 type="button"
+                 onClick={() => navigate(`/master`)}
+               >
+                 <FontAwesomeIcon
+            className="me-2"
+            icon={faCircleChevronLeft}
+                 />
+                 Back
+               </button>
         </div>
         
-        <div style={{marginLeft:"1700px"}}>
+        <div >
         <Button type="primary"
                   className="btn btn-primary"
                   onClick={handleAdd}>
@@ -304,6 +352,7 @@ const MaterialMasterPage: React.FC = () => {
         </Button>
       </div>
       </div>
+      <div className="table-container pt-0">
       <Table
         columns={columns}
         dataSource={data}
@@ -320,12 +369,19 @@ const MaterialMasterPage: React.FC = () => {
           ),
         }}
       />
+      </div>
       <Modal
-        title={editingItem ? "Edit Item" : "Add Item"}
+        title={isViewMode?"View Item":editingItem ? "Edit Item" : "Add Item"}
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         onOk={() => !isViewMode && form.submit()}
-        okButtonProps={{ disabled: isViewMode }}
+        okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
+        cancelButtonProps={{ className:"btn btn-outline-primary"}}
+        footer={
+          isViewMode
+            ? null 
+            : undefined 
+        }
       >
         <Form
           form={form}
@@ -359,7 +415,7 @@ const MaterialMasterPage: React.FC = () => {
               placeholder="Select an Category"
               disabled={isViewMode}
               options={Category?.map((emp: any) => ({
-                label: emp.Name,
+                label: emp.CategoryName,
                 value: emp.CategoryId,
               }))}
             />
@@ -372,9 +428,9 @@ const MaterialMasterPage: React.FC = () => {
             <Select
               placeholder="Select an UOM"
               disabled={isViewMode}
-              options={UOM?.map((sec: any) => ({
-                label: sec.Name,
-                value: sec.UOMId,
+              options={UOM?.map((val: any) => ({
+                label: val.UOMName,
+                value: val.UOMId,
               }))}
             />
           </Form.Item>
@@ -406,6 +462,7 @@ const MaterialMasterPage: React.FC = () => {
         </Form>
       </Modal>
     </div>
+    </Page>
   );
 };
 
