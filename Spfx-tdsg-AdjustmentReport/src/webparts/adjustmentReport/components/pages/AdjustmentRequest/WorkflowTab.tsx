@@ -44,7 +44,8 @@ const Workflow: React.FC<IProps> = ({
 }) => {
   const { user } = useUserContext();
   const [advisorComments, setAdvisorComments] = useState<string>("");
-  const {id}=useParams();
+  const {id,mode}=useParams();
+  const isViewMode = mode === "view";
   const { mutate: addUpdateAdvisorComment } = useAddOrUpdateAdvisorComment();
   const { data: advisorCommentData } = useGetAdvisorCommentsById(
     id ? parseInt(id) : 0
@@ -60,7 +61,8 @@ const Workflow: React.FC<IProps> = ({
       AdjustmentReportId:parseInt(id),
       AdjustmentAdvisorId:advisorCommentData?.ReturnValue?.AdjustmentAdvisorId,
       AdvisorId:advisorId,
-      Comment:advisorComments
+      Comment:advisorComments,
+      ModifiedBy:user?.employeeId
     }
     
     addUpdateAdvisorComment(payload, {
@@ -183,12 +185,12 @@ const Workflow: React.FC<IProps> = ({
         </p>
         <TextArea
           value={advisorComments}
-          disabled={user?.isAdmin ? false:!(advisorId==user?.employeeId &&status!=REQUEST_STATUS.Completed)}
+          disabled={isViewMode ||( user?.isAdmin ? false:!(advisorId==user?.employeeId &&status!=REQUEST_STATUS.Completed))}
           onChange={(e) => setAdvisorComments(e.target.value)}
           rows={4}
           placeholder="Enter your comments here"
         />
-       { ((advisorId == user?.employeeId && status!=REQUEST_STATUS.Completed) || user?.isAdmin)? 
+       { (((advisorId == user?.employeeId && status!=REQUEST_STATUS.Completed) || user?.isAdmin) && !isViewMode)? 
        (<Button
           type="primary"
           onClick={()=>handleSave()}

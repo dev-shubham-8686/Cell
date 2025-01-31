@@ -8,6 +8,7 @@ export interface IAdvisorCommentsData {
     AdvisorId?: number 
     AdjustmentReportId?: number 
     Comment?: string ; 
+    ModifiedBy?:number;
   }
 
 
