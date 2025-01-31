@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Office2013.Drawing.Chart;
+using Org.BouncyCastle.Cms;
 using System.Linq;
 using TDSGCellFormat.Interface.Service;
 using TDSGCellFormat.Models;
@@ -912,7 +913,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
-                var check_dup = _context.Areas.Where(c => c.AreaName == area.AreaName).FirstOrDefault();
+                var check_dup = _context.Areas.Where(c => c.AreaName == area.AreaName && c.AreaId != area.AreaId).FirstOrDefault();
                 if (check_dup != null)
                 {
                     area.AreaId = -1;
@@ -965,7 +966,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
-                var check_dup = _context.Categories.Where(c => c.Name == category.CategoryName).FirstOrDefault();
+                var check_dup = _context.Categories.Where(c => c.Name == category.CategoryName && c.CategoryId != category.CategoryId).FirstOrDefault();
                 if (check_dup != null)
                 {
                     category.CategoryId = -1;
@@ -1019,7 +1020,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
-                var check_dup = _context.ImprovementCategoryMasters.Where(c => c.ImprovementCategoryName == category.ImpCategoryName).FirstOrDefault();
+                var check_dup = _context.ImprovementCategoryMasters.Where(c => c.ImprovementCategoryName == category.ImpCategoryName && c.ImprovementCategoryId != category.ImpCategoryId).FirstOrDefault();
                 if (check_dup != null)
                 {
                     category.ImpCategoryId = -1;
@@ -1074,7 +1075,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
-                var check_dup = _context.CostCentres.Where(c => c.Name == costCenter.CostCenterName).FirstOrDefault();
+                var check_dup = _context.CostCentres.Where(c => c.Name == costCenter.CostCenterName && c.CostCentreId != costCenter.CostCenterId).FirstOrDefault();
                 if (check_dup != null)
                 {
                     costCenter.CostCenterId = -1;
@@ -1356,7 +1357,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
-                var check_dup = _context.EquipmentMasters.Where(c => c.EquipmentName == equipmentMasterAdd.EquipmentName ).FirstOrDefault();
+                var check_dup = _context.EquipmentMasters.Where(c => c.EquipmentName == equipmentMasterAdd.EquipmentName && c.EquipmentId != equipmentMasterAdd.EquipmentId).FirstOrDefault();
                 if (check_dup != null)
                 {
                     equipmentMasterAdd.EquipmentId = -1;
@@ -1409,7 +1410,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
-                var check_dup = _context.Machines.Where(c => c.MachineName == machineAdd.MachineName).FirstOrDefault();
+                var check_dup = _context.Machines.Where(c => c.MachineName == machineAdd.MachineName && c.MachineId != machineAdd.MachineId).FirstOrDefault();
                 if (check_dup != null)
                 {
                     machineAdd.MachineId = -1;
@@ -1462,7 +1463,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
-                var check_dup = _context.SubMachines.Where(c => c.SubMachineName == subMachineAdd.SubMachineName).FirstOrDefault();
+                var check_dup = _context.SubMachines.Where(c => c.SubMachineName == subMachineAdd.SubMachineName && c.SubMachineId != subMachineAdd.SubMachineId).FirstOrDefault();
                 if (check_dup != null)
                 {
                     subMachineAdd.SubMachineId = -1;
@@ -1517,7 +1518,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
-                var check_dup = _context.Materials.Where(c => c.Code == materialAdd.Code).FirstOrDefault();
+                var check_dup = _context.Materials.Where(c => c.Code == materialAdd.Code && c.MaterialId != materialAdd.MaterialId).FirstOrDefault();
                 if (check_dup != null)
                 {
                     materialAdd.MaterialId = -1;
@@ -1774,7 +1775,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
-                var check_dup = _context.SectionMasters.Where(c => c.SectionName == sectionMasterAdd.SectionName).FirstOrDefault();
+                var check_dup = _context.SectionMasters.Where(c => c.SectionName == sectionMasterAdd.SectionName && c.SectionId != sectionMasterAdd.SectionId).FirstOrDefault();
                 if (check_dup != null)
                 {
                     sectionMasterAdd.SectionId = -1;
@@ -1880,7 +1881,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
-                var check_dup = _context.UnitOfMeasures.Where(c => c.Name == unitOfMeasureAdd.UOMName ).FirstOrDefault();
+                var check_dup = _context.UnitOfMeasures.Where(c => c.Name == unitOfMeasureAdd.UOMName && c.UOMId != unitOfMeasureAdd.UOMId).FirstOrDefault();
                 if (check_dup != null)
                 {
                     unitOfMeasureAdd.UOMId = -1;
