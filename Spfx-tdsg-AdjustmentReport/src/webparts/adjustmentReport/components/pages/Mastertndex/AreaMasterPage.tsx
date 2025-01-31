@@ -86,8 +86,8 @@ const AreaMasterPage: React.FC = () => {
   const handleDelete = (id: number) => {
     deleteAreaMaster(id.toString())
       .then(() => {
-        void displayjsx.showSuccess("Record deleted successfully");
-        //message.success("Record deleted successfully");
+        void displayjsx.showSuccess("Record Inactivated successfully");
+        //message.success("Record Inactivated successfully");
         fetchData();
       })
       .catch(() => {
@@ -191,12 +191,15 @@ const AreaMasterPage: React.FC = () => {
     {
       title: "Created By",
       dataIndex: "CreatedByName",
-      key: "CreatedBy",
+      key: "CreatedByName",
       render: (text) => {
         return <p className="text-cell">{text??"-"}</p>;
       },
       sorter: (a: any, b: any) =>
-        a.CreatedByName.localeCompare(b.CreatedByName)
+        {
+          console.log("DATA",a,b);
+          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      },
     },
     {
       title: "Modified Date",
@@ -218,7 +221,10 @@ const AreaMasterPage: React.FC = () => {
         return <p className="text-cell">{text??"-"}</p>;
       },
       sorter: (a: any, b: any) =>
-        a.ModifiedByName.localeCompare(b.ModifiedByName)
+        {
+          console.log("DATA",a,b);
+          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      },
     },
     {
       title: "Actions",
@@ -314,7 +320,16 @@ const AreaMasterPage: React.FC = () => {
             <Form.Item
               name="AreaName"
               label="Area Name"
-              rules={[{ required: true, message: "Please enter Area Name" }]}
+              rules={[{ required: true, message: "Please enter Area Name" },
+                {
+                  validator: (_, value) => {
+                    if (value && value.trim() === "") {
+                      return Promise.reject(new Error("Only spaces are not allowed"));
+                    }
+                    return Promise.resolve();
+                  },
+                },
+              ]}
             >
               <Input type="text" disabled={isViewMode} />
             </Form.Item>

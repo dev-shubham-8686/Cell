@@ -80,7 +80,7 @@ const SubMachineMasterPage: React.FC = () => {
   const handleDelete = (id: number) => {
     deleteSubMachineMaster(id.toString())
       .then(() => { 
-        void displayjsx.showSuccess("Record deleted successfully");
+        void displayjsx.showSuccess("Record Inactivated successfully");
         fetchData();
       })
       .catch(() => {
@@ -148,6 +148,7 @@ const SubMachineMasterPage: React.FC = () => {
       title: "Sub Machine Name",
       dataIndex: "SubMachineName",
       key: "SubMachineName",
+      width:"400px",
       sorter: (a: any, b: any) =>
         a.SubMachineName.localeCompare(b.SubMachineName),
     },
@@ -155,8 +156,18 @@ const SubMachineMasterPage: React.FC = () => {
       title: "Machine Name",
       dataIndex: "MachineId",
       key: "MachineId",
-      sorter: (a: any, b: any) =>
-        a.MachineId.localeCompare(b.MachineId),
+      sorter: (a: any, b: any) =>{
+        debugger
+        console.log("DATA",a,b)
+        const machineA = machinesResult?.ReturnValue.find(
+          (m: IMachine) => m.MachineId === a.MachineId
+        )?.MachineName || "";
+        const machineB = machinesResult?.ReturnValue.find(
+          (m: IMachine) => m.MachineId === b.MachineId
+        )?.MachineName || "";
+    
+        return machineA.localeCompare(machineB);
+      },
       render: (MachineId: number, record: any) => {
         const machine = machinesResult?.ReturnValue.find(
           (m: IMachine) => m.MachineId === MachineId
@@ -191,7 +202,10 @@ const SubMachineMasterPage: React.FC = () => {
         return <p className="text-cell">{text??"-"}</p>;
       },
       sorter: (a: any, b: any) =>
-        a.CreatedByName.localeCompare(b.CreatedByName)
+        {
+          console.log("DATA",a,b);
+          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      },
     },
     {
       title: "Modified Date",
@@ -213,7 +227,10 @@ const SubMachineMasterPage: React.FC = () => {
         return <p className="text-cell">{text??"-"}</p>;
       },
       sorter: (a: any, b: any) =>
-        a.ModifiedByName.localeCompare(b.ModifiedByName)
+        {
+          console.log("DATA",a,b);
+          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      },
     },
     {
       title: "Actions",
@@ -311,7 +328,16 @@ const SubMachineMasterPage: React.FC = () => {
           <Form.Item
             name="SubMachineName"
             label="Sub Machine Name"
-            rules={[{ required: true, message: "Please enter Sub Machine Name" }]}
+            rules={[{ required: true, message: "Please enter Sub Machine Name" },
+              {
+                validator: (_, value) => {
+                  if (value && value.trim() === "") {
+                    return Promise.reject(new Error("Only spaces are not allowed"));
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
           >
             <Input type="text" disabled={isViewMode} />
           </Form.Item>

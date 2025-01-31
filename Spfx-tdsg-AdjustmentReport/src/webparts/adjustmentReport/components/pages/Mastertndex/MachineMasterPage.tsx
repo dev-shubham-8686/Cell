@@ -75,7 +75,7 @@ const MachineMasterPage: React.FC = () => {
   const handleDelete = (id: number) => {
     deleteMachineMaster(id.toString())
       .then(() => {
-        void displayjsx.showSuccess("Record deleted successfully");
+        void displayjsx.showSuccess("Record Inactivated successfully");
         fetchData();
       })
       .catch(() => {
@@ -171,7 +171,10 @@ const MachineMasterPage: React.FC = () => {
         return <p className="text-cell">{text??"-"}</p>;
       },
       sorter: (a: any, b: any) =>
-        a.CreatedByName.localeCompare(b.CreatedByName)
+        {
+          console.log("DATA",a,b);
+          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      },
     },
     {
       title: "Modified Date",
@@ -193,7 +196,10 @@ const MachineMasterPage: React.FC = () => {
         return <p className="text-cell">{text??"-"}</p>;
       },
       sorter: (a: any, b: any) =>
-        a.ModifiedByName.localeCompare(b.ModifiedByName),
+        {
+          console.log("DATA",a,b);
+          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      },
     
     },
     {
@@ -291,7 +297,16 @@ const MachineMasterPage: React.FC = () => {
           <Form.Item
             name="MachineName"
             label="Machine Name"
-            rules={[{ required: true, message: "Please enter Machine Name" }]}
+            rules={[{ required: true, message: "Please enter Machine Name" },
+              {
+                validator: (_, value) => {
+                  if (value && value.trim() === "") {
+                    return Promise.reject(new Error("Only spaces are not allowed"));
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
           >
             <Input type="text" disabled={isViewMode} />
           </Form.Item>
