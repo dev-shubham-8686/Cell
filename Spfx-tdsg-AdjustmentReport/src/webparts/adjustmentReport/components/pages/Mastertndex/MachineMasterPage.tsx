@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, Checkbox, Popconfirm } from "antd";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faCircleChevronLeft, faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import dayjs from "dayjs";
 import {
   //CloseOutlined,
@@ -13,8 +13,10 @@ import { useNavigate } from "react-router-dom";
 import displayjsx from "../../../utils/displayjsx";
 import { useUserContext } from "../../../context/UserContext";
 import { deleteMachineMaster, getAllMachineMaster, machineMasterAddOrUpdate } from "../../../api/MasterAPIs/MachineMaster.api";
+import Page from "../../page/page";
+import { scrollToElementsTop } from "../../../utils/utility";
 
-interface IMachineMaster {
+export interface IMachineMaster {
   MachineId: number;
   MachineName?: number;
   CreatedDate?: string;
@@ -74,7 +76,7 @@ const MachineMasterPage: React.FC = () => {
   const handleDelete = (id: number) => {
     deleteMachineMaster(id.toString())
       .then(() => {
-        void displayjsx.showSuccess("Record deleted successfully");
+        void displayjsx.showSuccess("Record Inactivated successfully");
         fetchData();
       })
       .catch(() => {
@@ -90,9 +92,15 @@ const MachineMasterPage: React.FC = () => {
         MachineId: editingItem.MachineId,
         MachineName: values.MachineName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        ModifiedBy:user?.employeeId
       })
-        .then(() => {
+        .then((response) => {
+           let result = response?.ReturnValue;
+          
+                    if (result.MachineId == -1) {
+                      void displayjsx.showInfo("Duplicate record found");
+                      return false;
+                    }
           void displayjsx.showSuccess("Record updated successfully");
           
           fetchData();
@@ -108,7 +116,7 @@ const MachineMasterPage: React.FC = () => {
         MachineId: 0,
         MachineName: values.MachineName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        CreatedBy: user?.employeeId,
       })
         .then((response) => {
 
@@ -141,7 +149,7 @@ const MachineMasterPage: React.FC = () => {
       dataIndex: "MachineName",
       key: "MachineName",
       sorter: (a: any, b: any) =>
-        a.EquipmentName.localeCompare(b.EquipmentName),
+        a.MachineName.localeCompare(b.MachineName),
     },
     {
       title: "Is Active",
@@ -156,7 +164,7 @@ const MachineMasterPage: React.FC = () => {
       key: "CreatedDate",
       render: (CreatedDate: string) => (
         <span>
-          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : ""}
+          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -164,8 +172,16 @@ const MachineMasterPage: React.FC = () => {
     },
     {
       title: "Created By",
-      dataIndex: "UserName",
-      key: "UserName",
+      dataIndex: "CreatedByName",
+      key: "CreatedBy",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        {
+          console.log("DATA",a,b);
+          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      },
     },
     {
       title: "Modified Date",
@@ -173,7 +189,7 @@ const MachineMasterPage: React.FC = () => {
       key: "ModifiedDate",
       render: (ModifiedDate: string) => (
         <span>
-          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : ""}
+          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -181,14 +197,23 @@ const MachineMasterPage: React.FC = () => {
     },
     {
       title: "Modified By",
-      dataIndex: "UpdatedUserName",
-      key: "UpdatedUserName",
+      dataIndex: "ModifiedByName",
+      key: "ModifiedByName",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        {
+          console.log("DATA",a,b);
+          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      },
+    
     },
     {
       title: "Actions",
       key: "actions",
       render: (text: any, record: IMachineMaster) => (
-        <span className="action-cell">
+        <span className="">
           <Button
             title="View"
             className="action-btn"
@@ -202,11 +227,13 @@ const MachineMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-          <Popconfirm
-            title="Are you sure to delete this record?"
+          {record?.IsActive && <Popconfirm
+            title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.MachineId!)}
             okText="Yes"
             cancelText="No"
+            okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
+            cancelButtonProps={{ className:"btn btn-outline-primary"}}
           >
             <Button
               title="Delete"
@@ -214,48 +241,75 @@ const MachineMasterPage: React.FC = () => {
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm>
+          </Popconfirm>}
         </span>
       ),
     },
   ];
 
   return (
-    <div>
-      <h2 className="title">Machine Master</h2>
-      <div className="flex justify-between items-center mb-3">
-        <Button
-          type="primary"
-          icon={<LeftCircleFilled />}
-          onClick={() => navigate(`/master`)}
-          className="whitespace-nowrap"
-        >
-          BACK
-        </Button>
+    <Page title="Machine Master">
+    <div className="content flex-grow-1 p-4">
+      <div className="d-flex justify-content-between items-center mb-3">
+      <button
+            className="btn btn-link btn-back"
+            type="button"
+            onClick={() => navigate(`/master`)}
+          >
+            <FontAwesomeIcon
+            className="me-2"
+              icon={faCircleChevronLeft}
+            />
+            Back
+          </button>
         <Button type="primary" onClick={handleAdd}>
           Add New
         </Button>
       </div>
+      <div className="table-container pt-0">
+
       <Table
         columns={columns}
         dataSource={data}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 10, 
-          showTotal: () => (
-         <div className="d-flex align-items-center gap-3">
-           <span style={{ marginRight: "auto" }}>
-             Total {data.length} items
-           </span>
-         </div>
-       ), }}
+      //   pagination={{ pageSize: 10, 
+      //     showTotal: () => (
+      //    <div className="d-flex align-items-center gap-3">
+      //      <span style={{ marginRight: "auto" }}>
+      //        Total {data.length} items
+      //      </span>
+      //    </div>
+      //  ), }}
+       pagination={{
+              onChange:()=>{
+                scrollToElementsTop("table-container");
+              },
+             
+              showTotal: (total, range) => (
+                <div className="d-flex align-items-center gap-3">
+                  <span style={{ marginRight: "auto" }}>
+                    Showing {range[0]}-{range[1]} of {total} items
+                  </span>
+      
+                 
+                </div>
+              ),
+              itemRender: (_, __, originalElement) => originalElement,
+            }}
       />
+      </div>
       <Modal
-        title={editingItem ? "Edit Item" : "Add Item"}
+        title={isViewMode?"View Item":editingItem ? "Edit Item" : "Add Item"}
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         onOk={() => !isViewMode && form.submit()}
         okButtonProps={{ disabled: isViewMode }}
+        footer={
+          isViewMode
+            ? null 
+            : undefined 
+        }
       >
         <Form
           form={form}
@@ -266,7 +320,16 @@ const MachineMasterPage: React.FC = () => {
           <Form.Item
             name="MachineName"
             label="Machine Name"
-            rules={[{ required: true, message: "Please enter Machine Name" }]}
+            rules={[{ required: true, message: "Please enter Machine Name" },
+              {
+                validator: (_, value) => {
+                  if (value && value.trim() === "") {
+                    return Promise.reject(new Error("Only spaces are not allowed"));
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
           >
             <Input type="text" disabled={isViewMode} />
           </Form.Item>
@@ -282,6 +345,7 @@ const MachineMasterPage: React.FC = () => {
         </Form>
       </Modal>
     </div>
+    </Page>
   );
 };
 

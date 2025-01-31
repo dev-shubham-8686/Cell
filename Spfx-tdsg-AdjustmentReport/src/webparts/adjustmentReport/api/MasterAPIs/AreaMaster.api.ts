@@ -3,7 +3,7 @@ import apiClient from "../../utils/axiosInstance";
 
 
 export const getAllAreaMaster = (): Promise<any> => {
-    return apiClient.get(`${basePath}/GetAllAreas`)
+    return apiClient.get(`/MasterTbl/GetAreaMaster`)
     .then((response) => {
       return response.data; // Return the data from the response
     })
@@ -14,31 +14,29 @@ export const getAllAreaMaster = (): Promise<any> => {
 
   export const areaMasterAddOrUpdate = (data: any): Promise<any> => {
     console.log("Add or update area payload", data);
-    return ;
-    // return apiClient.post(`${basePath}/GetEquipmentMasterTblAddOrUpdate`, data, {
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    // })
-    // .then((response) => {
-    //   return response.data; // Return the data from the response
-    // })
-    // .catch((error) => {
-    //     // Something happened in setting up the request that triggered an Error
-    //     throw new Error("Error occurred while saving data");
+    return apiClient.post(`/MasterTbl/AddUpdateArea`, data, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((response) => {
+      return response.data; // Return the data from the response
+    })
+    .catch((error) => {
+        // Something happened in setting up the request that triggered an Error
+        throw new Error("Error occurred while saving data");
       
-    // });
+    });
   };
 
   export const deleteAreaMaster = (Id: string): Promise<any> => {
-    return ;
-    // return apiClient.delete(`${basePath}/GetEquipmentMasterTblDelete`, {
-    //   params: { Id: Id },
-    // })
-    // .then((response) => {
-    //   return response.data; // Return the response data
-    // })
-    // .catch((error) => {
-    //   throw new Error("Error deleting data"); // Handle errors
-    // });
+    return apiClient.delete(`/MasterTbl/DeleteArea`, {
+      params: { areaId: Id },
+    })
+    .then((response) => {
+      return response.data; // Return the response data
+    })
+    .catch((error) => {
+      throw new Error("Error deleting data"); // Handle errors
+    });
   };
