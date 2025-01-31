@@ -16,15 +16,17 @@ const ApprovalHome: React.FC = () => {
     if (ctValue || orValue || cidValue)
       window.location.href = `${WEB_URL}/SitePages/${APP_NAME}#/form/${mode}/${id}/approval`;
     else
-      navigate(`/request/${mode}/${id}`, {
-        state: { isApproverRequest: true, fromApprovalEmail: true },
-      });
+     { 
+      navigate(`/form/${mode}/${id}`, {
+        state: { isApproverRequest: true },
+      });}
+      
   }, []);
   return (
     <div className="error-boundary">
       {" "}
       <img
-        src={require("../assets/picture_apology.png")}
+        src={require("../../assets/ban.png")}
         alt="Apologetic image"
         className="d-inline-block align-text-top"
       />{" "}

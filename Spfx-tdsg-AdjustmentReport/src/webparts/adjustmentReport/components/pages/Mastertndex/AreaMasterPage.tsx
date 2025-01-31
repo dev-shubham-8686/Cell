@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, Checkbox, Popconfirm } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCircleChevronLeft,
+  faEdit,
+  faEye,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import dayjs from "dayjs";
 import {
   //CloseOutlined,
@@ -11,7 +16,12 @@ import {
 import { useNavigate } from "react-router-dom";
 import displayjsx from "../../../utils/displayjsx";
 import { useUserContext } from "../../../context/UserContext";
-import { areaMasterAddOrUpdate, deleteAreaMaster, getAllAreaMaster } from "../../../api/MasterAPIs/AreaMaster.api";
+import {
+  areaMasterAddOrUpdate,
+  deleteAreaMaster,
+  getAllAreaMaster,
+} from "../../../api/MasterAPIs/AreaMaster.api";
+import Page from "../../page/page";
 
 interface IAreaMaster {
   AreaId: number;
@@ -31,8 +41,7 @@ const AreaMasterPage: React.FC = () => {
   // );
   const navigate = useNavigate();
   const [modalVisible, setModalVisible] = useState(false);
-  const [editingItem, setEditingItem] =
-    useState<IAreaMaster | null>(null);
+  const [editingItem, setEditingItem] = useState<IAreaMaster | null>(null);
   const [form] = Form.useForm();
   const { user } = useUserContext();
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
@@ -108,7 +117,7 @@ const AreaMasterPage: React.FC = () => {
         AreaId: editingItem.AreaId,
         AreaName: values.AreaName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        ModifiedBy:user?.employeeId
       })
         .then(() => {
           void displayjsx.showSuccess("Record updated successfully");
@@ -120,22 +129,20 @@ const AreaMasterPage: React.FC = () => {
           void displayjsx.showErrorMsg("Failed to update record");
           // message.error("Failed to update record");
         });
-    }
-      else {
+    } else {
       // Create new record
       areaMasterAddOrUpdate({
         AreaId: 0,
         AreaName: values.AreaName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        CreatedBy: user?.employeeId,
       })
         .then((response) => {
-
           let result = response.ReturnValue;
 
-          if(result.AreaId == -1){
+          if (result.AreaId == -1) {
             void displayjsx.showInfo("Duplicate record found");
-             return false;
+            return false;
           }
 
           void displayjsx.showSuccess("Record created successfully");
@@ -160,7 +167,7 @@ const AreaMasterPage: React.FC = () => {
       dataIndex: "AreaName",
       key: "AreaName",
       sorter: (a: any, b: any) =>
-        a.EquipmentName.localeCompare(b.EquipmentName),
+        a.AreaName.localeCompare(b.AreaName),
     },
     {
       title: "Is Active",
@@ -175,7 +182,7 @@ const AreaMasterPage: React.FC = () => {
       key: "CreatedDate",
       render: (CreatedDate: string) => (
         <span>
-          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : ""}
+          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -183,8 +190,13 @@ const AreaMasterPage: React.FC = () => {
     },
     {
       title: "Created By",
-      dataIndex: "UserName",
-      key: "UserName",
+      dataIndex: "CreatedByName",
+      key: "CreatedBy",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        a.CreatedByName.localeCompare(b.CreatedByName)
     },
     {
       title: "Modified Date",
@@ -192,7 +204,7 @@ const AreaMasterPage: React.FC = () => {
       key: "ModifiedDate",
       render: (ModifiedDate: string) => (
         <span>
-          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : ""}
+          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -200,14 +212,19 @@ const AreaMasterPage: React.FC = () => {
     },
     {
       title: "Modified By",
-      dataIndex: "UpdatedUserName",
-      key: "UpdatedUserName",
+      dataIndex: "ModifiedByName",
+      key: "ModifiedBy",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        a.ModifiedByName.localeCompare(b.ModifiedByName)
     },
     {
       title: "Actions",
       key: "actions",
       render: (text: any, record: IAreaMaster) => (
-        <span className="action-cell">
+        <span className="p-0 m-0">
           <Button
             title="View"
             className="action-btn"
@@ -226,6 +243,8 @@ const AreaMasterPage: React.FC = () => {
             onConfirm={() => handleDelete(record.AreaId!)}
             okText="Yes"
             cancelText="No"
+            okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
+            cancelButtonProps={{ className:"btn btn-outline-primary"}}
           >
             <Button
               title="Delete"
@@ -240,103 +259,78 @@ const AreaMasterPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <h2 className="title">Area Master</h2>
-      <div className="flex justify-between items-center mb-3">
-        {/* <div className="flex gap-3 items-center">
-                     <div style={{ position: "relative", display: "inline-block" }}>
-                       <Input
-                         type="text"
-                         placeholder="Search Here"
-                         value={searchText}
-                         onChange={(e) => setSearchText(e.target.value)}
-                         style={{ width: 300 }}
-                       />
-                       {searchText && (
-                         <CloseOutlined
-                           onClick={() => {
-                             setSearchText("");
-                             setFilteredData(data);
-                           }}
-                           className="text-gray-400 cursor-pointer"
-                           style={{
-                             position: "absolute",
-                             right: "10px",
-                             top: "50%",
-                             transform: "translateY(-50%)",
-                             zIndex: 1,
-                             cursor: "pointer",
-                           }}
-                         />
-                       )}
-                     </div>
-                     <Button
-                       type="primary"
-                       icon={<SearchOutlined />}
-                       onClick={handleSearch}
-                       className="whitespace-nowrap"
-                     >
-                       Search
-                     </Button>
-                   </div> */}
-        <Button
-          type="primary"
-          icon={<LeftCircleFilled />}
-          onClick={() => navigate(`/master`)}
-          className="whitespace-nowrap"
-        >
-          BACK
-        </Button>
-        <Button type="primary" onClick={handleAdd}>
-          Add New
-        </Button>
-      </div>
-      <Table
-        columns={columns}
-        dataSource={data}
-        rowKey="id"
-        loading={loading}
-        pagination={{ pageSize: 10, 
-          showTotal: () => (
-         <div className="d-flex align-items-center gap-3">
-           <span style={{ marginRight: "auto" }}>
-             Total {data.length} items
-           </span>
-         </div>
-       ), }}
-      />
-      <Modal
-        title={editingItem ? "Edit Item" : "Add Item"}
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        onOk={() => !isViewMode && form.submit()}
-        okButtonProps={{ disabled: isViewMode }}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSave}
-          initialValues={{ EquipmentName: "", IsActive: false }}
-        >
-          <Form.Item
-            name="AreaName"
-            label="Area Name"
-            rules={[{ required: true, message: "Please enter Area Name" }]}
+    <Page title="Area Master">
+      <div className="content flex-grow-1 p-4">
+        <div className="d-flex justify-content-between items-center mb-3">
+          
+          <button
+            className="btn btn-link btn-back"
+            type="button"
+            onClick={() => navigate(`/master`)}
           >
-            <Input type="text" disabled={isViewMode} />
-          </Form.Item>
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <FontAwesomeIcon className="me-2" icon={faCircleChevronLeft} />
+            Back
+          </button>
+          <Button type="primary" onClick={handleAdd}>
+            Add New
+          </Button>
+        </div>
+        <div className="table-container pt-0">
+          <Table
+            columns={columns}
+            dataSource={data}
+            rowKey="id"
+            loading={loading}
+            pagination={{
+              pageSize: 10,
+              showTotal: () => (
+                <div className="d-flex align-items-center gap-3">
+                  <span style={{ marginRight: "auto" }}>
+                    Total {data.length} items
+                  </span>
+                </div>
+              ),
+            }}
+          />
+        </div>
+        <Modal
+        title={isViewMode?"View Item":editingItem ? "Edit Item" : "Add Item"}
+        open={modalVisible}
+          onCancel={() => setModalVisible(false)}
+          onOk={() => !isViewMode && form.submit()}
+          okButtonProps={{ disabled: isViewMode }}
+          footer={
+          isViewMode
+            ? null 
+            : undefined 
+        }
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSave}
+            initialValues={{ AreaName: "", IsActive: false }}
+          >
             <Form.Item
-              name="IsActive"
-              valuePropName="checked"
-              style={{ marginBottom: 0 }}
+              name="AreaName"
+              label="Area Name"
+              rules={[{ required: true, message: "Please enter Area Name" }]}
             >
-              <Checkbox disabled={isViewMode}>Is Active</Checkbox>
+              <Input type="text" disabled={isViewMode} />
             </Form.Item>
-          </div>
-        </Form>
-      </Modal>
-    </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <Form.Item
+                name="IsActive"
+                valuePropName="checked"
+                style={{ marginBottom: 0 }}
+              >
+                <Checkbox disabled={isViewMode}>Is Active</Checkbox>
+              </Form.Item>
+            </div>
+          </Form>
+        </Modal>
+      </div>
+    </Page>
   );
 };
 

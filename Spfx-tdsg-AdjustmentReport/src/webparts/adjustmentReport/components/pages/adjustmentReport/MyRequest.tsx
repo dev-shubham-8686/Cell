@@ -206,12 +206,12 @@ console.log("location",location.state)
       ),
     },
     {
-      title: <p className="text-center p-0 m-0">Actions</p>,
+      title: <p className=" p-0 m-0">Actions</p>,
       key: "action",
       width: 140,
       sorter: false,
       render: (record) => (
-        <div className="action-cell">
+        <div className="">
           <button
             type="button"
             style={{ background: "none", border: "none" }}

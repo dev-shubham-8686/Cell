@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, Checkbox, Popconfirm } from "antd";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faCircleChevronLeft, faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import dayjs from "dayjs";
 import {
   //CloseOutlined,
@@ -13,7 +13,8 @@ import { useNavigate } from "react-router-dom";
 import displayjsx from "../../../utils/displayjsx";
 import { useUserContext } from "../../../context/UserContext";
 import { getAllMachineMaster } from "../../../api/MasterAPIs/MachineMaster.api";
-import { getAllSectionMaster, sectionMasterAddOrUpdate } from "../../../api/MasterAPIs/SectionMaster.api";
+import { deleteSectionMaster, getAllSectionMaster, sectionMasterAddOrUpdate } from "../../../api/MasterAPIs/SectionMaster.api";
+import Page from "../../page/page";
 
 interface ISectionMaster {
   SectionId: number;
@@ -73,7 +74,7 @@ const SectionMasterPage: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    // getEquipmentMasterTblDelete(id.toString())
+    // deleteSectionMaster(id.toString())
     //   .then(() => {
     //     void displayjsx.showSuccess("Record deleted successfully");
     //     fetchData();
@@ -91,8 +92,8 @@ const SectionMasterPage: React.FC = () => {
         SectionId: editingItem.SectionId,
         SectionName: values.SectionName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
-      })
+        ModifiedBy:user?.employeeId
+      })  
         .then(() => {
           void displayjsx.showSuccess("Record updated successfully");
           
@@ -109,7 +110,7 @@ const SectionMasterPage: React.FC = () => {
         SectionId: 0,
         SectionName: values.SectionName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        CreatedBy: user?.employeeId,
       })
         .then((response) => {
 
@@ -142,7 +143,7 @@ const SectionMasterPage: React.FC = () => {
       dataIndex: "SectionName",
       key: "SectionName",
       sorter: (a: any, b: any) =>
-        a.EquipmentName.localeCompare(b.EquipmentName),
+        a.SectionName.localeCompare(b.SectionName),
     },
     {
       title: "Is Active",
@@ -157,7 +158,7 @@ const SectionMasterPage: React.FC = () => {
       key: "CreatedDate",
       render: (CreatedDate: string) => (
         <span>
-          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : ""}
+          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -165,8 +166,13 @@ const SectionMasterPage: React.FC = () => {
     },
     {
       title: "Created By",
-      dataIndex: "UserName",
-      key: "UserName",
+      dataIndex: "CreatedByName",
+      key: "CreatedByName",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        a.CreatedByName.localeCompare(b.CreatedByName)
     },
     {
       title: "Modified Date",
@@ -174,7 +180,7 @@ const SectionMasterPage: React.FC = () => {
       key: "ModifiedDate",
       render: (ModifiedDate: string) => (
         <span>
-          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : ""}
+          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -182,14 +188,19 @@ const SectionMasterPage: React.FC = () => {
     },
     {
       title: "Modified By",
-      dataIndex: "UpdatedUserName",
-      key: "UpdatedUserName",
+      dataIndex: "ModifiedByName",
+      key: "ModifiedByName",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        a.ModifiedByName.localeCompare(b.ModifiedByName)
     },
     {
       title: "Actions",
       key: "actions",
       render: (text: any, record: ISectionMaster) => (
-        <span className="action-cell">
+        <span className="">
           <Button
             title="View"
             className="action-btn"
@@ -208,6 +219,8 @@ const SectionMasterPage: React.FC = () => {
             onConfirm={() => handleDelete(record.SectionId!)}
             okText="Yes"
             cancelText="No"
+            okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
+            cancelButtonProps={{ className:"btn btn-outline-primary"}}
           >
             <Button
               title="Delete"
@@ -222,21 +235,26 @@ const SectionMasterPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <h2 className="title">Section Master</h2>
-      <div className="flex justify-between items-center mb-3">
-        <Button
-          type="primary"
-          icon={<LeftCircleFilled />}
-          onClick={() => navigate(`/master`)}
-          className="whitespace-nowrap"
-        >
-          BACK
-        </Button>
+    <Page title="Section Master">
+      <div className="content flex-grow-1 p-4">
+        <div className="d-flex justify-content-between items-center mb-3">
+      <button
+            className="btn btn-link btn-back"
+            type="button"
+            onClick={() => navigate(`/master`)}
+          >
+            <FontAwesomeIcon
+            className="me-2"
+              icon={faCircleChevronLeft}
+            />
+            Back
+          </button>
         <Button type="primary" onClick={handleAdd}>
           Add New
         </Button>
       </div>
+      <div className="table-container pt-0">
+
       <Table
         columns={columns}
         dataSource={data}
@@ -251,12 +269,18 @@ const SectionMasterPage: React.FC = () => {
          </div>
        ), }}
       />
+      </div>
       <Modal
-        title={editingItem ? "Edit Item" : "Add Item"}
+        title={isViewMode?"View Item":editingItem ? "Edit Item" : "Add Item"}
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         onOk={() => !isViewMode && form.submit()}
         okButtonProps={{ disabled: isViewMode }}
+        footer={
+          isViewMode
+            ? null 
+            : undefined 
+        }
       >
         <Form
           form={form}
@@ -283,6 +307,7 @@ const SectionMasterPage: React.FC = () => {
         </Form>
       </Modal>
     </div>
+    </Page>
   );
 };
 
