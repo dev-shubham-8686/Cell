@@ -16,6 +16,7 @@ import { useGetSectionMaster } from "../../../apis/mastermanagementAPIs/sectionM
 import useAddOrUpdateSection from "../../../apis/mastermanagementAPIs/sectionMaster/useAddOrUpdateSection";
 import useDeleteSectionMaster from "../../../apis/mastermanagementAPIs/sectionMaster/useDeleteSection";
 import Page from "../../page/page";
+import { scrollToElementsTop } from "../../../utility/utility";
 
 interface ISectionMaster {
   SectionId: number;
@@ -83,11 +84,11 @@ const SectionMasterPage: React.FC = () => {
   const handleDelete = (id: number) => {
     // getEquipmentMasterTblDelete(id.toString())
     //   .then(() => {
-    //     void displayjsx.showSuccess("Record deleted successfully");
+    //     void displayjsx.showSuccess("Record Inactivated successfully");
     //     fetchData();
     //   })
     //   .catch(() => {
-    //     void displayjsx.showErrorMsg("Failed to delete record");
+    //     void displayjsx.showErrorMsg("Failed to Inactivate record");
     //   });
   };
 
@@ -104,6 +105,12 @@ const SectionMasterPage: React.FC = () => {
         onSuccess: async (Response: any) => {
           console.log("ONSUBMIT RES", Response);
           setModalVisible(false);
+           let result = Response?.ReturnValue;
+          
+                      if (result.SectionId == -1) {
+                        void displayjsx.showInfo("Duplicate record found");
+                        return false;
+                      }
          await refetch();
         },
         onError: (error) => {
@@ -229,8 +236,9 @@ const SectionMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
+        {record?.IsActive &&
           <Popconfirm
-            title="Are you sure to delete this record?"
+            title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.SectionId!)}
             okText="Yes"
             cancelText="No"
@@ -246,7 +254,7 @@ const SectionMasterPage: React.FC = () => {
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm>
+          </Popconfirm>}
         </span>
       ),
     },
@@ -286,14 +294,22 @@ className="me-2"
         dataSource={data}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 10, 
-          showTotal: () => (
-         <div className="d-flex align-items-center gap-3">
-           <span style={{ marginRight: "auto" }}>
-             Total {data.length} items
-           </span>
-         </div>
-       ), }}
+        pagination={{
+          onChange:()=>{
+            scrollToElementsTop("table-container");
+          },
+         
+          showTotal: (total, range) => (
+            <div className="d-flex align-items-center gap-3">
+              <span style={{ marginRight: "auto" }}>
+                Showing {range[0]}-{range[1]} of {total} items
+              </span>
+  
+             
+            </div>
+          ),
+          itemRender: (_, __, originalElement) => originalElement,
+        }}
       />
       </div>
       <Modal

@@ -31,6 +31,7 @@ import { useGetSubMachineMaster } from "../../../apis/mastermanagementAPIs/subMa
 import useAddOrUpdateSubMachine from "../../../apis/mastermanagementAPIs/subMachineMaster/useAddOrUpdateSubMachine";
 import useDeleteSubMachineMaster from "../../../apis/mastermanagementAPIs/subMachineMaster/useDeleteSubMachine";
 import Page from "../../page/page";
+import { scrollToElementsTop } from "../../../utility/utility";
 
 interface ISubMachineMaster {
   SubMachineId: number;
@@ -123,6 +124,12 @@ const SubMachineMasterPage: React.FC = () => {
         onSuccess: async (Response: any) => {
           console.log("ONSUBMIT RES", Response);
           setModalVisible(false);
+          let result = Response?.ReturnValue;
+          
+          if (result.SubMachineId == -1) {
+            void displayjsx.showInfo("Duplicate record found");
+                                  return false;
+                                }
          await refetch();
         },
         onError: (error) => {
@@ -271,8 +278,9 @@ const SubMachineMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-          <Popconfirm
-            title="Are you sure to delete this record?"
+        { record?.IsActive &&
+         <Popconfirm
+            title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.SubMachineId!)}
             okText="Yes"
             cancelText="No"
@@ -287,7 +295,7 @@ const SubMachineMasterPage: React.FC = () => {
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm>
+          </Popconfirm>}
         </span>
       ),
     },
@@ -328,14 +336,20 @@ className="me-2"
         rowKey="id"
         loading={loading}
         pagination={{
-          pageSize: 10,
-          showTotal: () => (
+          onChange:()=>{
+            scrollToElementsTop("table-container");
+          },
+         
+          showTotal: (total, range) => (
             <div className="d-flex align-items-center gap-3">
               <span style={{ marginRight: "auto" }}>
-                Total {data.length} items
+                Showing {range[0]}-{range[1]} of {total} items
               </span>
+  
+             
             </div>
           ),
+          itemRender: (_, __, originalElement) => originalElement,
         }}
       />
       </div>

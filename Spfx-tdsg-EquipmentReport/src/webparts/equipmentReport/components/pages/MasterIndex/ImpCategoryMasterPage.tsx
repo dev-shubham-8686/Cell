@@ -18,6 +18,7 @@ import { useGetImpCategoryMaster } from "../../../apis/mastermanagementAPIs/impr
 import useAddOrUpdateImpCategory from "../../../apis/mastermanagementAPIs/improvementCategoryMaster/useAddOrUpdateImpCategory";
 import useDeleteImpCategoryMaster from "../../../apis/mastermanagementAPIs/improvementCategoryMaster/useDeleteImpCategory";
 import Page from "../../page/page";
+import { scrollToElementsTop } from "../../../utility/utility";
 
 export interface IImpCategory {
   ImpCategoryId: number;
@@ -124,6 +125,12 @@ const ImpCategoryMasterPage: React.FC = () => {
         onSuccess: async (Response: any) => {
           console.log("ONSUBMIT RES", Response);
           setModalVisible(false);
+           let result = Response?.ReturnValue;
+          
+                    if (result.ImpCategoryId == -1) {
+                      void displayjsx.showInfo("Duplicate record found");
+                      return false;
+                    }
          await refetch();
         },
         onError: (error) => {
@@ -251,8 +258,9 @@ const ImpCategoryMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
+         {record?.IsActive &&
           <Popconfirm
-            title="Are you sure to delete this record?"
+            title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.ImpCategoryId!)}
             okText="Yes"
             cancelText="No"
@@ -267,7 +275,7 @@ const ImpCategoryMasterPage: React.FC = () => {
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm>
+          </Popconfirm>}
         </span>
       ),
     },
@@ -308,14 +316,22 @@ const ImpCategoryMasterPage: React.FC = () => {
         dataSource={data}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 10, 
-          showTotal: () => (
-         <div className="d-flex align-items-center gap-3">
-           <span style={{ marginRight: "auto" }}>
-             Total {data.length} items
-           </span>
-         </div>
-       ), }}
+        pagination={{
+          onChange:()=>{
+            scrollToElementsTop("table-container");
+          },
+         
+          showTotal: (total, range) => (
+            <div className="d-flex align-items-center gap-3">
+              <span style={{ marginRight: "auto" }}>
+                Showing {range[0]}-{range[1]} of {total} items
+              </span>
+  
+             
+            </div>
+          ),
+          itemRender: (_, __, originalElement) => originalElement,
+        }}
       />
       </div>
       <Modal

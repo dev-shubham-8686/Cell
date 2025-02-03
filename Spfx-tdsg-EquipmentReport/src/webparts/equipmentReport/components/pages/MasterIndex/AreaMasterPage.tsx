@@ -20,6 +20,7 @@ import useGetAreaMaster from "../../../apis/mastermanagementAPIs/areaMaster/useG
 import useAddOrUpdateArea from "../../../apis/mastermanagementAPIs/areaMaster/useAddOrUpdateArea";
 import useDeleteAreaMaster from "../../../apis/mastermanagementAPIs/areaMaster/useDeleteArea";
 import Page from "../../page/page";
+import { scrollToElementsTop } from "../../../utility/utility";
 
 interface IAreaMaster {
   AreaId: number;
@@ -124,6 +125,12 @@ const AreaMasterPage: React.FC = () => {
         onSuccess: async (Response: any) => {
           console.log("ONSUBMIT RES", Response);
           setModalVisible(false);
+          let result = Response?.ReturnValue;
+
+          if (result.AreaId == -1) {
+            void displayjsx.showInfo("Duplicate record found");
+            return false;
+          }
          await refetch();
         },
         onError: (error) => {
@@ -249,8 +256,9 @@ const AreaMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
+          {record?.IsActive &&
           <Popconfirm
-            title="Are you sure to delete this record?"
+            title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.AreaId!)}
             okText="Yes"
             cancelText="No"
@@ -266,7 +274,7 @@ const AreaMasterPage: React.FC = () => {
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm>
+          </Popconfirm>}
         </div>
       ),
     },
@@ -344,14 +352,20 @@ const AreaMasterPage: React.FC = () => {
         rowKey="id"
         loading={loading}
         pagination={{
-          pageSize: 10,
-          showTotal: () => (
+          onChange:()=>{
+            scrollToElementsTop("table-container");
+          },
+         
+          showTotal: (total, range) => (
             <div className="d-flex align-items-center gap-3">
               <span style={{ marginRight: "auto" }}>
-                Total {data.length} items
+                Showing {range[0]}-{range[1]} of {total} items
               </span>
+  
+             
             </div>
           ),
+          itemRender: (_, __, originalElement) => originalElement,
         }}
       />
       </div>
