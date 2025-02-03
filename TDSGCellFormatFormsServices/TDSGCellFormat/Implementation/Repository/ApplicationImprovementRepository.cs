@@ -2099,7 +2099,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 string templateFile = "EquipmentPDF.html";
 
-                string templateFilePath = Path.Combine(baseDirectory, htmlTemplatePath, templateFile);
+                string templateFilePath = Path.Combine(projectRootDirectory, htmlTemplatePath, templateFile);
 
                 string? htmlTemplate = System.IO.File.ReadAllText(templateFilePath);
                 sb.Append(htmlTemplate);
