@@ -17,6 +17,7 @@ import { deleteUOMMaster, getAllUOMMaster, uomMasterAddOrUpdate } from "../../..
 import useCategories from "../../../apis/category/useCategories";
 import { categoryMasterAddOrUpdate, deleteCategoryMaster, getAllCategoryMaster } from "../../../apis/MasterAPIs/CategoryMaster";
 import Page from "../../page/page";
+import { scrollToElementsTop } from "../../../utility/utility";
 interface ICategoryMaster {
     CategoryId: number;
     CategoryName: string;
@@ -79,7 +80,7 @@ const CategoryMasterPage: React.FC = () => {
   const handleDelete = (id: number) => {
     deleteCategoryMaster(id.toString())
       .then(() => {
-        void displayjsx.showSuccess("Record deleted successfully");
+        void displayjsx.showSuccess("Record Inactivated successfully");
         fetchData();
       })
       .catch(() => {
@@ -96,7 +97,14 @@ const CategoryMasterPage: React.FC = () => {
         IsActive: values.IsActive,
         ModifiedBy:user?.employeeId
       })
-        .then(() => {
+        .then((response) => {
+
+          let result = response?.ReturnValue;
+
+          if (result.CategoryId == -1) {
+            void displayjsx.showInfo("Duplicate record found");
+            return false;
+          }
           void displayjsx.showSuccess("Record updated successfully");
           
           fetchData();
@@ -174,7 +182,10 @@ const CategoryMasterPage: React.FC = () => {
         return <p className="text-cell">{text??"-"}</p>;
       },
       sorter: (a: any, b: any) =>
-        a.CreatedByName.localeCompare(b.CreatedByName)
+        {
+          console.log("DATA",a,b);
+          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      },
     },
     {
       title: "Modified Date",
@@ -196,7 +207,10 @@ const CategoryMasterPage: React.FC = () => {
         return <p className="text-cell">{text??"-"}</p>;
       },
       sorter: (a: any, b: any) =>
-        a.ModifiedByName.localeCompare(b.ModifiedByName)
+        {
+          console.log("DATA",a,b);
+          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      },
     },
     {
       title: "Actions",
@@ -217,8 +231,8 @@ const CategoryMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-          <Popconfirm
-            title="Are you sure to delete this record?"
+        {record?.IsActive  &&  <Popconfirm
+            title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.CategoryId!)}
             okText="Yes"
             okButtonProps={{className:"btn btn-primary"}}
@@ -231,7 +245,7 @@ const CategoryMasterPage: React.FC = () => {
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm>
+          </Popconfirm>}
         </span>
       ),
     },
@@ -271,14 +285,22 @@ const CategoryMasterPage: React.FC = () => {
         dataSource={data}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 10, 
-          showTotal: () => (
-         <div className="d-flex align-items-center gap-3">
-           <span style={{ marginRight: "auto" }}>
-             Total {data.length} items
-           </span>
-         </div>
-       ), }}
+        pagination={{
+          onChange:()=>{
+            scrollToElementsTop("table-container");
+          },
+         
+          showTotal: (total, range) => (
+            <div className="d-flex align-items-center gap-3">
+              <span style={{ marginRight: "auto" }}>
+                Showing {range[0]}-{range[1]} of {total} items
+              </span>
+  
+             
+            </div>
+          ),
+          itemRender: (_, __, originalElement) => originalElement,
+        }}
       />
       </div>
       <Modal

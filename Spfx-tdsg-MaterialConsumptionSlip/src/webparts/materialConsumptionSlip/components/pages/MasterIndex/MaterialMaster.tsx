@@ -1,8 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Form, Checkbox, Select, Input, Popconfirm } from "antd";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Checkbox,
+  Select,
+  Input,
+  Popconfirm,
+} from "antd";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleChevronLeft, faEdit, faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCircleChevronLeft,
+  faEdit,
+  faEye,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import { UserContext } from "../../../context/userContext";
 import {
   //CloseOutlined,
@@ -16,10 +30,20 @@ import useUnitsOfMeasure from "../../../apis/unitOfMeasure/useUnitsOfMeasure";
 import useCostCenters from "../../../apis/costCenter/useCostCenters";
 import displayjsx from "../../../utility/displayjsx";
 import { ICostCenter } from "../../../apis/costCenter/useCostCenters/useCostCenters";
-import { addUpdateMaterialMaster, deleteMaterial, getAllMaterialMaster } from "../../../apis/MasterAPIs/MaterialMaster";
+import {
+  addUpdateMaterialMaster,
+  deleteMaterial,
+  getAllMaterialMaster,
+} from "../../../apis/MasterAPIs/MaterialMaster";
 import { getAllUOMMaster } from "../../../apis/MasterAPIs/UOMMaster";
-import { categoryMasterAddOrUpdate, deleteCategoryMaster, getAllCategoryMaster } from "../../../apis/MasterAPIs/CategoryMaster";
+import {
+  categoryMasterAddOrUpdate,
+  deleteCategoryMaster,
+  getAllCategoryMaster,
+} from "../../../apis/MasterAPIs/CategoryMaster";
 import Page from "../../page/page";
+import { scrollToElementsTop } from "../../../utility/utility";
+import dayjs from "dayjs";
 
 export interface Material {
   MaterialId: number;
@@ -47,48 +71,48 @@ const MaterialMasterPage: React.FC = () => {
   const [CostCenter, SetCostCenter] = useState([]);
   const [Category, SetCategory] = useState([]);
   const [UOM, SetUOM] = useState([]);
-//   const { data: categories, isLoading: categoryIsLoading } = useCategories();
-//   const { data: materials, isLoading: materialIsLoading } = useMaterials();
-//   const { data: unitsOfMeasure } = useUnitsOfMeasure();
+  //   const { data: categories, isLoading: categoryIsLoading } = useCategories();
+  //   const { data: materials, isLoading: materialIsLoading } = useMaterials();
+  //   const { data: unitsOfMeasure } = useUnitsOfMeasure();
   const { data: costCenters } = useCostCenters();
   const fetchData = () => {
     setLoading(true);
     getAllMaterialMaster()
-    .then((response) => {
-      setLoading(false);
-      setData(response?.ReturnValue);
-    })
-    .catch(() => {
-      void displayjsx.showErrorMsg("Error fetching data");
-      setLoading(false);
-    });
+      .then((response) => {
+        setLoading(false);
+        setData(response?.ReturnValue);
+      })
+      .catch(() => {
+        void displayjsx.showErrorMsg("Error fetching data");
+        setLoading(false);
+      });
 
     getAllUOMMaster()
-       .then((response) => {
-   SetUOM(response?.ReturnValue);
-       })
-       .catch(() => {
-         void displayjsx.showErrorMsg("Error fetching data");
-         setLoading(false);
-       });
+      .then((response) => {
+        SetUOM(response?.ReturnValue);
+      })
+      .catch(() => {
+        void displayjsx.showErrorMsg("Error fetching data");
+        setLoading(false);
+      });
 
     // getAllCostCenterSelection()
     //   .then((response) => {
-        SetCostCenter(costCenters);
+    SetCostCenter(costCenters);
     //   })
     //   .catch(() => {
     //     void displayjsx.showErrorMsg("Error fetching data");
     //     setLoading(false);
     //   });
 
-     getAllCategoryMaster()
-       .then((response) => {
-   SetCategory(response?.ReturnValue);
-       })
-       .catch(() => {
-         void displayjsx.showErrorMsg("Error fetching data");
-         setLoading(false);
-       });
+    getAllCategoryMaster()
+      .then((response) => {
+        SetCategory(response?.ReturnValue);
+      })
+      .catch(() => {
+        void displayjsx.showErrorMsg("Error fetching data");
+        setLoading(false);
+      });
   };
 
   const handleAdd = () => {
@@ -117,7 +141,7 @@ const MaterialMasterPage: React.FC = () => {
   const handleDelete = (id: number) => {
     deleteMaterial(id.toString())
       .then(() => {
-        void displayjsx.showSuccess("Record deleted successfully");
+        void displayjsx.showSuccess("Record Inactivated successfully");
         fetchData();
       })
       .catch(() => {
@@ -140,7 +164,7 @@ const MaterialMasterPage: React.FC = () => {
         ModifiedBy: user?.employeeId,
       })
         .then((response) => {
-          let result = response.ReturnValue;
+          let result = response?.ReturnValue;
 
           if (result.MaterialId == -1) {
             void displayjsx.showInfo("Duplicate record found");
@@ -186,7 +210,7 @@ const MaterialMasterPage: React.FC = () => {
         });
     }
   };
-console.log("UOMS",UOM)
+  console.log("UOMS", UOM);
   useEffect(() => {
     fetchData();
   }, []);
@@ -215,78 +239,88 @@ console.log("UOMS",UOM)
       title: "UOM",
       dataIndex: "UOM",
       key: "UOM",
-      // render: (UOM:any) => (UOM ? UOM : "-"), // Display Yes/No for IsActive
-      sorter: (a: any, b: any) => a.UOM - b.UOM,
-      render: ( value: any) => {
-        
-        const uom = UOM?.find(
-          (m: any) => m.UOMId === value
-        );
+      sorter: (a: any, b: any) => {
+        const uomA = UOM?.find((m: any) => m.UOMId === a.UOM)?.UOMName || "";
+        const uomB = UOM?.find((m: any) => m.UOMId === b.UOM)?.UOMName || "";
+        return uomA.localeCompare(uomB);
+      },
+      render: (value: any) => {
+        const uom = UOM?.find((m: any) => m.UOMId === value);
         return uom?.UOMName || "-"; // Show MachineName or fallback to "Unknown Machine"
-      }
+      },
     },
     {
       title: "Category",
       dataIndex: "Category",
       key: "Category",
       // render: (Category: boolean) => (Category ? Category : "-"), // Display Yes/No for IsActive
-      sorter: (a: any, b: any) => a.Category - b.IsCategoryActive,
-      render: ( value: any) => {
-        
-        const category = Category?.find(
-          (m: any) => m.CategoryId === value
-        );
+      sorter: (a: any, b: any) => {
+        const categoryA =
+          Category?.find((m: any) => m.CategoryId === a.Category)
+            ?.CategoryName || "";
+        const categoryB =
+          Category?.find((m: any) => m.CategoryId === b.Category)
+            ?.CategoryName || "";
+        return categoryA.localeCompare(categoryB);
+      },
+      render: (value: any) => {
+        const category = Category?.find((m: any) => m.CategoryId === value);
         return category?.CategoryName || "-"; // Show MachineName or fallback to "Unknown Machine"
-      }
+      },
     },
     {
       title: "CostCenter",
       dataIndex: "CostCenter",
       key: "CostCenter",
       // render: (CostCenter: boolean) => (CostCenter ? CostCenter : "-"), // Display Yes/No for IsActive
-      sorter: (a: any, b: any) => a.CostCenter - b.CostCenter,
-      render: ( value: any) => {
-        
+      sorter: (a: any, b: any) => {
+        const costCenterA = costCenters?.find((m: any) => m.costCenterId === a.CostCenter)?.name || "";
+        const costCenterB = costCenters?.find((m: any) => m.costCenterId === b.CostCenter)?.name || "";
+        return costCenterA.localeCompare(costCenterB);
+      },     
+       render: (value: any) => {
         const costcenter = costCenters?.find(
           (m: any) => m.costCenterId === value
         );
         return costcenter?.name || "-"; // Show MachineName or fallback to "Unknown Machine"
-      }
+      },
     },
-    // {
-    //   title: "Created Date",
-    //   dataIndex: "CreatedDate",
-    //   key: "CreatedDate",
-    //   render: (CreatedDate: string) => (
-    //     <span>
-    //       {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : ""}
-    //     </span>
-    //   ),
-    //   sorter: (a: any, b: any) =>
-    //     dayjs(a.CreatedDate).unix() - dayjs(b.CreatedDate).unix(),
-    // },
-    // {
-    //   title: "Created By",
-    //   dataIndex: "UserName",
-    //   key: "UserName",
-    // },
-    // {
-    //   title: "Modified Date",
-    //   dataIndex: "ModifiedDate",
-    //   key: "ModifiedDate",
-    //   render: (ModifiedDate: string) => (
-    //     <span>
-    //       {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : ""}
-    //     </span>
-    //   ),
-    //   sorter: (a: any, b: any) =>
-    //     dayjs(a.ModifiedDate).unix() - dayjs(b.ModifiedDate).unix(),
-    // },
-    // {
-    //   title: "Modified By",
-    //   dataIndex: "UpdatedUserName",
-    //   key: "UpdatedUserName",
-    // },
+    {
+      title: "Created Date",
+      dataIndex: "CreatedDate",
+      key: "CreatedDate",
+      render: (CreatedDate: string) => (
+        <span>
+          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : "-"}
+        </span>
+      ),
+      sorter: (a: any, b: any) =>
+        dayjs(a.CreatedDate).unix() - dayjs(b.CreatedDate).unix(),
+    },
+    {
+      title: "Created By",
+      dataIndex: "CreatedByName",
+      key: "CreatedByName",
+      render: (text: any) => {
+        return <p className="text-cell">{text ?? "-"}</p>;
+      },
+      sorter: (a: any, b: any) => {
+        console.log("DATA", a, b);
+        return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      },
+    },
+    {
+      title: "Modified Date",
+      dataIndex: "ModifiedDate",
+      key: "ModifiedDate",
+      render: (ModifiedDate: string) => (
+        <span>
+          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : "-"}
+        </span>
+      ),
+      sorter: (a: any, b: any) =>
+        dayjs(a.ModifiedDate).unix() - dayjs(b.ModifiedDate).unix(),
+    },
     {
       title: "Actions",
       key: "actions",
@@ -305,13 +339,13 @@ console.log("UOMS",UOM)
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-          <Popconfirm
-            title="Are you sure to delete this record?"
+        { record?.IsActive && <Popconfirm
+            title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.MaterialId!)}
             okText="Yes"
             cancelText="No"
-            okButtonProps={{className:"btn btn-primary"}}
-            cancelButtonProps={{className:"btn btn-outline-primary"}}
+            okButtonProps={{ className: "btn btn-primary" }}
+            cancelButtonProps={{ className: "btn btn-outline-primary" }}
           >
             <Button
               title="Delete"
@@ -319,7 +353,7 @@ console.log("UOMS",UOM)
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm>
+          </Popconfirm>}
         </span>
       ),
     },
@@ -327,141 +361,143 @@ console.log("UOMS",UOM)
 
   return (
     <Page title="Material Master">
-    <div className="content flex-grow-1 p-4">
-
-      <div className="d-flex justify-content-between items-center mb-3">
-        <div>
-        <button
-                 className="btn btn-link btn-back px-0"
-                 type="button"
-                 onClick={() => navigate(`/master`)}
-               >
-                 <FontAwesomeIcon
-            className="me-2"
-            icon={faCircleChevronLeft}
-                 />
-                 Back
-               </button>
-        </div>
-        
-        <div >
-        <Button type="primary"
-                  className="btn btn-primary"
-                  onClick={handleAdd}>
-          Add New
-        </Button>
-      </div>
-      </div>
-      <div className="table-container pt-0">
-      <Table
-        columns={columns}
-        dataSource={data}
-        rowKey="id"
-        loading={loading}
-        pagination={{
-          pageSize: 10,
-          showTotal: () => (
-            <div className="d-flex align-items-center gap-3">
-              <span style={{ marginRight: "auto" }}>
-                Total {data.length} items
-              </span>
-            </div>
-          ),
-        }}
-      />
-      </div>
-      <Modal
-        title={isViewMode?"View Item":editingItem ? "Edit Item" : "Add Item"}
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        onOk={() => !isViewMode && form.submit()}
-        okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
-        cancelButtonProps={{ className:"btn btn-outline-primary"}}
-        footer={
-          isViewMode
-            ? null 
-            : undefined 
-        }
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSave}
-          initialValues={{
-            IsActive: false,
-          }}
-        >
-          <Form.Item
-            name="Code"
-            label="Code"
-            rules={[{ required: true, message: "Please enter Code" }]}
-          >
-            <Input type="text" disabled={isViewMode} />
-          </Form.Item>
-          <Form.Item
-            name="Description"
-            label="Description"
-            rules={[{ required: true, message: "Please enter Description" }]}
-          >
-            <Input type="text" disabled={isViewMode} />
-          </Form.Item>
-          {/* Employee Dropdown */}
-          <Form.Item
-            name="Category"
-            label="Category"
-            rules={[{ required: true, message: "Please select an Category" }]}
-          >
-            <Select
-              placeholder="Select an Category"
-              disabled={isViewMode}
-              options={Category?.map((emp: any) => ({
-                label: emp.CategoryName,
-                value: emp.CategoryId,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item
-            name="UOM"
-            label="UOM"
-            rules={[{ required: true, message: "Please select an UOM" }]}
-          >
-            <Select
-              placeholder="Select an UOM"
-              disabled={isViewMode}
-              options={UOM?.map((val: any) => ({
-                label: val.UOMName,
-                value: val.UOMId,
-              }))}
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="CostCenter"
-            label="CostCenter"
-            rules={[{ required: true, message: "Please select an CostCenter" }]}
-          >
-            <Select
-              placeholder="Select an CostCenter"
-              disabled={isViewMode}
-              options={costCenters?.map((sec: ICostCenter) => ({
-                label: sec.name,
-                value: sec.costCenterId,
-              }))}
-            />
-          </Form.Item>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <Form.Item
-              name="IsActive"
-              valuePropName="checked"
-              style={{ marginBottom: 0 }}
+      <div className="content flex-grow-1 p-4">
+        <div className="d-flex justify-content-between items-center mb-3">
+          <div>
+            <button
+              className="btn btn-link btn-back px-0"
+              type="button"
+              onClick={() => navigate(`/master`)}
             >
-              <Checkbox disabled={isViewMode}>Is Active</Checkbox>
-            </Form.Item>
+              <FontAwesomeIcon className="me-2" icon={faCircleChevronLeft} />
+              Back
+            </button>
           </div>
-        </Form>
-      </Modal>
-    </div>
+
+          <div>
+            <Button
+              type="primary"
+              className="btn btn-primary"
+              onClick={handleAdd}
+            >
+              Add New
+            </Button>
+          </div>
+        </div>
+        <div className="table-container pt-0">
+          <Table
+            columns={columns}
+            dataSource={data}
+            rowKey="id"
+            loading={loading}
+            pagination={{
+              onChange: () => {
+                scrollToElementsTop("table-container");
+              },
+
+              showTotal: (total, range) => (
+                <div className="d-flex align-items-center gap-3">
+                  <span style={{ marginRight: "auto" }}>
+                    Showing {range[0]}-{range[1]} of {total} items
+                  </span>
+                </div>
+              ),
+              itemRender: (_, __, originalElement) => originalElement,
+            }}
+          />
+        </div>
+        <Modal
+          title={
+            isViewMode ? "View Item" : editingItem ? "Edit Item" : "Add Item"
+          }
+          open={modalVisible}
+          onCancel={() => setModalVisible(false)}
+          onOk={() => !isViewMode && form.submit()}
+          okButtonProps={{ disabled: isViewMode, className: "btn btn-primary" }}
+          cancelButtonProps={{ className: "btn btn-outline-primary" }}
+          footer={isViewMode ? null : undefined}
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSave}
+            initialValues={{
+              IsActive: false,
+            }}
+          >
+            <Form.Item
+              name="Code"
+              label="Code"
+              rules={[{ required: true, message: "Please enter Code" }]}
+            >
+              <Input type="text" disabled={isViewMode} />
+            </Form.Item>
+            <Form.Item
+              name="Description"
+              label="Description"
+              rules={[{ required: true, message: "Please enter Description" }]}
+            >
+              <Input type="text" disabled={isViewMode} />
+            </Form.Item>
+            {/* Employee Dropdown */}
+            <Form.Item
+              name="Category"
+              label="Category"
+              rules={[{ required: true, message: "Please select an Category" }]}
+            >
+              <Select
+                placeholder="Select an Category"
+                disabled={isViewMode}
+                options={Category?.map((emp: any) => ({
+                  label: emp.CategoryName,
+                  value: emp.CategoryId,
+                }))}
+              />
+            </Form.Item>
+            <Form.Item
+              name="UOM"
+              label="UOM"
+              rules={[{ required: true, message: "Please select an UOM" }]}
+            >
+              <Select
+                placeholder="Select an UOM"
+                disabled={isViewMode}
+                options={UOM?.map((val: any) => ({
+                  label: val.UOMName,
+                  value: val.UOMId,
+                }))}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="CostCenter"
+              label="CostCenter"
+              rules={[
+                { required: true, message: "Please select an CostCenter" },
+              ]}
+            >
+              <Select
+                placeholder="Select an CostCenter"
+                disabled={isViewMode}
+                options={costCenters?.map((sec: ICostCenter) => ({
+                  label: sec.name,
+                  value: sec.costCenterId,
+                }))}
+              />
+            </Form.Item>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <Form.Item
+                name="IsActive"
+                valuePropName="checked"
+                style={{ marginBottom: 0 }}
+              >
+                <Checkbox disabled={isViewMode}>Is Active</Checkbox>
+              </Form.Item>
+            </div>
+          </Form>
+        </Modal>
+      </div>
     </Page>
   );
 };

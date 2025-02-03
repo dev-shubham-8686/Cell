@@ -15,9 +15,11 @@ import useUnitsOfMeasure from "../../../apis/unitOfMeasure/useUnitsOfMeasure";
 import displayjsx from "../../../utility/displayjsx";
 import {
   costCenterMasterAddOrUpdate,
+  deleteCostCenterMaster,
   getAllCostCenterMaster,
 } from "../../../apis/MasterAPIs/CostCenterMaster";
 import Page from "../../page/page";
+import { scrollToElementsTop } from "../../../utility/utility";
 interface IConstCenterMaster {
   CostCenterId: number;
   CostCenterName: string;
@@ -77,16 +79,16 @@ const CostCenterMasterPage: React.FC = () => {
     form.setFieldsValue(record);
   };
 
-  //   const handleDelete = (id: number) => {
-  //     deleteCostCenterMaster(id.toString())
-  //       .then(() => {
-  //         void displayjsx.showSuccess("Record deleted successfully");
-  //         fetchData();
-  //       })
-  //       .catch(() => {
-  //         void displayjsx.showErrorMsg("Failed to delete record");
-  //       });
-  //   };
+    const handleDelete = (id: number) => {
+      deleteCostCenterMaster(id.toString())
+        .then(() => {
+          void displayjsx.showSuccess("Record Inactivated successfully");
+          fetchData();
+        })
+        .catch(() => {
+          void displayjsx.showErrorMsg("Failed to delete record");
+        });
+    };
 
   const handleSave = (values: IConstCenterMaster) => {
     if (editingItem) {
@@ -96,7 +98,15 @@ const CostCenterMasterPage: React.FC = () => {
         IsActive: values.IsActive,
         ModifiedBy:user?.employeeId
       })
-        .then(() => {
+        .then((response) => {
+
+            let result = response?.ReturnValue;
+          
+                    if (result.CostCenterId == -1) {
+                      void displayjsx.showInfo("Duplicate record found");
+                      return false;
+                    }
+
           void displayjsx.showSuccess("Record updated successfully");
 
           fetchData();
@@ -171,7 +181,10 @@ const CostCenterMasterPage: React.FC = () => {
         return <p className="text-cell">{text??"-"}</p>;
       },
       sorter: (a: any, b: any) =>
-        a.CreatedByName.localeCompare(b.CreatedByName)
+        {
+          console.log("DATA",a,b);
+          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      },
     },
     {
       title: "Modified Date",
@@ -193,7 +206,10 @@ const CostCenterMasterPage: React.FC = () => {
         return <p className="text-cell">{text??"-"}</p>;
       },
       sorter: (a: any, b: any) =>
-        a.ModifiedByName.localeCompare(b.ModifiedByName)
+        {
+          console.log("DATA",a,b);
+          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      },
     },
     {
       title: "Actions",
@@ -213,8 +229,8 @@ const CostCenterMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-          {/* <Popconfirm
-            title="Are you sure to delete this record?"
+        {  record?.IsActive && <Popconfirm
+            title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.CostCenterId!)}
             okText="Yes"
             cancelText="No"
@@ -225,7 +241,7 @@ const CostCenterMasterPage: React.FC = () => {
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm> */}
+          </Popconfirm>}
         </span>
       ),
     },
@@ -268,14 +284,20 @@ const CostCenterMasterPage: React.FC = () => {
         rowKey="id"
         loading={loading}
         pagination={{
-          pageSize: 10,
-          showTotal: () => (
+          onChange:()=>{
+            scrollToElementsTop("table-container");
+          },
+         
+          showTotal: (total, range) => (
             <div className="d-flex align-items-center gap-3">
               <span style={{ marginRight: "auto" }}>
-                Total {data.length} items
+                Showing {range[0]}-{range[1]} of {total} items
               </span>
+  
+             
             </div>
           ),
+          itemRender: (_, __, originalElement) => originalElement,
         }}
       />
       </div>
