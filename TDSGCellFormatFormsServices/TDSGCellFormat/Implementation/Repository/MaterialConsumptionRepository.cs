@@ -63,7 +63,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 return jsonResult;
 
-
             }
         }
 
@@ -599,6 +598,8 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             var res = new AjaxResult();
             var commonHelper = new CommonHelper(_context, _cloneContext);
+            int substituteUserId = 0;
+            bool IsSubstitute = false;
             try
             {
                 var requestTaskData = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.ApproverTaskId == ApproverTaskId && x.IsActive == true
@@ -638,12 +639,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             foreach (var nextTask in nextApproveTask)
                             {
-                               // int substituteUserId = 0;
-                               // int substitutePer = nextTask.AssignedToUserId ?? 0;
-                               // substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
-                               //
-                               // nextTask.AssignedToUserId = substituteUserId;
-
+                             
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
@@ -1289,15 +1285,13 @@ namespace TDSGCellFormat.Implementation.Repository
         }
         #endregion
 
-
         #region Delegate 
         public async Task<AjaxResult> InsertDelegate(DelegateUser request)
         {
             var res = new AjaxResult();
             try
             {
-                var material = _context.MaterialConsumptionApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId == 0) ||
-                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0))
+                var material = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId 
                                                                                        && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
                                                                                       && x.MaterialConsumptionId == request.FormId && x.IsActive == true).ToList();
                 if (material != null)

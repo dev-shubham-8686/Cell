@@ -14,6 +14,9 @@ using TDSGCellFormat.Models.View;
 using static TDSGCellFormat.Common.Enums;
 using System.Globalization;
 using Org.BouncyCastle.Utilities.Encoders;
+using Microsoft.SharePoint.Client;
+using SelectPdf;
+
 
 namespace TDSGCellFormat.Implementation.Repository
 {
@@ -63,7 +66,7 @@ namespace TDSGCellFormat.Implementation.Repository
         #endregion
 
         #region Listing screen 
-        public async Task<List<AdjustmentReportView>> GetAllAdjustmentData(
+        public async Task<List<AdjustmentReportAllView>> GetAllAdjustmentData(
     int createdBy,
     int skip,
     int take,
@@ -77,7 +80,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var listData = await _context.GetAdjustmentReportList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
 
             // Check if the user is an admin
-            var adjustmentData = new List<AdjustmentReportView>();
+            var adjustmentData = new List<AdjustmentReportAllView>();
             foreach (var item in listData)
             {
                 adjustmentData.Add(item);
@@ -613,7 +616,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     else if (request.IsSubmit == true && request.IsAmendReSubmitTask == true)
                     {
-                        var data = await Resubmit(existingReport.AdjustMentReportId, existingReport.CreatedBy);
+                        var data = await Resubmit(existingReport.AdjustMentReportId, request.ModifiedBy);
                         if (data.StatusCode == Enums.Status.Success)
                         {
                             res.Message = Enums.AdjustMentSubmit;
@@ -624,12 +627,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         if (request.ModifiedBy == adminId)
                         {
-                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Admin", "Update the Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
+                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Admin", "Update the Form", existingReport.Status, Convert.ToInt32(request.ModifiedBy), HistoryAction.Save.ToString(), 0);
 
                         }
                         else
                         {
-                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
+                            InsertHistoryData(existingReport.AdjustMentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Update the Form", existingReport.Status, Convert.ToInt32(request.ModifiedBy), HistoryAction.Save.ToString(), 0);
 
                         }
                     }
@@ -698,17 +701,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.SaveChangesAsync();
                 }
 
-                var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
-                if (createdBy == adminId)
-                {
-                    InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Admin", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.Submit.ToString(), 0);
+                // var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
 
-                }
-                else
-                {
+                
                     InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Requestor", "Submit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.Submit.ToString(), 0);
 
-                }
+                
 
                 await _context.CallAdjustmentReportApproverMaterix(adjustment.CreatedBy, adjustmentReportId);
 
@@ -752,7 +750,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.AdjustMentReport.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
                 if (createdBy == adminId)
                 {
-                    InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.ReSubmitted.ToString(), 0);
+                    InsertHistoryData(adjustmentReportId, FormType.AdjustmentReport.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(createdBy), HistoryAction.ReSubmitted.ToString(), 0);
 
                 }
                 else
@@ -955,10 +953,15 @@ namespace TDSGCellFormat.Implementation.Repository
                         var divisionHead = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.IsActive == false && x.SequenceNo == 8)
                                   .OrderByDescending(x => x.ApproverTaskId)
                                 .FirstOrDefault();
+
                         if (divisionHead != null)
                         {
-                            divisionHead.DelegateUserId = requestTaskData.DelegateUserId;
                             divisionHead.IsActive = true;
+                            if (requestTaskData.AssignedToUserId == divisionHead.AssignedToUserId)
+                            {
+                                divisionHead.DelegateUserId = requestTaskData.DelegateUserId;
+                            }
+
                             await _context.SaveChangesAsync();
                         }
                     }
@@ -977,7 +980,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             await _context.SaveChangesAsync();
                         }
 
-          
+
                         var otherdepartmenthead1 = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == asktoAmend.AdjustmentId && x.AssignedToUserId == 0 && x.Role == "Other Department Head 1" && x.IsActive == false && x.SequenceNo == 4)
                                                  .OrderByDescending(x => x.ApproverTaskId)
                                                .FirstOrDefault();
@@ -1054,7 +1057,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                                              .OrderBy(x => x.SequenceNo) // Ensure tasks are processed in sequence order
                                                              .FirstOrDefault();
 
-                       
+
 
                         if (nextApproveTask != null)
                         {
@@ -1065,9 +1068,15 @@ namespace TDSGCellFormat.Implementation.Repository
                             nextApproveTask.IsSubstitute = IsSubstitute;
                             await _context.SaveChangesAsync();
 
-                            if (currentApproverTask.AssignedToUserId == nextApproveTask.AssignedToUserId)
+
+                            var currentAssignedUser = currentApproverTask.DelegateUserId > 0 ? currentApproverTask.DelegateUserId : currentApproverTask.AssignedToUserId;
+                            var nextAssignedUser = nextApproveTask.DelegateUserId > 0 ? nextApproveTask.DelegateUserId : nextApproveTask.AssignedToUserId;
+
+                            if (currentAssignedUser == nextAssignedUser
+                                && (nextApproveTask.SequenceNo != 3 && nextApproveTask.SequenceNo != 7))
                             {
                                 nextApproveTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
+                                nextApproveTask.ActionTakenBy = nextApproveTask.AssignedToUserId;
                                 nextApproveTask.ModifiedDate = DateTime.Now;
                                 nextApproveTask.ActionTakenDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
@@ -1297,7 +1306,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = Enums.AdvisorComment;
                 res.StatusCode = Enums.Status.Success;
 
-                InsertHistoryData((int)request.AdjustmentReportId, FormType.AdjustmentReport.ToString(), "Advisor", request.Comment, adj.Status, Convert.ToInt32(request.AdvisorId), HistoryAction.AdvisorUpdate.ToString(), 0);
+                InsertHistoryData((int)request.AdjustmentReportId, FormType.AdjustmentReport.ToString(), "Advisor", request.Comment, adj.Status, Convert.ToInt32(request.ModifiedBy), HistoryAction.AdvisorUpdate.ToString(), 0);
 
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 await notificationHelper.SendAdjustmentEmail(request.AdjustmentReportId, EmailNotificationAction.AdvisorData, string.Empty, 0);
@@ -1506,9 +1515,16 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Append(htmlTemplate);
 
                 var machineName = _context.Machines.Where(x => x.MachineId == adjustMentReportData.MachineName).Select(x => x.MachineName).FirstOrDefault();
-                var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
-                var checkedBy = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CheckedBy).Select(x => x.EmployeeName).FirstOrDefault();
+                if (!string.IsNullOrEmpty(machineName))
+                {
+                    sb.Replace("#MachineName#", machineName);
+                }
+                else if (!string.IsNullOrEmpty(adjustMentReportData.OtherMachineName))
+                {
+                    sb.Replace("#MachineName#", "Other - " + adjustMentReportData.OtherMachineName);
+                }
 
+                var applicant = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == adjustMentReportData.CreatedBy).Select(x => x.EmployeeName).FirstOrDefault();
 
                 var areaIds = adjustMentReportData.Area.Split(',').Select(id => int.Parse(id)).ToList();
 
@@ -1536,6 +1552,14 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     foreach (var id in subMachineId)
                     {
+
+                        if (id == -2)
+                        {
+                            if (!string.IsNullOrEmpty(adjustMentReportData.OtherSubMachineName))
+                            {
+                                subMachineNames.Add("Other - " + adjustMentReportData.OtherSubMachineName); // Add "Other" category with its name
+                            }
+                        }
                         // Query database or use a dictionary/cache to get the name
                         var subMachineName = _context.SubMachines.Where(x => x.SubMachineId == id && x.IsDeleted == false).Select(x => x.SubMachineName).FirstOrDefault(); // Replace this with your actual DB logic
                         if (!string.IsNullOrEmpty(subMachineName))
@@ -1546,24 +1570,44 @@ namespace TDSGCellFormat.Implementation.Repository
                     subMachineString = string.Join(", ", subMachineNames);
                 }
 
+                StringBuilder changeRiskBuilder = new StringBuilder();
+
                 StringBuilder tableBuilder = new StringBuilder();
                 int serialNumber = 1;
 
                 if (data.Any() && data != null)
                 {
+                    changeRiskBuilder.Append("<div style= 'margin-top: 15px; border: 1px solid black; padding: 10px; page-break-inside: avoid; break-inside: avoid;'>");
+                    changeRiskBuilder.Append("<table style='border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%;  align='center'>");
+
+                    changeRiskBuilder.Append("<tr style='page-break-inside: avoid; break-inside: avoid;'>");
+                    changeRiskBuilder.Append("<td style = 'border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px'>Change Risk Management</td>");
+                    changeRiskBuilder.Append("</tr>");
+                    changeRiskBuilder.Append("<tr style='padding: 10px; height: 20px; page-break-inside: avoid;'>");
+                    changeRiskBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Sr. No</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Changes</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Functions</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Risk associated with changes</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Factors/ Causes</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Counter measures</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Due Date</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Person in charge</b></td>");
+                    changeRiskBuilder.Append("<td style='width: 20%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Results</b></td>");
+                    changeRiskBuilder.Append("</tr>");
+
                     foreach (var item in data)
                     {
-                        tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
+                        tableBuilder.Append("<tr style='padding:10px; height: 20px; page-break-inside: avoid; break-inside: avoid;'>");
 
                         // Add the serial number to the first column
-                        tableBuilder.Append("<td style=\"width: 3%; border: 1px solid black; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
+                        tableBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; padding: 5px'>" + serialNumber++ + "</td>");
 
                         // Add the rest of the data to the respective columns
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Changes + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.FunctionId + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.RisksWithChanges + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Factors + "</td>");
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.CounterMeasures + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.Changes + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.FunctionId + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.RisksWithChanges + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.Factors + "</td>");
+                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.CounterMeasures + "</td>");
                         //tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + (item.DueDate.HasValue ? item.DueDate.Value.ToString("dd-MM-yyyy") : "") + "</td>");
                         //tableBuilder.Append($"<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">{(string.IsNullOrEmpty(item.DueDate) ? "" : item.DueDate)}</td>");
                         DateTime parsedDate;
@@ -1574,7 +1618,12 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         tableBuilder.Append("</tr>");
                     }
+                    tableBuilder.Append("</table>");
+                    tableBuilder.Append("</div>");
+
                 }
+
+                sb.Replace("#changeRiskHeaders#", changeRiskBuilder.ToString());
                 sb.Replace("#ChangeriskTable#", tableBuilder.ToString());
 
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
@@ -1593,8 +1642,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#area#", areaNamesString);
                 sb.Replace("#reportno#", adjustMentReportData.ReportNo);
                 sb.Replace("#requestor#", applicant);
-                sb.Replace("#machinename#", machineName);
-                sb.Replace("#checkedby#", checkedBy);
                 sb.Replace("#when#", adjustMentReportData.When?.ToString("dd-MM-yyyy HH:mm") ?? "N/A");
                 sb.Replace("#describeproblem#", adjustMentReportData.DescribeProblem);
                 sb.Replace("#observation#", adjustMentReportData.Observation);
@@ -1615,6 +1662,23 @@ namespace TDSGCellFormat.Implementation.Repository
                 string approvedByOtherDepartmentHead1 = approverData.FirstOrDefault(a => a.SequenceNo == 4 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByOtherDepartmentHead2 = approverData.FirstOrDefault(a => a.SequenceNo == 5 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
                 string divisionHead = approverData.FirstOrDefault(a => a.SequenceNo == 8 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+
+
+                string checkedByPer;
+                if (adjustMentReportData.CheckedBy == -1)
+                {
+                    checkedByPer = approvedBySectionHead;
+                }
+                else
+                {
+                    var checkedBy = _cloneContext.EmployeeMasters
+                                                 .Where(x => x.EmployeeID == adjustMentReportData.CheckedBy)
+                                                 .Select(x => x.EmployeeName)
+                                                 .FirstOrDefault();
+                    checkedByPer = checkedBy ?? "Not Applicable";
+                }
+
+                sb.Replace("#checkedby#", checkedByPer);
 
 
                 if (approvedShiftIncharge != "N/A")
@@ -1659,7 +1723,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 var advisor = _context.AdjustmentAdvisorMasters.Where(x => x.AdjustmentReportId == adjustMentReportId && x.IsActive == true).FirstOrDefault();
                 if (advisor != null)
                 {
-                    sb.Replace("#advisorComments#", advisor.Comment);
+                    string comment = advisor.Comment ?? "N/A";
+                    sb.Replace("#advisorComments#", comment);
                 }
 
                 var baseUrl = _configuration["SPSiteUrl"];
@@ -1687,7 +1752,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     string bfrUrl = $"{baseUrl}{url1.BeforeImageDocFilePath}";
 
-                    beforeImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                    beforeImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
                     beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
                     beforeImages.AppendLine("</div>");
                 }
@@ -1710,7 +1775,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     string bfrUrl = $"{baseUrl}{url1.AfterImageDocFilePath}";
 
-                    afterImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                    afterImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
                     afterImages.AppendLine($"<img src=\"{url1.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
                     afterImages.AppendLine("</div>");
                 }
@@ -1729,6 +1794,29 @@ namespace TDSGCellFormat.Implementation.Repository
                 // Create PDF using SelectPDF
                 var converter = new SelectPdf.HtmlToPdf();
                 converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
+
+                // footer settings
+                converter.Options.DisplayFooter = true;
+                converter.Footer.DisplayOnFirstPage = true;
+                converter.Footer.DisplayOnOddPages = true;
+                converter.Footer.DisplayOnEvenPages = true;
+                converter.Footer.Height = 50;
+
+                // Use custom CSS to handle the page breaks
+                // converter.Options.KeepImagesTogether = true;
+
+                // Centered text
+                PdfTextSection centerText = new PdfTextSection(0, 10, "This document is digitally generated. No signature is required.", new System.Drawing.Font("Arial", 8));
+                centerText.HorizontalAlign = PdfTextHorizontalAlign.Center;
+                converter.Footer.Add(centerText);
+
+                // Page numbers on the right
+                PdfTextSection pageNumberText = new PdfTextSection(-5, 10, "Page {page_number}   ", new System.Drawing.Font("Arial", 8));
+                pageNumberText.HorizontalAlign = PdfTextHorizontalAlign.Right;
+
+                //.HorizontalAlign = PdfTextHorizontalAlign.Right;
+                converter.Footer.Add(pageNumberText);
+
                 SelectPdf.PdfDocument pdfDoc = converter.ConvertHtmlString(sb.ToString());
 
                 // Convert the PDF to a byte array
@@ -1950,8 +2038,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var adjustment = _context.AdjustmentReportApproverTaskMasters.Where(x => ((x.AssignedToUserId == request.activeUserId && x.DelegateUserId == 0) ||
-                                                                                      (x.DelegateUserId == request.activeUserId && x.DelegateUserId != 0)) 
+                var adjustment = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId
                                                                                        && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
                                                                                      && x.AdjustmentReportId == request.FormId && x.IsActive == true).ToList();
                 if (adjustment != null)

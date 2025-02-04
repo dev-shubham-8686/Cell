@@ -16,6 +16,12 @@ import Test from "./pages/adjustmentReport/Test";
 import { UserProvider } from "../context/UserContext";
 import NotFound from "./common/NotFound";
 import ErrorBoundary from "./ErrorBoundary/ErrorBoundary";
+import MasterTab from "./pages/Mastertndex/MasterTab";
+import SectionMasterPage from "./pages/Mastertndex/SectionMasterPage";
+import MachineMasterPage from "./pages/Mastertndex/MachineMasterPage";
+import AreaMasterPage from "./pages/Mastertndex/AreaMasterPage";
+import SubMachineMasterPage from "./pages/Mastertndex/SubMachineMasterPage";
+import ApprovalHome from "./common/ApprovalHome";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
@@ -61,12 +67,21 @@ export default class AdjustmentReport extends React.Component<
               >
                 <HashRouter>
                   <Routes>
-                    s <Route path="/" element={<AdjustmentReportMain />} />
+                     <Route path="/" element={<AdjustmentReportMain />} />
                     <Route path="/test" element={<Test />} />
                     <Route
                       path="/form/:mode/:id?"
                       element={<ReportFormPage />}
                     />
+                     <Route
+                      path="/form/:mode/:id/approval"
+                      element={<ApprovalHome />}
+                    />
+                    <Route path="/master" element={<MasterTab />} />
+                    <Route path="/master/area" element={<AreaMasterPage />} />
+                <Route path="/master/section" element={<SectionMasterPage />} />
+                <Route path="/master/machine" element={<MachineMasterPage />} />
+                <Route path="/master/submachine" element={<SubMachineMasterPage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </HashRouter>

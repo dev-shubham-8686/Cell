@@ -32,23 +32,23 @@ const AllRequest: React.FC<{}> = ({}) => {
   const navigate = useNavigate();
   const { user } = useUserContext();
   const { mutate: deleteAdjustment } = useDeleteAdjustmentReport();
-  const { mutate: pdfDownload, isLoading: pdfLoading } = useGetAdjustmentReportPDF();
+  const { mutate: pdfDownload, isLoading: pdfLoading } =
+    useGetAdjustmentReportPDF();
   const [refetchKey, setrefetchKey] = useState<number>(0);
   const location = useLocation();
-  const {  currentTabState } = location.state || {};
-  console.log("location",location.state)
+  const { currentTabState } = location.state || {};
+  console.log("location", location.state);
   const handlePDF = (id: number, AdjustmentReportNo: any) => {
     try {
-
       pdfDownload(
         { id, AdjustmentReportNo },
         {
-          onSuccess: (pdfResponse:any) => {
+          onSuccess: (pdfResponse: any) => {
             console.log("PDF Response: ", pdfResponse);
             // window.open(pdfResponse, "_blank");  //this will Open the PDF in a new tab
           },
 
-          onError: (error:any) => {
+          onError: (error: any) => {
             console.error("Export error:", error);
           },
         }
@@ -77,13 +77,13 @@ const AllRequest: React.FC<{}> = ({}) => {
       okButtonProps: { className: "btn btn-primary" },
       onOk() {
         deleteAdjustment(id, {
-          onSuccess: (Response:any) => {
+          onSuccess: (Response: any) => {
             console.log("ATA Response: ", Response);
             setrefetchKey((prevKey) => prevKey + 1);
             // window.location.reload();
           },
 
-          onError: (error:any) => {
+          onError: (error: any) => {
             console.error("Export error:", error);
           },
         });
@@ -101,7 +101,7 @@ const AllRequest: React.FC<{}> = ({}) => {
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
-           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
     {
@@ -117,12 +117,10 @@ const AllRequest: React.FC<{}> = ({}) => {
       ),
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
-           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
-   
 
-  
     {
       title: "Area",
       dataIndex: "AreaName",
@@ -142,7 +140,7 @@ const AllRequest: React.FC<{}> = ({}) => {
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
-           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
     {
@@ -164,14 +162,14 @@ const AllRequest: React.FC<{}> = ({}) => {
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
-           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
     {
       title: "Current Approver",
       dataIndex: "CurrentApprover",
       key: "CurrentApprover",
-      width: 160, 
+      width: 160,
       sorter: true,
       render: (text) => (
         <span style={{ display: "flex", justifyContent: "center" }}>
@@ -180,7 +178,7 @@ const AllRequest: React.FC<{}> = ({}) => {
       ),
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
-           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
     {
@@ -191,32 +189,31 @@ const AllRequest: React.FC<{}> = ({}) => {
       sorter: true,
       render: (text) => (
         <span
-        className={`status-badge status-badge-${
-          STATUS_COLOUR_CLASS[text] ?? ""
-        }`}
-
-      >
-        {displayRequestStatus(text)}
-      </span>
+          className={`status-badge status-badge-${
+            STATUS_COLOUR_CLASS[text] ?? ""
+          }`}
+        >
+          {displayRequestStatus(text)}
+        </span>
       ),
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
-           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
     {
-      title: <p className="text-center p-0 m-0">Actions</p>,
+      title: <p className=" p-0 m-0">Actions</p>,
       key: "action",
       width: 140,
       sorter: false,
       render: (record) => (
-        <div className="action-cell">
+        <div className="">
           <button
             type="button"
             style={{ background: "none", border: "none" }}
             onClick={() =>
-              navigate(`/form/view/${record.AdjustmentReportId}`,{
-                state: { allReq: true , currentTabState:"allrequest-tab"},
+              navigate(`/form/view/${record.AdjustmentReportId}`, {
+                state: { allReq: true, currentTabState: "allrequest-tab" },
               })
             }
           >
@@ -226,12 +223,14 @@ const AllRequest: React.FC<{}> = ({}) => {
           {(user?.isAdmin ||
             ((record.Status === REQUEST_STATUS.Draft ||
               record.Status === REQUEST_STATUS.UnderAmendment) &&
-              record.EmployeeId === user?.employeeId)) && (
+              record.EmployeeId === user?.employeeId) ||
+            (record.AdvisorId == user?.employeeId &&
+              record.Status == REQUEST_STATUS.InReview)) && (
             <button
               type="button"
               style={{ background: "none", border: "none" }}
               onClick={() =>
-                navigate(`/form/edit/${record.AdjustmentReportId}`,{
+                navigate(`/form/edit/${record.AdjustmentReportId}`, {
                   state: { allReq: true },
                 })
               }
@@ -239,34 +238,32 @@ const AllRequest: React.FC<{}> = ({}) => {
               <FontAwesomeIcon title="Edit" icon={faEdit} />
             </button>
           )}
-{console.log("My Req Data",record)}
+          {console.log("My Req Data", record)}
           {record.Status === REQUEST_STATUS.Completed && (
             <button
               type="button"
               style={{ background: "none", border: "none" }}
               onClick={() => {
-                handlePDF(
-                  record.AdjustmentReportId,
-                  record.ReportNo
-                );
+                handlePDF(record.AdjustmentReportId, record.ReportNo);
               }}
             >
               <FontAwesomeIcon title="PDF" icon={faFilePdf} />
             </button>
           )}
 
-{record.Status === REQUEST_STATUS.Draft &&
-            record.CreatedBy == user?.employeeId && (
-              <button
-                type="button"
-                style={{ background: "none", border: "none" }}
-                onClick={() => {
-                  handleDelete(record.AdjustmentReportId);
-                }}
-              >
-                <FontAwesomeIcon title="Delete" icon={faTrash} />
-              </button>
-            )}
+          {((user?.isAdmin && record.Status != REQUEST_STATUS.Completed) ||
+            (record.Status === REQUEST_STATUS.Draft &&
+              record.CreatedBy == user?.employeeId)) && (
+            <button
+              type="button"
+              style={{ background: "none", border: "none" }}
+              onClick={() => {
+                handleDelete(record.AdjustmentReportId);
+              }}
+            >
+              <FontAwesomeIcon title="Delete" icon={faTrash} />
+            </button>
+          )}
         </div>
       ),
     },
@@ -274,17 +271,14 @@ const AllRequest: React.FC<{}> = ({}) => {
   return (
     <>
       <div className="tab-content">
-     
         <Table
           columns={columns}
           paginationRequired={true}
           url="/api/AdjustmentReport/GetAllAdjustmentData"
           refetchKey={refetchKey}
         />
-                      <Spin spinning={pdfLoading} fullscreen />
-
+        <Spin spinning={pdfLoading} fullscreen />
       </div>
-      
     </>
   );
 };

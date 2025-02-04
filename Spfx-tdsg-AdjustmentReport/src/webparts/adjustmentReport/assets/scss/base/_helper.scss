@@ -88,7 +88,7 @@
 
 .btn-primary {
   color: $white;
-
+   height: 100%;
   &:hover,
   &:active {
     color: $white !important;
@@ -102,8 +102,11 @@
   }
 }
 
+
+
 .btn-outline-primary {
   color: $primary;
+  height: 100%;
 
   &:hover,
   &:active {
@@ -123,6 +126,10 @@
     color: $white !important;
     background-color: $red-1 !important;
   }
+}
+.action-btn {
+  background:none !important;
+  border: none !important;
 }
 
 .btn-outline-danger {

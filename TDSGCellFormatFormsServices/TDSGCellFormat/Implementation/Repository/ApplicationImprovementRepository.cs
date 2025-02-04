@@ -184,9 +184,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 CreatedBy = res.CreatedBy,
                 IsSubmit = res.IsSubmit,
                 ToshibaApprovalRequired = res.ToshibaApprovalRequired,
-                ToshibaApprovalTargetDate = res.ToshibaApprovalTargetDate.HasValue ? res.ToshibaApprovalTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                ToshibaApprovalTargetDate = res.ToshibaApprovalTargetDate.HasValue ? res.ToshibaApprovalTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : null,
                 ToshibaTeamDiscussion = res.ToshibaTeamDiscussion,
-                ToshibaDiscussionTargetDate = res.ToshibaDiscussionTargetDate.HasValue ? res.ToshibaDiscussionTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                ToshibaDiscussionTargetDate = res.ToshibaDiscussionTargetDate.HasValue ? res.ToshibaDiscussionTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : null,
                 IsPcrnRequired = res.IsPcrnRequired,
                 WorkflowLevel = res.WorkFlowLevel
                 // Add other properties as needed
@@ -203,7 +203,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     RiskAssociated = section.RiskAssociatedWithChanges,
                     Factor = section.Factor,
                     CounterMeasures = section.CounterMeasures,
-                    DueDate = section.DueDate.HasValue ? section.DueDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                    DueDate = section.DueDate.HasValue ? section.DueDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : null,
                     PersonInCharge = section.PersonInCharge,
                     Results = section.Results
 
@@ -1427,13 +1427,16 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         if (nextTask != null)
                         {
-                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
-                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextTask.AssignedToUserId, ProjectType.AdjustMentReport.ToString());
+                            substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextTask.AssignedToUserId, ProjectType.Equipment.ToString());
+                            IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextTask.AssignedToUserId, ProjectType.Equipment.ToString());
                             nextTask.AssignedToUserId = substituteUserId;
                             nextTask.IsSubstitute = IsSubstitute;
                             await _context.SaveChangesAsync();
 
-                            if (currentApproverTask.AssignedToUserId == nextTask.AssignedToUserId)
+                            var currentAssignedUser = currentApproverTask.DelegateUserId > 0 ? currentApproverTask.DelegateUserId : currentApproverTask.AssignedToUserId;
+                            var nextAssignedUser = nextTask.DelegateUserId > 0 ? nextTask.DelegateUserId : nextTask.AssignedToUserId;
+
+                            if (currentAssignedUser == nextAssignedUser)
                             {
                                 nextTask.Comments = currentApproverTask.Comments;
                                 nextTask.ActionTakenBy = currentApproverTask.AssignedToUserId;
@@ -2151,11 +2154,45 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     sb.Replace("#ApplicantName#", applicant);
                     sb.Replace("#clsReq#", applicant);
+
+
+                    var subMachineId = equipmentData.SubMachineId.Split(',').Select(id => int.Parse(id)).ToList();
+                    var subMachineNames = new List<string>();
+                    var subMachineString = string.Empty;
+
+                    if (subMachineId.Contains(-1))
+                    {
+                        subMachineString = "All";
+                    }
+                    else
+                    {
+                        foreach (var id in subMachineId)
+                        {
+
+                            if (id == -2)
+                            {
+                                if (!string.IsNullOrEmpty(equipmentData.OtherSubMachine))
+                                {
+                                    subMachineNames.Add("Other - " + equipmentData.OtherSubMachine);
+                                }
+                            }
+                            // Query database or use a dictionary/cache to get the name
+                            var subMachineName = _context.SubMachines.Where(x => x.SubMachineId == id && x.IsDeleted == false).Select(x => x.SubMachineName).FirstOrDefault(); // Replace this with your actual DB logic
+                            if (!string.IsNullOrEmpty(subMachineName))
+                            {
+                                subMachineNames.Add(subMachineName);
+                            }
+                        }
+                        subMachineString = string.Join(", ", subMachineNames);
+                    }
+
+                    sb.Replace("#SubMachineName#", subMachineString);
                 }
                 sb.Replace("#Purpose#", equipmentData?.Purpose);
                 sb.Replace("#currentSituations#", equipmentData?.CurrentSituation);
                 sb.Replace("#Improvement#", equipmentData?.Imrovement);
 
+                
 
 
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
@@ -2199,7 +2236,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     string bfrUrl = $"{baseUrl}{url1.CurrSituationDocFilePath}";
 
-                    currentSituationImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                    currentSituationImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
                     currentSituationImages.AppendLine($"<img src=\"{url1.CurrImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
                     currentSituationImages.AppendLine("</div>");
 
@@ -2221,7 +2258,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 foreach (var url2 in impImageFiles)
                 {
                     // Add image tag
-                    improvementImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                    improvementImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
                     improvementImages.AppendLine($"<img src=\"{url2.ImpImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
                     improvementImages.AppendLine("</div>");
 

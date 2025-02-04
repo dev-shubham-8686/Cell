@@ -6,6 +6,7 @@ import RequestsTab from "./RequestsTab";
 import ApprovalsTab from "./ApprovalsTab";
 import "../../../../../../src/styles/customStyles.css";
 import AllRequestsTab from "./AllRequestsTab";
+import { UserContext } from "../../../context/userContext";
 
 const TAB_KEYS = {
   REQUESTS: "1",
@@ -15,6 +16,7 @@ const TAB_KEYS = {
 
 const TechnicalInstructionList: React.FC = () => {
   const location = useLocation();
+  const user = React.useContext(UserContext);
   const [activeKey, setActiveKey] = useState(() => {
     if (location.state?.currentTabState === "myapproval-tab") {
       return TAB_KEYS.APPROVALS;
@@ -37,6 +39,16 @@ const TechnicalInstructionList: React.FC = () => {
           New Request
         </Button>
       )}
+
+      {/* {user?.isAdmin && (
+        <Button
+          type="primary"
+          style={{ marginLeft: "4px" }}
+          onClick={() => navigate("/masterlist")}
+        >
+          Master
+        </Button>
+      )} */}
     </div>
   );
 
@@ -122,6 +134,32 @@ const TechnicalInstructionList: React.FC = () => {
 
   return (
     <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginRight: "34px",
+          marginBottom: "-50px",
+        }}
+      >
+        {user?.isAdmin && (
+          <Button
+            type="primary"
+            style={{
+              textDecoration: "none",
+              backgroundColor: "rgba(255, 0, 0, 0.1)",
+              borderRadius: "4px",
+              fontWeight: "600",
+              color: "black", // Ensure text color is visible
+              border: "none", // Remove border if needed
+              margin: "8px"
+            }}
+            onClick={() => navigate("/masterlist")}
+          >
+            Master Configuration
+          </Button>
+        )}
+      </div>
       <h2 className="title">TECHNICAL INSTRUCTIONS DASHBOARD</h2>
       <Tabs
         tabBarExtraContent={tabOperations}
