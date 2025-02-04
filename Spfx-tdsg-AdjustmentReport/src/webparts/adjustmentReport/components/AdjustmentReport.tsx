@@ -21,6 +21,7 @@ import SectionMasterPage from "./pages/Mastertndex/SectionMasterPage";
 import MachineMasterPage from "./pages/Mastertndex/MachineMasterPage";
 import AreaMasterPage from "./pages/Mastertndex/AreaMasterPage";
 import SubMachineMasterPage from "./pages/Mastertndex/SubMachineMasterPage";
+import ApprovalHome from "./common/ApprovalHome";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
@@ -71,6 +72,10 @@ export default class AdjustmentReport extends React.Component<
                     <Route
                       path="/form/:mode/:id?"
                       element={<ReportFormPage />}
+                    />
+                     <Route
+                      path="/form/:mode/:id/approval"
+                      element={<ApprovalHome />}
                     />
                     <Route path="/master" element={<MasterTab />} />
                     <Route path="/master/area" element={<AreaMasterPage />} />

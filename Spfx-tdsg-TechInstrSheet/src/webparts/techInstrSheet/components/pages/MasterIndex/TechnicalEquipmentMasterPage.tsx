@@ -28,6 +28,7 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import displayjsx from "../../../utils/displayjsx";
+import "../../../../../../src/styles/customStyles.css";
 
 interface TechnicalEquipmentMaster {
   EquipmentId: number;
@@ -255,19 +256,6 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-          {/* <Popconfirm
-            title="Are you sure to delete this record?"
-            onConfirm={() => handleDelete(record.EquipmentId!)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button
-              title="Delete"
-              className="action-btn"
-              icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
-              //onClick={() => handleDelete(record.EquipmentId)}
-            />
-          </Popconfirm> */}
         </span>
       ),
     },
@@ -275,56 +263,27 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
 
   return (
     <div>
-      <h2 className="title">Technical Equipment Master</h2>
+      <h2 className="title">Equipment Master</h2>
       <div className="flex justify-between items-center mb-3">
-        {/* <div className="flex gap-3 items-center">
-                     <div style={{ position: "relative", display: "inline-block" }}>
-                       <Input
-                         type="text"
-                         placeholder="Search Here"
-                         value={searchText}
-                         onChange={(e) => setSearchText(e.target.value)}
-                         style={{ width: 300 }}
-                       />
-                       {searchText && (
-                         <CloseOutlined
-                           onClick={() => {
-                             setSearchText("");
-                             setFilteredData(data);
-                           }}
-                           className="text-gray-400 cursor-pointer"
-                           style={{
-                             position: "absolute",
-                             right: "10px",
-                             top: "50%",
-                             transform: "translateY(-50%)",
-                             zIndex: 1,
-                             cursor: "pointer",
-                           }}
-                         />
-                       )}
-                     </div>
-                     <Button
-                       type="primary"
-                       icon={<SearchOutlined />}
-                       onClick={handleSearch}
-                       className="whitespace-nowrap"
-                     >
-                       Search
-                     </Button>
-                   </div> */}
-        <Button
-          type="primary"
-          icon={<LeftCircleFilled />}
-          onClick={() => navigate(`/masterlist`)}
-          className="whitespace-nowrap"
-        >
-          BACK
-        </Button>
-        <Button type="primary" onClick={handleAdd}>
-          Add New
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            type="primary"
+            icon={<LeftCircleFilled />}
+            onClick={() => navigate(`/masterlist`)}
+            className="whitespace-nowrap"
+          >
+            BACK
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleAdd}
+            style={{ marginLeft: "4px" }}
+          >
+            Add New
+          </Button>
+        </div>
       </div>
+
       <Table
         columns={columns}
         dataSource={data}
@@ -342,7 +301,7 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
         }}
       />
       <Modal
-        title={editingItem ? "Edit Item" : "Add Item"}
+        title={isViewMode ? "View Item" : editingItem ? "Edit Item" : "Add Item"}
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         onOk={() => !isViewMode && form.submit()}
@@ -363,6 +322,16 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
                 max: 100,
                 message: "Please enter Equipment Name",
               },
+              {
+                validator: (_, value) => {
+                  if (value && value.trim() === "") {
+                    return Promise.reject(
+                      new Error("Only spaces are not allowed")
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
             ]}
           >
             <Input
@@ -371,6 +340,7 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
               disabled={isViewMode}
             />
           </Form.Item>
+
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <Form.Item
               name="IsActive"

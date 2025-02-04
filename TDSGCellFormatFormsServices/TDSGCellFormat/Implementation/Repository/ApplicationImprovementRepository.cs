@@ -184,9 +184,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 CreatedBy = res.CreatedBy,
                 IsSubmit = res.IsSubmit,
                 ToshibaApprovalRequired = res.ToshibaApprovalRequired,
-                ToshibaApprovalTargetDate = res.ToshibaApprovalTargetDate.HasValue ? res.ToshibaApprovalTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                ToshibaApprovalTargetDate = res.ToshibaApprovalTargetDate.HasValue ? res.ToshibaApprovalTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : null,
                 ToshibaTeamDiscussion = res.ToshibaTeamDiscussion,
-                ToshibaDiscussionTargetDate = res.ToshibaDiscussionTargetDate.HasValue ? res.ToshibaDiscussionTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                ToshibaDiscussionTargetDate = res.ToshibaDiscussionTargetDate.HasValue ? res.ToshibaDiscussionTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : null,
                 IsPcrnRequired = res.IsPcrnRequired,
                 WorkflowLevel = res.WorkFlowLevel
                 // Add other properties as needed
@@ -203,7 +203,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     RiskAssociated = section.RiskAssociatedWithChanges,
                     Factor = section.Factor,
                     CounterMeasures = section.CounterMeasures,
-                    DueDate = section.DueDate.HasValue ? section.DueDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : string.Empty,
+                    DueDate = section.DueDate.HasValue ? section.DueDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : null,
                     PersonInCharge = section.PersonInCharge,
                     Results = section.Results
 
@@ -2099,7 +2099,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 string templateFile = "EquipmentPDF.html";
 
-                string templateFilePath = Path.Combine(projectRootDirectory, htmlTemplatePath, templateFile);
+                string templateFilePath = Path.Combine(baseDirectory, htmlTemplatePath, templateFile);
 
                 string? htmlTemplate = System.IO.File.ReadAllText(templateFilePath);
                 sb.Append(htmlTemplate);

@@ -639,10 +639,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             foreach (var nextTask in nextApproveTask)
                             {
-                                substituteUserId = commonHelper.CheckSubstituteDelegate((int)nextTask.AssignedToUserId, ProjectType.MaterialConsumption.ToString());
-                                IsSubstitute = commonHelper.CheckSubstituteDelegateCheck((int)nextTask.AssignedToUserId, ProjectType.MaterialConsumption.ToString());
-                                nextTask.AssignedToUserId = substituteUserId;
-                                nextTask.IsSubstitute = IsSubstitute;
+                             
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();

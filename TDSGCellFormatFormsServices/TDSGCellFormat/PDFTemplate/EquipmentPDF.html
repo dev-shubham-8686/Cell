@@ -34,13 +34,35 @@
             input[type="checkbox"]:checked:after {
                 display: block;
             }
+
+        /* Prevent content from breaking within divs */
+        .prevent-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* Ensure new page starts for large content blocks */
+        .new-page {
+            page-break-before: always;
+        }
+
+        /* Apply to content blocks that should not split (like images) */
+        .content-block {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* Force new page for large sections (if needed) */
+        .page-break {
+            page-break-before: always;
+        }
     </style>
 </head>
 
 <body style="font-weight: 600; max-width: 1300px; font-size: 16px;">
 
     <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
-        <table style="border-color: black; border-collapse: collapse; font-size: 16px; border: 0.25px; text-align: left; width: 100%;">
+        <table class="table prevent-break" style="border-color: black; border-collapse: collapse; font-size: 16px; border: 0.25px; text-align: left; width: 100%;">
             <tr style="padding: 10px; border: 0px">
                 <td style="border: 0px; height: 20px; padding: 5px; padding-right: 20px;">
                     <b>Date:</b>
@@ -55,7 +77,7 @@
     </div>
 
     <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
-        <table style="border-collapse: collapse; font-size: 16px; border: 0.25px; text-align: left; margin-top: 10px; width: 100%;">
+        <table class="table prevent-break" style="border-collapse: collapse; font-size: 16px; border: 0.25px; text-align: left; margin-top: 10px; width: 100%;">
             <tr style="padding: 10px; border: 0px;">
                 <td style="border: 0px; height: 20px; text-align: right; width: 60%; margin-left: 20px;">
                     <div style="font-size: 16px; font-weight: 600; margin-left: 10px; text-align: left;"> 設備変更実施伺い Application for Equipment Improvement</div>
@@ -71,7 +93,7 @@
     <div style="margin-top: 5px; border: 1px solid black; padding: 10px; display: flex; justify-content: space-between; font-size: 16px;">
 
         <!-- First Table for Machine Name and Purpose -->
-        <table style="border-collapse: collapse; font-size: 16px; text-align: left; width: 48%; margin-right: 10px;">
+        <table class="table prevent-break" style="border-collapse: collapse; font-size: 16px; text-align: left; width: 48%; margin-right: 10px;">
             <!-- Machine Name Row -->
             <tr style="padding: 10px;">
                 <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
@@ -173,11 +195,11 @@
     </div>
 
 
-    <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
-        <table style="border-color: black; border-collapse: collapse; font-size: 16px; text-align: left; width: 100%;" align='center'>
+    <div style="margin-top: 5px; border: 1px solid black; padding: 10px; page-break-inside: avoid; break-inside: avoid;">
+        <table class="table prevent-break" style="border-color: black; border-collapse: collapse; font-size: 16px; text-align: left; width: 100%;" align='center'>
 
             <!-- Title Row -->
-            <tr>
+            <tr style="page-break-inside: avoid; break-inside: avoid;">
                 <th colspan="9" style="border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px;">
                     Change Risk Management
                 </th>
@@ -210,7 +232,7 @@
         <div style="margin-top: 10px;">
 
             <!-- Heading -->
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+            <table class="table prevent-break" style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
                 <tr>
                     <th colspan="2" style="text-align: left; font-weight: bold; font-size: 18px;">
                         TDSG Advisor san's Review
@@ -222,7 +244,7 @@
             <div style="display: flex; justify-content: space-between;">
 
                 <!-- First Table: Date and Comments -->
-                <table style="border-color: black; border-collapse: collapse; font-size: 16px; text-align: left; width: 48%;">
+                <table class="table prevent-break" style="border-color: black; border-collapse: collapse; font-size: 16px; text-align: left; width: 48%;">
                     <!-- Row 1: Date -->
                     <tr style="padding: 10px;">
                         <td style="border: 1px solid black; height: 20px; padding: 5px; width: 50%;">
@@ -245,7 +267,7 @@
                 </table>
 
                 <!-- Second Table: Name -->
-                <table style="border-color: black; border-collapse: collapse; font-size: 16px; text-align: left; width: 48%;">
+                <table class="table prevent-break" style="border-color: black; border-collapse: collapse; font-size: 16px; text-align: left; width: 48%;">
                     <!-- Row 1: Name -->
                     <tr style="padding: 10px;">
                         <td style="border: 1px solid black; height: 20px; padding: 5px; width: 50%;">
@@ -270,9 +292,9 @@
 
     </div>
 
-    <div style="margin-top: 5px; padding: 10px; border: 1px solid black;">
+    <div style="margin-top: 5px; padding: 10px; border: 1px solid black; page-break-inside: avoid; break-inside: avoid;">
         <table style="border-color: black; border-collapse: collapse; font-size: 16px;  text-align: left; width: 100%;">
-            <tr style="padding: 10px;">
+            <tr style="padding: 10px; page-break-inside: avoid; break-inside: avoid;">
                 <th rowspan="2" style="border: 1px solid black; padding: 5px; text-align: center; font-size: 14px; font-weight: bold;">Approved By : </th>
                 <th style="border: 1px solid black; padding: 5px; text-align: center;">Section Head</th>
                 <th style="border: 1px solid black; padding: 5px; text-align: center;">Advisor</th>
@@ -282,7 +304,7 @@
                 <th style="border: 1px solid black; padding: 5px; text-align: center;">Quality Team Review</th>
                 <!--<th style="border: 0.25px; padding: 5px; text-align: center;">Remarks</th>-->
             </tr>
-            <tr style="padding: 10px; ">
+            <tr style="padding: 10px; page-break-inside: avoid; break-inside: avoid;">
                 <!--<td style="border: 0.25px; height: 20px; padding: 5px; text-align: center;"></td>--> <!-- Empty cell for Approved By -->
                 <td style="border: 1px solid black ; height: 20px; padding: 5px; text-align: center;">#SectionHeadName#</td>
                 <td style="border: 1px solid black ; height: 20px; padding: 5px; text-align: center;">#Advisor#</td>
@@ -296,8 +318,8 @@
     </div>
 
 
-    <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+    <div style="margin-top: 5px; border: 1px solid black; padding: 10px; page-break-inside: avoid; break-inside: avoid;">
+        <table class="table prevent-break" style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
             <!-- Title Row -->
             <tr>
                 <th style="font-weight: bold; font-size: 18px; text-align: left;">
@@ -319,7 +341,7 @@
         <!-- Tables Section -->
         <div style="display: flex; justify-content: space-between; margin-top: 10px;">
             <!-- First Table -->
-            <table style="border-collapse: collapse; width: 48%; font-size: 16px;">
+            <table class="table prevent-break" style="border-collapse: collapse; width: 48%; font-size: 16px;">
                 <tr>
                     <td style="border: 1px solid black; padding: 5px; width: 20%;"><b>Date:</b></td>
                     <td style="border: 1px solid black; padding: 5px; width: 80%;"></td>
@@ -331,7 +353,7 @@
             </table>
 
             <!-- Second Table -->
-            <table style="border: 1px solid black; border-collapse: collapse; width: 48%; font-size: 16px;">
+            <table class="table prevent-break" style="border: 1px solid black; border-collapse: collapse; width: 48%; font-size: 16px;">
                 <tr>
                     <td style="border: 1px solid black; padding: 5px; width: 20%;"><b>QC Manager:</b></td>
                     <td style="border: 1px solid black; padding: 5px; width: 80%;"></td>
@@ -349,7 +371,7 @@
 
 
     <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+        <table class="table prevent-break" style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
             <!-- Title Row -->
             <tr>
                 <th style="font-weight: bold; font-size: 15px; text-align: left;">
@@ -370,7 +392,7 @@
         <!-- Tables Section -->
         <div style="display: flex; justify-content: space-between; margin-top: 10px;">
             <!-- First Table -->
-            <table style=" border-collapse: collapse; width: 48%; font-size: 16px;">
+            <table class="table prevent-break" style=" border-collapse: collapse; width: 48%; font-size: 16px;">
                 <tr>
                     <td style="border: 1px solid black; padding: 5px; width: 20%;"><b>Date:</b></td>
                     <td style="border: 1px solid black; padding: 5px; width:80%;"></td>
@@ -383,7 +405,7 @@
             </table>
 
             <!-- Second Table -->
-            <table style=" border-collapse: collapse; width: 48%; font-size: 10px;">
+            <table class="table prevent-break" style=" border-collapse: collapse; width: 48%; font-size: 10px;">
                 <tr>
                     <td style="border: 1px solid black; padding: 5px; width: 20%;"><b>Comments:</b></td>
                     <td style="border: 1px solid black; padding: 5px; width: 80%; height: 120px;"></td>
@@ -395,7 +417,7 @@
 
     <div style="margin-top: 5px; border: 1px solid black; padding: 10px;">
         <!-- Title Row -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+        <table class="table prevent-break" style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
             <tr>
                 <th style="font-weight: bold; font-size: 18px; text-align: center;">
                     Result after implementation
@@ -411,7 +433,7 @@
         <!-- Flex Container for Side-by-Side Tables -->
         <div style="display: flex; justify-content: space-between; gap: 10px;">
             <!-- Table 1: Target and Actual Dates -->
-            <table style="border-collapse: collapse; width: 48%; font-size: 16px;">
+            <table class="table prevent-break" style="border-collapse: collapse; width: 48%; font-size: 16px;">
                 <tr>
                     <td style="border: 1px solid black; padding: 5px; text-align: center; width: 50%;">
                         <b>Target Date:</b>
@@ -427,7 +449,7 @@
             </table>
 
             <!-- Table 2: Closing Signatures -->
-            <table style="border-collapse: collapse; width: 48%; font-size: 16px;">
+            <table class="table prevent-break" style="border-collapse: collapse; width: 48%; font-size: 16px;">
                 <tr>
                     <td style="border: 1px solid black; padding: 5px; text-align: center; width: 50%;">
                         <b>Closing Signature by Applicant</b>
