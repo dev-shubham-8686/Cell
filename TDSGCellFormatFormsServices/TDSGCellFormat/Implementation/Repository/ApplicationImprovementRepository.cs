@@ -2236,7 +2236,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     string bfrUrl = $"{baseUrl}{url1.CurrSituationDocFilePath}";
 
-                    currentSituationImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                    currentSituationImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
                     currentSituationImages.AppendLine($"<img src=\"{url1.CurrImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
                     currentSituationImages.AppendLine("</div>");
 
@@ -2258,7 +2258,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 foreach (var url2 in impImageFiles)
                 {
                     // Add image tag
-                    improvementImages.AppendLine($"<div style=\"display: inline-block; width: 48%; margin: 1%; text-align: center;\">");
+                    improvementImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
                     improvementImages.AppendLine($"<img src=\"{url2.ImpImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
                     improvementImages.AppendLine("</div>");
 
