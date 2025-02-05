@@ -789,6 +789,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     res.Message = Enums.EquipmentResubmit;
 
                     await _context.CallEquipmentApproverMaterix(existingReport.CreatedBy, existingReport.EquipmentImprovementId);
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.SendEquipmentEmail(existingReport.EquipmentImprovementId, EmailNotificationAction.ReSubmitted, string.Empty, 0);
                     if (report.ModifiedBy == adminId)
                     {
                         InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.LogicalAmendmentInReview.ToString(), Convert.ToInt32(adminId), HistoryAction.ReSubmitted.ToString(), 0);

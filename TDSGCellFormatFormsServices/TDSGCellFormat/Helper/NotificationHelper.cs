@@ -1361,7 +1361,7 @@ namespace TDSGCellFormat.Helper
                                                        && item.ApproverTaskId == nextApproverTaskId);
                                     if (task != null)
                                     {
-                                        if (task.SequenceNo == 3)
+                                        if (task.SequenceNo == 3 && item.WorkFlowlevel == 1)
                                         {
                                             var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1 && (x.HRMSDeptName == "CP01-DP-1003" || x.HRMSDeptName == "CP01-DP-1004" || x.HRMSDeptName == "CP01-DP-1002")).Select(x => x.Head).ToList();
                                             foreach (var dept in userOtherDepId)
@@ -1379,7 +1379,7 @@ namespace TDSGCellFormat.Helper
 
                                             emailToAddressList.Add(task.email);
                                         }
-                                        else if (item.SequenceNo == 2)
+                                        else if (item.SequenceNo == 2 && item.WorkFlowlevel == 1)
                                         {
                                             emailToAddressList.Add(task.email);
                                         }
@@ -1424,7 +1424,7 @@ namespace TDSGCellFormat.Helper
 
                                             emailToAddressList.Add(task.email);
                                         }
-                                        else if (task.SequenceNo == 2)
+                                        else if (task.SequenceNo == 2 && task.WorkFlowlevel == 1)
                                         {
                                             emailToAddressList.Add(task.email);
                                         }
