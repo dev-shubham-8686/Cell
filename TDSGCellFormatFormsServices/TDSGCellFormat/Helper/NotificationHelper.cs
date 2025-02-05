@@ -1385,13 +1385,11 @@ namespace TDSGCellFormat.Helper
                                         }
                                         else
                                         {
-                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId != equipmentData.SectionHeadId).Select(x => x.EmployeeId).ToList();
-                                            foreach (var section in sectionHeadId)
-                                            {
-                                                var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == section && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId == equipmentData.SectionHeadId).Select(x => x.EmployeeId).FirstOrDefault();
 
-                                                emailCCAddressList.Add(sectionEmail);
-                                            }
+                                            var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == sectionHeadId && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                            emailCCAddressList.Add(sectionEmail);
                                             emailToAddressList.Add(task.email);
                                         }
                                     }
@@ -1577,7 +1575,7 @@ namespace TDSGCellFormat.Helper
 
                         if (nextApproverTaskId > 0)
                         {
-                            var approvalData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == requestId && (x.Status != ApprovalTaskStatus.InReview.ToString() || x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true)
+                            var approvalData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == requestId && (x.Status != ApprovalTaskStatus.InReview.ToString() && x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true)
                                 .OrderByDescending(x => x.ApproverTaskId)
                                 .FirstOrDefault();
                             Role = approvalData?.Role;
