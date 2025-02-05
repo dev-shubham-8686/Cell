@@ -2114,9 +2114,18 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         sb.Replace("#MachineName#", machineName);
                     }
-                    else if (!string.IsNullOrEmpty(equipmentData.OtherMachineName))
+                    else
                     {
-                        sb.Replace("#MachineName#", "Other - " + equipmentData.OtherMachineName);
+                        if (!string.IsNullOrEmpty(equipmentData.OtherMachineName))
+                        {
+                            sb.Replace("#MachineName#", "Other - " + equipmentData.OtherMachineName);
+
+                        }
+                        else
+                        {
+                            sb.Replace("#MachineName#", "Other");
+
+                        }
                     }
 
                     var impCategoryId = string.IsNullOrEmpty(equipmentData.ImprovementCategory)
