@@ -105,12 +105,12 @@
 
 .btn-outline-primary {
   color: $primary;
-  height: 100%;
-
+  height: auto;
+  border-radius: 4px;
   &:hover,
   &:active {
     color: $white !important;
-    background-color: rgba($primary, 0.8) !important;
+    background-color: rgba($primary, 1) !important;
     border-color: $primary !important;
   }
 }

@@ -26,7 +26,8 @@
     background-color: $yellow-bg;
   }
 
-  &.status-badge-approved {
+  &.status-badge-approved,
+  &.status-badge-autoapproved {
     color: $green-1;
     background-color: $green-bg;
   }
@@ -216,6 +217,10 @@ p.text-cell {
   }
 
   td.status-cell-approved {
+    color: $green-1;
+    background-color: $green-bg;
+  }
+  td.status-cell-autoapproved {
     color: $green-1;
     background-color: $green-bg;
   }

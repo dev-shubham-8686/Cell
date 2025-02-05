@@ -54,6 +54,14 @@ export const DocumentLibraries = {
 };
 
 
+export const SEQUENCE = {
+  Seq1: 1,
+  Seq2: 2,
+  Seq3: 3,
+  Seq4: 4,
+  Seq5: 5,
+  Seq6: 6,
+}
 export const REQUEST_STATUS = {
   PCRNPending:"PCRNPending",
   UnderToshibaApproval:"UnderToshibaApproval",

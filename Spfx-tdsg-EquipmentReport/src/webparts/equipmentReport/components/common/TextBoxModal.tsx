@@ -33,6 +33,7 @@ export interface ITextBoxModal {
   approvedByToshiba?: boolean;
   EQReportNo?: string;
   IsPCRNRequired?: boolean;
+  seqNo?:number
 }
 export interface IEmailAttachments {
   EquipmentId: number;
@@ -63,6 +64,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   approvedByToshiba,
   EQReportNo,
   IsPCRNRequired,
+  seqNo
 }) => {
   const { id } = useParams();
   const [form] = Form.useForm();
@@ -159,7 +161,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
             <></>
           )}
 
-          {(isQCHead || user?.isAdmin) && toshibaApproval ? (
+          {(isQCHead) && toshibaApproval ? (
             <>
               <Form.Item
                 label="PCRN  Required"

@@ -17,6 +17,7 @@ import {
   DATE_FORMAT,
   DATE_TIME_FORMAT,
   DocumentLibraries,
+  EXCEL_DATE_FORMAT,
   REQUEST_STATUS,
   WEB_URL,
 } from "../../GLOBAL_CONSTANT";
@@ -74,7 +75,19 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const user: IUser = useContext(UserContext);
   const isModeView = mode === "view" ? true : false;
   const [ChangeRiskManagementDetails, setChangeRiskManagementDetails] =
-    useState<IChangeRiskData[]>([]);
+    useState<IChangeRiskData[]>([
+      {
+        key: 0,
+        Changes: "",
+        FunctionId: "",
+        RiskAssociated: "",
+        Factor: "",
+        CounterMeasures: "",
+        DueDate: undefined, 
+        PersonInCharge: null, 
+        Results: "",
+      },
+    ]);
   const eqReportSave = useCreateEditEQReport();
 
   const { data: resultMonitoringDetails, isLoading: ResultMonitorLoading } =
@@ -364,6 +377,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
   const onSaveAsDraftHandler = async (): Promise<void> => {
     const values: IEquipmentImprovementReport = form.getFieldsValue();
+    values.ChangeRiskManagementDetails=ChangeRiskManagementDetails;
     values.EquipmentImprovementAttachmentDetails = improvementAttchments;
     values.EquipmentCurrSituationAttachmentDetails = currSituationAttchments;
     values.IsPcrnRequired = existingEquipmentReport?.IsPcrnRequired
@@ -388,8 +402,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       } else {
         resultDate = form.getFieldValue("ResultMonitoringDate");
       }
-      if (existingEquipmentReport?.IsPcrnRequired) {
-      }
+    
       
       values.ResultAfterImplementation = {
         ...values.ResultAfterImplementation,
@@ -429,9 +442,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         const fieldsToValidate = allFields.filter(
           (field) => !fieldsToExclude.includes(field)
         );
-        await form.validateFields(fieldsToValidate);
+        // await form.validateFields(fieldsToValidate);
         //: TODO Need to update
-        await form.validateFields();
+        // await form.validateFields();
       } else {
         
 
@@ -440,9 +453,16 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           currSituationAttchments,
           form.getFieldValue("EquipmentCurrSituationAttachmentDetails")
         );
-        await form.validateFields();
+        // await form.validateFields();
       }
     }
+    const updatedChangeRisk=values?.ChangeRiskManagementDetails?.map((item)=>({
+            ...item,
+            DueDate:item.DueDate?dayjs(item?.DueDate,DATE_FORMAT).format(EXCEL_DATE_FORMAT)
+            :null
+    }))
+    
+    values.ChangeRiskManagementDetails=updatedChangeRisk;
     eqReportSave.mutate(
       { ...values },
       {
@@ -574,12 +594,13 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             };
           }
         );
+        setChangeRiskManagementDetails(changeRiskData);
       form.setFieldsValue({
         ...existingEquipmentReport,
         ChangeRiskManagementDetails:
           existingEquipmentReport?.ChangeRiskManagementDetails?.map((data) => ({
             ...data,
-            DueDate: dayjs(data.DueDate, DATE_FORMAT) ?? null,
+            DueDate: data.DueDate? dayjs(data.DueDate,DATE_FORMAT) :null,
           })),
       });
       if (
@@ -625,15 +646,15 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       if (
         (existingEquipmentReport?.WorkflowStatus ==
           REQUEST_STATUS.W1Completed ||
-          existingEquipmentReport?.Status != REQUEST_STATUS.Approved) &&
-        existingEquipmentReport?.ResultAfterImplementation?.TargetDate
+          existingEquipmentReport?.Status != REQUEST_STATUS.Approved) 
       ) {
+        
         form.setFieldsValue({
-          TargetDate:
+          TargetDate:existingEquipmentReport?.ResultAfterImplementation?.TargetDate?
             dayjs(
               existingEquipmentReport?.ResultAfterImplementation?.TargetDate,
               DATE_FORMAT
-            ) ?? "-",
+            ) :null,
           PCRNNumber:
             existingEquipmentReport?.ResultAfterImplementation?.PCRNNumber,
           ResultMonitoringId:
@@ -792,6 +813,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         Factor: "",
         CounterMeasures: "",
         DueDate: null,
+
         PersonInCharge: null,
         Results: "",
       },
@@ -1056,6 +1078,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             // initialValue={
             //   record?.DueDate ? dayjs(record.DueDate, "DD-MM-YYYY") : null
             // }
+            getValueFromEvent={(date) => (date ? dayjs(date) : null)}
+            getValueProps={(value) => ({
+              value: value ? dayjs(value): null, // Convert UTC to local time for display
+            })}
             rules={validationRules.DueDate}
           >
             {console.log(
@@ -1189,6 +1215,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 handleDelete(record.key);
               }}
               disabled={
+                record.key == 0||
                 isModeView ||
                 (!isAdmin &&
                   ((submitted &&
@@ -1215,7 +1242,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     <div className="d-flex flex-column gap-3 w-100 h-100">
       <div className={user?.isAdmin?"admin-form-btn-row":"form-btn-row"}>
         <>
-          <div className="d-flex gap-3">
+          <div className="d-flex gap-3 me-3">
             {(mode == "add" ||
               (isAdmin && !isModeView) ||
               (!isModeView &&

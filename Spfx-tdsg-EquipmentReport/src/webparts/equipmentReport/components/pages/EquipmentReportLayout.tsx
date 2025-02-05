@@ -91,10 +91,11 @@ useEffect(() => {
       id: "workflow",
       name: "Workflow",
     },
-    emailAttachmentData?.length>0 && {
-      id: "emailAtachments",
-      name: "Toshiba Attachments",
-    },
+     ...(
+    emailAttachmentData?.length > 0
+      ? [{ id: "emailAtachments" as TabName, name: "Toshiba Attachments" }]
+      : []
+  ),
   ];
 
   return (

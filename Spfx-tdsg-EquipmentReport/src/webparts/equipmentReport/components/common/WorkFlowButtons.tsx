@@ -13,6 +13,7 @@ import {
   DATE_FORMAT,
   DATE_TIME_FORMAT,
   REQUEST_STATUS,
+  SEQUENCE,
 } from "../../GLOBAL_CONSTANT";
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -304,6 +305,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   };
   type WorkflowActionType = keyof typeof WORKFLOW_ACTIONS;
 
+
   const WORKFLOW_ACTIONS = {
     Approve: (
       comment: string,
@@ -344,7 +346,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   console.log("Buttons", currentApproverTask ?? [], isApproverRequest ?? null);
   return (
     <>
-      <div className="d-flex gap-3 justify-content-end">
+      <div className="d-flex gap-3 justify-content-end me-3">
         <span
           style={{
             height: "35px",
@@ -550,7 +552,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
         {user.employeeId == eqReport?.AdvisorId &&
           !isTargetDateSet &&
-          !eqReport?.ResultAfterImplementation?.IsResultSubmit &&
+          // !eqReport?.ResultAfterImplementation?.IsResultSubmit
+          eqReport?.WorkflowLevel !== 2
+          &&currentApproverTask?.seqNumber===SEQUENCE.Seq2&&
           showWorkflowBtns &&
           approverRequest && (
             <button
@@ -603,11 +607,11 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           )}
         {((user?.isAdmin &&
           (eqReport?.ToshibaDiscussionTargetDate ||
-            eqReport?.ToshibaApprovalTargetDate)) ||
+            eqReport?.ToshibaApprovalTargetDate) && eqReport?.WorkflowLevel==1) ||
           (((user.employeeId == eqReport?.AdvisorId &&
             eqReport?.ToshibaDiscussionTargetDate &&
-            eqReport?.WorkflowLevel !== 2) ||
-            (user.isQcTeamHead && eqReport?.ToshibaApprovalTargetDate)) &&
+            eqReport?.WorkflowLevel !== 2 && currentApproverTask?.seqNumber===SEQUENCE.Seq2) ||
+            (user.isQcTeamHead && eqReport?.ToshibaApprovalTargetDate && currentApproverTask?.seqNumber===SEQUENCE.Seq6)) &&
             showWorkflowBtns &&
             approverRequest)) && (
           <button
@@ -623,6 +627,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           </button>
         )}
         <TextBoxModal
+        seqNo={currentApproverTask?.seqNumber}
         showDelegate={showDelegate}
           EQReportNo={eqReport?.EquipmentImprovementNo}
           label={"Comments"}

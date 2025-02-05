@@ -181,7 +181,7 @@ const SubMachineMasterPage: React.FC = () => {
       dataIndex: "MachineId",
       key: "MachineId",
       sorter: (a: any, b: any) =>{
-        debugger
+        
         console.log("DATA",a,b)
          const machineA = machinesResult?.find(
           (m: IMachineMaster) => m.MachineId === a.MachineId
