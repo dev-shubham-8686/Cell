@@ -1691,34 +1691,34 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.IsPcrnRequired = data.IsPcrnRequired;
                     await _context.SaveChangesAsync();
 
-                    var approverdata = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.SequenceNo == 5 && x.IsActive == true).Select(x => x.AssignedToUserId).FirstOrDefault();
+                    var approverdata = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.SequenceNo == 6 && x.IsActive == true).Select(x => x.AssignedToUserId).FirstOrDefault();
 
                     var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
                     if (data.EmployeeId == adminId)
                     {
-                        InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(adminId), HistoryAction.UpdateTargetDate.ToString(), 0);
+                        InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.UpdateTargetDate.ToString(), 0);
                         if (equipment.IsPcrnRequired == true)
                         {
-                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(adminId), HistoryAction.PCRNRequired.ToString(), 0);
+                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.PCRNRequired.ToString(), 0);
 
                         }
                         else
                         {
-                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(adminId), HistoryAction.PCRNNotRequired.ToString(), 0);
+                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.PCRNNotRequired.ToString(), 0);
 
                         }
                     }
                     else
                     {
-                        InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(approverdata), HistoryAction.UpdateTargetDate.ToString(), 0);
+                        InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.UpdateTargetDate.ToString(), 0);
                         if (equipment.IsPcrnRequired == true)
                         {
-                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(approverdata), HistoryAction.PCRNRequired.ToString(), 0);
+                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.PCRNRequired.ToString(), 0);
 
                         }
                         else
                         {
-                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(approverdata), HistoryAction.PCRNNotRequired.ToString(), 0);
+                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.PCRNNotRequired.ToString(), 0);
 
                         }
                     }
@@ -2218,9 +2218,6 @@ namespace TDSGCellFormat.Implementation.Repository
                     sb.Replace("#NoToshibaApprovalRequiredChecked#", "checked");
                 }
 
-                //local
-                //var baseUrl = "https://synopsandbox.sharepoint.com/sites/Training2024";
-                //stage
                 var baseUrl = _configuration["SPSiteUrl"];
 
                 var currAttachmentUrl = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == equipmentId
@@ -2336,7 +2333,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#AdvisorComment#", advisorComment);
                 sb.Replace("#AdvisorDate#", advisorDate);
 
-                if (equipmentData.WorkFlowLevel == 2 && equipmentData.Status == ApprovalTaskStatus.InReview.ToString())
+                if (equipmentData.WorkFlowLevel == 2 && equipmentData.Status == ApprovalTaskStatus.Completed.ToString())
                 {
                     sb.Replace("#clsSectionHead#", approveSectioneHead);
                 }
