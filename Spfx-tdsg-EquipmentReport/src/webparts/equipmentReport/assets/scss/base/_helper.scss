@@ -86,10 +86,12 @@
 /******************************** overriding SPFX default styles  ************************************/
 /******************************* END *****************************/
 
+.btn-submit{
+  border-width: 0px;
+}
 .btn-primary {
   color: $white;
   height: 100%;
-
   &:hover,
   &:active {
     color: $white !important;
@@ -105,7 +107,7 @@
 
 .btn-outline-primary {
   color: $primary;
-  height: auto;
+  height: auto !important;
   border-radius: 4px;
   &:hover,
   &:active {

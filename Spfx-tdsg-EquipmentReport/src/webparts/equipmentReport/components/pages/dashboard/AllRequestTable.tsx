@@ -20,7 +20,7 @@ import {
   STATUS_COLOUR_CLASS,
 } from "../../../GLOBAL_CONSTANT";
 import useDeleteEQReport from "../../../apis/equipmentReport/useDelete/useDeleteEQReport";
-import { Modal } from "antd";
+import { Modal, Spin } from "antd";
 import { IUser, UserContext } from "../../../context/userContext";
 import ColumnFilter from "../../table/columnFilter/columnFilter";
 import { displayRequestStatus } from "../../../utility/utility";
@@ -310,12 +310,15 @@ const AllRequestTable: React.FC<{}> = ({}) => {
   ];
   
   return (
+    <>
     <Table
       refetchKey={refetchKey}
       columns={columns}
       paginationRequired={true}
       url="/api/EquipmentImprovement/EqupimentList"
-    />
+      />
+     <Spin spinning={pdfLoading} fullscreen />
+      </>
   );
 };
 

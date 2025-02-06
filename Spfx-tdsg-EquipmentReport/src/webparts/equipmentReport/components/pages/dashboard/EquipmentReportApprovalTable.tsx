@@ -16,6 +16,7 @@ import { displayRequestStatus } from "../../../utility/utility";
 import { IUser, UserContext } from "../../../context/userContext";
 import usePDFViewer from "../../../apis/pdf/usePDFViewer";
 import dayjs from "dayjs";
+import { Spin } from "antd";
 
 const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
   const navigate = useNavigate();
@@ -255,11 +256,15 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
   ];
 
   return (
+    <>
     <Table
       columns={columns}
       paginationRequired={true}
       url="/api/EquipmentImprovement/EqupimentApproverList"
     />
+         <Spin spinning={pdfLoading} fullscreen />
+
+    </>
   );
 };
 

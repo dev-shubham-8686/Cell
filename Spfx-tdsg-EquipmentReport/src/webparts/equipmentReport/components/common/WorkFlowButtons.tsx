@@ -385,7 +385,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                       />
                     ),
                     okText: "Yes",
-                    okButtonProps: { className: "btn btn-primary mb-1" },
+                    okButtonProps: { className: "btn btn-primary btn-submit mb-1" },
                     cancelButtonProps: { className: "btn-outline-primary" },
                     cancelText: "No",
                     onOk() {
