@@ -1239,7 +1239,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 //here change the task as Pending and not approved
                 if (equipmentData == null)
                 {
-                    res.Message = "Equipment Consumption request does not have any review task";
+                    res.Message = "Equipment Improvement request does not have any review task";
                     return res;
                 }
 
