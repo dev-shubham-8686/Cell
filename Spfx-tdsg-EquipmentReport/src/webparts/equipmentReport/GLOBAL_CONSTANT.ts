@@ -31,6 +31,7 @@ export const Message = {
 };
 
 
+export const APP_NAME="EquipmentReport.aspx";
 
 export const SERVICE_URL =
   // "https://localhost:44353"; //dev    TODO: update before deployment

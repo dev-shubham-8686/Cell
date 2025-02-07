@@ -280,7 +280,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         title: "Are you sure you want to submit the form?",
         okText: "Submit",
         okButtonProps: { className: "btn btn-primary btn-submit mb-1" },
-        cancelButtonProps: { className: "btn-outline-primary" },
+        cancelButtonProps: { className: "btn-outline-prime" },
         cancelText: "Cancel",
         onOk: async () => {
           await handleModalSubmit();

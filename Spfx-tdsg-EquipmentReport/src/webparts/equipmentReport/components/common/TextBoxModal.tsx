@@ -317,7 +317,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
           <div className="d-flex gap-3 justify-content-end ">
             <Button
               key="back"
-              className="btn-outline-primary"
+              className="btn-outline-prime"
               onClick={() => {
                 form.resetFields();
                 setEmailAttachments([]); // Reset all fields --  for removing comments

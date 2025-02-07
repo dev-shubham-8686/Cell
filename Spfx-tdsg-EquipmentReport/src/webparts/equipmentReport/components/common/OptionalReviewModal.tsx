@@ -38,7 +38,7 @@ const OptionalReviewModal: React.FC<CloseModalProps> = ({ setmodalVisible, visib
           <>
             <Button
               key="cancel"
-              className="btn-outline-primary"
+              className="btn-outline-prime"
               onClick={onClose}
             >
               Cancel

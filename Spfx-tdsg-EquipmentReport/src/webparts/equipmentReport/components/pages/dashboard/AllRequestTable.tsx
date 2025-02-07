@@ -72,7 +72,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       ),
       okText: "Yes",
       cancelText: "No",
-      cancelButtonProps: { className: "btn btn-outline-primary" },
+      cancelButtonProps: { className: "btn btn-outline-prime" },
       okButtonProps: { className: "btn btn-primary" },
       onOk() {
         deleteEquipment(id, {

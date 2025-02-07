@@ -386,7 +386,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                     ),
                     okText: "Yes",
                     okButtonProps: { className: "btn btn-primary btn-submit mb-1" },
-                    cancelButtonProps: { className: "btn-outline-primary" },
+                    cancelButtonProps: { className: "btn-outline-prime" },
                     cancelText: "No",
                     onOk() {
                       openCommentsPopup("Approve", false, true, false);

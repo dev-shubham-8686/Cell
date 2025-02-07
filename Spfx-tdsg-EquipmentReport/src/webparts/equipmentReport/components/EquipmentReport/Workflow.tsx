@@ -169,10 +169,11 @@ const Workflow: React.FC<IProps> = ({
   ];
   return (
     <div className="tab-section p-4">
-      <div className="table-responsive ">
-        <p className=" mb-0" style={{ fontSize: "20px", color: "#C50017" }}>
+      <p className=" mb-0" style={{ fontSize: "20px", color: "#C50017"}}>
           Approval Workflow
         </p>
+      <div className="table-responsive ">
+        
         {approverTasks?.WorkflowOne.length === 0 ? (
           <div>Workflow has not been assigned for this request.</div>
         ) : (

@@ -13,6 +13,7 @@ import MachineMasterPage from "./pages/MasterIndex/MachineMasterPage";
 import SectionMasterPage from "./pages/MasterIndex/SectionMasterPage";
 import SubMachineMasterPage from "./pages/MasterIndex/SubMachineMasterPage";
 import ImpCategoryMasterPage from "./pages/MasterIndex/ImpCategoryMasterPage";
+import ApprovalHome from "./common/ApprovalHome";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
@@ -42,6 +43,10 @@ export default class EquipmentReport extends React.Component<IEquipmentReportPro
                   path="/form/:mode?/:id?"
                   element={<EquipmentReportLayout />}
                 />
+                 <Route
+                      path="/form/:mode/:id/approval"
+                      element={<ApprovalHome />}
+                    />
                 <Route path="/master" element={<MasterTab />} />
                     <Route path="/master/area" element={<AreaMasterPage />} />
                 <Route path="/master/section" element={<SectionMasterPage />} />
