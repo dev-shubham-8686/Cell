@@ -86,7 +86,7 @@ namespace TDSGCellFormat.Helper
                                     mailMessage.CC.Add(ccAddressObj);
                                 }
                             }
-                            //mailMessage.CC.Add("jipanchal@synoptek.com");
+                            
 
                             using (SmtpClient smtpClient = new SmtpClient(host))
                             {
@@ -144,8 +144,6 @@ namespace TDSGCellFormat.Helper
                         }
 
                         mm.IsBodyHtml = true;
-                        //mm.CC.Add("jipanchal@synoptek.com");
-                        //mm.CC.Add("bdavawala@synoptek.com");
                         using (SmtpClient smtp = new SmtpClient(_configuration["MailSettings:Host"]))
                         {
                             smtp.EnableSsl = Convert.ToBoolean(_configuration["MailSettings:EnableSsl"]);
