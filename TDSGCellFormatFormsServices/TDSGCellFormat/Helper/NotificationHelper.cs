@@ -1,9 +1,4 @@
-﻿using Azure.Core;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Graph.Models;
-using Microsoft.SharePoint.Client.Sharing;
+﻿
 using System.Net;
 using System.Net.Mail;
 using System.Text;
