@@ -1104,7 +1104,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                     nextPendingTask.ModifiedDate = DateTime.Now;
                                     await _context.SaveChangesAsync();
 
-                                    await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Approved, asktoAmend.Comment, nextApproveTask.ApproverTaskId);
+                                    await notificationHelper.SendAdjustmentEmail(asktoAmend.AdjustmentId, EmailNotificationAction.Approved, asktoAmend.Comment, nextPendingTask.ApproverTaskId);
 
                                 }
                                 else

@@ -1229,7 +1229,6 @@ namespace TDSGCellFormat.Helper
                             case EmailNotificationAction.AutoApproved:
                                 templateFile = "Equipment_AutoApprove.html";
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Auto Approved", equipmentNo);
-
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
                                 break;
@@ -2241,6 +2240,17 @@ namespace TDSGCellFormat.Helper
                                 .OrderByDescending(x => x.ApproverTaskId)
                                 .FirstOrDefault();
                             Role = approvalData?.Role;
+                        }
+
+                        if (emailNotification == EmailNotificationAction.AutoApproved)
+                        {
+                            foreach (var item in approverData)
+                            {
+                                if (item.Status != ApprovalTaskStatus.AutoApproved.ToString())
+                                {
+                                    emailToAddressList.Add(item.email);
+                                }
+                            }
                         }
 
                         if (!string.IsNullOrEmpty(templateFile))
