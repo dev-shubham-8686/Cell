@@ -1075,6 +1075,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             if (currentAssignedUser == nextAssignedUser
                                 && (nextApproveTask.SequenceNo != 3 && nextApproveTask.SequenceNo != 7))
                             {
+                                nextApproveTask.Comments = currentApproverTask.Comments;
                                 nextApproveTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
                                 nextApproveTask.ActionTakenBy = nextApproveTask.AssignedToUserId;
                                 nextApproveTask.ModifiedDate = DateTime.Now;
