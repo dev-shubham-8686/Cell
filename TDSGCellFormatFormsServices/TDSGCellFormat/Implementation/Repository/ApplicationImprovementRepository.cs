@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Graph.Models;
 using System.DirectoryServices.ActiveDirectory;
+using SelectPdf;
 
 
 namespace TDSGCellFormat.Implementation.Repository
@@ -286,7 +287,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.ModifiedBy = report.CreatedBy;
                     newReport.IsSubmit = report.IsSubmit;
                     newReport.IsResultSubmit = false;
-                    newReport.IsSubmit = report.IsSubmit;
+                    newReport.IsSubmit = false;
                     newReport.Status = ApprovalTaskStatus.Draft.ToString();
                     newReport.WorkFlowLevel = 0;
                     newReport.IsLogicalAmend = false;
@@ -436,7 +437,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     if (report.ResultAfterImplementation != null)
                     {
-                        if (report.ModifiedBy == _context.AdminApprovers.Where(x => x.IsActive == true).Select(x => x.AdminId).FirstOrDefault())
+                        if (report.ModifiedBy == _context.AdminApprovers.Where(x => x.IsActive == true && x.FormName == ProjectType.Equipment.ToString()).Select(x => x.AdminId).FirstOrDefault())
                         {
                             var formData = await EditFormData(report);
                             if (formData.StatusCode == Enums.Status.Success)
@@ -598,7 +599,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.Imrovement = report.Improvement;
                 existingReport.ModifiedDate = DateTime.Now;
                 existingReport.ModifiedBy = report.ModifiedBy;
-                existingReport.IsSubmit = report.IsSubmit;
+               
 
                 // Assign SectionHeadId based on the conditions
                 if (report.SectionId == 1)
@@ -789,6 +790,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     res.Message = Enums.EquipmentResubmit;
 
                     await _context.CallEquipmentApproverMaterix(existingReport.CreatedBy, existingReport.EquipmentImprovementId);
+                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                    await notificationHelper.SendEquipmentEmail(existingReport.EquipmentImprovementId, EmailNotificationAction.ReSubmitted, string.Empty, 0);
                     if (report.ModifiedBy == adminId)
                     {
                         InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.LogicalAmendmentInReview.ToString(), Convert.ToInt32(adminId), HistoryAction.ReSubmitted.ToString(), 0);
@@ -1237,7 +1240,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 //here change the task as Pending and not approved
                 if (equipmentData == null)
                 {
-                    res.Message = "Equipment Consumption request does not have any review task";
+                    res.Message = "Equipment Improvement request does not have any review task";
                     return res;
                 }
 
@@ -1689,34 +1692,34 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.IsPcrnRequired = data.IsPcrnRequired;
                     await _context.SaveChangesAsync();
 
-                    var approverdata = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.SequenceNo == 5 && x.IsActive == true).Select(x => x.AssignedToUserId).FirstOrDefault();
+                    var approverdata = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.SequenceNo == 6 && x.IsActive == true).Select(x => x.AssignedToUserId).FirstOrDefault();
 
                     var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
                     if (data.EmployeeId == adminId)
                     {
-                        InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(adminId), HistoryAction.UpdateTargetDate.ToString(), 0);
+                        InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.UpdateTargetDate.ToString(), 0);
                         if (equipment.IsPcrnRequired == true)
                         {
-                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(adminId), HistoryAction.PCRNRequired.ToString(), 0);
+                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.PCRNRequired.ToString(), 0);
 
                         }
                         else
                         {
-                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(adminId), HistoryAction.PCRNNotRequired.ToString(), 0);
+                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.PCRNNotRequired.ToString(), 0);
 
                         }
                     }
                     else
                     {
-                        InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(approverdata), HistoryAction.UpdateTargetDate.ToString(), 0);
+                        InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.UpdateTargetDate.ToString(), 0);
                         if (equipment.IsPcrnRequired == true)
                         {
-                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(approverdata), HistoryAction.PCRNRequired.ToString(), 0);
+                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.PCRNRequired.ToString(), 0);
 
                         }
                         else
                         {
-                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(approverdata), HistoryAction.PCRNNotRequired.ToString(), 0);
+                            InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.PCRNNotRequired.ToString(), 0);
 
                         }
                     }
@@ -2114,9 +2117,18 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         sb.Replace("#MachineName#", machineName);
                     }
-                    else if (!string.IsNullOrEmpty(equipmentData.OtherMachineName))
+                    else
                     {
-                        sb.Replace("#MachineName#", "Other - " + equipmentData.OtherMachineName);
+                        if (!string.IsNullOrEmpty(equipmentData.OtherMachineName))
+                        {
+                            sb.Replace("#MachineName#", "Other - " + equipmentData.OtherMachineName);
+
+                        }
+                        else
+                        {
+                            sb.Replace("#MachineName#", "Other");
+
+                        }
                     }
 
                     var impCategoryId = string.IsNullOrEmpty(equipmentData.ImprovementCategory)
@@ -2207,9 +2219,6 @@ namespace TDSGCellFormat.Implementation.Repository
                     sb.Replace("#NoToshibaApprovalRequiredChecked#", "checked");
                 }
 
-                //local
-                //var baseUrl = "https://synopsandbox.sharepoint.com/sites/Training2024";
-                //stage
                 var baseUrl = _configuration["SPSiteUrl"];
 
                 var currAttachmentUrl = _context.EquipmentCurrSituationAttachment.Where(x => x.EquipmentImprovementId == equipmentId
@@ -2325,7 +2334,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#AdvisorComment#", advisorComment);
                 sb.Replace("#AdvisorDate#", advisorDate);
 
-                if (equipmentData.WorkFlowLevel == 2 && equipmentData.Status == ApprovalTaskStatus.InReview.ToString())
+                if (equipmentData.WorkFlowLevel == 2 && equipmentData.Status == ApprovalTaskStatus.Completed.ToString())
                 {
                     sb.Replace("#clsSectionHead#", approveSectioneHead);
                 }
@@ -2341,6 +2350,29 @@ namespace TDSGCellFormat.Implementation.Repository
                 // Create PDF using SelectPDF
                 var converter = new SelectPdf.HtmlToPdf();
                 converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
+
+                // footer settings
+                converter.Options.DisplayFooter = true;
+                converter.Footer.DisplayOnFirstPage = true;
+                converter.Footer.DisplayOnOddPages = true;
+                converter.Footer.DisplayOnEvenPages = true;
+                converter.Footer.Height = 50;
+
+                // Use custom CSS to handle the page breaks
+                // converter.Options.KeepImagesTogether = true;
+
+                // Centered text
+                PdfTextSection centerText = new PdfTextSection(0, 10, "This document is digitally generated. No signature is required.", new System.Drawing.Font("Arial", 8));
+                centerText.HorizontalAlign = PdfTextHorizontalAlign.Center;
+                converter.Footer.Add(centerText);
+
+                // Page numbers on the right
+                PdfTextSection pageNumberText = new PdfTextSection(-5, 10, "Page {page_number}   ", new System.Drawing.Font("Arial", 8));
+                pageNumberText.HorizontalAlign = PdfTextHorizontalAlign.Right;
+
+                //.HorizontalAlign = PdfTextHorizontalAlign.Right;
+                converter.Footer.Add(pageNumberText);
+
                 SelectPdf.PdfDocument pdfDoc = converter.ConvertHtmlString(sb.ToString());
 
                 // Convert the PDF to a byte array

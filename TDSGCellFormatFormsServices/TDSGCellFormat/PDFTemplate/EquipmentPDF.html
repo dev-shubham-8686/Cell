@@ -107,7 +107,7 @@
             <!-- Purpose Row -->
             <tr style="padding: 10px;">
                 <td style="border: 1px solid black; height: 20px; padding: 5px; padding-right: 20px;">
-                    <b>Sub MachineName :</b>
+                    <b>Sub Machine Name :</b>
                 </td>
                 <td style="border: 1px solid black; height: 20px; padding: 5px;">
                     #SubMachineName#
@@ -284,7 +284,7 @@
             <!-- Footer Note -->
             <div style="margin-top: 10px; text-align: center;">
                 <p style="font-size: 16px;">
-                    *Advisor san will co-ordinate with Toshiba technical team if required and update the status in the comment.
+                    *Advisor san will co-ordinate with Toshiba technical team if required and update the status in the comment.*
                 </p>
             </div>
 
@@ -365,7 +365,7 @@
         <div style="margin-top: 10px; text-align: center; font-size: 16px;">
             If Toshiba's approval is required, apply to Toshiba through TDSG Quality Control Review 2.
             <br />
-            If change point management is required, apply using "R-COC01-SC01-F01E _ PCRN Format Rev01."
+            If change point management is required, apply using "R-COC01-SC01-F01E _ PCRN Format."
         </div>
     </div>
 
@@ -381,12 +381,12 @@
         </table>
 
         <div>
-            <input type='checkbox' id='noApproval' />
-            <label for='Approval'>Approved</label>
+            <input type='checkbox' id='approved' #ToshibaApproved# disabled //>
+            <label for='approved'>Approved</label>
         </div>
         <div>
-            <input type='checkbox' id='approvalRequired' />
-            <label for='noApproval'>Not Approved</label>
+            <input type='checkbox' id='notapproved' ##ToshibaNotApproved## disabled //>
+            <label for='notapproved'>Not Approved</label>
         </div>
 
         <!-- Tables Section -->
@@ -405,7 +405,7 @@
             </table>
 
             <!-- Second Table -->
-            <table class="table prevent-break" style=" border-collapse: collapse; width: 48%; font-size: 10px;">
+            <table class="table prevent-break" style=" border-collapse: collapse; width: 48%; font-size: 16px;">
                 <tr>
                     <td style="border: 1px solid black; padding: 5px; width: 20%;"><b>Comments:</b></td>
                     <td style="border: 1px solid black; padding: 5px; width: 80%; height: 120px;"></td>
