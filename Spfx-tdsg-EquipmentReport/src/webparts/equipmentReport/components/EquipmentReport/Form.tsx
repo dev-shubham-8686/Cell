@@ -2041,7 +2041,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 </div>
               </>
             )} */}
-            {(existingEquipmentReport?.WorkflowStatus ==
+{            console.log("CONDITION OF RESULT",(existingEquipmentReport?.WorkflowStatus ==
+              REQUEST_STATUS.W1Completed ||
+              existingEquipmentReport?.Status == REQUEST_STATUS.Completed ||
+              (existingEquipmentReport?.WorkflowLevel == 2)))
+}            {(existingEquipmentReport?.WorkflowStatus ==
               REQUEST_STATUS.W1Completed ||
               existingEquipmentReport?.Status == REQUEST_STATUS.Completed ||
               (existingEquipmentReport?.WorkflowLevel == 2)) &&
