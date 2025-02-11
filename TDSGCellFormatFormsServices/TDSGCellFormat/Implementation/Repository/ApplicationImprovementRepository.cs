@@ -287,7 +287,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.ModifiedBy = report.CreatedBy;
                     newReport.IsSubmit = report.IsSubmit;
                     newReport.IsResultSubmit = false;
-                    newReport.IsSubmit = report.IsSubmit;
+                    newReport.IsSubmit = false;
                     newReport.Status = ApprovalTaskStatus.Draft.ToString();
                     newReport.WorkFlowLevel = 0;
                     newReport.IsLogicalAmend = false;
@@ -437,7 +437,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     if (report.ResultAfterImplementation != null)
                     {
-                        if (report.ModifiedBy == _context.AdminApprovers.Where(x => x.IsActive == true).Select(x => x.AdminId).FirstOrDefault())
+                        if (report.ModifiedBy == _context.AdminApprovers.Where(x => x.IsActive == true && x.FormName == ProjectType.Equipment.ToString()).Select(x => x.AdminId).FirstOrDefault())
                         {
                             var formData = await EditFormData(report);
                             if (formData.StatusCode == Enums.Status.Success)
@@ -599,7 +599,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.Imrovement = report.Improvement;
                 existingReport.ModifiedDate = DateTime.Now;
                 existingReport.ModifiedBy = report.ModifiedBy;
-                existingReport.IsSubmit = report.IsSubmit;
+               
 
                 // Assign SectionHeadId based on the conditions
                 if (report.SectionId == 1)
