@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Graph.Models;
 using System.DirectoryServices.ActiveDirectory;
+using SelectPdf;
 
 
 namespace TDSGCellFormat.Implementation.Repository
@@ -2349,6 +2350,29 @@ namespace TDSGCellFormat.Implementation.Repository
                 // Create PDF using SelectPDF
                 var converter = new SelectPdf.HtmlToPdf();
                 converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
+
+                // footer settings
+                converter.Options.DisplayFooter = true;
+                converter.Footer.DisplayOnFirstPage = true;
+                converter.Footer.DisplayOnOddPages = true;
+                converter.Footer.DisplayOnEvenPages = true;
+                converter.Footer.Height = 50;
+
+                // Use custom CSS to handle the page breaks
+                // converter.Options.KeepImagesTogether = true;
+
+                // Centered text
+                PdfTextSection centerText = new PdfTextSection(0, 10, "This document is digitally generated. No signature is required.", new System.Drawing.Font("Arial", 8));
+                centerText.HorizontalAlign = PdfTextHorizontalAlign.Center;
+                converter.Footer.Add(centerText);
+
+                // Page numbers on the right
+                PdfTextSection pageNumberText = new PdfTextSection(-5, 10, "Page {page_number}   ", new System.Drawing.Font("Arial", 8));
+                pageNumberText.HorizontalAlign = PdfTextHorizontalAlign.Right;
+
+                //.HorizontalAlign = PdfTextHorizontalAlign.Right;
+                converter.Footer.Add(pageNumberText);
+
                 SelectPdf.PdfDocument pdfDoc = converter.ConvertHtmlString(sb.ToString());
 
                 // Convert the PDF to a byte array
