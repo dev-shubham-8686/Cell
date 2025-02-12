@@ -59,7 +59,8 @@ public partial class EquipmentImprovementApplication
     public DateTime? ToshibaApprovalTargetDate { get; set; }
 
     public string? ToshibaApprovalComment { get; set; }
-
+    public string? ToshibaApprovedRemarks { get; set; }
+    public DateTime? ToshibaApprovalDate { get; set; }
     public bool? IsPcrnRequired { get; set; }
     public DateTime? CreatedDate { get; set; }
 
