@@ -2259,7 +2259,49 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#currentSituations#", equipmentData?.CurrentSituation);
                 sb.Replace("#Improvement#", equipmentData?.Imrovement);
 
-                
+
+                string approveSectioneHead = approvalData.FirstOrDefault(a => a.SequenceNo == 1 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByDepHead = approvalData.FirstOrDefault(a => a.SequenceNo == 3 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 5 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByDeptDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 4 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByQT = approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+
+                string QcManagerName = approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? string.Empty;
+                string QcManagerComments = approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.Comments ?? string.Empty;
+                string QcManagerdate = approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? string.Empty;
+
+                string approvedByAdvisor = approvalData.FirstOrDefault(a => a.SequenceNo == 2 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+
+                string advisorComment = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.Comments ?? "N/A";
+                string advisorDate = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? "N/A";
+
+                sb.Replace("#SectionHeadName#", approveSectioneHead);
+                sb.Replace("#DepartmentHeadName#", approvedByDepHead);
+                sb.Replace("#DivisionHeadName#", approvedByDivHead);
+                sb.Replace("#Advisor#", approvedByAdvisor);
+                sb.Replace("#DeputyDivisionHeadName#", approvedByDeptDivHead);
+                sb.Replace("#QualityTeamReview#", approvedByQT);
+
+                sb.Replace("#QCmanagerName#", QcManagerName);
+                sb.Replace("#qcManagerComments#", QcManagerComments);
+                sb.Replace("#qcManagerApprovalDate#", QcManagerdate);
+
+                sb.Replace("#AdvisorName#", approvedByAdvisor);
+                sb.Replace("#AdvisorComment#", advisorComment);
+                sb.Replace("#AdvisorDate#", advisorDate);
+
+                if (equipmentData.WorkFlowLevel == 2 && equipmentData.Status == ApprovalTaskStatus.Completed.ToString())
+                {
+                    sb.Replace("#clsSectionHead#", approveSectioneHead);
+                }
+                else
+                {
+                    sb.Replace("#clsSectionHead#", "N/A");
+                }
+
+                sb.Replace("#ResultStatus#", equipmentData?.ResultStatus);
+                sb.Replace("#TargetDate#", equipmentData?.TargetDate?.ToString("dd-MM-yyyy") ?? "N/A");
+                sb.Replace("#ActualDate#", equipmentData?.ActualDate?.ToString("dd-MM-yyyy") ?? "N/A");
 
 
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
@@ -2288,22 +2330,11 @@ namespace TDSGCellFormat.Implementation.Repository
                     sb.Replace("#ToshibaNotApproved#", "checked");
                 }
 
-                if(equipmentData.ToshibaApprovalRequired == true && equipmentData.ToshibaApprovedRemarks != null)
+                if(equipmentData.ToshibaApprovalRequired == true && equipmentData.ToshibaApprovedRemarks != null && equipmentData.ToshibaApprovalDate != null)
                 {
-                    sb.Replace("#ToshibaComments#", equipmentData.ToshibaApprovedRemarks);
-                }
-                else
-                {
-                    sb.Replace("#ToshibaComments#", string.Empty);
-                }
-
-                if (equipmentData.ToshibaApprovalRequired == true && equipmentData.ToshibaApprovalDate != null)
-                {
-                    sb.Replace("#ToshibaApprovalDate#", equipmentData.ToshibaApprovalDate?.ToString("dd-MM-yyyy"));
-                }
-                else
-                {
-                    sb.Replace("#ToshibaApprovalDate#", string.Empty);
+                    sb.Replace("#ToshibaComments#", equipmentData.ToshibaApprovedRemarks ?? string.Empty);
+                    sb.Replace("#JudgeBy#", QcManagerName ?? string.Empty);
+                    sb.Replace("#ToshibaApprovalDate#", equipmentData.ToshibaApprovalDate?.ToString("dd-MM-yyyy") ?? string.Empty);
                 }
                 var baseUrl = _configuration["SPSiteUrl"];
 
@@ -2398,48 +2429,6 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 sb.Replace("#ChangeriskTable#", tableBuilder.ToString());
 
-                string approveSectioneHead = approvalData.FirstOrDefault(a => a.SequenceNo == 1 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDepHead = approvalData.FirstOrDefault(a => a.SequenceNo == 3 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 5 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDeptDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 4 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByQT= approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
-
-                string QcManagerName = approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? string.Empty;
-                string QcManagerComments = approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.Comments ?? string.Empty;
-                string QcManagerdate = approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? string.Empty;
-
-                string approvedByAdvisor = approvalData.FirstOrDefault(a => a.SequenceNo == 2 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
-
-                string advisorComment = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.Comments ?? "N/A";
-                string advisorDate = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? "N/A";
-
-                sb.Replace("#SectionHeadName#", approveSectioneHead);
-                sb.Replace("#DepartmentHeadName#", approvedByDepHead);
-                sb.Replace("#DivisionHeadName#", approvedByDivHead);
-                sb.Replace("#Advisor#", approvedByAdvisor);
-                sb.Replace("#DeputyDivisionHeadName#", approvedByDeptDivHead);
-                sb.Replace("#QualityTeamReview#", approvedByQT);
-
-                sb.Replace("#QCmanagerName#", QcManagerName);
-                sb.Replace("#qcManagerComments#", QcManagerComments);
-                sb.Replace("#qcManagerApprovalDate#", QcManagerdate);
-
-                sb.Replace("#AdvisorName#", approvedByAdvisor);
-                sb.Replace("#AdvisorComment#", advisorComment);
-                sb.Replace("#AdvisorDate#", advisorDate);
-
-                if (equipmentData.WorkFlowLevel == 2 && equipmentData.Status == ApprovalTaskStatus.Completed.ToString())
-                {
-                    sb.Replace("#clsSectionHead#", approveSectioneHead);
-                }
-                else
-                {
-                    sb.Replace("#clsSectionHead#", "N/A");
-                }
-
-                sb.Replace("#ResultStatus#", equipmentData?.ResultStatus);
-                sb.Replace("#TargetDate#", equipmentData?.TargetDate?.ToString("dd-MM-yyyy") ?? "N/A");
-                sb.Replace("#ActualDate#", equipmentData?.ActualDate?.ToString("dd-MM-yyyy") ?? "N/A");
 
                 // Create PDF using SelectPDF
                 var converter = new SelectPdf.HtmlToPdf();
