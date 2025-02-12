@@ -860,7 +860,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     existingReport.ResultMonitorDate = !string.IsNullOrEmpty(data.ResultMonitoringDate) ? DateTime.Parse(data.ResultMonitoringDate) : (DateTime?)null;
                 }
-                existingReport.IsResultSubmit = data.IsResultSubmit;
+                
                 existingReport.ResultMonitoring = data.ResultMonitoringId;
                 existingReport.PCRNNumber = data.PCRNNumber;
                 existingReport.WorkFlowLevel = 2;
