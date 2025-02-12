@@ -844,6 +844,8 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
+                var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+
                 var existingReport = await _context.EquipmentImprovementApplication.FindAsync(report.EquipmentImprovementId);
                 var data = report.ResultAfterImplementation;
                 existingReport.ResultStatus = data.ResultStatus;
@@ -865,14 +867,14 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.PCRNNumber = data.PCRNNumber;
                 existingReport.WorkFlowLevel = 2;
 
-                if (data.TargetDate != null && data.ActualDate == null)
+                if (data.TargetDate != null && data.ActualDate == null && report.ModifiedBy != adminId)
                 {
                     existingReport.Status = ApprovalTaskStatus.UnderImplementation.ToString();
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendEquipmentEmail(existingReport.EquipmentImprovementId, EmailNotificationAction.UnderImplementation, string.Empty, 0);
                 }
-                if (data.TargetDate != null && data.ActualDate != null)
+                if (data.TargetDate != null && data.ActualDate != null && report.ModifiedBy != adminId)
                 {
                     existingReport.Status = ApprovalTaskStatus.ResultMonitoring.ToString();
 
@@ -938,7 +940,6 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else
                 {
-                    var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
 
                     if (report.ModifiedBy == adminId)
                     {
