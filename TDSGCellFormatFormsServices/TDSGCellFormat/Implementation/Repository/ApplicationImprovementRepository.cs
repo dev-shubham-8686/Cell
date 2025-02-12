@@ -1682,6 +1682,11 @@ namespace TDSGCellFormat.Implementation.Repository
             try
             {
                 var equipment = _context.EquipmentImprovementApplication.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsDeleted == false).FirstOrDefault();
+                var equipmentToshibaDis = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsActive == true && x.WorkFlowlevel == 1 && x.SequenceNo == 2).FirstOrDefault();
+                var equipmentToshibaApp = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.IsActive == true && x.WorkFlowlevel == 1 && x.SequenceNo == 6).FirstOrDefault();
+                var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+
+
                 if (data.IsToshibaDiscussion == true && (equipment.ToshibaTeamDiscussion == false || equipment.ToshibaTeamDiscussion == null) && equipment.ToshibaDiscussionTargetDate == null)
                 {
                     equipment.ToshibaTeamDiscussion = true;
@@ -1693,9 +1698,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.Status = ApprovalTaskStatus.ToshibaTechnicalReview.ToString();
                     equipment.ToshibaDicussionComment = data.Comment;
                     equipment.IsPcrnRequired = data.IsPcrnRequired;
-                    await _context.SaveChangesAsync();
-
-                    var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+                    if(equipmentToshibaDis != null && equipmentToshibaDis.AssignedToUserId == data.EmployeeId)
+                    {
+                        equipmentToshibaDis.Comments = data.Comment;
+                    }
                     if (data.EmployeeId == adminId)
                     {
                         InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, ApprovalTaskStatus.ToshibaTechnicalReview.ToString(), Convert.ToInt32(data.EmployeeId), HistoryAction.ToshibaDiscussionRequired.ToString(), 0);
@@ -1704,6 +1710,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Advisor", data.Comment, ApprovalTaskStatus.ToshibaTechnicalReview.ToString(), Convert.ToInt32(data.EmployeeId), HistoryAction.ToshibaDiscussionRequired.ToString(), 0);
                     }
+
+                    await _context.SaveChangesAsync();
 
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
@@ -1720,10 +1728,13 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.Status = ApprovalTaskStatus.ToshibaTechnicalReview.ToString();
                     equipment.ToshibaDicussionComment = data.Comment;
                     equipment.IsPcrnRequired = data.IsPcrnRequired;
+
+                    if (equipmentToshibaDis != null && equipmentToshibaDis.AssignedToUserId == data.EmployeeId)
+                    {
+                        equipmentToshibaDis.Comments = data.Comment;
+                    }
                     await _context.SaveChangesAsync();
 
-
-                    var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
                     if (data.EmployeeId == adminId)
                     {
                         InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.UpdateTargetDate.ToString(), 0);
@@ -1745,11 +1756,14 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
                     equipment.ToshibaApprovalComment = data.Comment;
                     equipment.IsPcrnRequired = data.IsPcrnRequired;
+                    if (equipmentToshibaApp != null && equipmentToshibaApp.AssignedToUserId == data.EmployeeId)
+                    {
+                        equipmentToshibaApp.Comments = data.Comment;
+                    }
                     await _context.SaveChangesAsync();
 
                     var approverdata = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId && x.SequenceNo == 6 && x.IsActive == true).Select(x => x.AssignedToUserId).FirstOrDefault();
 
-                    var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
                     if (data.EmployeeId == adminId)
                     {
                         InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.UpdateTargetDate.ToString(), 0);
@@ -2335,6 +2349,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     sb.Replace("#ToshibaComments#", equipmentData.ToshibaApprovedRemarks ?? string.Empty);
                     sb.Replace("#JudgeBy#", QcManagerName ?? string.Empty);
                     sb.Replace("#ToshibaApprovalDate#", equipmentData.ToshibaApprovalDate?.ToString("dd-MM-yyyy") ?? string.Empty);
+                }
+                else
+                {
+                    sb.Replace("#ToshibaComments#", string.Empty);
+                    sb.Replace("#JudgeBy#", string.Empty);
+                    sb.Replace("#ToshibaApprovalDate#", string.Empty);
                 }
                 var baseUrl = _configuration["SPSiteUrl"];
 
