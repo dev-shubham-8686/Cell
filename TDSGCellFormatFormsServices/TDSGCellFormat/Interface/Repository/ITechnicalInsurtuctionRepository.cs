@@ -50,5 +50,13 @@ namespace TDSGCellFormat.Interface.Repository
 
         Task<GetTechnicalUser> GetUserRole(string userEmail);
 
+        Task<AjaxResult> InsertDelegate(TecnicalDelegateUser request);
+
+        Task<IEnumerable<equipment_master_list>> equipment_master_list();
+
+        public Task<equipment_master_add> equipment_master_AddOrUpdate(equipment_master_add equipment_Master_Add);
+
+        public Task<AjaxResult> equipment_master_Remove(int Id);
+
     }
 }

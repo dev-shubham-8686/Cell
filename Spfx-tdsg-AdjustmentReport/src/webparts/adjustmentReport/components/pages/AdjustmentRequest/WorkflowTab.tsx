@@ -1,7 +1,6 @@
 import * as React from "react";
 
-import { format } from "date-fns";
-import {  DATE_TIME_FORMAT, DATETIME, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
+import {  DATE_FORMAT, DATETIME, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
 import { Button, message, Tooltip } from "antd";
 import { displayRequestStatus } from "../../../utils/utility";
 import { useUserContext } from "../../../context/UserContext";
@@ -12,6 +11,7 @@ import { useGetAdvisorCommentsById } from "../../../hooks/useGetAdvisorCommentsB
 import { useParams } from "react-router-dom";
 import { useAddOrUpdateAdvisorComment } from "../../../hooks/useAddOrUpdateAdvisorCommentData";
 import { IAdvisorCommentsData } from "../../../api/AddorUpdateAdvisorComments.api";
+import dayjs from "dayjs";
 
 export interface IRequestStatus {
   formStatus: string;
@@ -44,7 +44,8 @@ const Workflow: React.FC<IProps> = ({
 }) => {
   const { user } = useUserContext();
   const [advisorComments, setAdvisorComments] = useState<string>("");
-  const {id}=useParams();
+  const {id,mode}=useParams();
+  const isViewMode = mode === "view";
   const { mutate: addUpdateAdvisorComment } = useAddOrUpdateAdvisorComment();
   const { data: advisorCommentData } = useGetAdvisorCommentsById(
     id ? parseInt(id) : 0
@@ -60,7 +61,8 @@ const Workflow: React.FC<IProps> = ({
       AdjustmentReportId:parseInt(id),
       AdjustmentAdvisorId:advisorCommentData?.ReturnValue?.AdjustmentAdvisorId,
       AdvisorId:advisorId,
-      Comment:advisorComments
+      Comment:advisorComments,
+      ModifiedBy:user?.employeeId
     }
     
     addUpdateAdvisorComment(payload, {
@@ -125,8 +127,9 @@ const Workflow: React.FC<IProps> = ({
       cellValues:
         approverTasks?.map((item) =>
           item.ActionTakenDate
-            ? format(item.ActionTakenDate, DATETIME)
-            : // ?item.ActionTakenDate
+    ? dayjs(item.ActionTakenDate).format(DATE_FORMAT)
+            //  (item.ActionTakenDate, DATETIME)
+            : 
               ""
         ) ?? [],
     },
@@ -182,12 +185,12 @@ const Workflow: React.FC<IProps> = ({
         </p>
         <TextArea
           value={advisorComments}
-          disabled={user?.isAdmin ? false:!(advisorId==user?.employeeId &&status!=REQUEST_STATUS.Completed)}
+          disabled={isViewMode ||( user?.isAdmin ? false:!(advisorId==user?.employeeId &&status!=REQUEST_STATUS.Completed))}
           onChange={(e) => setAdvisorComments(e.target.value)}
           rows={4}
           placeholder="Enter your comments here"
         />
-       { (advisorId == user?.employeeId && status!=REQUEST_STATUS.Completed) ? 
+       { (((advisorId == user?.employeeId && status!=REQUEST_STATUS.Completed) || user?.isAdmin) && !isViewMode)? 
        (<Button
           type="primary"
           onClick={()=>handleSave()}

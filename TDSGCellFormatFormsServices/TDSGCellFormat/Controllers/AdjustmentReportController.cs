@@ -34,6 +34,14 @@ namespace TDSGCellFormat.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
+        [HttpPost("GetLoginSession")]
+        public ActionResult<string> GetLoginSession([FromBody] AuthParameter model)
+        {
+            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            var sessionResult = authHelper.CreateAuthSession(model.parameter, model.type);
+            return Ok(sessionResult);
+        }
+
         [HttpGet("GetUserRole")]
         public async Task<IActionResult> GetUserRole(string email)
         {

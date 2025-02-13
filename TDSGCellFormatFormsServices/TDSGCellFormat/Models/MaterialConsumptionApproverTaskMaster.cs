@@ -46,7 +46,5 @@ public class MaterialConsumptionApproverTaskMaster
     public DateTime? ModifiedDate { get; set; }
 
     public bool? IsActive { get; set; }
-
-    
 }
 

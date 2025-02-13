@@ -39,6 +39,8 @@ namespace TDSGCellFormat.Models.View
         public string? createdDate { get; set; }
 
         public string? otherEquipment { get; set; }
+
+        public int? activeUserId { get; set; }
     }
 
     public class TechnicalInstructionDto

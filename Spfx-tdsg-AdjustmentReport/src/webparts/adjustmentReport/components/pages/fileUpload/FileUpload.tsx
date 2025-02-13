@@ -192,7 +192,7 @@ console.log("FILES",files)
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
       }
-
+      
       const url = `${WEB_URL}/_api/Web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}')/Files/Add(url='${fileName}', overwrite=true)?$expand=ListItemAllFields`;
       const response = await webPartContext.spHttpClient.post(
         url,
@@ -208,11 +208,13 @@ console.log("FILES",files)
       
       // const response:any="";
       if (response.status !== 200) {
+        
         void showErrorMsg(
           `Error while uploading attachment ${fileName}. Error code: ${response.status}`
         );
         return false;
       } else {
+        
         void showSuccess(`The file ${fileName} is uploaded successfully.`);
         
         const jsonResponse = await response.json();

@@ -184,5 +184,24 @@ namespace TDSGCellFormat.Implementation.Service
             return await _technicalRepository.GetUserRole(userEmail);
         }
 
+        public async Task<AjaxResult> InsertDelegate(TecnicalDelegateUser request)
+        {
+            return await _technicalRepository.InsertDelegate(request);
+        }
+
+        public async Task<IEnumerable<equipment_master_list>> equipment_master_list()
+        {
+            return await _technicalRepository.equipment_master_list();
+        }
+
+        public async Task<equipment_master_add> equipment_master_AddOrUpdate(equipment_master_add equipment_Master_Add)
+        {
+            return await _technicalRepository.equipment_master_AddOrUpdate(equipment_Master_Add);
+        }
+
+        public async Task<AjaxResult> equipment_master_Remove(int Id)
+        {
+            return await _technicalRepository.equipment_master_Remove(Id);
+        }
     }
 }

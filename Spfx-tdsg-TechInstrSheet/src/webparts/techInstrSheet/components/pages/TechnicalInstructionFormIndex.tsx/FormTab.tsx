@@ -109,7 +109,7 @@ const FormTab: React.FC<any> = ({
   // Log updated imageFiles after state change
   React.useEffect(() => {
     if (isMountedRef.current) {
-      console.log("Updated image files:", imageFiles);
+      //console.log("Updated image files:", imageFiles);
     }
   }, [imageFiles]); // Run when imageFiles changes
 
@@ -165,6 +165,15 @@ const FormTab: React.FC<any> = ({
   //   setOtherEquipment("");
   // };
 
+  const handleIssueDateChange = (date:any) => {
+    if (date) {
+      // Autofill the "Application Date" field
+      form.setFieldsValue({
+        applicationStartDate: date, // Set the same value as Issue Date
+      });
+    }
+  };
+
   return (
     <div>
       {/* Form tab content */}
@@ -188,6 +197,7 @@ const FormTab: React.FC<any> = ({
                 disabledDate={(current) =>
                   current && current < dayjs().startOf("day") // Disable past dates
                 }
+                onChange={handleIssueDateChange} // Handle date change
                 disabled={isViewMode}
               />
             </Form.Item>
@@ -272,7 +282,8 @@ const FormTab: React.FC<any> = ({
                 style={{ width: "95%" }}
                 maxLength={50}
                 placeholder="Enter Product Type"
-                disabled={isViewMode}
+                //disabled={isViewMode}
+                disabled={true}
               />
             </Form.Item>
           </Col>
@@ -474,7 +485,7 @@ const FormTab: React.FC<any> = ({
                 disabledDate={(current) =>
                   current && current < dayjs().startOf("day") // Disable past dates
                 }
-                disabled={isViewMode}
+                disabled={true}//{isViewMode}
               />
             </Form.Item>
           </Col>
