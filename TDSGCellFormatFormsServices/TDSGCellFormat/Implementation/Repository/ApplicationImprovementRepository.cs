@@ -446,7 +446,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     }
                     if (report.ResultAfterImplementation != null)
                     {
-                        if (report.ModifiedBy == _context.AdminApprovers.Where(x => x.IsActive == true && x.FormName == ProjectType.Equipment.ToString()).Select(x => x.AdminId).FirstOrDefault())
+                        if (_context.AdminApprovers
+                                    .Where(x => x.IsActive == true && x.FormName == ProjectType.Equipment.ToString())
+                                    .Select(x => x.AdminId)
+                                    .Contains(report.ModifiedBy))
                         {
                             var formData = await EditFormData(report);
                             if (formData.StatusCode == Enums.Status.Success)
@@ -759,7 +762,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Enums.Status.Success;
                 res.Message = Enums.EquipmentSave;
 
-                var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+                var adminId = _context.AdminApprovers
+                               .Where(x => x.IsActive == true && x.FormName == ProjectType.Equipment.ToString())
+                               .Select(x => x.AdminId)
+                               .Contains(report.ModifiedBy);
                 if (report.IsSubmit == true && report.IsAmendReSubmitTask == false && existingReport.IsLogicalAmend == false)
                 {
                     var data = await SubmitRequest(existingReport.EquipmentImprovementId, report.ModifiedBy);
@@ -801,9 +807,9 @@ namespace TDSGCellFormat.Implementation.Repository
                     await _context.CallEquipmentApproverMaterix(existingReport.CreatedBy, existingReport.EquipmentImprovementId);
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendEquipmentEmail(existingReport.EquipmentImprovementId, EmailNotificationAction.ReSubmitted, string.Empty, 0);
-                    if (report.ModifiedBy == adminId)
+                    if (adminId)
                     {
-                        InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.LogicalAmendmentInReview.ToString(), Convert.ToInt32(adminId), HistoryAction.ReSubmitted.ToString(), 0);
+                        InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", "ReSubmit the Form", ApprovalTaskStatus.LogicalAmendmentInReview.ToString(), Convert.ToInt32(report.ModifiedBy), HistoryAction.ReSubmitted.ToString(), 0);
 
                     }
                     else
@@ -814,9 +820,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else
                 {
-                    if (report.ModifiedBy == adminId)
+                    if ( adminId)
                     {
-                        InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", "Update the Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
+                        InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", "Update the Form", existingReport.Status, Convert.ToInt32(report.ModifiedBy), HistoryAction.Save.ToString(), 0);
 
                     }
                     else
@@ -844,7 +850,10 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
+                var adminId = _context.AdminApprovers
+    .Where(x => x.IsActive == true && x.FormName == ProjectType.Equipment.ToString())
+    .Select(x => x.AdminId)
+    .Contains(report.ModifiedBy);
 
                 var existingReport = await _context.EquipmentImprovementApplication.FindAsync(report.EquipmentImprovementId);
                 var data = report.ResultAfterImplementation;
@@ -867,14 +876,14 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.PCRNNumber = data.PCRNNumber;
                 existingReport.WorkFlowLevel = 2;
 
-                if (data.TargetDate != null && data.ActualDate == null && report.ModifiedBy != adminId)
+                if (data.TargetDate != null && data.ActualDate == null &&  !adminId)
                 {
                     existingReport.Status = ApprovalTaskStatus.UnderImplementation.ToString();
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendEquipmentEmail(existingReport.EquipmentImprovementId, EmailNotificationAction.UnderImplementation, string.Empty, 0);
                 }
-                if (data.TargetDate != null && data.ActualDate != null && report.ModifiedBy != adminId)
+                if (data.TargetDate != null && data.ActualDate != null && !adminId)
                 {
                     existingReport.Status = ApprovalTaskStatus.ResultMonitoring.ToString();
 
@@ -941,9 +950,9 @@ namespace TDSGCellFormat.Implementation.Repository
                 else
                 {
 
-                    if (report.ModifiedBy == adminId)
+                    if (adminId)
                     {
-                        InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", "Update Result after Implementation in Form", existingReport.Status, Convert.ToInt32(adminId), HistoryAction.Save.ToString(), 0);
+                        InsertHistoryData(existingReport.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", "Update Result after Implementation in Form", existingReport.Status, Convert.ToInt32(report.ModifiedBy), HistoryAction.Save.ToString(), 0);
 
                     }
                     else
@@ -996,10 +1005,13 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.IsLogicalAmend = false;
                     await _context.SaveChangesAsync();
                 }
-                var adminId = _context.AdminApprovers.Where(x => x.FormName == ProjectType.Equipment.ToString() && x.IsActive == true).Select(x => x.AdminId).FirstOrDefault();
-                if (userId == adminId)
+                var adminId = _context.AdminApprovers
+                  .Where(x => x.IsActive == true && x.FormName == ProjectType.Equipment.ToString())
+                  .Select(x => x.AdminId)
+                  .Contains(userId);
+                if (adminId)
                 {
-                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Admin", "Submit the form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(adminId), HistoryAction.Submit.ToString(), 0);
+                    InsertHistoryData(equipmentId, FormType.EquipmentImprovement.ToString(), "Admin", "Submit the form", ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.Submit.ToString(), 0);
                 }
                 else
                 {
