@@ -1462,7 +1462,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             
 
                             InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.ToshibaApprovalRequired.ToString(), 0);
-                            if (equipment.IsPcrnRequired == true)
+                            if (approvalData.IsPcrnRequired == true)
                             {
                                 equipment.IsPcrnRequired = approvalData.IsPcrnRequired;
                                 InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.PCRNRequired.ToString(), 0);
@@ -1470,7 +1470,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             }
                             if (equipment.IsPcrnRequired == false)
                             {
-                                equipment.IsPcrnRequired = approvalData.IsPcrnRequired;
+                                approvalData.IsPcrnRequired = approvalData.IsPcrnRequired;
                                 InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.PCRNNotRequired.ToString(), 0);
 
                             }
@@ -1770,7 +1770,7 @@ namespace TDSGCellFormat.Implementation.Repository
                              : (DateTime?)null;
                     equipment.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
                     equipment.ToshibaApprovalComment = data.Comment;
-                    equipment.IsPcrnRequired = data.IsPcrnRequired;
+                    
                     if (equipmentToshibaApp != null && equipmentToshibaApp.AssignedToUserId == data.EmployeeId)
                     {
                         equipmentToshibaApp.Comments = data.Comment;
@@ -1782,13 +1782,15 @@ namespace TDSGCellFormat.Implementation.Repository
                     if (data.EmployeeId == adminId)
                     {
                         InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.UpdateTargetDate.ToString(), 0);
-                        if (equipment.IsPcrnRequired == true)
+                        if (data.IsPcrnRequired == true)
                         {
+                            equipment.IsPcrnRequired = data.IsPcrnRequired;
                             InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.PCRNRequired.ToString(), 0);
 
                         }
-                        else
+                        if(data.IsPcrnRequired == false)
                         {
+                            equipment.IsPcrnRequired = data.IsPcrnRequired;
                             InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Admin", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.PCRNNotRequired.ToString(), 0);
 
                         }
