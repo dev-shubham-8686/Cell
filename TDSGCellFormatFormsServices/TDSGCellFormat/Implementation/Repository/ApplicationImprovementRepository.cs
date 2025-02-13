@@ -1800,11 +1800,13 @@ namespace TDSGCellFormat.Implementation.Repository
                         InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.UpdateTargetDate.ToString(), 0);
                         if (equipment.IsPcrnRequired == true)
                         {
+                            equipment.IsPcrnRequired = data.IsPcrnRequired;
                             InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.PCRNRequired.ToString(), 0);
 
                         }
-                        else
+                        if (data.IsPcrnRequired == false)
                         {
+                            equipment.IsPcrnRequired = data.IsPcrnRequired;
                             InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), "Quality Review Team", data.Comment, equipment.Status, Convert.ToInt32(data.EmployeeId), HistoryAction.PCRNNotRequired.ToString(), 0);
 
                         }
