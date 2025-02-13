@@ -1459,16 +1459,18 @@ namespace TDSGCellFormat.Implementation.Repository
                                                     : (DateTime?)null;
                             equipment.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
                             equipmentData.Status = ApprovalTaskStatus.UnderToshibaApproval.ToString();
-                            equipment.IsPcrnRequired = approvalData.IsPcrnRequired;
+                            
 
                             InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.ToshibaApprovalRequired.ToString(), 0);
                             if (equipment.IsPcrnRequired == true)
                             {
+                                equipment.IsPcrnRequired = approvalData.IsPcrnRequired;
                                 InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.PCRNRequired.ToString(), 0);
 
                             }
-                            else
+                            if (equipment.IsPcrnRequired == false)
                             {
+                                equipment.IsPcrnRequired = approvalData.IsPcrnRequired;
                                 InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.PCRNNotRequired.ToString(), 0);
 
                             }
