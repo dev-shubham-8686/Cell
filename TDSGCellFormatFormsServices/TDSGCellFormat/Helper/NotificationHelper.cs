@@ -1,9 +1,4 @@
-﻿using Azure.Core;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Graph.Models;
-using Microsoft.SharePoint.Client.Sharing;
+﻿
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -91,7 +86,7 @@ namespace TDSGCellFormat.Helper
                                     mailMessage.CC.Add(ccAddressObj);
                                 }
                             }
-                            //mailMessage.CC.Add("jipanchal@synoptek.com");
+                            
 
                             using (SmtpClient smtpClient = new SmtpClient(host))
                             {
@@ -149,8 +144,6 @@ namespace TDSGCellFormat.Helper
                         }
 
                         mm.IsBodyHtml = true;
-                        //mm.CC.Add("jipanchal@synoptek.com");
-                        //mm.CC.Add("bdavawala@synoptek.com");
                         using (SmtpClient smtp = new SmtpClient(_configuration["MailSettings:Host"]))
                         {
                             smtp.EnableSsl = Convert.ToBoolean(_configuration["MailSettings:EnableSsl"]);
@@ -1229,7 +1222,6 @@ namespace TDSGCellFormat.Helper
                             case EmailNotificationAction.AutoApproved:
                                 templateFile = "Equipment_AutoApprove.html";
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Auto Approved", equipmentNo);
-
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
                                 break;
@@ -1361,7 +1353,7 @@ namespace TDSGCellFormat.Helper
                                                        && item.ApproverTaskId == nextApproverTaskId);
                                     if (task != null)
                                     {
-                                        if (task.SequenceNo == 3)
+                                        if (task.SequenceNo == 3 && item.WorkFlowlevel == 1)
                                         {
                                             var userOtherDepId = _cloneContext.DepartmentMasters.Where(x => x.DepartmentID != reqDeptId && x.IsActive == true && x.DivisionID == 1 && (x.HRMSDeptName == "CP01-DP-1003" || x.HRMSDeptName == "CP01-DP-1004" || x.HRMSDeptName == "CP01-DP-1002")).Select(x => x.Head).ToList();
                                             foreach (var dept in userOtherDepId)
@@ -1379,19 +1371,17 @@ namespace TDSGCellFormat.Helper
 
                                             emailToAddressList.Add(task.email);
                                         }
-                                        else if (item.SequenceNo == 2)
+                                        else if (item.SequenceNo == 2 && item.WorkFlowlevel == 1)
                                         {
                                             emailToAddressList.Add(task.email);
                                         }
                                         else
                                         {
-                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId != equipmentData.SectionHeadId).Select(x => x.EmployeeId).ToList();
-                                            foreach (var section in sectionHeadId)
-                                            {
-                                                var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == section && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId == equipmentData.SectionHeadId).Select(x => x.EmployeeId).FirstOrDefault();
 
-                                                emailCCAddressList.Add(sectionEmail);
-                                            }
+                                            var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == sectionHeadId && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                            emailCCAddressList.Add(sectionEmail);
                                             emailToAddressList.Add(task.email);
                                         }
                                     }
@@ -1426,7 +1416,7 @@ namespace TDSGCellFormat.Helper
 
                                             emailToAddressList.Add(task.email);
                                         }
-                                        else if (task.SequenceNo == 2)
+                                        else if (task.SequenceNo == 2 && task.WorkFlowlevel == 1)
                                         {
                                             emailToAddressList.Add(task.email);
                                         }
@@ -1577,7 +1567,7 @@ namespace TDSGCellFormat.Helper
 
                         if (nextApproverTaskId > 0)
                         {
-                            var approvalData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == requestId && (x.Status != ApprovalTaskStatus.InReview.ToString() || x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true)
+                            var approvalData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == requestId && (x.Status != ApprovalTaskStatus.InReview.ToString() && x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true)
                                 .OrderByDescending(x => x.ApproverTaskId)
                                 .FirstOrDefault();
                             Role = approvalData?.Role;
@@ -1596,7 +1586,7 @@ namespace TDSGCellFormat.Helper
                             {
                                 if (approvelink)
                                 {
-                                    docLink = documentLink.Replace("#", "?action=approval#") + "edit/" + requestId;
+                                    docLink = documentLink + "view/" + requestId + "/approval";
                                 }
                                 else
                                 {
@@ -2243,6 +2233,17 @@ namespace TDSGCellFormat.Helper
                                 .OrderByDescending(x => x.ApproverTaskId)
                                 .FirstOrDefault();
                             Role = approvalData?.Role;
+                        }
+
+                        if (emailNotification == EmailNotificationAction.AutoApproved)
+                        {
+                            foreach (var item in approverData)
+                            {
+                                if (item.Status != ApprovalTaskStatus.AutoApproved.ToString())
+                                {
+                                    emailToAddressList.Add(item.email);
+                                }
+                            }
                         }
 
                         if (!string.IsNullOrEmpty(templateFile))

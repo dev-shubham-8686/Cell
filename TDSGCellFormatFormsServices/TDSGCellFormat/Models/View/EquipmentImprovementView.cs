@@ -5,6 +5,8 @@
         public int EquipmentImprovementId { get; set; }
         public string? EquipmentImprovementNo { get; set; }
         public string? IssueDate { get; set; }
+
+        public DateTime? IssueDateRaw { get; set; }
         public string? MachineName { get; set; }
 
         public string? OtherMachineName { get; set; }
@@ -40,6 +42,7 @@
         public int EquipmentImprovementId { get; set; }
         public string? EquipmentImprovementNo { get; set; }
         public string? IssueDate { get; set; }
+        public DateTime? IssueDateRaw { get; set; }
         public string? MachineName { get; set; }
 
         public string? OtherMachineName { get; set; }
