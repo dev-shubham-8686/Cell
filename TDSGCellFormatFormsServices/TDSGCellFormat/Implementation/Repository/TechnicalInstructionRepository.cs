@@ -2624,7 +2624,6 @@ namespace TDSGCellFormat.Implementation.Repository
                                            {
                                                sectionHeadId = x.SectionHeadMasterId,
                                                head = x.EmployeeId,
-                                               headName = x.SectionHeadName,
                                                sectionName = _context.SectionMasters
                                                .Where(c => c.SectionId == x.SectionId)
                                                .Select(c => c.SectionName)

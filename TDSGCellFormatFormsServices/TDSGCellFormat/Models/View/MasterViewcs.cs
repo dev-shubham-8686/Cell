@@ -99,7 +99,6 @@
         public int sectionHeadMasterId { get; set; }
         public int? sectionId { get; set; }
 
-        public string? sectionHeadName { get; set; }
     }
 
 
