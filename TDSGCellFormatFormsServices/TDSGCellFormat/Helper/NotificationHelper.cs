@@ -1477,7 +1477,7 @@ namespace TDSGCellFormat.Helper
                             {
                                 foreach (var item in approverData)
                                 {
-                                    if ((item.SequenceNo == 2 || item.SequenceNo == 5) && item.WorkFlowlevel == 1)
+                                    if ((item.SequenceNo == 2 || item.SequenceNo == 6) && item.WorkFlowlevel == 1)
                                     {
                                         emailToAddressList.Add(item.email);
                                     }
@@ -2057,7 +2057,7 @@ namespace TDSGCellFormat.Helper
                                 break;
 
                             case EmailNotificationAction.AutoApproved:
-                                templateFile = "Equipment_AutoApprove.html";
+                                templateFile = "Adjustment_AutoApprove.html";
                                 emailSubject = string.Format("[Action taken!] Adjustment_{0} has been Auto Approved", adjustmentData.ReportNo);
                                 approvelink = true;
                                 isRequestorinCCEmail = true;

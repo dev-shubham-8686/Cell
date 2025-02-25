@@ -58,6 +58,7 @@ namespace TDSGCellFormat.Models.Add
         public string? ToshibaDiscussionTargetDate { get; set; }
         public bool? IsPcrnRequired { get; set; }
         public bool? ToshibaTeamDiscussion { get; set; }
+        public int? SeqNo {  get; set; }    
         public List<EquipmentCurrSituationAttachData>? EquipmentCurrSituationAttachmentDetails { get; set; }
         public List<EquipmentImprovementAttachData>? EquipmentImprovementAttachmentDetails { get; set; }
         public List<ChangeRiskManagementData>? ChangeRiskManagementDetails { get; set; }
