@@ -474,6 +474,8 @@ namespace TDSGCellFormat.Controllers
         }
 
         [HttpGet("AdjustmentReportPDF")]
+        [RequestSizeLimit(52428800)] // 50MB
+        [DisableRequestSizeLimit]
         public async Task<IActionResult> ExportToPdf(int adjustmentreportId)
         {
             var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
