@@ -1754,7 +1754,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     string bfrUrl = $"{baseUrl}{url1.BeforeImageDocFilePath}";
 
                     beforeImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
-                    beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                    beforeImages.AppendLine($"<img src=\"{url1.BeforeImageBytes}\" alt=\"Attachment\" style=\"max-width: 800px; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
                     beforeImages.AppendLine("</div>");
                 }
 
@@ -1777,7 +1777,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     string bfrUrl = $"{baseUrl}{url1.AfterImageDocFilePath}";
 
                     afterImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
-                    afterImages.AppendLine($"<img src=\"{url1.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                    afterImages.AppendLine($"<img src=\"{url1.AfterImageBytes}\" alt=\"Attachment\" style=\"max-width: 800px; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
                     afterImages.AppendLine("</div>");
                 }
 
@@ -1791,18 +1791,17 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 sb.Replace("#AfterImg#", afterImages.ToString() + afterOtherFiles.ToString());
 
-
                 // Create PDF using SelectPDF
                 var converter = new SelectPdf.HtmlToPdf();
                 converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
-                converter.Options.MaxPageLoadTime = 600; // Increase max load time
+                converter.Options.InternalLinksEnabled = true;
+                converter.Options.MaxPageLoadTime = 1200; // Increase max load time
                 // footer settings
                 converter.Options.DisplayFooter = true;
                 converter.Footer.DisplayOnFirstPage = true;
                 converter.Footer.DisplayOnOddPages = true;
                 converter.Footer.DisplayOnEvenPages = true;
                 converter.Footer.Height = 50;
-
                 // Use custom CSS to handle the page breaks
                 // converter.Options.KeepImagesTogether = true;
 

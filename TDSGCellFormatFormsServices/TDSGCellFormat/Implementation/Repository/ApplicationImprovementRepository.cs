@@ -154,6 +154,9 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 return null;// set message like that
             }
+            var seqNo =  _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == Id && 
+                                   (x.Status == ApprovalTaskStatus.InReview.ToString() || x.Status == ApprovalTaskStatus.UnderToshibaApproval.ToString()
+                    || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString()) && x.IsActive == true && x.WorkFlowlevel == 1).Select(x => x.SequenceNo).FirstOrDefault();
 
             EquipmentImprovementApplicationAdd applicationData = new EquipmentImprovementApplicationAdd()
             {
@@ -189,7 +192,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 ToshibaTeamDiscussion = res.ToshibaTeamDiscussion,
                 ToshibaDiscussionTargetDate = res.ToshibaDiscussionTargetDate.HasValue ? res.ToshibaDiscussionTargetDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : null,
                 IsPcrnRequired = res.IsPcrnRequired,
-                WorkflowLevel = res.WorkFlowLevel
+                WorkflowLevel = res.WorkFlowLevel,
+                SeqNo = seqNo
                 // Add other properties as needed
             };
 
@@ -1313,6 +1317,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         equipment.ToshibaApprovedRemarks = data.Comment;
                         equipment.ToshibaApprovalDate = DateTime.Now;
+                        equipmentData.Comments = data.Comment;
                     }
                     else
                     {
@@ -1392,6 +1397,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     {
                         equipment.ToshibaApprovedRemarks = data.Comment;
                         equipment.ToshibaApprovalDate = DateTime.Now;
+                        equipmentData.Comments = data.Comment;
                     }
                     else
                     {
@@ -2293,20 +2299,20 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#Improvement#", equipmentData?.Imrovement);
 
 
-                string approveSectioneHead = approvalData.FirstOrDefault(a => a.SequenceNo == 1 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDepHead = approvalData.FirstOrDefault(a => a.SequenceNo == 3 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 5 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByDeptDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 4 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
-                string approvedByQT = approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approveSectioneHead = approvalData.FirstOrDefault(a => a.SequenceNo == 1 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? string.Empty;
+                string approvedByDepHead = approvalData.FirstOrDefault(a => a.SequenceNo == 3 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? string.Empty;
+                string approvedByDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 5 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? string.Empty;
+                string approvedByDeptDivHead = approvalData.FirstOrDefault(a => a.SequenceNo == 4 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? string.Empty;
+                string approvedByQT = approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? string.Empty;
 
                 string QcManagerName = approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? string.Empty;
                 string QcManagerComments = approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.Comments ?? string.Empty;
                 string QcManagerdate = approvalData.FirstOrDefault(a => a.SequenceNo == 6 && a.ActionTakenBy != null)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? string.Empty;
 
-                string approvedByAdvisor = approvalData.FirstOrDefault(a => a.SequenceNo == 2 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+                string approvedByAdvisor = approvalData.FirstOrDefault(a => a.SequenceNo == 2 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? string.Empty;
 
-                string advisorComment = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.Comments ?? "N/A";
-                string advisorDate = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? "N/A";
+                string advisorComment = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.Comments ?? string.Empty;
+                string advisorDate = approvalData.FirstOrDefault(a => a.SequenceNo == 2)?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? string.Empty;
 
                 sb.Replace("#SectionHeadName#", approveSectioneHead);
                 sb.Replace("#DepartmentHeadName#", approvedByDepHead);
@@ -2467,12 +2473,13 @@ namespace TDSGCellFormat.Implementation.Repository
 
 
                 sb.Replace("#ChangeriskTable#", tableBuilder.ToString());
-
+              
 
                 // Create PDF using SelectPDF
                 var converter = new SelectPdf.HtmlToPdf();
                 converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
-
+                converter.Options.InternalLinksEnabled = true;
+                converter.Options.MaxPageLoadTime = 600; // Increase max load time
                 // footer settings
                 converter.Options.DisplayFooter = true;
                 converter.Footer.DisplayOnFirstPage = true;
@@ -2496,7 +2503,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 converter.Footer.Add(pageNumberText);
 
                 SelectPdf.PdfDocument pdfDoc = converter.ConvertHtmlString(sb.ToString());
-
+               
                 // Convert the PDF to a byte array
                 byte[] pdfBytes = pdfDoc.Save();
 
