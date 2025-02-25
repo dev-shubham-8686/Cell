@@ -1795,7 +1795,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 // Create PDF using SelectPDF
                 var converter = new SelectPdf.HtmlToPdf();
                 converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
-
+                converter.Options.MaxPageLoadTime = 600; // Increase max load time
                 // footer settings
                 converter.Options.DisplayFooter = true;
                 converter.Footer.DisplayOnFirstPage = true;
