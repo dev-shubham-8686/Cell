@@ -1515,7 +1515,8 @@ namespace TDSGCellFormat.Implementation.Repository
                             var currentAssignedUser = currentApproverTask.DelegateUserId > 0 ? currentApproverTask.DelegateUserId : currentApproverTask.AssignedToUserId;
                             var nextAssignedUser = nextTask.DelegateUserId > 0 ? nextTask.DelegateUserId : nextTask.AssignedToUserId;
 
-                            if (currentAssignedUser == nextAssignedUser)
+                            if (currentAssignedUser == nextAssignedUser
+                                && ((nextTask.SequenceNo != 2 && nextTask.SequenceNo != 6) && nextTask.WorkFlowlevel == 1))
                             {
                                 nextTask.Comments = currentApproverTask.Comments;
                                 nextTask.ActionTakenBy = currentApproverTask.AssignedToUserId;
