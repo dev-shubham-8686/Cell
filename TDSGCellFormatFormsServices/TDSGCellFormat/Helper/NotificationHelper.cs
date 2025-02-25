@@ -1231,6 +1231,7 @@ namespace TDSGCellFormat.Helper
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Asked for Amendment", equipmentNo);
                                 isRequestorinToEmail = true;
                                 isIsAmendTask = true;
+                                approvelink = true;
                                 isEditable = true;
                                 break;
 
@@ -1293,8 +1294,9 @@ namespace TDSGCellFormat.Helper
                             case EmailNotificationAction.ResultApprove:
                                 templateFile = "Equipment_ResultApprove.html";
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} Result Section has been Approved", equipmentNo);
-                                isRequestorinToEmail = true;
-                                allApprover = true;
+                                isRequestorinCCEmail = true;
+                                isInReviewTask = true;
+                                approvelink = true;
                                 break;
 
                             case EmailNotificationAction.ToshibaTeamDiscussion:
@@ -1371,7 +1373,7 @@ namespace TDSGCellFormat.Helper
 
                                             emailToAddressList.Add(task.email);
                                         }
-                                        else if (item.SequenceNo == 2 && item.WorkFlowlevel == 1)
+                                        else if (task.SequenceNo == 2)
                                         {
                                             emailToAddressList.Add(task.email);
                                         }
@@ -1416,7 +1418,7 @@ namespace TDSGCellFormat.Helper
 
                                             emailToAddressList.Add(task.email);
                                         }
-                                        else if (task.SequenceNo == 2 && task.WorkFlowlevel == 1)
+                                        else if (task.SequenceNo == 2)
                                         {
                                             emailToAddressList.Add(task.email);
                                         }

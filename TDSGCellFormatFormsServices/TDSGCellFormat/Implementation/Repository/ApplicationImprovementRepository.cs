@@ -1566,12 +1566,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             }
                             else
                             {
-                                // int substituteUserId = 0;
-                                // int substitutePer = nextTask.AssignedToUserId ?? 0;
-                                // substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
-                                //
-                                // nextTask.AssignedToUserId = substituteUserId;
-
+                               
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
@@ -2336,7 +2331,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else
                 {
-                    sb.Replace("#clsSectionHead#", "N/A");
+                    sb.Replace("#clsSectionHead#",string.Empty);
                 }
 
                 sb.Replace("#ResultStatus#", equipmentData?.ResultStatus);
@@ -2409,7 +2404,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     string bfrUrl = $"{baseUrl}{url1.CurrSituationDocFilePath}";
 
                     currentSituationImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
-                    currentSituationImages.AppendLine($"<img src=\"{url1.CurrImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                    currentSituationImages.AppendLine($"<img src=\"{url1.CurrImageBytes}\" alt=\"Attachment\" style=\"max-width: 800px; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
                     currentSituationImages.AppendLine("</div>");
 
                 }
@@ -2431,7 +2426,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     // Add image tag
                     improvementImages.AppendLine($"<div style='display: inline-block; width: 48%; margin: 1%; text-align: center;'>");
-                    improvementImages.AppendLine($"<img src=\"{url2.ImpImageBytes}\" alt=\"Attachment\" style=\"max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
+                    improvementImages.AppendLine($"<img src=\"{url2.ImpImageBytes}\" alt=\"Attachment\" style=\"max-width: 800px; height: auto; display: block; margin-left: auto; margin-right: auto;\" />");
                     improvementImages.AppendLine("</div>");
 
                 }
@@ -2480,7 +2475,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 var converter = new SelectPdf.HtmlToPdf();
                 converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
                 converter.Options.InternalLinksEnabled = true;
-                converter.Options.MaxPageLoadTime = 600; // Increase max load time
+                converter.Options.MaxPageLoadTime = 1200; // Increase max load time
                 // footer settings
                 converter.Options.DisplayFooter = true;
                 converter.Footer.DisplayOnFirstPage = true;
