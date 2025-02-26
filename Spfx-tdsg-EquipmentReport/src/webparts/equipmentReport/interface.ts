@@ -33,7 +33,7 @@ export  interface IEquipmentImprovementReport {
   IsDeleted:boolean;
   EquipmentCurrSituationAttachmentDetails:ICurrentSituationAttachments[];
   EquipmentImprovementAttachmentDetails:IImprovementAttachments[];
-  PcrnAttachments:IPCRNAttchments;
+  // PcrnAttachments:IPCRNAttchments;
   ChangeRiskManagementDetails:IChangeRiskData[];
   ToshibaApprovalRequired?:boolean;
   ToshibaApprovalTargetDate?:Date;
@@ -42,6 +42,7 @@ export  interface IEquipmentImprovementReport {
   IsPcrnRequired?:boolean;
   ResultAfterImplementation?:IResultAfterImplementation  ;
   WorkflowLevel?:number;
+  SeqNo?:number;
   // attachment: File;
 }
 
@@ -53,6 +54,7 @@ export interface IResultAfterImplementation {
   ResultStatus:string;
   ResultMonitoringId:number;
   ResultMonitoringDate:string;
+  PcrnAttachments?:IPCRNAttchments[];
   IsResultAmendSubmit?:boolean
 }
 export interface ICurrentSituationAttachments{

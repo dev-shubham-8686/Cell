@@ -277,7 +277,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
                 <FontAwesomeIcon title="Edit" icon={faEdit} />
               </button>
             )}
-          {row.Status === REQUEST_STATUS.Completed && (
+          {(row.Status === REQUEST_STATUS.Completed || row.Status === REQUEST_STATUS.Rejected) && (
             <button
               type="button"
               style={{ background: "none", border: "none" }}

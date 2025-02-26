@@ -229,6 +229,10 @@ p.text-cell {
     color: $warning;
     background-color: rgba($warning, 0.1);
   }
+  td.status-cell-undertoshibaapproval {
+    color: $warning;
+    background-color: rgba($warning, 0.1);
+  }
 
   td.active-approver,
   th.active-approver {
