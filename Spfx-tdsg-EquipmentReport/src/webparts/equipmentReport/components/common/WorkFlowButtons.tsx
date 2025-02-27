@@ -48,7 +48,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const { confirm } = Modal;
   const navigate = useNavigate();
   const location = useLocation();
-  const { isApproverRequest=false } = location.state || {};
+  const { isApproverRequest=false ,allReq } = location.state || {};
   const [showModal, setShowModal] = useState(false);
   const [showWorkflowBtns, setShowWorkflowBtns] = useState<boolean>(false);
   const [showDelegate, setshowDelegate] = useState<boolean>(false);
@@ -202,7 +202,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           console.log("add or update target date ", Response);
           navigate("/", {
             state: {
-              currentTabState: "myapproval-tab",
+              currentTabState: isApproverRequest ? "myapproval-tab": allReq? "allrequest-tab": "myrequest-tab",
             },
           });
         },

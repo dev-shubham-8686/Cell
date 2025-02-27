@@ -69,24 +69,24 @@ const FileUpload: FC<IFileUpload> = ({
   console.log("FILES", files);
 
   const onBeforeUpload = (file: ExtendedUploadFile): boolean | string => {
-    debugger
+    
     const maxSize = VALIDATIONS.attachment.fileSize;
     let description = null;
     const fileName = file.name.toLowerCase();
     const fileExtension = fileName.substring(fileName.lastIndexOf("."));
-    debugger
+    
     const isDuplicate = files.some(
       (uploadedFile) => uploadedFile.name.toLowerCase() === fileName
     );
-    debugger
+    
     if (isDuplicate) {
       description = "This file has already been uploaded.";
     }
-    debugger
+    
     if (files.length >= VALIDATIONS.attachment.maxFileCount) {
       description = ` ${VALIDATIONS.attachment.noOfFiles}`;
     }
-    debugger
+    
     if (file.size && file.size > maxSize) {
       description = ` ${VALIDATIONS.attachment.fileSizeErrMsg}`;
     } else if (/[*'",%&#^@]/.test(file.name)) {
@@ -97,7 +97,7 @@ const FileUpload: FC<IFileUpload> = ({
     // if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.includes(fileExtension)){
     //   description= "Only Email Attachments are allowed. "
     // }
-    debugger
+    
     if (ispcrnRequired) {
       const pcrnAcceptTypes = [".pdf", ".xls", ".xlsx", ".doc", ".docx"];
       if (!pcrnAcceptTypes.includes(fileExtension)) {
@@ -196,12 +196,12 @@ const FileUpload: FC<IFileUpload> = ({
 
   const uploadFile = async (file: File, fileName: string): Promise<boolean> => {
     try {
-      debugger
+      
       setItemLoading(true);
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
       }
-      debugger
+      
       const url = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}')/Files/Add(url='${fileName}', overwrite=true)?$expand=ListItemAllFields`;
       const response = await webPartContext.spHttpClient.post(
         url,
@@ -214,7 +214,7 @@ const FileUpload: FC<IFileUpload> = ({
           body: file,
         }
       );
-      debugger
+      
       // const response:any="";
       if (response.status !== 200) {
         void showErrorMsg(
@@ -232,7 +232,7 @@ const FileUpload: FC<IFileUpload> = ({
           fullPath.substring(fullPath.indexOf(`/${libraryName}`)),
           file
         );
-        debugger
+        
         return true;
       }
     } catch (error) {
@@ -245,11 +245,11 @@ const FileUpload: FC<IFileUpload> = ({
 
   const uploadAttachment = async (file: File, fileName: string) => {
     try {
-      debugger
+      
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
       }
-      debugger
+      
       const checkOrCreateFolder = async (folderUrl: string) => {
         const checkFolderResponse = await webPartContext.spHttpClient.get(
           folderUrl,
@@ -261,7 +261,7 @@ const FileUpload: FC<IFileUpload> = ({
             },
           }
         );
-        debugger
+        
         if (checkFolderResponse.status === 404) {
           // Folder does not exist, create it
           await webPartContext.spHttpClient.post(
@@ -276,11 +276,11 @@ const FileUpload: FC<IFileUpload> = ({
           );
         }
       };
-      debugger
+      
       // check if folder exists
       const checkFolderUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Lists/getByTitle('${libraryName}')/RootFolder/Folders('${folderName}')`;
       await checkOrCreateFolder(checkFolderUrl);
-      debugger
+      
       const subfolderUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}'))`;
       const checkSubFolderResponse = await webPartContext.spHttpClient.get(
         subfolderUrl,
@@ -316,9 +316,9 @@ const FileUpload: FC<IFileUpload> = ({
 
   const onUpload = async (event: any) => {
     try {
-      debugger
+      
       setIsLoading(true);
-      debugger
+      
       if (
         event.file.status !== "uploading" &&
         event.file.status !== "removed"

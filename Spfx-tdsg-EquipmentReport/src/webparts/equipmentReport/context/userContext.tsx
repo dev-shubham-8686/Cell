@@ -44,14 +44,6 @@ export const UserProvider: React.FC<IUserProvider> = ({
   // const data=[]
   const { data, isLoading } = useUser(
     userEmail 
-    // "amrut@synopsandbox.onmicrosoft.com"
-    // "shubham@synopsandbox.onmicrosoft.com"
-    // "j@synoptek.com"
-    // "dparikh@synoptek.com"
-    // "BSankhat@synoptek_11111.com"
-    // "tdivan@synoptek.com"
-    // "ebrahim@synopsandbox.onmicrosoft.com" // -- admin
-    
   );
 
   console.log("USERROLE Res", data);

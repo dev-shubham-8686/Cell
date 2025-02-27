@@ -44,7 +44,7 @@ export default class EquipmentReport extends React.Component<IEquipmentReportPro
                   element={<EquipmentReportLayout />}
                 />
                  <Route
-                      path="/form/:mode/:id/approval"
+                      path="/form/:mode/:id/approval" 
                       element={<ApprovalHome />}
                     />
                 <Route path="/master" element={<MasterTab />} />

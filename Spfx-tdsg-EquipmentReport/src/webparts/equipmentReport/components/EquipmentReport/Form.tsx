@@ -378,7 +378,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   };
 
   const onSaveAsDraftHandler = async (): Promise<void> => {
-    debugger
+    
     const values: IEquipmentImprovementReport = form.getFieldsValue();
     values.ChangeRiskManagementDetails=ChangeRiskManagementDetails;
     values.EquipmentImprovementAttachmentDetails = improvementAttchments;
@@ -394,7 +394,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       ? existingEquipmentReport?.CreatedBy
       : user.employeeId;
     values.ModifiedBy = user.employeeId;
-    debugger
+    
     if (existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed) {
       
       let resultDate;
@@ -405,7 +405,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       } else {
         resultDate = form.getFieldValue("ResultMonitoringDate");
       }
-      debugger
+      
       
       values.ResultAfterImplementation = {
         ...values.ResultAfterImplementation,
@@ -419,7 +419,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         IsResultSubmit: false,
       };
     }
-    debugger
+    
     
     console.log("form saved as draft data", values);
     if (id) {
@@ -428,7 +428,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     if (underLogicalAmmendment || underLogicalAmmendment) {
       values.IsSubmit = true;
     }
-    debugger
+    
     console.log("values", values);
     if (!isAdmin) {
       if (existingEquipmentReport?.WorkflowLevel == 2) {
@@ -2138,7 +2138,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         }}
                         isLoading={false}
                         onAddFile={(name: string, url: string) => {
-                          debugger
+                          
                           const existingAttachments = pcrnAttachments ?? [];
                           const newAttachment: IPCRNAttchments = {
                             PcrnAttachmentId: 0,
@@ -2149,17 +2149,17 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                             ModifiedBy: user?.employeeId,
                             IsDeleted: false,
                           };
-                          debugger
+                          
                           const updatedAttachments: IPCRNAttchments[] = [
                             ...existingAttachments,
                             newAttachment,
                           ];
-                          debugger
+                          
                           void form.validateFields([
                             "PcrnAttachments",
                           ]);
                           setpcrnAttachments(updatedAttachments);
-                          debugger
+                          
                           console.log("PCRN File Added");
                           console.log("File Added");
                         }}
