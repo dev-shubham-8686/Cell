@@ -8,21 +8,34 @@ const ApprovalHome: React.FC = () => {
   const { mode, id } = useParams();
   useEffect(() => {
     const url = window.location.href;
+    const [baseUrl, hashString] = url.split("#/");
     const [_, queryString] = url.split("?");
     const params = new URLSearchParams(queryString);
     const ctValue = params.get("CT");
     const orValue = params.get("OR");
     const cidValue = params.get("CID");
-    if (ctValue || orValue || cidValue)
-      window.location.href = `${WEB_URL}/SitePages/${APP_NAME}#/form/${mode}/${id}/approval`;
+    const lastPart = hashString?.split("/").pop(); 
+    if (ctValue || orValue || cidValue){
+      if (lastPart === "approverListing") {
+        window.location.href = `${WEB_URL}/SitePages/${APP_NAME}#/approverListing`
+      } else if(lastPart === "approval") {
+        window.location.href = `${WEB_URL}/SitePages/${APP_NAME}#/form/${mode}/${id}/approval`;
+      }
+    }
     else
      { 
+      if (lastPart === "approverListing") {
+        navigate(`/`, {
+          state: { currentTabState: "myapproval-tab" },
+        })
+      } 
+      else if(lastPart === "approval"){
       navigate(`/form/${mode}/${id}`, {
         state: { isApproverRequest: true },
       });}
-      
+    }
   }, []);
-  return (
+  return (  
     <div className="error-boundary">
       {" "}
       <img
