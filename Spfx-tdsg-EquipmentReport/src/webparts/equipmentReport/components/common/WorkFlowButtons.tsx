@@ -13,6 +13,7 @@ import {
   DATE_FORMAT,
   DATE_TIME_FORMAT,
   REQUEST_STATUS,
+  SEQUENCE,
 } from "../../GLOBAL_CONSTANT";
 import dayjs from "dayjs";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
@@ -47,7 +48,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const { confirm } = Modal;
   const navigate = useNavigate();
   const location = useLocation();
-  const { isApproverRequest=false } = location.state || {};
+  const { isApproverRequest=false ,allReq } = location.state || {};
   const [showModal, setShowModal] = useState(false);
   const [showWorkflowBtns, setShowWorkflowBtns] = useState<boolean>(false);
   const [showDelegate, setshowDelegate] = useState<boolean>(false);
@@ -57,11 +58,12 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [toshibaApproval, settoshibaApproval] = useState(false);
   const [approvedByToshiba, setapprovedByToshiba] = useState(false);
+  const [rejectedByToshiba, setRejectedByToshiba] = useState(false);
   const [toshibaDiscussion, settoshibaDiscussion] = useState(false);
   const [advisorRequired, setadvisorRequired] = useState(false);
   const { mutate: approveAskToAmmend, isLoading: approving } =
     useApproveAskToAmmend(id ? parseInt(id) : undefined, user.employeeId);
-  const { mutate: addOrUpdateTargetDate, isLoading: updatingTargetDate } =
+  const { mutate: addOrUpdateTargetDate, isLoading: updatingTargetDate } =  
     useAddOrUpdateTargetDate();
     const { mutate: delegate, isLoading: delegating } =
     useDelegate();
@@ -95,6 +97,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         Comment: comment,
         EquipmentId: parseInt(id),
         EquipmentApprovalData: null,
+        IsToshibaApproval:rejectedByToshiba 
       };
       approveAskToAmmend(payload, {
         onSuccess: (Response) => {
@@ -137,6 +140,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           emailAttacments?.length > 0
             ? {}
             : null,
+          IsToshibaApproval:approvedByToshiba
       };
 
       if (toshibaApproval || advisorId || emailAttacments?.length > 0) {
@@ -198,7 +202,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           console.log("add or update target date ", Response);
           navigate("/", {
             state: {
-              currentTabState: "myapproval-tab",
+              currentTabState: isApproverRequest ? "myapproval-tab": allReq? "allrequest-tab": "myrequest-tab",
             },
           });
         },
@@ -304,6 +308,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   };
   type WorkflowActionType = keyof typeof WORKFLOW_ACTIONS;
 
+
   const WORKFLOW_ACTIONS = {
     Approve: (
       comment: string,
@@ -344,7 +349,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   console.log("Buttons", currentApproverTask ?? [], isApproverRequest ?? null);
   return (
     <>
-      <div className="d-flex gap-3 justify-content-end">
+      <div className="d-flex gap-3 justify-content-end me-3">
         <span
           style={{
             height: "35px",
@@ -374,7 +379,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
               }
               className="btn btn-primary"
               onClick={() => {
-                if (user?.isQcTeamHead) {
+                if (user?.isQcTeamHead && currentApproverTask?.seqNumber === 6) {
                   confirm({
                     title: "Is Toshiba approval required ?",
                     icon: (
@@ -383,8 +388,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                       />
                     ),
                     okText: "Yes",
-                    okButtonProps: { className: "btn btn-primary mb-1" },
-                    cancelButtonProps: { className: "btn-outline-primary" },
+                    okButtonProps: { className: "btn btn-primary btn-submit mb-1" },
+                    cancelButtonProps: { className: "btn-outline-prime" },
                     cancelText: "No",
                     onOk() {
                       openCommentsPopup("Approve", false, true, false);
@@ -550,7 +555,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
         {user.employeeId == eqReport?.AdvisorId &&
           !isTargetDateSet &&
-          !eqReport?.ResultAfterImplementation?.IsResultSubmit &&
+          // !eqReport?.ResultAfterImplementation?.IsResultSubmit
+          eqReport?.WorkflowLevel !== 2
+          &&currentApproverTask?.seqNumber===SEQUENCE.Seq2&&
           showWorkflowBtns &&
           approverRequest && (
             <button
@@ -558,7 +565,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
               type="button"
               onClick={() => {
                 openCommentsPopup("AddUpdateTargetDate", true, true, false);
-
+                setsubmitbuttontext("Save");
                 handleToshibaReview();
               }}
             >
@@ -594,6 +601,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
               onClick={() => {
                 openCommentsPopup("Reject", false, false, false);
                 setapprovedByToshiba(false);
+                setRejectedByToshiba(true);
                 setsubmitbuttontext("Reject");
                 handleToshibaReview();
               }}
@@ -602,12 +610,12 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             </button>
           )}
         {((user?.isAdmin &&
-          (eqReport?.ToshibaDiscussionTargetDate ||
-            eqReport?.ToshibaApprovalTargetDate)) ||
+          ((eqReport?.ToshibaDiscussionTargetDate && eqReport?.SeqNo==SEQUENCE.Seq2) ||
+            (eqReport?.ToshibaApprovalTargetDate && eqReport?.SeqNo==SEQUENCE.Seq6)) && eqReport?.WorkflowLevel==1) ||
           (((user.employeeId == eqReport?.AdvisorId &&
             eqReport?.ToshibaDiscussionTargetDate &&
-            eqReport?.WorkflowLevel !== 2) ||
-            (user.isQcTeamHead && eqReport?.ToshibaApprovalTargetDate)) &&
+            eqReport?.WorkflowLevel !== 2 && currentApproverTask?.seqNumber===SEQUENCE.Seq2) ||
+            (user.isQcTeamHead && eqReport?.ToshibaApprovalTargetDate && currentApproverTask?.seqNumber===SEQUENCE.Seq6)) &&
             showWorkflowBtns &&
             approverRequest)) && (
           <button
@@ -616,6 +624,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             onClick={() => {
               openCommentsPopup("AddUpdateTargetDate", null, true);
               setapprovedByToshiba(false);
+              setsubmitbuttontext("Save");
               handleToshibaReview();
             }}
           >
@@ -623,6 +632,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           </button>
         )}
         <TextBoxModal
+        seqNo={currentApproverTask?.seqNumber}
         showDelegate={showDelegate}
           EQReportNo={eqReport?.EquipmentImprovementNo}
           label={"Comments"}

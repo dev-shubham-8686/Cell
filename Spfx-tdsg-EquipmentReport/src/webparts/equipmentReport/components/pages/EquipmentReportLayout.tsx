@@ -91,10 +91,11 @@ useEffect(() => {
       id: "workflow",
       name: "Workflow",
     },
-    emailAttachmentData?.length>0 && {
-      id: "emailAtachments",
-      name: "Toshiba Attachments",
-    },
+     ...(
+    emailAttachmentData?.length > 0
+      ? [{ id: "emailAtachments" as TabName, name: "Toshiba Attachments" }]
+      : []
+  ),
   ];
 
   return (
@@ -111,7 +112,7 @@ useEffect(() => {
             type="button"
             onClick={onBackClick}
           >
-            <FontAwesomeIcon style={{marginRight:"5px"}} icon={faCircleChevronLeft} />
+            <FontAwesomeIcon  className="me-2"icon={faCircleChevronLeft} />
             Back
           </button>
           <div className=" justify-content-right mr-50">

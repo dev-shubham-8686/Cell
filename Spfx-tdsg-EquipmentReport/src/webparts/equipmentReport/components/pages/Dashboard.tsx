@@ -10,7 +10,7 @@ import { Button } from "antd";
 
 type TabName = "myrequest-tab" | "myapproval-tab" | "allrequest-tab";
 
-const TroubleReport: React.FC = () => {
+const EquipmentReport: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isApproverRequest, currentTabState } = location.state || {};
@@ -108,4 +108,4 @@ const TroubleReport: React.FC = () => {
   );
 };
 
-export default TroubleReport;
+export default EquipmentReport;

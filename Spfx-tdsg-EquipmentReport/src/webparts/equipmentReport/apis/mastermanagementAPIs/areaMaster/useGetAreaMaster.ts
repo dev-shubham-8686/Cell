@@ -1,9 +1,10 @@
 import http from "../../../http";
 import { useQuery } from "@tanstack/react-query";
+import { MASTER_URL } from "../../../URLs";
 
 export const fetchAreaMaster = async () => {
     const response = await http.get<{ ReturnValue: any[] }>(
-      `/GetAllAreas`
+      `${MASTER_URL}/GetAreaMaster`
     );
     return response.data.ReturnValue ?? [];
   };

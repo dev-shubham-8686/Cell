@@ -15,6 +15,8 @@ const DeleteFileModal = (fileName: string): Promise<boolean> => {
       icon: <ExclamationCircleOutlined style={{ color: "#faad14" }} />,
       okText: "Yes",
       cancelText: "No",
+      okButtonProps: { className: "btn btn-primary btn-submit mb-1" },
+      cancelButtonProps: { className: "btn-outline-prime" },
       onOk: () => resolve(true),
       onCancel: () => resolve(false),
       centered: true,

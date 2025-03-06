@@ -16,10 +16,11 @@ import { useGetSectionMaster } from "../../../apis/mastermanagementAPIs/sectionM
 import useAddOrUpdateSection from "../../../apis/mastermanagementAPIs/sectionMaster/useAddOrUpdateSection";
 import useDeleteSectionMaster from "../../../apis/mastermanagementAPIs/sectionMaster/useDeleteSection";
 import Page from "../../page/page";
+import { scrollToElementsTop } from "../../../utility/utility";
 
 interface ISectionMaster {
   SectionId: number;
-  SectionName?: number;
+  SectionName?: string;
   CreatedDate?: string;
   CreatedBy?: number;
   ModifiedBy?: number;
@@ -37,7 +38,7 @@ const SectionMasterPage: React.FC = () => {
   const [form] = Form.useForm();
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
   const user: IUser = useContext(UserContext);
-  const { data: data, isLoading: MachineLoading } =
+  const { data: data, isLoading: SectionLoading,refetch } =
   useGetSectionMaster();
   const { mutate: sectionMasterAddOrUpdate, isLoading: addingMachine } =
   useAddOrUpdateSection();
@@ -83,11 +84,11 @@ const SectionMasterPage: React.FC = () => {
   const handleDelete = (id: number) => {
     // getEquipmentMasterTblDelete(id.toString())
     //   .then(() => {
-    //     void displayjsx.showSuccess("Record deleted successfully");
+    //     void displayjsx.showSuccess("Record Inactivated successfully");
     //     fetchData();
     //   })
     //   .catch(() => {
-    //     void displayjsx.showErrorMsg("Failed to delete record");
+    //     void displayjsx.showErrorMsg("Failed to Inactivate record");
     //   });
   };
 
@@ -99,7 +100,22 @@ const SectionMasterPage: React.FC = () => {
         SectionId: editingItem.SectionId,
         SectionName: values.SectionName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        ModifiedBy:user?.employeeId
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+           let result = Response?.ReturnValue;
+          
+                      if (result.SectionId == -1) {
+                        void displayjsx.showInfo("Duplicate record found");
+                        return false;
+                      }
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       })
         
     } else {
@@ -108,7 +124,22 @@ const SectionMasterPage: React.FC = () => {
         SectionId: 0,
         SectionName: values.SectionName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        CreatedBy: user?.employeeId,
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+             let result = Response?.ReturnValue;
+          
+                      if (result.SectionId == -1) {
+                        void displayjsx.showInfo("Duplicate record found");
+                        return false;
+                      }
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       })
        
     }
@@ -121,7 +152,7 @@ const SectionMasterPage: React.FC = () => {
   const columns = [
     {
       title: "Setcion Name",
-      dataIndex: "sectionName",
+      dataIndex: "SectionName",
       key: "SectionName",
       sorter: (a: any, b: any) =>
         a.SectionName.localeCompare(b.SectionName),
@@ -139,7 +170,7 @@ const SectionMasterPage: React.FC = () => {
       key: "CreatedDate",
       render: (CreatedDate: string) => (
         <span>
-          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : ""}
+          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -147,8 +178,16 @@ const SectionMasterPage: React.FC = () => {
     },
     {
       title: "Created By",
-      dataIndex: "UserName",
-      key: "UserName",
+      dataIndex: "CreatedByName",
+      key: "CreatedByName",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        {
+          console.log("DATA",a,b);
+          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      },
     },
     {
       title: "Modified Date",
@@ -156,7 +195,7 @@ const SectionMasterPage: React.FC = () => {
       key: "ModifiedDate",
       render: (ModifiedDate: string) => (
         <span>
-          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : ""}
+          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -164,14 +203,22 @@ const SectionMasterPage: React.FC = () => {
     },
     {
       title: "Modified By",
-      dataIndex: "UpdatedUserName",
-      key: "UpdatedUserName",
+      dataIndex: "ModifiedByName",
+      key: "ModifiedByName",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        {
+          console.log("DATA",a,b);
+          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      },
     },
     {
       title: "Actions",
       key: "actions",
       render: (text: any, record: ISectionMaster) => (
-        <span className="action-cell">
+        <span className="">
           <Button
             title="View"
             className="action-btn"
@@ -189,11 +236,15 @@ const SectionMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
+        {record?.IsActive &&
           <Popconfirm
-            title="Are you sure to delete this record?"
+            title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.SectionId!)}
             okText="Yes"
             cancelText="No"
+            okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
+            cancelButtonProps={{ className:"btn btn-outline-primary"}}
+
           >
             <Button
               title="Delete"
@@ -203,7 +254,7 @@ const SectionMasterPage: React.FC = () => {
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm>
+          </Popconfirm>}
         </span>
       ),
     },
@@ -215,18 +266,18 @@ const SectionMasterPage: React.FC = () => {
   <div className="d-flex justify-content-between items-center mb-3">
         <div>
                   <button
-                    className="btn btn-link btn-back"
+                    className="btn btn-link btn-back px-0"
                     type="button"
                     onClick={() => navigate(`/master`)}
                   >
                     <FontAwesomeIcon
-                      style={{ marginRight: "5px" }}
+className="me-2"
                       icon={faCircleChevronLeft}
                     />
                     Back
                   </button>
                 </div>
-                <div style={{ marginLeft: "1600px" }}>
+                <div>
                   <Button
                     type="primary"
                     className="btn btn-primary"
@@ -243,14 +294,22 @@ const SectionMasterPage: React.FC = () => {
         dataSource={data}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 10, 
-          showTotal: () => (
-         <div className="d-flex align-items-center gap-3">
-           <span style={{ marginRight: "auto" }}>
-             Total {data.length} items
-           </span>
-         </div>
-       ), }}
+        pagination={{
+          onChange:()=>{
+            scrollToElementsTop("table-container");
+          },
+         
+          showTotal: (total, range) => (
+            <div className="d-flex align-items-center gap-3">
+              <span style={{ marginRight: "auto" }}>
+                Showing {range[0]}-{range[1]} of {total} items
+              </span>
+  
+             
+            </div>
+          ),
+          itemRender: (_, __, originalElement) => originalElement,
+        }}
       />
       </div>
       <Modal
@@ -260,6 +319,11 @@ const SectionMasterPage: React.FC = () => {
         onOk={() => !isViewMode && form.submit()}
         okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
         cancelButtonProps={{ className:"btn btn-outline-primary"}}
+        footer={
+          isViewMode
+            ? null 
+            : undefined 
+        }
       >
         <Form
           form={form}
@@ -270,7 +334,16 @@ const SectionMasterPage: React.FC = () => {
           <Form.Item
             name="SectionName"
             label="Section Name"
-            rules={[{ required: true, message: "Please enter Section Name" }]}
+            rules={[{ required: true, message: "Please enter Section Name" },
+              {
+                validator: (_, value) => {
+                  if (value && value.trim() === "") {
+                    return Promise.reject(new Error("Only spaces are not allowed"));
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
           >
             <Input type="text" disabled={isViewMode} />
           </Form.Item>

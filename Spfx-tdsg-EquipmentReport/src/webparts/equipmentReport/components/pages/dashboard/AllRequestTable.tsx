@@ -20,7 +20,7 @@ import {
   STATUS_COLOUR_CLASS,
 } from "../../../GLOBAL_CONSTANT";
 import useDeleteEQReport from "../../../apis/equipmentReport/useDelete/useDeleteEQReport";
-import { Modal } from "antd";
+import { Modal, Spin } from "antd";
 import { IUser, UserContext } from "../../../context/userContext";
 import ColumnFilter from "../../table/columnFilter/columnFilter";
 import { displayRequestStatus } from "../../../utility/utility";
@@ -72,7 +72,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       ),
       okText: "Yes",
       cancelText: "No",
-      cancelButtonProps: { className: "btn btn-outline-primary" },
+      cancelButtonProps: { className: "btn btn-outline-prime" },
       okButtonProps: { className: "btn btn-primary" },
       onOk() {
         deleteEquipment(id, {
@@ -240,7 +240,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
       key: "action",
       // width: 120,
       render: (row) => (
-        <div className="action-cell">
+        <div className="">
           <button
             type="button"
             style={{ background: "none", border: "none" }}
@@ -277,7 +277,7 @@ const AllRequestTable: React.FC<{}> = ({}) => {
                 <FontAwesomeIcon title="Edit" icon={faEdit} />
               </button>
             )}
-          {row.Status === REQUEST_STATUS.Completed && (
+          {(row.Status === REQUEST_STATUS.Completed || row.Status === REQUEST_STATUS.Rejected) && (
             <button
               type="button"
               style={{ background: "none", border: "none" }}
@@ -310,12 +310,15 @@ const AllRequestTable: React.FC<{}> = ({}) => {
   ];
   
   return (
+    <>
     <Table
       refetchKey={refetchKey}
       columns={columns}
       paginationRequired={true}
       url="/api/EquipmentImprovement/EqupimentList"
-    />
+      />
+     <Spin spinning={pdfLoading} fullscreen />
+      </>
   );
 };
 

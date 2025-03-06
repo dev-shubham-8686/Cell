@@ -52,15 +52,14 @@ const FileUpload: FC<IFileUpload> = ({
 }) => {
   const VALIDATIONS = {
     attachment: {
-      fileSize: 32505856, // 31 MB cause max size is 30 MB
-      fileSizeErrMsg: "File size must be less than or equal to 30 MB!",
+      fileSize: ispcrnRequired?6291456:32505856, // 6 MB or 31 MB cause max size is 5 MB or 30 MB
+      fileSizeErrMsg: `File size must be less than or equal to ${ispcrnRequired?"5 MB!" :"30 MB!"}`,
       fileNamingErrMsg: "File must not contain Invalid Characters(*'\"%,&#^@)!",
       notallowedFileTypes: "application/x-msdownload",
       uploadAcceptTypes: ".jpeg,.pdf,.jpg,.png,.xlsx,.xls,.msg,.eml",
-      noOfFiles: `Maximum ${ispcrnRequired ? 1 : 10} ${
-        ispcrnRequired ? "File is" : "Files are"
-      }  allowed! `,
-      maxFileCount: ispcrnRequired ? 1 : 10,
+      pcrnAcceptTypes:".pdf,.xls,.xlsx,.doc,.docx",
+      noOfFiles: `Maximum ${ispcrnRequired ? 2 : 10} Files are allowed! `,
+      maxFileCount: ispcrnRequired ? 2 : 10,
       emailAttachment: [".eml", ".msg", ".oft"],
     },
   };
@@ -70,22 +69,24 @@ const FileUpload: FC<IFileUpload> = ({
   console.log("FILES", files);
 
   const onBeforeUpload = (file: ExtendedUploadFile): boolean | string => {
+    
     const maxSize = VALIDATIONS.attachment.fileSize;
     let description = null;
     const fileName = file.name.toLowerCase();
     const fileExtension = fileName.substring(fileName.lastIndexOf("."));
-
+    
     const isDuplicate = files.some(
       (uploadedFile) => uploadedFile.name.toLowerCase() === fileName
     );
+    
     if (isDuplicate) {
       description = "This file has already been uploaded.";
     }
-
+    
     if (files.length >= VALIDATIONS.attachment.maxFileCount) {
       description = ` ${VALIDATIONS.attachment.noOfFiles}`;
     }
-
+    
     if (file.size && file.size > maxSize) {
       description = ` ${VALIDATIONS.attachment.fileSizeErrMsg}`;
     } else if (/[*'",%&#^@]/.test(file.name)) {
@@ -96,6 +97,14 @@ const FileUpload: FC<IFileUpload> = ({
     // if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.includes(fileExtension)){
     //   description= "Only Email Attachments are allowed. "
     // }
+    
+    if (ispcrnRequired) {
+      const pcrnAcceptTypes = [".pdf", ".xls", ".xlsx", ".doc", ".docx"];
+      if (!pcrnAcceptTypes.includes(fileExtension)) {
+        description = "Only  PDF, Excel, Word files are allowed";
+      }
+    }
+
     else if (
       file.type &&
       VALIDATIONS.attachment.notallowedFileTypes == file.type
@@ -187,11 +196,12 @@ const FileUpload: FC<IFileUpload> = ({
 
   const uploadFile = async (file: File, fileName: string): Promise<boolean> => {
     try {
+      
       setItemLoading(true);
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
       }
-
+      
       const url = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}')/Files/Add(url='${fileName}', overwrite=true)?$expand=ListItemAllFields`;
       const response = await webPartContext.spHttpClient.post(
         url,
@@ -204,7 +214,7 @@ const FileUpload: FC<IFileUpload> = ({
           body: file,
         }
       );
-
+      
       // const response:any="";
       if (response.status !== 200) {
         void showErrorMsg(
@@ -222,6 +232,7 @@ const FileUpload: FC<IFileUpload> = ({
           fullPath.substring(fullPath.indexOf(`/${libraryName}`)),
           file
         );
+        
         return true;
       }
     } catch (error) {
@@ -234,10 +245,11 @@ const FileUpload: FC<IFileUpload> = ({
 
   const uploadAttachment = async (file: File, fileName: string) => {
     try {
+      
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
       }
-
+      
       const checkOrCreateFolder = async (folderUrl: string) => {
         const checkFolderResponse = await webPartContext.spHttpClient.get(
           folderUrl,
@@ -249,7 +261,7 @@ const FileUpload: FC<IFileUpload> = ({
             },
           }
         );
-
+        
         if (checkFolderResponse.status === 404) {
           // Folder does not exist, create it
           await webPartContext.spHttpClient.post(
@@ -264,11 +276,11 @@ const FileUpload: FC<IFileUpload> = ({
           );
         }
       };
-
+      
       // check if folder exists
       const checkFolderUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Lists/getByTitle('${libraryName}')/RootFolder/Folders('${folderName}')`;
       await checkOrCreateFolder(checkFolderUrl);
-
+      
       const subfolderUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}'))`;
       const checkSubFolderResponse = await webPartContext.spHttpClient.get(
         subfolderUrl,
@@ -304,8 +316,9 @@ const FileUpload: FC<IFileUpload> = ({
 
   const onUpload = async (event: any) => {
     try {
+      
       setIsLoading(true);
-
+      
       if (
         event.file.status !== "uploading" &&
         event.file.status !== "removed"
@@ -329,7 +342,7 @@ const FileUpload: FC<IFileUpload> = ({
       {itemLoading && <Spin />}
 
       <Upload
-        maxCount={ispcrnRequired ? 1 : 10}
+        maxCount={ispcrnRequired ? 2 : 10}
         className="custom-upload"
         disabled={disabled}
         onRemove={onDelete}
