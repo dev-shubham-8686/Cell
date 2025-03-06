@@ -8,7 +8,7 @@ import { DefaultOptionType } from "antd/es/cascader";
 import { SorterResult } from "antd/es/table/interface";
 import { useLocation, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faFileExport, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { UserContext } from "../../context/userContext";
 import useTable from "./useTable";
 import ExportReportBox from "../common/ExportToExcelModal";
@@ -217,7 +217,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
           <button className="btn btn-outline-darkgrey text-nowrap" 
                       onClick={handleExportButtonClick}
 >
-            <i className="fa-solid fa-file-export me-1 font -16" />
+<FontAwesomeIcon className="me-2" icon={faFileExport} />
             Export to Excel
           </button>
         </div>} 

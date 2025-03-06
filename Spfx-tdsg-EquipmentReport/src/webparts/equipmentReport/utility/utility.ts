@@ -239,11 +239,34 @@ export  const create_UUID = (): string => {
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = (error) => reject(error);
     });
+
+    export const scrollToElementsTop = (
+      className: string = null,
+      id: string = null
+    ): void => {
+      let scrollToPositionEl;
+     
+      if (className) {
+        const docEls = document.getElementsByClassName("header");
+        if (docEls.length > 0) scrollToPositionEl = docEls[0];
+      }
+     
+      if (id) scrollToPositionEl = document.getElementById(id);
+     
+      if (scrollToPositionEl) {
+        scrollToPositionEl.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest",
+        });
+      }
+    };
   export default {
     getBase64,
     redirectToHome,
     downloadPDF,
     downloadExcelFile,
     create_UUID,
-    renameFolder
+    renameFolder,
+    scrollToElementsTop
   };

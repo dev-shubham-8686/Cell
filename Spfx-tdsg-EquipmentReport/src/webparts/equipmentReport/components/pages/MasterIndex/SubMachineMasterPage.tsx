@@ -26,15 +26,16 @@ import {
 import { useNavigate } from "react-router-dom";
 import displayjsx from "../../../utils/displayjsx";
 import { IUser, UserContext } from "../../../context/userContext";
-import useMachineMaster from "../../../apis/masters/useMachineMaster";
+import useMachineMaster, { IMachineMaster } from "../../../apis/masters/useMachineMaster";
 import { useGetSubMachineMaster } from "../../../apis/mastermanagementAPIs/subMachineMaster/useGetSubMachineMaster";
 import useAddOrUpdateSubMachine from "../../../apis/mastermanagementAPIs/subMachineMaster/useAddOrUpdateSubMachine";
 import useDeleteSubMachineMaster from "../../../apis/mastermanagementAPIs/subMachineMaster/useDeleteSubMachine";
 import Page from "../../page/page";
+import { scrollToElementsTop } from "../../../utility/utility";
 
 interface ISubMachineMaster {
   SubMachineId: number;
-  SubMachineName?: number;
+  SubMachineName?: string;
   MachineId: number;
   CreatedDate?: string;
   CreatedBy?: number;
@@ -56,7 +57,7 @@ const SubMachineMasterPage: React.FC = () => {
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
   const { data: machinesResult, isLoading: machineloading } =
     useMachineMaster();
-  const { data: data, isLoading: MachineLoading } = useGetSubMachineMaster();
+  const { data: data, isLoading: SubMachineLoading,refetch } = useGetSubMachineMaster();
   const { mutate: subMachineMasterAddOrUpdate, isLoading: addingMachine } =
     useAddOrUpdateSubMachine();
   const { mutate: deleteSubMachineMaster, isLoading: deletingMachine } =
@@ -99,7 +100,15 @@ const SubMachineMasterPage: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    deleteSubMachineMaster(id.toString());
+    deleteSubMachineMaster(id.toString(),{
+      onSuccess:async (Response: any) => {
+        console.log("ondelete RES", Response);
+        await refetch();
+      },
+      onError: (error) => {
+        console.error("ondelete error:", error);
+      },
+    });
   };
 
   const handleSave = (values: ISubMachineMaster) => {
@@ -110,7 +119,22 @@ const SubMachineMasterPage: React.FC = () => {
         SubMachineName: values.SubMachineName,
         MachineId: values.MachineId,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        ModifiedBy:user?.employeeId
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+          let result = Response?.ReturnValue;
+          
+          if (result.SubMachineId == -1) {
+            void displayjsx.showInfo("Duplicate record found");
+                                  return false;
+                                }
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       });
     } else {
       // Create new record
@@ -119,7 +143,22 @@ const SubMachineMasterPage: React.FC = () => {
         SubMachineName: values.SubMachineName,
         MachineId: values.MachineId,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        CreatedBy: user?.employeeId,
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+             let result = Response?.ReturnValue;
+          
+                      if (result.SubMachineId == -1) {
+                        void displayjsx.showInfo("Duplicate record found");
+                        return false;
+                      }
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       });
     }
   };
@@ -133,6 +172,7 @@ const SubMachineMasterPage: React.FC = () => {
       title: "Sub Machine Name",
       dataIndex: "SubMachineName",
       key: "SubMachineName",
+      width:"400px",
       sorter: (a: any, b: any) =>
         a.SubMachineName.localeCompare(b.SubMachineName),
     },
@@ -140,8 +180,24 @@ const SubMachineMasterPage: React.FC = () => {
       title: "Machine Name",
       dataIndex: "MachineId",
       key: "MachineId",
-      sorter: (a: any, b: any) =>
-        a.MachineId.localeCompare(b.MachineId),
+      sorter: (a: any, b: any) =>{
+        
+        console.log("DATA",a,b)
+         const machineA = machinesResult?.find(
+          (m: IMachineMaster) => m.MachineId === a.MachineId
+        )?.MachineName || "";
+        const machineB = machinesResult?.find(
+          (m: IMachineMaster) => m.MachineId === b.MachineId
+        )?.MachineName || "";
+    
+        return machineA.localeCompare(machineB);},
+
+      render: (MachineId: number, record: any) => {
+        const machine = machinesResult?.find(
+          (m: IMachineMaster) => m.MachineId === MachineId
+        );
+        return machine?.MachineName || "-"; // Show MachineName or fallback to "Unknown Machine"
+      }
     },
     {
       title: "Is Active",
@@ -156,7 +212,7 @@ const SubMachineMasterPage: React.FC = () => {
       key: "CreatedDate",
       render: (CreatedDate: string) => (
         <span>
-          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : ""}
+          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -164,8 +220,16 @@ const SubMachineMasterPage: React.FC = () => {
     },
     {
       title: "Created By",
-      dataIndex: "UserName",
-      key: "UserName",
+      dataIndex: "CreatedByName",
+      key: "CreatedByName",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        {
+          console.log("DATA",a,b);
+          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      },
     },
     {
       title: "Modified Date",
@@ -173,7 +237,7 @@ const SubMachineMasterPage: React.FC = () => {
       key: "ModifiedDate",
       render: (ModifiedDate: string) => (
         <span>
-          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : ""}
+          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -181,14 +245,22 @@ const SubMachineMasterPage: React.FC = () => {
     },
     {
       title: "Modified By",
-      dataIndex: "UpdatedUserName",
-      key: "UpdatedUserName",
+      dataIndex: "ModifiedByName",
+      key: "ModifiedByName",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        {
+          console.log("DATA",a,b);
+          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      },
     },
     {
       title: "Actions",
       key: "actions",
       render: (text: any, record: ISubMachineMaster) => (
-        <span className="action-cell">
+        <span className="">
           <Button
             title="View"
             className="action-btn"
@@ -206,11 +278,14 @@ const SubMachineMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-          <Popconfirm
-            title="Are you sure to delete this record?"
+        { record?.IsActive &&
+         <Popconfirm
+            title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.SubMachineId!)}
             okText="Yes"
             cancelText="No"
+            okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
+            cancelButtonProps={{ className:"btn btn-outline-primary"}}
           >
             <Button
               title="Delete"
@@ -220,7 +295,7 @@ const SubMachineMasterPage: React.FC = () => {
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm>
+          </Popconfirm>}
         </span>
       ),
     },
@@ -232,18 +307,18 @@ const SubMachineMasterPage: React.FC = () => {
       <div className="d-flex justify-content-between items-center mb-3">
         <div>
           <button
-            className="btn btn-link btn-back"
+            className="btn btn-link btn-back px-0"
             type="button"
             onClick={() => navigate(`/master`)}
           >
             <FontAwesomeIcon
-              style={{ marginRight: "5px" }}
+className="me-2"
               icon={faCircleChevronLeft}
             />
             Back
           </button>
         </div>
-        <div style={{ marginLeft: "1600px" }}>
+        <div >
           <Button
             type="primary"
             className="btn btn-primary"
@@ -261,14 +336,20 @@ const SubMachineMasterPage: React.FC = () => {
         rowKey="id"
         loading={loading}
         pagination={{
-          pageSize: 10,
-          showTotal: () => (
+          onChange:()=>{
+            scrollToElementsTop("table-container");
+          },
+         
+          showTotal: (total, range) => (
             <div className="d-flex align-items-center gap-3">
               <span style={{ marginRight: "auto" }}>
-                Total {data.length} items
+                Showing {range[0]}-{range[1]} of {total} items
               </span>
+  
+             
             </div>
           ),
+          itemRender: (_, __, originalElement) => originalElement,
         }}
       />
       </div>
@@ -279,6 +360,11 @@ const SubMachineMasterPage: React.FC = () => {
         onOk={() => !isViewMode && form.submit()}
         okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
         cancelButtonProps={{ className:"btn btn-outline-primary"}}
+        footer={
+          isViewMode
+            ? null 
+            : undefined 
+        }
       >
         <Form
           form={form}
@@ -291,6 +377,14 @@ const SubMachineMasterPage: React.FC = () => {
             label="Sub Machine Name"
             rules={[
               { required: true, message: "Please enter Sub Machine Name" },
+              {
+                validator: (_, value) => {
+                  if (value && value.trim() === "") {
+                    return Promise.reject(new Error("Only spaces are not allowed"));
+                  }
+                  return Promise.resolve();
+                },
+              },
             ]}
           >
             <Input type="text" disabled={isViewMode} />

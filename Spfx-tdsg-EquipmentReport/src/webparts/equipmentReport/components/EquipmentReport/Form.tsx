@@ -17,6 +17,7 @@ import {
   DATE_FORMAT,
   DATE_TIME_FORMAT,
   DocumentLibraries,
+  EXCEL_DATE_FORMAT,
   REQUEST_STATUS,
   WEB_URL,
 } from "../../GLOBAL_CONSTANT";
@@ -65,16 +66,30 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
   const navigate = useNavigate();
   const { confirm } = Modal;
-  const webPartContext = React.useContext(WebPartContext);
+    const webPartContext = React.useContext(WebPartContext);
   const { id, mode } = useParams();
   const [form] = Form.useForm();
+  const location = useLocation();
+  const { isApproverRequest, currentTabState, fromReviewTab ,allReq } =location.state || {};
   const [formValues, setFormValues] = useState<
     IEquipmentImprovementReport | []
   >([]);
   const user: IUser = useContext(UserContext);
   const isModeView = mode === "view" ? true : false;
   const [ChangeRiskManagementDetails, setChangeRiskManagementDetails] =
-    useState<IChangeRiskData[]>([]);
+    useState<IChangeRiskData[]>([
+      {
+        key: 0,
+        Changes: "",
+        FunctionId: "",
+        RiskAssociated: "",
+        Factor: "",
+        CounterMeasures: "",
+        DueDate: undefined, 
+        PersonInCharge: null, 
+        Results: "",
+      },
+    ]);
   const eqReportSave = useCreateEditEQReport();
 
   const { data: resultMonitoringDetails, isLoading: ResultMonitorLoading } =
@@ -87,10 +102,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     useImpCategoryMaster();
   const { data: sections, isLoading: sectionIsLoading } = useSectionMaster();
   const { data: employees, isLoading: employeeIsLoading } = useEmployeeMaster();
-  const [improvementAttchments, setImprovementAttchments] = useState<
-    IImprovementAttachments[] | []
-  >([]);
-  // const [pcrnAttachments, setpcrnAttachments] = useState<IPCRNAttchments>();
+  const [improvementAttchments, setImprovementAttchments] = useState<IImprovementAttachments[] | [] >([]);
+  const [pcrnAttachments, setpcrnAttachments] = useState<IPCRNAttchments[]|[]>([]);
   const [currSituationAttchments, setcurrSituationAttchments] = useState<
     ICurrentSituationAttachments[] | []
   >([]);
@@ -221,6 +234,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         ResultStatus: form.getFieldValue("ResultStatus"),
         ResultMonitoringId: form.getFieldValue("ResultMonitoringId"),
         ResultMonitoringDate: resultDate,
+        PcrnAttachments:pcrnAttachments,
         IsResultSubmit: true,
         IsResultAmendSubmit: false,
       };
@@ -266,8 +280,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       Modal.confirm({
         title: "Are you sure you want to submit the form?",
         okText: "Submit",
-        okButtonProps: { className: "btn btn-primary mb-1" },
-        cancelButtonProps: { className: "btn-outline-primary" },
+        okButtonProps: { className: "btn btn-primary btn-submit mb-1" },
+        cancelButtonProps: { className: "btn-outline-prime" },
         cancelText: "Cancel",
         onOk: async () => {
           await handleModalSubmit();
@@ -315,6 +329,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         ResultStatus: form.getFieldValue("ResultStatus"),
         ResultMonitoringId: form.getFieldValue("ResultMonitoringId"),
         ResultMonitoringDate: resultDate,
+        PcrnAttachments:pcrnAttachments,
         IsResultSubmit: true,
         IsResultAmendSubmit: true,
       };
@@ -363,7 +378,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   };
 
   const onSaveAsDraftHandler = async (): Promise<void> => {
+    
     const values: IEquipmentImprovementReport = form.getFieldsValue();
+    values.ChangeRiskManagementDetails=ChangeRiskManagementDetails;
     values.EquipmentImprovementAttachmentDetails = improvementAttchments;
     values.EquipmentCurrSituationAttachmentDetails = currSituationAttchments;
     values.IsPcrnRequired = existingEquipmentReport?.IsPcrnRequired
@@ -388,8 +405,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       } else {
         resultDate = form.getFieldValue("ResultMonitoringDate");
       }
-      if (existingEquipmentReport?.IsPcrnRequired) {
-      }
+      
       
       values.ResultAfterImplementation = {
         ...values.ResultAfterImplementation,
@@ -399,6 +415,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         ResultStatus: form.getFieldValue("ResultStatus"),
         ResultMonitoringId: form.getFieldValue("ResultMonitoringId"),
         ResultMonitoringDate: resultDate,
+        PcrnAttachments:pcrnAttachments,
         IsResultSubmit: false,
       };
     }
@@ -422,6 +439,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           "ResultMonitoringDate",
           "ResultStatus",
           "PCRNNumber",
+          "PcrnAttachments"
         ];
         
         const allFields = Object.keys(form.getFieldsValue());
@@ -429,9 +447,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         const fieldsToValidate = allFields.filter(
           (field) => !fieldsToExclude.includes(field)
         );
-        await form.validateFields(fieldsToValidate);
+        // await form.validateFields(fieldsToValidate);
         //: TODO Need to update
-        await form.validateFields();
+        // await form.validateFields();
       } else {
         
 
@@ -440,9 +458,16 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           currSituationAttchments,
           form.getFieldValue("EquipmentCurrSituationAttachmentDetails")
         );
-        await form.validateFields();
+        // await form.validateFields();
       }
     }
+    const updatedChangeRisk=values?.ChangeRiskManagementDetails?.map((item)=>({
+            ...item,
+            DueDate:item.DueDate?dayjs(item?.DueDate,DATE_FORMAT).format(EXCEL_DATE_FORMAT)
+            :null
+    }))
+    
+    values.ChangeRiskManagementDetails=updatedChangeRisk;
     eqReportSave.mutate(
       { ...values },
       {
@@ -457,7 +482,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               Response.ReturnValue.EquipmentImprovementNo
             );
           }
-          navigate(`/`);
+          navigate("/", {
+            state: {
+              currentTabState: isApproverRequest ? "myapproval-tab": allReq? "allrequest-tab": "myrequest-tab",
+            },
+          });
         },
         onError: (error) => {
           console.error("On Save error:", error);
@@ -574,12 +603,13 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             };
           }
         );
+        setChangeRiskManagementDetails(changeRiskData);
       form.setFieldsValue({
         ...existingEquipmentReport,
         ChangeRiskManagementDetails:
           existingEquipmentReport?.ChangeRiskManagementDetails?.map((data) => ({
             ...data,
-            DueDate: dayjs(data.DueDate, DATE_FORMAT) ?? null,
+            DueDate: data.DueDate? dayjs(data.DueDate,DATE_FORMAT) :null,
           })),
       });
       if (
@@ -625,15 +655,15 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       if (
         (existingEquipmentReport?.WorkflowStatus ==
           REQUEST_STATUS.W1Completed ||
-          existingEquipmentReport?.Status != REQUEST_STATUS.Approved) &&
-        existingEquipmentReport?.ResultAfterImplementation?.TargetDate
+          existingEquipmentReport?.Status != REQUEST_STATUS.Approved) 
       ) {
+        
         form.setFieldsValue({
-          TargetDate:
+          TargetDate:existingEquipmentReport?.ResultAfterImplementation?.TargetDate?
             dayjs(
               existingEquipmentReport?.ResultAfterImplementation?.TargetDate,
               DATE_FORMAT
-            ) ?? "-",
+            ) :null,
           PCRNNumber:
             existingEquipmentReport?.ResultAfterImplementation?.PCRNNumber,
           ResultMonitoringId:
@@ -655,7 +685,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       setImprovementAttchments(
         existingEquipmentReport?.EquipmentImprovementAttachmentDetails ?? []
       );
-      
+      setpcrnAttachments(existingEquipmentReport?.ResultAfterImplementation?.PcrnAttachments??[])
       // setpcrnAttachments(existingEquipmentReport?.PcrnAttachments ?? null);
       setcurrSituationAttchments(
         existingEquipmentReport?.EquipmentCurrSituationAttachmentDetails ?? []
@@ -750,7 +780,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     const next7Days = actualDateDayjs.add(8, "day");
     return (
       current &&
-      (current.isBefore(actualDateDayjs, "day") || current.isBefore(next7Days, "day"))
+      (current.isBefore(actualDateDayjs, "day") 
+      // || current.isBefore(next7Days, "day")
+    )
     );
   };
 
@@ -792,6 +824,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         Factor: "",
         CounterMeasures: "",
         DueDate: null,
+
         PersonInCharge: null,
         Results: "",
       },
@@ -1056,6 +1089,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             // initialValue={
             //   record?.DueDate ? dayjs(record.DueDate, "DD-MM-YYYY") : null
             // }
+            getValueFromEvent={(date) => (date ? dayjs(date) : null)}
+            getValueProps={(value) => ({
+              value: value ? dayjs(value): null, // Convert UTC to local time for display
+            })}
             rules={validationRules.DueDate}
           >
             {console.log(
@@ -1189,6 +1226,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 handleDelete(record.key);
               }}
               disabled={
+                record.key == 0||
                 isModeView ||
                 (!isAdmin &&
                   ((submitted &&
@@ -1215,7 +1253,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     <div className="d-flex flex-column gap-3 w-100 h-100">
       <div className={user?.isAdmin?"admin-form-btn-row":"form-btn-row"}>
         <>
-          <div className="d-flex gap-3">
+          <div className="d-flex gap-3 me-3">
             {(mode == "add" ||
               (isAdmin && !isModeView) ||
               (!isModeView &&
@@ -1263,8 +1301,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
 
             {(underAmmendment ||
               resultUnderAmmendment ||
-              existingEquipmentReport?.Status ==
-                REQUEST_STATUS.LogicalAmendment) &&
+              (existingEquipmentReport?.Status ==
+                REQUEST_STATUS.LogicalAmendment && existingEquipmentReport?.CreatedBy == user.employeeId )) &&
               mode != "view" && (
                 <button
                   className="btn btn-primary"
@@ -1637,13 +1675,13 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 <Form.Item
                  label={
                   <span>
-                    {currSituationAttchments.length != 0? (<span style={{ color: "#CF1919",fontSize: "1.3rem"}}>*  </span>):"" }
+                    {currSituationAttchments?.length != 0? (<span style={{ color: "#CF1919",fontSize: "1.3rem"}}>*  </span>):"" }
                     <span className="text-muted">Current Situation Attachments</span>
                   </span>
                 }
                   name="EquipmentCurrSituationAttachmentDetails"
                   rules={
-                    currSituationAttchments.length == 0
+                    currSituationAttchments?.length == 0
                       ? validationRules.attachment
                       : null
                   }
@@ -1795,14 +1833,14 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 <Form.Item
                  label={
                   <span>
-                    {improvementAttchments.length != 0? (<span style={{ color: "#CF1919",fontSize: "1.3rem"}}>*  </span>):"" }
+                    {improvementAttchments?.length != 0? (<span style={{ color: "#CF1919",fontSize: "1.3rem"}}>*  </span>):"" }
                     <span className="text-muted">Improvement Attachments</span>
                   </span>
                 }
                   
                   name="EquipmentImprovementAttachmentDetails"
                   rules={
-                    improvementAttchments.length == 0
+                    improvementAttchments?.length == 0
                       ? validationRules.attachment
                       : null
                   }
@@ -2014,7 +2052,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 </div>
               </>
             )} */}
-            {(existingEquipmentReport?.WorkflowStatus ==
+{            console.log("CONDITION OF RESULT",(existingEquipmentReport?.WorkflowStatus ==
+              REQUEST_STATUS.W1Completed ||
+              existingEquipmentReport?.Status == REQUEST_STATUS.Completed ||
+              (existingEquipmentReport?.WorkflowLevel == 2)))
+}            {(existingEquipmentReport?.WorkflowStatus ==
               REQUEST_STATUS.W1Completed ||
               existingEquipmentReport?.Status == REQUEST_STATUS.Completed ||
               (existingEquipmentReport?.WorkflowLevel == 2)) &&
@@ -2027,9 +2069,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   >
                     Result after Implementation
                   </p>
-                  <div className="row mt-3">
-                    {existingEquipmentReport?.IsPcrnRequired ? (
-                      <div className="col">
+                 {(existingEquipmentReport?.IsPcrnRequired) ? 
+                 ( <div className="row mt-3">
+                      <div className="col-md-3">
                         <Form.Item
                           label={
                             <label className="text-muted mb-0">
@@ -2055,10 +2097,100 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                           />
                         </Form.Item>
                       </div>
-                    ) : (
-                      <></>
-                    )}
+                    
+                  <div className="col-md-3">
+                    <Form.Item
+                      label={
+                        <span className="text-muted">PCRN Attachments</span>
+                      }
+                      name="PcrnAttachments"
+                      // rules={
+                      //   pcrnAttachments?.length == 0
+                      // ? validationRules.attachment
+                      // : null
+                      // }
+                    >
+                      {console.log("PCRN Attachment", pcrnAttachments)}
+                      <FileUpload
+                      disabled={
+                        isModeView ||
+                        (!isAdmin &&
+                          resultsubmitted &&
+                          !resultUnderAmmendment)
+                      }
+                        showbutton={true}
+                        ispcrnRequired={existingEquipmentReport?.IsPcrnRequired}
+                        key={`pcrnAttachments`}
+                        folderName={
+                          form.getFieldValue("EquipmentImprovementNo") ??
+                          user?.employeeId.toString()
+                        }
+                        subFolderName={"PCRN Attachments"}
+                        libraryName={DocumentLibraries.EQ_Report}
+                        files={pcrnAttachments?.map((a) => ({
+                          ...a,
+                          uid: a.PcrnAttachmentId?.toString() ?? "",
+                          name: a.PcrnDocName,
+                          url: "",
+                        }))}
+                        setIsLoading={(loading: boolean) => {
+                          // setIsLoading(loading);
+                        }}
+                        isLoading={false}
+                        onAddFile={(name: string, url: string) => {
+                          
+                          const existingAttachments = pcrnAttachments ?? [];
+                          const newAttachment: IPCRNAttchments = {
+                            PcrnAttachmentId: 0,
+                            EquipmentImprovementId: parseInt(id),
+                            PcrnDocName: name,
+                            PcrnFilePath: url,
+                            CreatedBy: user?.employeeId,
+                            ModifiedBy: user?.employeeId,
+                            IsDeleted: false,
+                          };
+                          
+                          const updatedAttachments: IPCRNAttchments[] = [
+                            ...existingAttachments,
+                            newAttachment,
+                          ];
+                          
+                          void form.validateFields([
+                            "PcrnAttachments",
+                          ]);
+                          setpcrnAttachments(updatedAttachments);
+                          
+                          console.log("PCRN File Added");
+                          console.log("File Added");
+                        }}
+                        onRemoveFile={async(documentName: string) => {
+                          const existingAttachments = pcrnAttachments ?? [];
+                          const updatedAttachments = existingAttachments?.filter(
+                            (doc) => doc.PcrnDocName !== documentName
+                          );
+                         setpcrnAttachments(updatedAttachments)
+                         console.log("Validation successful after file removal");
 
+                         if (updatedAttachments?.length == 0) {
+                        
+                          form.setFieldValue(
+                            "PcrnAttachments",
+                            []
+                          );
+                        }
+                        await form.validateFields([
+                          "PcrnAttachments",
+                        ]);
+                        console.log("File Removed");
+                        }}
+                        
+                      />
+                    </Form.Item>
+                  </div>
+                  
+
+                    </div>):(<></>)}
+                    <div className="row mt-3">
                     <div className="col">
                       <Form.Item
                         label={
@@ -2088,7 +2220,6 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         />
                       </Form.Item>
                     </div>
-
                     <div className="col">
                       <Form.Item
                         label={

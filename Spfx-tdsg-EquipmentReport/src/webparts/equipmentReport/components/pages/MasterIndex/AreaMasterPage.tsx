@@ -20,10 +20,11 @@ import useGetAreaMaster from "../../../apis/mastermanagementAPIs/areaMaster/useG
 import useAddOrUpdateArea from "../../../apis/mastermanagementAPIs/areaMaster/useAddOrUpdateArea";
 import useDeleteAreaMaster from "../../../apis/mastermanagementAPIs/areaMaster/useDeleteArea";
 import Page from "../../page/page";
+import { scrollToElementsTop } from "../../../utility/utility";
 
 interface IAreaMaster {
   AreaId: number;
-  AreaName?: number;
+  AreaName?: string;
   CreatedDate?: string;
   CreatedBy?: number;
   ModifiedBy?: number;
@@ -43,7 +44,7 @@ const AreaMasterPage: React.FC = () => {
   const [form] = Form.useForm();
   const user: IUser = useContext(UserContext);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
-  const { data: data, isLoading: areaLoading } = useGetAreaMaster();
+  const { data: data, isLoading: AreaLoading ,refetch} = useGetAreaMaster();
   const { mutate: areaMasterAddOrUpdate, isLoading: addingarea } =
     useAddOrUpdateArea();
   const { mutate: deleteAreaMaster, isLoading: deletingarea } =
@@ -87,7 +88,15 @@ const AreaMasterPage: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    deleteAreaMaster(id.toString());
+    deleteAreaMaster(id.toString(),{
+      onSuccess:async (Response: any) => {
+        console.log("ondelete RES", Response);
+        await refetch();
+      },
+      onError: (error) => {
+        console.error("ondelete error:", error);
+      },
+    });
   };
 
   // const handleSearch = () => {
@@ -111,15 +120,48 @@ const AreaMasterPage: React.FC = () => {
         AreaId: editingItem.AreaId,
         AreaName: values.AreaName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        ModifiedBy:user?.employeeId
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+          let result = Response?.ReturnValue;
+
+          if (result.AreaId == -1) {
+            void displayjsx.showInfo("Duplicate record found");
+            return false;
+          }
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       });
     } else {
       // Create new record
       areaMasterAddOrUpdate({
         AreaId: 0,
-        AreaName: values.AreaName,
+        AreaName: values.AreaName.trim(),
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        CreatedBy: user?.employeeId,
+      },{
+        onSuccess:async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+          let result = Response?.ReturnValue;
+
+          if(result.AreaId == -1){
+            void displayjsx.showInfo("Duplicate record found");
+             return false;
+          }
+
+          void displayjsx.showSuccess("Record created successfully");
+          
+          await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       });
     }
   };
@@ -149,7 +191,7 @@ const AreaMasterPage: React.FC = () => {
       key: "CreatedDate",
       render: (CreatedDate: string) => (
         <span>
-          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : ""}
+          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -157,8 +199,16 @@ const AreaMasterPage: React.FC = () => {
     },
     {
       title: "Created By",
-      dataIndex: "UserName",
-      key: "UserName",
+      dataIndex: "CreatedByName",
+      key: "CreatedByName",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        {
+          console.log("DATA",a,b);
+          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      },
     },
     {
       title: "Modified Date",
@@ -166,7 +216,7 @@ const AreaMasterPage: React.FC = () => {
       key: "ModifiedDate",
       render: (ModifiedDate: string) => (
         <span>
-          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : ""}
+          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -174,14 +224,22 @@ const AreaMasterPage: React.FC = () => {
     },
     {
       title: "Modified By",
-      dataIndex: "UpdatedUserName",
-      key: "UpdatedUserName",
+      dataIndex: "ModifiedByName",
+      key: "ModifiedByName",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        {
+          console.log("DATA",a,b);
+          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      },
     },
     {
       title: "Actions",
       key: "actions",
       render: (text: any, record: IAreaMaster) => (
-        <div className="action-cell">
+        <div className="">
           <Button
             title="View"
             // className="action-btn"
@@ -198,11 +256,15 @@ const AreaMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
+          {record?.IsActive &&
           <Popconfirm
-            title="Are you sure to delete this record?"
+            title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.AreaId!)}
             okText="Yes"
             cancelText="No"
+            okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
+            cancelButtonProps={{ className:"btn btn-outline-primary"}}
+            
           >
             <Button
               title="Delete"
@@ -212,7 +274,7 @@ const AreaMasterPage: React.FC = () => {
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm>
+          </Popconfirm>}
         </div>
       ),
     },
@@ -261,12 +323,13 @@ const AreaMasterPage: React.FC = () => {
                    </div> */}
         <div>
           <button
-            className="btn btn-link btn-back"
+            style={{ marginRight: "5px" }}
+            className="btn btn-link btn-back px-0"
             type="button"
             onClick={() => navigate(`/master`)}
           >
             <FontAwesomeIcon
-              style={{ marginRight: "5px" }}
+            className="me-2"
               icon={faCircleChevronLeft}
             />
             Back
@@ -289,14 +352,20 @@ const AreaMasterPage: React.FC = () => {
         rowKey="id"
         loading={loading}
         pagination={{
-          pageSize: 10,
-          showTotal: () => (
+          onChange:()=>{
+            scrollToElementsTop("table-container");
+          },
+         
+          showTotal: (total, range) => (
             <div className="d-flex align-items-center gap-3">
               <span style={{ marginRight: "auto" }}>
-                Total {data.length} items
+                Showing {range[0]}-{range[1]} of {total} items
               </span>
+  
+             
             </div>
           ),
+          itemRender: (_, __, originalElement) => originalElement,
         }}
       />
       </div>
@@ -306,6 +375,11 @@ const AreaMasterPage: React.FC = () => {
         onCancel={() => setModalVisible(false)}
         onOk={() => !isViewMode && form.submit()}
         okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
+        footer={
+          isViewMode
+            ? null 
+            : undefined 
+        }
         cancelButtonProps={{ className:"btn btn-outline-primary"}}
       >
         <Form
@@ -317,7 +391,16 @@ const AreaMasterPage: React.FC = () => {
           <Form.Item
             name="AreaName"
             label="Area Name"
-            rules={[{ required: true, message: "Please enter Area Name" }]}
+            rules={[{ required: true, message: "Please enter Area Name"},
+              {
+                validator: (_, value) => {
+                  if (value && value.trim() === "") {
+                    return Promise.reject(new Error("Only spaces are not allowed"));
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
           >
             <Input type="text" disabled={isViewMode} />
           </Form.Item>

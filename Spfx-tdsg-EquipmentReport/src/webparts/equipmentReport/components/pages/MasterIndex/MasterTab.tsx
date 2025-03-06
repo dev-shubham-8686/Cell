@@ -42,7 +42,7 @@ const MasterTab: React.FC = () => {
       key: "action",
       width: "10%", // Set width for this column
       render: (_: any, record: any) => (
-        <span className="action-cell">
+        <span className="">
           <Button
             style={{ marginLeft: "22px",background: "none", border: "none" }}
             title="View"
@@ -77,11 +77,11 @@ const MasterTab: React.FC = () => {
         <Col span={24}> */}
           <div className="flex justify-content-between items-center mb-3">
             <button
-                               className="btn btn-link btn-back"
+                               className="btn btn-link btn-back px-0"
                                type="button"
                                onClick={() => navigate(`/`)}
                                >
-                               <FontAwesomeIcon style={{marginRight:"5px"}} icon={faCircleChevronLeft} />
+                               <FontAwesomeIcon className="me-2" icon={faCircleChevronLeft} />
                                Back
                              </button>
           </div>

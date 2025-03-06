@@ -106,7 +106,7 @@ import { IUser, UserContext } from "../../context/userContext";
             visible={visible}
             onCancel={handleClose}
             footer={[
-              <Button key="cancel" className="btn btn-outline-primary" onClick={handleClose}>
+              <Button key="cancel" className="btn btn-outline-prime" onClick={handleClose}>
                 Cancel
               </Button>,
               <Button key="submit" type="primary" className="btn btn-primary" onClick={handleSubmit}>
