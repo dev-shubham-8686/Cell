@@ -10,9 +10,6 @@ public class SectionHeadEmpMaster
     [Key]
     public int SectionHeadMasterId { get; set; }
     public int? EmployeeId { get; set; }
-    public string? SectionHeadName { get; set; }
-
-    public string? SectionHeadEmail { get; set; }
     public int? SectionId { get; set; }
     public bool? IsActive { get; set; }
 

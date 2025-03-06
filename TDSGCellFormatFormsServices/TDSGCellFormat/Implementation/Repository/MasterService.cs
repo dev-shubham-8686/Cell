@@ -270,8 +270,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                             .Select(x => new SectionHeadView
                                             {
                                                 sectionHeadMasterId = x.SectionHeadMasterId,
-                                                sectionId = x.SectionId,
-                                                sectionHeadName = x.SectionHeadName
+                                                sectionId = x.SectionId
                                             });
 
             return res;
@@ -503,8 +502,6 @@ namespace TDSGCellFormat.Implementation.Repository
                     .Select(x => new SectionHeadEmpView
                     {
                         SectionHeadMasterId = x.SectionHeadMasterId,
-                        SectionHeadName = x.SectionHeadName,
-                        SectionHeadEmail = x.SectionHeadEmail,
                         SectionId = x.SectionId,
                         EmployeeId = x.EmployeeId,
                     });
@@ -784,10 +781,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 res = _context.SectionHeadEmpMasters.
                     Select(c => new SectionHeadEmpMasterAdd
                     {
-                        SectionHeadName = c.SectionHeadName,
                         SectionHeadMasterId = c.SectionHeadMasterId,
                         EmployeeId = c.EmployeeId,
-                        SectionHeadEmail = c.SectionHeadEmail,
                         SectionId = c.SectionId,
                         IsActive = c.IsActive
                     });
@@ -1734,9 +1729,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     if (get_record != null)
                     {
                         get_record.IsActive = sectionHeadEmpMasterAdd.IsActive;
-                        get_record.SectionHeadName = _emp.EmployeeName;
                         get_record.EmployeeId = sectionHeadEmpMasterAdd.EmployeeId;
-                        get_record.SectionHeadEmail = _emp.Email;
                         get_record.SectionId = sectionHeadEmpMasterAdd.SectionId;
 
                         _context.SaveChanges();
@@ -1748,9 +1741,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     var new_record = new SectionHeadEmpMaster
                     {
-                        SectionHeadName = _emp.EmployeeName,
+                        
                         EmployeeId = sectionHeadEmpMasterAdd.EmployeeId,
-                        SectionHeadEmail = _emp.Email,
                         SectionId = sectionHeadEmpMasterAdd.SectionId,
                         IsActive = sectionHeadEmpMasterAdd.IsActive,
                     };
