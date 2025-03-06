@@ -1,4 +1,5 @@
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using TDSGCellFormat.Helper;
@@ -62,6 +63,10 @@ var empConnectionstring = builder.Configuration.GetConnectionString("EmployeeCon
 builder.Services.AddTransient(_ => new TdsgCellFormatDivisionContext(connectionString));
 builder.Services.AddTransient(_ => new AepplNewCloneStageContext(empConnectionstring));
 builder.Services.AddHttpContextAccessor();
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 52428800; // 50MB
+});
 var app = builder.Build();
 
 // Configure the HTTP requestSystem.AggregateException: 'Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: TDSGCellFormat.Interface.Service.ITroubleReportService Lifetime: Scoped ImplementationType: TDSGCellFormat.Implementation.Service.TroubleReportService': Unable to resolve service for type 'TDSGCellFormat.Helper.CommonHelper' while attempting to activate 'TDSGCellFormat.Implementation.Repository.TroubleReportRepository'.) (Error while validating the service descriptor 'ServiceType: TDSGCellFormat.Interface.Repository.ITroubleReportRepository Lifetime: Scoped ImplementationType: TDSGCellFormat.Implementation.Repository.TroubleReportRepository': Unable to resolve service for type 'TDSGCellFormat.Helper.CommonHelper' while attempting to activate 'TDSGCellFormat.Implementation.Repository.TroubleReportRepository'.)'
