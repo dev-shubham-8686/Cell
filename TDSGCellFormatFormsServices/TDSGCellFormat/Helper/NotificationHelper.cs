@@ -1,4 +1,5 @@
 ﻿
+using OfficeOpenXml.Sorting;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -1211,6 +1212,14 @@ namespace TDSGCellFormat.Helper
                                 isRequestorinCCEmail = true;
                                 break;
 
+                            case EmailNotificationAction.LogicalResubmit:
+                                templateFile = "Equipment_LogicalResubmit.html";
+                                emailSubject = string.Format("[Action required!] Equipment Improvement_{0} has been Resubmitted for Logical Amendment", equipmentNo);
+                                isInReviewTask = true;
+                                approvelink = true;
+                                isRequestorinCCEmail = true;
+                                break;
+
                             case EmailNotificationAction.Approved:
                                 templateFile = "Equipment_Approved.html";
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Approved", equipmentNo);
@@ -1231,7 +1240,6 @@ namespace TDSGCellFormat.Helper
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} has been Asked for Amendment", equipmentNo);
                                 isRequestorinToEmail = true;
                                 isIsAmendTask = true;
-                                approvelink = true;
                                 isEditable = true;
                                 break;
 
@@ -1279,7 +1287,7 @@ namespace TDSGCellFormat.Helper
                                 break;
 
                             case EmailNotificationAction.ResultMonitoring:
-                                templateFile = "Equipment_ResultSubmit.html";
+                                templateFile = "Equipment_ResultMonitoring.html";
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} Actual Date Entered", equipmentNo);
                                 isSectionHeadInTo = true;
                                 break;
@@ -1293,11 +1301,8 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.ResultApprove:
                                 templateFile = "Equipment_ResultApprove.html";
-                                emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} Result Section has been Approved", equipmentNo);
-                                isRequestorinCCEmail = true;
-                                isInReviewTask = true;
-                                approvelink = true;
-                                break;
+                                emailSubject = string.Format("[Action required!] Equipment Improvement_{0} has been Approved for Logical Amendment ", equipmentNo);
+                                 break;
 
                             case EmailNotificationAction.ToshibaTeamDiscussion:
                                 templateFile = "Equipment_ToshibaTeamDiscussion.html";
@@ -1344,6 +1349,33 @@ namespace TDSGCellFormat.Helper
                             }
                         }
 
+                        if (emailNotification == EmailNotificationAction.ResultApprove)
+                        {
+                            foreach (var item in approverData)
+                            {
+                                var task = approverData.FirstOrDefault(item =>
+                                                      item.Status == ApprovalTaskStatus.InReview.ToString() && item.WorkFlowlevel == 2
+                                                     );
+
+                                var advisrEmail = approverData.FirstOrDefault(item =>
+                                           item.WorkFlowlevel == 2 && item.SequenceNo == 2
+                                    );
+                                
+                                if(task != null && task.SequenceNo == 2)
+                                {
+
+                                    approvelink = true;
+                                    emailToAddressList.Add(advisrEmail.email);
+                                    emailCCAddressList.Add(requesterUserEmail);
+                                }
+                                else
+                                {
+                                    isEditable = true;
+                                    emailToAddressList.Add(requesterUserEmail);
+                                }
+                            }
+                        }
+
                         if (isInReviewTask)
                         {
                             if (nextApproverTaskId > 0)
@@ -1375,6 +1407,14 @@ namespace TDSGCellFormat.Helper
                                         }
                                         else if (task.SequenceNo == 2)
                                         {
+                                            if(task.WorkFlowlevel == 1)
+                                            {
+                                                var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId == equipmentData.SectionHeadId).Select(x => x.EmployeeId).FirstOrDefault();
+
+                                                var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == sectionHeadId && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                                emailCCAddressList.Add(sectionEmail);
+                                            }
                                             emailToAddressList.Add(task.email);
                                         }
                                         else
