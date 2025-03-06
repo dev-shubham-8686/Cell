@@ -1417,6 +1417,15 @@ namespace TDSGCellFormat.Implementation.Repository
                         var approvalData = data.EquipmentApprovalData;
                         if (approvalData.AdvisorId != 0 && approvalData.AdvisorId != null)
                         {
+                            var existingAdvisor = _context.EquipmentAdvisorMasters.Where(x => x.EquipmentImprovementId == data.EquipmentId).ToList();
+                            if (existingAdvisor != null)
+                            {
+                                foreach (var advisor in existingAdvisor)
+                                {
+                                    advisor.IsActive = false;
+                                    await _context.SaveChangesAsync();
+                                }
+                            }
                             var advisorData = new EquipmentAdvisorMaster();
                             advisorData.EmployeeId = approvalData.AdvisorId;
                             advisorData.WorkFlowlevel = equipment.WorkFlowLevel;
