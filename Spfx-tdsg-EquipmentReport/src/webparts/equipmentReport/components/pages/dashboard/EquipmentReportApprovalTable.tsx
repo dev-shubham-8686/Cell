@@ -224,14 +224,14 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
           {
             // row.IsSubmit &&
             (
-              (user?.isQcTeamHead &&
+              (user?.employeeId == row.QCUserId &&
               (row.ApproverTaskStatus == REQUEST_STATUS.InReview ||
                 row.ApproverTaskStatus ==
                   REQUEST_STATUS.UnderToshibaApproval))
                    ||
               row.Status == REQUEST_STATUS.Completed
                ||
-              (user?.employeeId == row.AdvisorId &&
+              (user?.employeeId == row.AdvisorUserId &&
                 row.ApproverTaskStatus == REQUEST_STATUS.InReview)
               ) && (
               <button

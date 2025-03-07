@@ -126,6 +126,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   const [enableResultStatus, setenableResultStatus] = useState(false);
   const [showResultMonitoringDate, setshowResultMonitoringDate] =
     useState(false);
+    const [resultMonitoringValue, setresultMonitoringValue] =
+    useState(null);
 
   const handleMachineChange = (values: any) => {
     
@@ -431,9 +433,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     
     console.log("values", values);
     if (!isAdmin) {
-      if (existingEquipmentReport?.WorkflowLevel == 2) {
+      if (existingEquipmentReport?.WorkflowLevel == 2 
+        // || existingEquipmentReport?.Status==REQUEST_STATUS.Approved  // TODO 
+      ) {
         
-        const fieldsToExclude = [
+        let fieldsToExclude = [
           "ActualDate",
           "ResultMonitoring",
           "ResultMonitoringDate",
@@ -442,12 +446,18 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           "PcrnAttachments"
         ];
         
+        // If ResultMonitoringId has a value then ActualDate is required
+  if (values?.ResultAfterImplementation?.ResultMonitoringId) {
+    fieldsToExclude = fieldsToExclude.filter(field => field !== "ActualDate");
+  }debugger
         const allFields = Object.keys(form.getFieldsValue());
         console.log("ALL FIELDS", allFields);
+        debugger
         const fieldsToValidate = allFields.filter(
           (field) => !fieldsToExclude.includes(field)
         );
-        // await form.validateFields(fieldsToValidate);
+        debugger
+         await form.validateFields(fieldsToValidate);
         //: TODO Need to update
         // await form.validateFields();
       } else {
@@ -531,7 +541,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     Results: [{ required: true, message: "Please enter Results " }],
     TargetDate: [{ required: true, message: "Please select Target Date" }],
     ActualDate: [
-      { required: enableResultStatus, message: "Please select Actual Date" },
+      { required: form.getFieldValue("ResultMonitoringId")?true:false, message: "Please select Actual Date" },
     ],
     ResultMonitoring: [
       {
@@ -792,7 +802,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
   };
 
   const handleResultMonitoringChange = (value) => {
-    
+    setresultMonitoringValue(value)
     // form.setFieldValue("ResultStatus","");
     // setenableResultStatus(false)
     if (value == 2) {
@@ -1975,6 +1985,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                 // }}
               />
             </div>
+            {/*  eslint-disable max-lines */ }
             {/* {existingEquipmentReport?.IsPcrnRequired && (
               <>
                 <div className="row">
@@ -2227,7 +2238,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         }
                         name="ActualDate"
                         rules={
-                          existingEquipmentReport?.WorkflowLevel === 2
+                          existingEquipmentReport?.WorkflowLevel === 2 && form.getFieldValue("ResultMonitoringId")
                             ? validationRules["ActualDate"]
                             : null
                         }
@@ -2253,9 +2264,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                           <span className="text-muted">Result Monitoring</span>
                         }
                         name="ResultMonitoringId"
-                        initialValue={
-                          resultMonitoringDetails[0]?.resultMonitorId
-                        }
+                        // initialValue={
+                        //   resultMonitoringDetails??resultMonitoringDetails[0]?.resultMonitorId
+                        // }
                         rules={
                           existingEquipmentReport?.WorkflowLevel === 2
                             ? validationRules["ResultMonitoring"]
@@ -2269,6 +2280,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                               resultsubmitted &&
                               !resultUnderAmmendment)
                           }
+                          placeholder="Please Select"
                           showSearch
                           filterOption={(input, option) =>
                             (option?.label ?? "")
@@ -2277,7 +2289,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                           }
                           options={resultMonitoringDetails?.map((item) => ({
                             label: item.resultMonitorName,
-                            value: item.resultMonitorId,
+                            value: item.resultMonitorId,  
                           }))}
                           onChange={handleResultMonitoringChange}
                           loading={areaIsLoading}
