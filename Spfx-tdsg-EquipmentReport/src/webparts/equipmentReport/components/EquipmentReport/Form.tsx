@@ -267,7 +267,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       // if (existingEquipmentReport?.Status == REQUEST_STATUS.PCRNPending) {
       //   await form.validateFields(["PcrnAttachments"]);
       // }
-      if (existingEquipmentReport?.WorkflowLevel === 2) {
+      if (existingEquipmentReport?.WorkflowLevel === 2 || existingEquipmentReport?.Status==REQUEST_STATUS.Approved ) {
         await form.validateFields([
           "TargetDate",
           "ActualDate",
@@ -275,6 +275,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           "ResultMonitoringDate",
           "ResultStatus",
           "PCRNNumber",
+          "PcrnAttachments"
         ]);
       } else {
         await form.validateFields();
@@ -338,7 +339,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
     }
     
     if (
-      (values?.ResultAfterImplementation?.ResultMonitoringId == 3 &&
+      (existingEquipmentReport?.SeqNotwo==2 &&
       existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment )
     ) {
       values.ResultAfterImplementation.IsResultAmendSubmit = true;
@@ -433,7 +434,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment
     ))
     if ( 
-      values?.ResultAfterImplementation?.ResultMonitoringId == 3 &&
+      existingEquipmentReport?.SeqNotwo==2 &&
       existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment
     ) {
       values.ResultAfterImplementation.IsResultAmendSubmit = true;
@@ -542,11 +543,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       { required: true, message: "Please enter Other Improvement Category" },
     ],
     OtherMachine: [
-      { required: true, message: "Please enter other Machine Name" },
+      { required: true, message: "Please enter Other Machine Name" },
     ],
     SubMachine: [{ required: true, message: "Please select Sub Machine Name" }],
     OtherSubMachine: [
-      { required: true, message: "Please enter other Machine Name" },
+      { required: true, message: "Please enter Other Sub Machine Name" },
     ],
     ImpName: [{ required: true, message: "Please enter Improvement Name" }],
     ImpDesc: [
@@ -761,28 +762,32 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       ) {
         setunderAmmendment(true);
       }
+      debugger
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment &&
         existingEquipmentReport?.CreatedBy == user.employeeId &&
         existingEquipmentReport?.WorkflowLevel == 2 &&
-        existingEquipmentReport?.ResultAfterImplementation
-          ?.ResultMonitoringId != 3
+        existingEquipmentReport?.SeqNotwo!=2
       ) {
+        debugger
         setresultUnderAmmendment(true);
       }
+      debugger
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment &&
         existingEquipmentReport?.CreatedBy == user.employeeId &&
         existingEquipmentReport?.WorkflowLevel == 2 &&
-        existingEquipmentReport?.ResultAfterImplementation
-          ?.ResultMonitoringId == 3
+        existingEquipmentReport?.SeqNotwo==2
       ) {
+        debugger
         setAdvisorResultUnderAmmendment(true);
       }
+      
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.LogicalAmendment &&
         existingEquipmentReport?.CreatedBy == user.employeeId
       ) {
+        
         setunderLogicalAmmendment(true);
       }
       // if (existingEquipmentReport?.IsPcrnRequired) {
@@ -1544,9 +1549,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       label="Other Improvement Category"
                       name="OtherImprovementCategory"
                       initialValue={""}
-                      // rules={
-                      //   showOtherSubMachine ? validationRules.SubMachine : null
-                      // }
+                      rules={
+                         validationRules.OtherImprovementCategory 
+                      }
                     >
                       <Input
                         maxLength={500}
@@ -1602,9 +1607,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       label="Other Machine Name"
                       name="OtherMachineName"
                       initialValue={""}
-                      // rules={
-                      //   showOtherSubMachine ? validationRules.SubMachine : null
-                      // }
+                      rules={
+                        showOtherMachine ? validationRules.OtherMachine : null
+                      }
                     >
                       <Input
                         maxLength={500}
@@ -1669,9 +1674,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       label="Other Sub Machine Name"
                       name="otherSubMachine"
                       initialValue={""}
-                      // rules={
-                      //   showOtherSubMachine ? validationRules.SubMachine : null
-                      // }
+                      rules={
+                        showOtherSubMachine ? validationRules.OtherSubMachine : null
+                      }
                     >
                       <Input
                         maxLength={500}
@@ -2175,7 +2180,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                           }
                           name="PcrnAttachments"
                           // rules={
-                          //   pcrnAttachments?.length == 0
+                          //   (pcrnAttachments?.length == 0 && enableResultStatus)
                           // ? validationRules.attachment
                           // : null
                           // }
@@ -2330,6 +2335,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         }
                       >
                         <Select
+                        allowClear
                           disabled={
                             isModeView ||
                             (!isAdmin &&

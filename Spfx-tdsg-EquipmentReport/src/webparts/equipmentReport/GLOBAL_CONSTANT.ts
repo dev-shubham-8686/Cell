@@ -84,7 +84,8 @@ export const REQUEST_STATUS = {
   UnderImplementation:"UnderImplementation",
   LogicalAmendmentInReview:"LogicalAmendmentInReview",
   LogicalAmendment:"LogicalAmendment",
-  ToshibaTechnicalReview:"ToshibaTechnicalReview"
+  ToshibaTechnicalReview:"ToshibaTechnicalReview",
+  ToshibaTeamDiscussion:"ToshibaTeamDiscussion"
 };
 
 // It returns the background colour class for the status

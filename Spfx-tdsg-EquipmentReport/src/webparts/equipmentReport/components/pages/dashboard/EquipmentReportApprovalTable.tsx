@@ -87,20 +87,20 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
         <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
-     {
-          title: "Improvement Category",
-          dataIndex: "ImprovementCategory",
-          key: "ImprovementCategory",
-          width: 200,
-          sorter: true,
-          // filterDropdown: ColumnFilter,
-          filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
-          ),
-          render: (text) => {
-            return <p className="text-cell">{text??"-"}</p>;
-          },
-        },
+    {
+      title: "Improvement Category",
+      dataIndex: "ImprovementCategory",
+      key: "ImprovementCategory",
+      width: 200,
+      sorter: true,
+      // filterDropdown: ColumnFilter,
+      filterIcon: (filtered: boolean) => (
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+      ),
+      render: (text) => {
+        return <p className="text-cell">{text ?? "-"}</p>;
+      },
+    },
     {
       title: "Machine Name",
       dataIndex: "MachineName",
@@ -223,17 +223,9 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
           </button>
           {
             // row.IsSubmit &&
-            (
-              (user?.employeeId == row.QCUserId &&
-              (row.ApproverTaskStatus == REQUEST_STATUS.InReview ||
-                row.ApproverTaskStatus ==
-                  REQUEST_STATUS.UnderToshibaApproval))
-                   ||
-              row.Status == REQUEST_STATUS.Completed
-               ||
-              (user?.employeeId == row.AdvisorUserId &&
-                row.ApproverTaskStatus == REQUEST_STATUS.InReview)
-              ) && (
+            (user?.employeeId == row.QCUserId ||
+              row.Status == REQUEST_STATUS.Completed ||
+              user?.employeeId == row.AdvisorUserId) && (
               <button
                 type="button"
                 style={{ background: "none", border: "none" }}
@@ -257,13 +249,12 @@ const EquipmentReportApprovalTable: React.FC<{}> = ({}) => {
 
   return (
     <>
-    <Table
-      columns={columns}
-      paginationRequired={true}
-      url="/api/EquipmentImprovement/EqupimentApproverList"
-    />
-         <Spin spinning={pdfLoading} fullscreen />
-
+      <Table
+        columns={columns}
+        paginationRequired={true}
+        url="/api/EquipmentImprovement/EqupimentApproverList"
+      />
+      <Spin spinning={pdfLoading} fullscreen />
     </>
   );
 };

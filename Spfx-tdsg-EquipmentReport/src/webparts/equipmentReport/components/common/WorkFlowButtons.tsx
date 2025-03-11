@@ -76,11 +76,12 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
       ? workflowTwo?.find((item) => item.SequenceNo === 1)?.DelegateUserId
       : workflowTwo?.find((item) => item.SequenceNo === 1)?.AssignedToUserId ??
         null;
- const advisorID =
-        workflowTwo?.find((item) => item.SequenceNo === 2)?.DelegateUserId !== 0
-          ? workflowTwo?.find((item) => item.SequenceNo === 2)?.DelegateUserId
-          : workflowTwo?.find((item) => item.SequenceNo === 2)?.AssignedToUserId ??
-            null;
+  const advisorID =
+    workflowOne?.find((item) => item.SequenceNo === 2)?.DelegateUserId !== 0
+      ? workflowOne?.find((item) => item.SequenceNo === 2)?.DelegateUserId
+      : workflowOne?.find((item) => item.SequenceNo === 2)?.AssignedToUserId ??
+        null;
+
   const { mutate: approveAskToAmmend, isLoading: approving } =
     useApproveAskToAmmend(id ? parseInt(id) : undefined, user.employeeId);
   const { mutate: addOrUpdateTargetDate, isLoading: updatingTargetDate } =
@@ -392,13 +393,14 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             <button
               disabled={
                 (eqReport?.WorkflowLevel !== 2
-                  ? eqReport?.AdvisorId == user?.employeeId &&
+                  ? advisorID == user?.employeeId &&
                     isTargetDateSet &&
                     !isToshibaDiscussionTargetDatePast
                   : false) ||
                 (eqReport?.WorkflowLevel == 2 &&
                   eqReport?.Status != REQUEST_STATUS.LogicalAmendmentInReview &&
                   user?.employeeId == secHeadID &&
+                  currentApproverTask?.seqNumber == SEQUENCE.Seq1 &&
                   eqReport?.ResultAfterImplementation?.ResultMonitoringId == 3)
               }
               className="btn btn-primary"
@@ -431,7 +433,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                   });
                 } else if (
                   // user?.employeeId == eqReport?.SectionHeadId &&   // --no need for sec head condition cause we need to show advisor dropdown to workflow level one only
-                  eqReport?.WorkflowLevel==1 && 
+                  eqReport?.WorkflowLevel == 1 &&
                   currentApproverTask?.seqNumber == 1 && // TODO: need to change if any changes happen in workflow in future
                   eqReport?.WorkflowStatus != REQUEST_STATUS.W1Completed
                 ) {
@@ -456,7 +458,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
 
         {showWorkflowBtns &&
-        (secHeadID == user?.employeeId
+        (secHeadID == user?.employeeId &&
+        currentApproverTask?.seqNumber == SEQUENCE.Seq1
           ? eqReport?.Status != REQUEST_STATUS.LogicalAmendmentInReview && // add sec head for this
             eqReport?.ResultAfterImplementation?.ResultMonitoringId != 3
           : true) &&
@@ -467,7 +470,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           <>
             <button
               disabled={
-                eqReport?.AdvisorId == user?.employeeId
+                advisorID == user?.employeeId
                   ? isTargetDateSet &&
                     !isToshibaDiscussionTargetDatePast &&
                     eqReport?.WorkflowLevel == 1
@@ -490,6 +493,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
 
         {(eqReport?.Status == REQUEST_STATUS.InReview ||
+          eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval ||
+          eqReport?.Status == REQUEST_STATUS.ToshibaTeamDiscussion ||
           eqReport?.Status == REQUEST_STATUS.LogicalAmendmentInReview) &&
         user?.isAdmin ? (
           <div className="button-container">
@@ -510,6 +515,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
 
         {showWorkflowBtns &&
         eqReport?.ResultAfterImplementation?.IsResultSubmit &&
+        currentApproverTask?.seqNumber == SEQUENCE.Seq1 &&
         user?.employeeId == secHeadID &&
         approverRequest ? (
           <>
@@ -533,13 +539,14 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           <button
             disabled={
               (eqReport?.WorkflowLevel !== 2
-                ? eqReport?.AdvisorId == user?.employeeId &&
+                ? advisorID == user?.employeeId &&
                   isTargetDateSet &&
                   !isToshibaDiscussionTargetDatePast
                 : false) ||
               (eqReport?.WorkflowLevel == 2 &&
                 eqReport?.Status != REQUEST_STATUS.LogicalAmendmentInReview &&
                 user?.employeeId == secHeadID &&
+                currentApproverTask?.seqNumber == SEQUENCE.Seq1 &&
                 eqReport?.ResultAfterImplementation?.ResultMonitoringId == 3)
             }
             className="btn btn-primary"
@@ -571,10 +578,12 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             // REQUEST_STATUS.PCRNPending,
           ].includes(eqReport?.Status) &&
           !approverRequest) ||
-        (eqReport?.WorkflowStatus === REQUEST_STATUS.W1Completed &&
+        ((eqReport?.WorkflowStatus === REQUEST_STATUS.W1Completed ||
+          eqReport?.WorkflowLevel == 2) &&
           eqReport?.Status !== REQUEST_STATUS.LogicalAmendment &&
           eqReport?.Status !== REQUEST_STATUS.UnderAmendment &&
           eqReport?.Status !== REQUEST_STATUS.Rejected &&
+          eqReport?.Status !== REQUEST_STATUS.Completed &&
           eqReport?.CreatedBy === user?.employeeId &&
           eqReport?.ResultAfterImplementation?.IsResultSubmit &&
           !approverRequest) ? (
@@ -590,7 +599,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         ) : (
           <></>
         )}
-        {user.employeeId == eqReport?.AdvisorId &&
+        {user.employeeId == advisorID &&
           !isTargetDateSet &&
           // !eqReport?.ResultAfterImplementation?.IsResultSubmit
           eqReport?.WorkflowLevel !== 2 &&
@@ -656,11 +665,11 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             (eqReport?.ToshibaApprovalTargetDate &&
               eqReport?.SeqNo == SEQUENCE.Seq6)) &&
           eqReport?.WorkflowLevel == 1) ||
-          (((user.employeeId == eqReport?.AdvisorId &&
+          (((user.employeeId == advisorID &&
             eqReport?.ToshibaDiscussionTargetDate &&
             eqReport?.WorkflowLevel !== 2 &&
             currentApproverTask?.seqNumber === SEQUENCE.Seq2) ||
-            (user.isQcTeamHead &&
+            (QCHeadID == user?.employeeId &&
               eqReport?.ToshibaApprovalTargetDate &&
               currentApproverTask?.seqNumber === SEQUENCE.Seq6)) &&
             showWorkflowBtns &&
@@ -679,7 +688,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           </button>
         )}
         <TextBoxModal
-
           seqNo={currentApproverTask?.seqNumber}
           showDelegate={showDelegate}
           EQReportNo={eqReport?.EquipmentImprovementNo}
