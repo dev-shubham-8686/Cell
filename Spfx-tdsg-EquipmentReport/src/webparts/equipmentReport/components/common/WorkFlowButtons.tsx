@@ -277,7 +277,15 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     };
     delegate(data, {
       onSuccess: (data: any) => {
-        navigate("/");
+        navigate("/", {
+          state: {
+            currentTabState: isApproverRequest
+              ? "myapproval-tab"
+              : allReq
+              ? "allrequest-tab"
+              : "myrequest-tab",
+          },
+        });
       },
     });
   };
@@ -493,11 +501,11 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
 
         {(eqReport?.Status == REQUEST_STATUS.InReview ||
-          eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval ||
-          eqReport?.Status == REQUEST_STATUS.ToshibaTeamDiscussion ||
+          // eqReport?.Status == REQUEST_STATUS.UnderToshibaApproval ||
+          // eqReport?.Status == REQUEST_STATUS.ToshibaTechnicalReview ||
           eqReport?.Status == REQUEST_STATUS.LogicalAmendmentInReview) &&
         user?.isAdmin ? (
-          <div className="button-container">
+          <div className="button-container">  
             <button
               className="btn btn-primary"
               onClick={() => {

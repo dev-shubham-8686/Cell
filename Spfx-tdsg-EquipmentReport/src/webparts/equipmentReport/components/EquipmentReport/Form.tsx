@@ -220,7 +220,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       ? existingEquipmentReport?.CreatedBy
       : user.employeeId;
     values.ModifiedBy = user?.employeeId;
-    if (existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed || existingEquipmentReport?.WorkflowLevel==2) {
+    if (
+      existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed ||
+      existingEquipmentReport?.WorkflowLevel == 2
+    ) {
       let resultDate;
       if (form.getFieldValue("ResultMonitoringId") == 3) {
         resultDate = dayjs().subtract(1, "day");
@@ -267,7 +270,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       // if (existingEquipmentReport?.Status == REQUEST_STATUS.PCRNPending) {
       //   await form.validateFields(["PcrnAttachments"]);
       // }
-      if (existingEquipmentReport?.WorkflowLevel === 2 || existingEquipmentReport?.Status==REQUEST_STATUS.Approved ) {
+      if (
+        existingEquipmentReport?.WorkflowLevel === 2 ||
+        existingEquipmentReport?.Status == REQUEST_STATUS.Approved
+      ) {
         await form.validateFields([
           "TargetDate",
           "ActualDate",
@@ -275,7 +281,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
           "ResultMonitoringDate",
           "ResultStatus",
           "PCRNNumber",
-          "PcrnAttachments"
+          "PcrnAttachments",
         ]);
       } else {
         await form.validateFields();
@@ -315,7 +321,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       ? true
       : false;
     values.ModifiedBy = user.employeeId;
-    if (existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed || existingEquipmentReport?.WorkflowLevel==2) {
+    if (
+      existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed ||
+      existingEquipmentReport?.WorkflowLevel == 2
+    ) {
       let resultDate;
       if (form.getFieldValue("ResultMonitoringId") == 3) {
         resultDate = dayjs().subtract(1, "day");
@@ -337,10 +346,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         IsResultAmendSubmit: false,
       };
     }
-    
+
     if (
-      (existingEquipmentReport?.SeqNotwo==2 &&
-      existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment )
+      existingEquipmentReport?.SeqNotwo == 2 &&
+      existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment
     ) {
       values.ResultAfterImplementation.IsResultAmendSubmit = true;
       // values.ResultAfterImp  lementation.IsResultSubmit = true;
@@ -405,7 +414,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       : user.employeeId;
     values.ModifiedBy = user.employeeId;
 
-    if (existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed || existingEquipmentReport?.WorkflowLevel==2) {
+    if (
+      existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed ||
+      existingEquipmentReport?.WorkflowLevel == 2
+    ) {
       let resultDate;
       if (form.getFieldValue("ResultMonitoringId") == 3) {
         resultDate = dayjs().subtract(1, "day");
@@ -425,21 +437,21 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         ResultMonitoringDate: resultDate,
         PcrnAttachments: pcrnAttachments,
         IsResultSubmit: false,
-        IsResultAmendSubmit:false,
+        IsResultAmendSubmit: false,
       };
     }
-    
-    console.log("CCOONND",(
+
+    console.log(
+      "CCOONND",
       values?.ResultAfterImplementation?.ResultMonitoringId == 3 &&
-      existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment
-    ))
-    if ( 
-      existingEquipmentReport?.SeqNotwo==2 &&
+        existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment
+    );
+    if (
+      existingEquipmentReport?.SeqNotwo == 2 &&
       existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment
     ) {
       values.ResultAfterImplementation.IsResultAmendSubmit = true;
     }
-    
 
     console.log("form saved as draft data", values);
     if (id) {
@@ -470,14 +482,14 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             (field) => field !== "ActualDate"
           );
         }
-        
+
         const allFields = Object.keys(form.getFieldsValue());
         console.log("ALL FIELDS", allFields);
-        
+
         const fieldsToValidate = allFields.filter(
           (field) => !fieldsToExclude.includes(field)
         );
-        
+
         await form.validateFields(fieldsToValidate);
         //: TODO Need to update
         // await form.validateFields();
@@ -653,6 +665,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             DueDate: data.DueDate ? dayjs(data.DueDate, DATE_FORMAT) : null,
           })),
       });
+
       if (
         existingEquipmentReport?.ResultAfterImplementation
           ?.ResultMonitoringId == 3
@@ -697,6 +710,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
         existingEquipmentReport?.WorkflowStatus == REQUEST_STATUS.W1Completed ||
         existingEquipmentReport?.Status != REQUEST_STATUS.Approved
       ) {
+        // existingEquipmentReport.ResultAfterImplementation.ResultMonitoringDate =
+        //   "10-03-2025 00:00:00";
         form.setFieldsValue({
           TargetDate: existingEquipmentReport?.ResultAfterImplementation
             ?.TargetDate
@@ -762,32 +777,31 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
       ) {
         setunderAmmendment(true);
       }
-      debugger
+      
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment &&
         existingEquipmentReport?.CreatedBy == user.employeeId &&
         existingEquipmentReport?.WorkflowLevel == 2 &&
-        existingEquipmentReport?.SeqNotwo!=2
+        existingEquipmentReport?.SeqNotwo != 2
       ) {
-        debugger
+        
         setresultUnderAmmendment(true);
       }
-      debugger
+      
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.UnderAmendment &&
         existingEquipmentReport?.CreatedBy == user.employeeId &&
         existingEquipmentReport?.WorkflowLevel == 2 &&
-        existingEquipmentReport?.SeqNotwo==2
+        existingEquipmentReport?.SeqNotwo == 2
       ) {
-        debugger
+        
         setAdvisorResultUnderAmmendment(true);
       }
-      
+
       if (
         existingEquipmentReport?.Status == REQUEST_STATUS.LogicalAmendment &&
         existingEquipmentReport?.CreatedBy == user.employeeId
       ) {
-        
         setunderLogicalAmmendment(true);
       }
       // if (existingEquipmentReport?.IsPcrnRequired) {
@@ -1318,7 +1332,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
               (!isModeView &&
                 (!submitted ||
                   underAmmendment ||
-                  (resultsubmitted && (underLogicalAmmendment||advisorResultUnderAmmendment) ) ||
+                  (resultsubmitted &&
+                    (underLogicalAmmendment || advisorResultUnderAmmendment)) ||
                   (existingEquipmentReport?.WorkflowStatus ==
                     REQUEST_STATUS.W1Completed &&
                     existingEquipmentReport?.Status !=
@@ -1362,7 +1377,8 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             )}
 
             {(underAmmendment ||
-              (resultUnderAmmendment || advisorResultUnderAmmendment) ||
+              resultUnderAmmendment ||
+              advisorResultUnderAmmendment ||
               (existingEquipmentReport?.Status ==
                 REQUEST_STATUS.LogicalAmendment &&
                 existingEquipmentReport?.CreatedBy == user.employeeId)) &&
@@ -1549,9 +1565,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       label="Other Improvement Category"
                       name="OtherImprovementCategory"
                       initialValue={""}
-                      rules={
-                         validationRules.OtherImprovementCategory 
-                      }
+                      rules={validationRules.OtherImprovementCategory}
                     >
                       <Input
                         maxLength={500}
@@ -1675,7 +1689,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                       name="otherSubMachine"
                       initialValue={""}
                       rules={
-                        showOtherSubMachine ? validationRules.OtherSubMachine : null
+                        showOtherSubMachine
+                          ? validationRules.OtherSubMachine
+                          : null
                       }
                     >
                       <Input
@@ -2155,7 +2171,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                           }
                           name="PCRNNumber"
                           rules={
-                            existingEquipmentReport?.WorkflowLevel === 2
+                            existingEquipmentReport?.WorkflowLevel === 2 ||
+                            existingEquipmentReport?.Status ==
+                              REQUEST_STATUS.Approved
                               ? validationRules["PCRNNumber"]
                               : null
                           }
@@ -2165,7 +2183,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                               isModeView ||
                               (!isAdmin &&
                                 resultsubmitted &&
-                                !(resultUnderAmmendment || advisorResultUnderAmmendment))
+                                !(
+                                  resultUnderAmmendment ||
+                                  advisorResultUnderAmmendment
+                                ))
                             }
                             className="w-100"
                             maxLength={100}
@@ -2191,7 +2212,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                               isModeView ||
                               (!isAdmin &&
                                 resultsubmitted &&
-                                !(resultUnderAmmendment || advisorResultUnderAmmendment)) 
+                                !(
+                                  resultUnderAmmendment ||
+                                  advisorResultUnderAmmendment
+                                ))
                             }
                             showbutton={true}
                             ispcrnRequired={
@@ -2269,7 +2293,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         }
                         name="TargetDate"
                         rules={
-                          existingEquipmentReport?.WorkflowLevel === 2
+                          existingEquipmentReport?.WorkflowLevel === 2 ||
+                          existingEquipmentReport?.Status ==
+                            REQUEST_STATUS.Approved
                             ? validationRules["TargetDate"]
                             : null
                         }
@@ -2298,7 +2324,9 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         }
                         name="ActualDate"
                         rules={
-                          existingEquipmentReport?.WorkflowLevel === 2 &&
+                          (existingEquipmentReport?.WorkflowLevel === 2 ||
+                            existingEquipmentReport?.Status ==
+                              REQUEST_STATUS.Approved) &&
                           form.getFieldValue("ResultMonitoringId")
                             ? validationRules["ActualDate"]
                             : null
@@ -2335,7 +2363,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         }
                       >
                         <Select
-                        allowClear
+                          allowClear
                           disabled={
                             isModeView ||
                             (!isAdmin &&
@@ -2399,7 +2427,10 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                         }
                         name="ResultStatus"
                         rules={
-                          existingEquipmentReport?.WorkflowLevel === 2
+                          existingEquipmentReport?.WorkflowLevel === 2 ||
+                          (existingEquipmentReport?.Status ==
+                            REQUEST_STATUS.Approved &&
+                           enableResultStatus)
                             ? validationRules["ResultStatus"]
                             : null
                         }
@@ -2409,7 +2440,11 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                             isModeView ||
                             (!isAdmin &&
                               (!enableResultStatus ||
-                                (resultsubmitted && !(resultUnderAmmendment||advisorResultUnderAmmendment))))
+                                (resultsubmitted &&
+                                  !(
+                                    resultUnderAmmendment ||
+                                    advisorResultUnderAmmendment
+                                  ))))
                           }
                           className="w-100"
                           rows={1}
