@@ -71,7 +71,9 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 var equipment = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId
                                                                                       && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
-                                                                                && x.EquipmentImprovementId == request.FormId && x.IsActive == true).ToList();
+                    
+                                                                                      && x.EquipmentImprovementId == request.FormId && x.IsActive == true).ToList();
+               
                 if (equipment != null)
                 {
                     foreach (var user in equipment)
@@ -79,6 +81,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         user.DelegateUserId = request.DelegateUserId;
                         user.DelegateBy = request.UserId;
                         user.DelegateOn = DateTime.Now;
+                      
                         await _context.SaveChangesAsync();
                     }
                     InsertHistoryData(request.FormId, FormType.EquipmentImprovement.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
@@ -117,7 +120,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context, _cloneContext);
-                commonHelper.LogException(ex, "Adjustment AddOrUpdate");
+                commonHelper.LogException(ex, "InsertDelegate");
 
             }
             return res;
@@ -159,7 +162,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     || x.Status == ApprovalTaskStatus.ToshibaTechnicalReview.ToString()) && x.IsActive == true && x.WorkFlowlevel == 1).Select(x => x.SequenceNo).FirstOrDefault();
 
             var seqNotwo = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == Id &&
-                                                       x.Status == ApprovalTaskStatus.UnderAmendment.ToString() && x.WorkFlowlevel == 2).Select(x => x.SequenceNo).FirstOrDefault();
+                                                       x.Status == ApprovalTaskStatus.UnderAmendment.ToString() && x.WorkFlowlevel == 2 && x.IsActive == true).Select(x => x.SequenceNo).FirstOrDefault();
             EquipmentImprovementApplicationAdd applicationData = new EquipmentImprovementApplicationAdd()
             {
                 EquipmentImprovementId = res.EquipmentImprovementId,
@@ -307,7 +310,6 @@ namespace TDSGCellFormat.Implementation.Repository
                     newReport.Status = ApprovalTaskStatus.Draft.ToString();
                     newReport.WorkFlowLevel = 0;
                     newReport.IsLogicalAmend = false;
-
                     newReport.WorkFlowStatus = ApprovalTaskStatus.Draft.ToString();
 
                     // Assign SectionHeadId based on the conditions
@@ -577,6 +579,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     equipment.ToshibaApprovalDate = null;
                     equipment.ToshibaApprovalTargetDate = null;
                     equipment.ToshibaApprovedRemarks = null;
+                    equipment.IsPcrnRequired = null;
                     await _context.SaveChangesAsync();
                 }
                 if(equipmentApproverTask.SequenceNo == 2 && equipment.ToshibaTeamDiscussion == true)
@@ -1286,6 +1289,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         equipmentTask.WorkFlowLevel = 2;
                         equipmentTask.ModifiedBy = data.userId;
                         equipmentTask.ModifiedDate = DateTime.Now;
+                        equipmentTask.IsLogicalAmend = false;
                         // mention the WorkFlow status 
                         await _context.SaveChangesAsync();
 
@@ -1451,7 +1455,6 @@ namespace TDSGCellFormat.Implementation.Repository
                     res.Message = Enums.EquipmentApprove;
 
 
-
                     if (data.EquipmentApprovalData != null)
                     {
                         var approvalData = data.EquipmentApprovalData;
@@ -1505,6 +1508,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             InsertHistoryData(equipment.EquipmentImprovementId, FormType.EquipmentImprovement.ToString(), equipmentData.Role, data.Comment, equipmentData.Status, Convert.ToInt32(data.CurrentUserId), HistoryAction.ToshibaApproved.ToString(), 0);
 
                         }
+
                         else if (approvalData.IsToshibaDiscussion == false)
                         {
                             approvalHistory = false;
@@ -1567,7 +1571,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             var nextAssignedUser = nextTask.DelegateUserId > 0 ? nextTask.DelegateUserId : nextTask.AssignedToUserId;
 
                             if (currentAssignedUser == nextAssignedUser
-                                && ((nextTask.SequenceNo != 2 && nextTask.SequenceNo != 6) && nextTask.WorkFlowlevel == 1))
+                                && (nextTask.WorkFlowlevel != 1 || (nextTask.SequenceNo != 2 && nextTask.SequenceNo != 6)))
                             {
                                 nextTask.Comments = currentApproverTask.Comments;
                                 nextTask.ActionTakenBy = currentApproverTask.AssignedToUserId;
@@ -1946,7 +1950,7 @@ namespace TDSGCellFormat.Implementation.Repository
             if (materialDelegateApprovers != null)
             {
                 data.approverTaskId = materialDelegateApprovers.ApproverTaskId;
-                data.userId = materialDelegateApprovers.AssignedToUserId ?? 0;
+                data.userId = materialDelegateApprovers.DelegateUserId ?? 0;
                 data.status = materialDelegateApprovers.Status;
                 data.seqNumber = materialDelegateApprovers.SequenceNo;
                 
@@ -2400,7 +2404,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     sb.Replace("#ToshibaApprovalRequiredChecked#", "checked");
                     sb.Replace("#NoToshibaApprovalRequiredChecked#", "");
                 }
-                if (equipmentData?.ToshibaApprovalRequired == false)
+
+                if((equipmentData?.ToshibaApprovalRequired == false || equipmentData?.ToshibaApprovalRequired == null) && (equipmentData?.Status == ApprovalTaskStatus.Approved.ToString() || equipmentData?.Status == ApprovalTaskStatus.Completed.ToString() || equipmentData?.Status == ApprovalTaskStatus.LogicalAmendmentInReview.ToString()))
                 {
                     sb.Replace("#ToshibaApprovalRequiredChecked#", "");
                     sb.Replace("#NoToshibaApprovalRequiredChecked#", "checked");
