@@ -1,13 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
 import http from "../../../http";
 import { ICustomAxiosConfig } from "../../../interface";
+import { MASTER_URL } from "../../../URLs";
 
 export const deleteAreaMaster = async (id: string) => {
   const config: ICustomAxiosConfig = {
     SHOW_NOTIFICATION: true,
   };
-    const response = await http.delete(`/DeleteArea`, {
-      params: { Id: id },
+    const response = await http.delete(`${MASTER_URL}/DeleteArea`, {
+      params: { areaId: id },
       ...config,
 
     });

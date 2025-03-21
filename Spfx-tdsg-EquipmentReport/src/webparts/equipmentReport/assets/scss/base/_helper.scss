@@ -86,9 +86,12 @@
 /******************************** overriding SPFX default styles  ************************************/
 /******************************* END *****************************/
 
+.btn-submit{
+  border-width: 0px;
+}
 .btn-primary {
   color: $white;
-
+  height: 100%;
   &:hover,
   &:active {
     color: $white !important;
@@ -104,12 +107,25 @@
 
 .btn-outline-primary {
   color: $primary;
-
+  height: auto !important;
+  border-radius: 4px;
   &:hover,
   &:active {
     color: $white !important;
-    background-color: rgba($primary, 0.8) !important;
+    background-color: rgba($primary, 1) !important;
     border-color: $primary !important;
+  }
+}
+
+.btn-outline-prime {
+  color: $primary;
+  height: auto !important;
+  border-radius: 4px;
+  border-color: #d9d9d9;
+  &:hover {
+    background-color: #ffff !important;
+    border-color: $primary !important;
+    color: $primary !important;
   }
 }
 
@@ -217,9 +233,9 @@ h6 {
   font-weight: 700;
 }
 
-.table-container {
-  padding :24px;
-}
+// .table-container {
+//   padding :24px;
+// }
 .pb-2rem {
   padding-bottom: 2rem;
 }

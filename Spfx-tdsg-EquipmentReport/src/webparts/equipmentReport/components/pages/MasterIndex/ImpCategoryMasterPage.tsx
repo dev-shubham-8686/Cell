@@ -18,10 +18,11 @@ import { useGetImpCategoryMaster } from "../../../apis/mastermanagementAPIs/impr
 import useAddOrUpdateImpCategory from "../../../apis/mastermanagementAPIs/improvementCategoryMaster/useAddOrUpdateImpCategory";
 import useDeleteImpCategoryMaster from "../../../apis/mastermanagementAPIs/improvementCategoryMaster/useDeleteImpCategory";
 import Page from "../../page/page";
+import { scrollToElementsTop } from "../../../utility/utility";
 
-interface IImpCategory {
-  ImpCateogoryId: number;
-  ImpCateogoryName?: number;
+export interface IImpCategory {
+  ImpCategoryId: number;
+  ImpCategoryName?: string;
   CreatedDate?: string;
   CreatedBy?: number;
   ModifiedBy?: number;
@@ -42,7 +43,7 @@ const ImpCategoryMasterPage: React.FC = () => {
   const [form] = Form.useForm();
   const user: IUser = useContext(UserContext);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
-  const { data: data, isLoading: areaLoading } =
+  const { data: data, isLoading: ImpCatLoading,refetch } =
     useGetImpCategoryMaster();
     const { mutate: impCategoryMasterAddOrUpdate, isLoading: addingarea } =
     useAddOrUpdateImpCategory();
@@ -87,7 +88,15 @@ const ImpCategoryMasterPage: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    deleteImpCategoryMaster(id.toString());
+    deleteImpCategoryMaster(id.toString(),{
+      onSuccess:async (Response: any) => {
+        console.log("ondelete RES", Response);
+        await refetch();
+      },
+      onError: (error) => {
+        console.error("ondelete error:", error);
+      },
+    });
   };
 
   // const handleSearch = () => {
@@ -108,20 +117,51 @@ const ImpCategoryMasterPage: React.FC = () => {
       // Update existing record
 
       impCategoryMasterAddOrUpdate({
-        AreaId: editingItem.ImpCateogoryId,
-        AreaName: values.ImpCateogoryName,
+        ImpCategoryId: editingItem.ImpCategoryId,
+        ImpCategoryName: values.ImpCategoryName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        ModifiedBy:user?.employeeId
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+           let result = Response?.ReturnValue;
+          
+                    if (result.ImpCategoryId == -1) {
+                      void displayjsx.showInfo("Duplicate record found");
+                      return false;
+                    }
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       })
         
     }
       else {
       // Create new record
       impCategoryMasterAddOrUpdate({
-        AreaId: 0,
-        AreaName: values.ImpCateogoryName,
+        ImpCategoryId: 0,
+        ImpCategoryName: values.ImpCategoryName,
         IsActive: values.IsActive,
-        UserId: user?.employeeId,
+        CreatedBy: user?.employeeId,
+      },{
+        onSuccess: async (Response: any) => {
+          console.log("ONSUBMIT RES", Response);
+          setModalVisible(false);
+            let result = Response?.ReturnValue;
+          
+                    if(result.ImpCategoryId == -1){
+                      void displayjsx.showInfo("Duplicate record found");
+                       return false;
+                    }
+          
+         await refetch();
+        },
+        onError: (error) => {
+          console.error("On submit error:", error);
+        },
       })
         
     }
@@ -134,8 +174,8 @@ const ImpCategoryMasterPage: React.FC = () => {
   const columns = [
     {
       title: "Improvement Category Name",
-      dataIndex: "ImprovementCategoryName",
-      key: "ImprovementCategoryName",
+      dataIndex: "ImpCategoryName",
+      key: "ImpCategoryName",
       sorter: (a: any, b: any) =>
         a.ImprovementCategoryName.localeCompare(b.ImprovementCategoryName),
     },
@@ -152,7 +192,7 @@ const ImpCategoryMasterPage: React.FC = () => {
       key: "CreatedDate",
       render: (CreatedDate: string) => (
         <span>
-          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : ""}
+          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -160,8 +200,16 @@ const ImpCategoryMasterPage: React.FC = () => {
     },
     {
       title: "Created By",
-      dataIndex: "UserName",
-      key: "UserName",
+      dataIndex: "CreatedByName",
+      key: "CreatedByName",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        {
+          console.log("DATA",a,b);
+          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      },
     },
     {
       title: "Modified Date",
@@ -169,7 +217,7 @@ const ImpCategoryMasterPage: React.FC = () => {
       key: "ModifiedDate",
       render: (ModifiedDate: string) => (
         <span>
-          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : ""}
+          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : "-"}
         </span>
       ),
       sorter: (a: any, b: any) =>
@@ -177,14 +225,22 @@ const ImpCategoryMasterPage: React.FC = () => {
     },
     {
       title: "Modified By",
-      dataIndex: "UpdatedUserName",
-      key: "UpdatedUserName",
+      dataIndex: "ModifiedByName",
+      key: "ModifiedByName",
+      render: (text) => {
+        return <p className="text-cell">{text??"-"}</p>;
+      },
+      sorter: (a: any, b: any) =>
+        {
+          console.log("DATA",a,b);
+          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      },
     },
     {
       title: "Actions",
       key: "actions",
       render: (text: any, record: IImpCategory) => (
-        <span className="action-cell">
+        <span className="">
           <Button
             title="View"
             className="action-btn"
@@ -202,11 +258,14 @@ const ImpCategoryMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
+         {record?.IsActive &&
           <Popconfirm
-            title="Are you sure to delete this record?"
-            onConfirm={() => handleDelete(record.ImpCateogoryId!)}
+            title="Are you sure to inactivate this record?"
+            onConfirm={() => handleDelete(record.ImpCategoryId!)}
             okText="Yes"
             cancelText="No"
+            okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
+            cancelButtonProps={{ className:"btn btn-outline-primary"}}
           >
             <Button
               title="Delete"
@@ -216,7 +275,7 @@ const ImpCategoryMasterPage: React.FC = () => {
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
               //onClick={() => handleDelete(record.EquipmentId)}
             />
-          </Popconfirm>
+          </Popconfirm>}
         </span>
       ),
     },
@@ -226,64 +285,30 @@ const ImpCategoryMasterPage: React.FC = () => {
     <Page title="Improvement Category Master">
         <div className="content flex-grow-1 p-4">
       <div className="d-flex justify-content-between items-center mb-3">
-        {/* <div className="flex gap-3 items-center">
-                     <div style={{ position: "relative", display: "inline-block" }}>
-                       <Input
-                         type="text"
-                         placeholder="Search Here"
-                         value={searchText}
-                         onChange={(e) => setSearchText(e.target.value)}
-                         style={{ width: 300 }}
-                       />
-                       {searchText && (
-                         <CloseOutlined
-                           onClick={() => {
-                             setSearchText("");
-                             setFilteredData(data);
-                           }}
-                           className="text-gray-400 cursor-pointer"
-                           style={{
-                             position: "absolute",
-                             right: "10px",
-                             top: "50%",
-                             transform: "translateY(-50%)",
-                             zIndex: 1,
-                             cursor: "pointer",
-                           }}
-                         />
-                       )}
-                     </div>
-                     <Button
-                       type="primary"
-                       icon={<SearchOutlined />}
-                       onClick={handleSearch}
-                       className="whitespace-nowrap"
-                     >
-                       Search
-                     </Button>
-                   </div> */}
+      
       <div>
-                <button
-                  className="btn btn-link btn-back"
-                  type="button"
-                  onClick={() => navigate(`/master`)}
-                >
-                  <FontAwesomeIcon
-                    style={{ marginRight: "5px" }}
-                    icon={faCircleChevronLeft}
-                  />
-                  Back
-                </button>
-              </div>
-              <div style={{ marginLeft: "1600px" }}>
-                <Button
-                  type="primary"
-                  className="btn btn-primary"
-                  onClick={handleAdd}
-                >
-                  Add Item
-                </Button>
-              </div>
+               <button
+                style={{ marginRight: "5px" }}
+                 className="btn btn-link btn-back px-0"
+                 type="button"
+                 onClick={() => navigate(`/master`)}
+               >
+                 <FontAwesomeIcon
+                 className="me-2"
+                   icon={faCircleChevronLeft}
+                 />
+                 Back
+               </button>
+             </div>
+             <div >
+               <Button
+                 type="primary"
+                 className="btn btn-primary"
+                 onClick={handleAdd}
+               >
+                 Add Item
+               </Button>
+             </div>
       </div>
       <div className="table-container pt-0">
       <Table
@@ -291,14 +316,22 @@ const ImpCategoryMasterPage: React.FC = () => {
         dataSource={data}
         rowKey="id"
         loading={loading}
-        pagination={{ pageSize: 10, 
-          showTotal: () => (
-         <div className="d-flex align-items-center gap-3">
-           <span style={{ marginRight: "auto" }}>
-             Total {data.length} items
-           </span>
-         </div>
-       ), }}
+        pagination={{
+          onChange:()=>{
+            scrollToElementsTop("table-container");
+          },
+         
+          showTotal: (total, range) => (
+            <div className="d-flex align-items-center gap-3">
+              <span style={{ marginRight: "auto" }}>
+                Showing {range[0]}-{range[1]} of {total} items
+              </span>
+  
+             
+            </div>
+          ),
+          itemRender: (_, __, originalElement) => originalElement,
+        }}
       />
       </div>
       <Modal
@@ -308,6 +341,11 @@ const ImpCategoryMasterPage: React.FC = () => {
         onOk={() => !isViewMode && form.submit()}
         okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
         cancelButtonProps={{ className:"btn btn-outline-primary"}}
+        footer={
+          isViewMode
+            ? null 
+            : undefined 
+        }
       >
         <Form
           form={form}
@@ -316,9 +354,18 @@ const ImpCategoryMasterPage: React.FC = () => {
           initialValues={{ EquipmentName: "", IsActive: false }}
         >
           <Form.Item
-            name="ImprovementCategoryName"
+            name="ImpCategoryName"
             label="Improvement Category Name"
-            rules={[{ required: true, message: "Please enter Improvement Category Name" }]}
+            rules={[{ required: true, message: "Please enter Improvement Category Name" },
+              {
+                validator: (_, value) => {
+                  if (value && value.trim() === "") {
+                    return Promise.reject(new Error("Only spaces are not allowed"));
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
           >
             <Input type="text" disabled={isViewMode} />
           </Form.Item>

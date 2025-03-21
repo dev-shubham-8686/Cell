@@ -12,6 +12,7 @@ export interface IApproveAskToAmendPayload {
   Comment: string;
   EquipmentId: number;
   EquipmentApprovalData?: ITargetData;
+  IsToshibaApproval?:boolean   // for comments in BE
 }
 
 export interface ITargetData {

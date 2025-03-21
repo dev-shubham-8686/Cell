@@ -273,7 +273,7 @@ namespace TDSGCellFormat.Helper
                     return model.APIKeyId;
                 }
 
-                var getPrevLoginDetail = _masterDb.AuthSessions.Where(x => x.UserId == empId).ToList();
+                var getPrevLoginDetail = _masterDb.AuthSessions.Where(x => x.UserId == empId && x.EndDateTime < DateTime.Now).ToList();
                 if (getPrevLoginDetail.Count > 0)
                 {
                     _masterDb.AuthSessions.RemoveRange(getPrevLoginDetail);

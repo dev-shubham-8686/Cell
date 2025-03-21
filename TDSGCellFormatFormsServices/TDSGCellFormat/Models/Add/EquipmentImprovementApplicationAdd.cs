@@ -58,10 +58,11 @@ namespace TDSGCellFormat.Models.Add
         public string? ToshibaDiscussionTargetDate { get; set; }
         public bool? IsPcrnRequired { get; set; }
         public bool? ToshibaTeamDiscussion { get; set; }
+        public int? SeqNo {  get; set; }    
         public List<EquipmentCurrSituationAttachData>? EquipmentCurrSituationAttachmentDetails { get; set; }
         public List<EquipmentImprovementAttachData>? EquipmentImprovementAttachmentDetails { get; set; }
         public List<ChangeRiskManagementData>? ChangeRiskManagementDetails { get; set; }
-        public PcrnAttachment? PcrnAttachments { get; set; }
+
         public ResultAfterImplementation? ResultAfterImplementation { get; set; }
     }
 
@@ -88,6 +89,7 @@ namespace TDSGCellFormat.Models.Add
         public string? ResultMonitoringDate { get; set; }
 
         public string? PCRNNumber {  get; set; }
+        public List<PcrnAttachment>? PcrnAttachments { get; set; }
     }
 
     public class EquipmentCurrSituationAttachData
@@ -175,6 +177,7 @@ namespace TDSGCellFormat.Models.Add
         public ApprovalStatus Type { get; set; }
         public string? Comment { get; set; }
         public int EquipmentId { get; set; }
+        public bool IsToshibaApproval { get; set; }
         public EquipmentApprovalData? EquipmentApprovalData { get; set; }
     }
 

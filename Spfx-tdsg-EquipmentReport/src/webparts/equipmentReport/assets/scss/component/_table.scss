@@ -26,7 +26,8 @@
     background-color: $yellow-bg;
   }
 
-  &.status-badge-approved {
+  &.status-badge-approved,
+  &.status-badge-autoapproved {
     color: $green-1;
     background-color: $green-bg;
   }
@@ -219,8 +220,16 @@ p.text-cell {
     color: $green-1;
     background-color: $green-bg;
   }
+  td.status-cell-autoapproved {
+    color: $green-1;
+    background-color: $green-bg;
+  }
 
   td.status-cell-underamendment {
+    color: $warning;
+    background-color: rgba($warning, 0.1);
+  }
+  td.status-cell-undertoshibaapproval {
     color: $warning;
     background-color: rgba($warning, 0.1);
   }

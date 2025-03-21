@@ -1,6 +1,7 @@
 import http from "../../../http";
 import { useMutation } from "@tanstack/react-query";
 import { ICustomAxiosConfig } from "../../../interface";
+import { MASTER_URL } from "../../../URLs";
 
 export const addOrUpdateSectionMaster = async (data: any) => {
   
@@ -8,7 +9,7 @@ export const addOrUpdateSectionMaster = async (data: any) => {
     SHOW_NOTIFICATION: true,
   };
     const response = await http.post(
-      `/AddUpdateSection`,
+      `${MASTER_URL}/AddUpdateSection`,
       data,
       {      ...config,
 
