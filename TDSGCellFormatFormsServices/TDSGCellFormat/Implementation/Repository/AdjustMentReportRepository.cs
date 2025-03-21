@@ -1270,7 +1270,7 @@ namespace TDSGCellFormat.Implementation.Repository
             if (adjustmentDelegateApprover != null)
             {
                 data.approverTaskId = adjustmentDelegateApprover.ApproverTaskId;
-                data.userId = adjustmentDelegateApprover.AssignedToUserId ?? 0;
+                data.userId = adjustmentDelegateApprover.DelegateUserId ?? 0;
                 data.status = adjustmentDelegateApprover.Status;
                 data.seqNumber = adjustmentDelegateApprover.SequenceNo;
             }

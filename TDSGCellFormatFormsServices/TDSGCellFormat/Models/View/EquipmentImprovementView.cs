@@ -63,6 +63,8 @@
         public DateTime? ModifiedDate { get; set; }
 
         public int? AdvisorId { get; set; }
+        public int? AdvisorUserId { get; set; }
+        public int? QCUserId { get; set; }
     }
 
     public class EquipmentExcelViewForType1
