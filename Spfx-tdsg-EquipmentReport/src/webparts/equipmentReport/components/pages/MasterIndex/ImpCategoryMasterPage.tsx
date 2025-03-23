@@ -177,7 +177,7 @@ const ImpCategoryMasterPage: React.FC = () => {
       dataIndex: "ImpCategoryName",
       key: "ImpCategoryName",
       sorter: (a: any, b: any) =>
-        a.ImprovementCategoryName.localeCompare(b.ImprovementCategoryName),
+        a.ImpCategoryName.localeCompare(b.ImpCategoryName),
     },
     {
       title: "Is Active",

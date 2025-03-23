@@ -18,7 +18,8 @@ const getSectionMaster = async () => {
   
   if(response){
     const tabledata=response.data.ReturnValue?? []
-    return tabledata;
+    const updatedTableData = tabledata.filter(item => (item.sectionId !== 6));
+    return updatedTableData;
   }
 }
   catch (error) {

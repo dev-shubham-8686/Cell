@@ -155,7 +155,7 @@ const AreaMasterPage: React.FC = () => {
              return false;
           }
 
-          void displayjsx.showSuccess("Record created successfully");
+          // void displayjsx.showSuccess("Record created successfully");
           
           await refetch();
         },

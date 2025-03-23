@@ -87,7 +87,7 @@ namespace TDSGCellFormat.Helper
                                     mailMessage.CC.Add(ccAddressObj);
                                 }
                             }
-                            
+
 
                             using (SmtpClient smtpClient = new SmtpClient(host))
                             {
@@ -168,7 +168,7 @@ namespace TDSGCellFormat.Helper
         }
 
 
-        public async Task<bool> DelegateEmail(int formId, EmailNotificationAction emailNotificationAction, int? userId, int delegateId, int? assignedToUserId, string reportNo, string formType,string comment, int requestId)
+        public async Task<bool> DelegateEmail(int formId, EmailNotificationAction emailNotificationAction, int? userId, int delegateId, int? assignedToUserId, string reportNo, string formType, string comment, int requestId)
         {
             bool emailSent = false;
             try
@@ -230,7 +230,7 @@ namespace TDSGCellFormat.Helper
                             //  docLink = documentLink.Replace("#", "?action=approval#") + "edit/" + requestId;
                             string docLink = documentationLink.Replace("#", "?action=approval#") + "edit/" + requestId;
 
-                            if(formType == FormType.TechnicalInstruction.ToString())
+                            if (formType == FormType.TechnicalInstruction.ToString())
                             {
                                 docLink = documentationLink.Replace("#", "?action=approval#") + "form/view/" + requestId;
                             }
@@ -1302,7 +1302,7 @@ namespace TDSGCellFormat.Helper
                             case EmailNotificationAction.ResultApprove:
                                 templateFile = "Equipment_ResultApprove.html";
                                 emailSubject = string.Format("[Action required!] Equipment Improvement_{0} has been Approved for Logical Amendment ", equipmentNo);
-                                 break;
+                                break;
 
                             case EmailNotificationAction.ToshibaTeamDiscussion:
                                 templateFile = "Equipment_ToshibaTeamDiscussion.html";
@@ -1360,8 +1360,8 @@ namespace TDSGCellFormat.Helper
                                 var advisrEmail = approverData.FirstOrDefault(item =>
                                            item.WorkFlowlevel == 2 && item.SequenceNo == 2
                                     );
-                                
-                                if(task != null && task.SequenceNo == 2)
+
+                                if (task != null && task.SequenceNo == 2)
                                 {
 
                                     approvelink = true;
@@ -1407,14 +1407,13 @@ namespace TDSGCellFormat.Helper
                                         }
                                         else if (task.SequenceNo == 2)
                                         {
-                                            if(task.WorkFlowlevel == 1)
-                                            {
-                                                var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId == equipmentData.SectionHeadId).Select(x => x.EmployeeId).FirstOrDefault();
 
-                                                var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == sectionHeadId && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+                                            var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId == equipmentData.SectionHeadId).Select(x => x.EmployeeId).FirstOrDefault();
 
-                                                emailCCAddressList.Add(sectionEmail);
-                                            }
+                                            var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == sectionHeadId && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                                            emailCCAddressList.Add(sectionEmail);
+
                                             emailToAddressList.Add(task.email);
                                         }
                                         else
@@ -1734,7 +1733,7 @@ namespace TDSGCellFormat.Helper
                             departmentHeadName = departMentHeadDetails?.EmployeeName;
                             departmentHeadEmail = departMentHeadDetails?.Email;
 
-                            if(reOpenDeleateUserId > 0 && reOpenDeleateUserId != materialData.CreatedBy)
+                            if (reOpenDeleateUserId > 0 && reOpenDeleateUserId != materialData.CreatedBy)
                             {
                                 EmployeeMaster? getReOpenEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == reOpenDeleateUserId && x.IsActive == true).FirstOrDefault();
                                 reOpenUserDelegateEmail = getReOpenEmail?.Email;
@@ -1834,13 +1833,13 @@ namespace TDSGCellFormat.Helper
                             emailCCAddressList.Add(requesterUserEmail);
                         }
 
-                        if(isRopenDelegateUser == true)
+                        if (isRopenDelegateUser == true)
                         {
-                            if(reOpenUserDelegateEmail == requesterUserEmail)
+                            if (reOpenUserDelegateEmail == requesterUserEmail)
                             {
                                 emailToAddressList.Add(reOpenUserDelegateEmail);
                             }
-                            else if(reOpenUserDelegateEmail != requesterUserEmail)
+                            else if (reOpenUserDelegateEmail != requesterUserEmail)
                             {
                                 emailToAddressList.Add(reOpenUserDelegateEmail);
                                 emailCCAddressList.Add(requesterUserEmail);
@@ -1849,7 +1848,7 @@ namespace TDSGCellFormat.Helper
                             {
                                 emailToAddressList.Add(reOpenUserDelegateEmail);
                             }
-                           
+
                         }
 
                         if (isInReviewTask)
