@@ -151,7 +151,7 @@ const SectionMasterPage: React.FC = () => {
 
   const columns = [
     {
-      title: "Setcion Name",
+      title: "Section Name",
       dataIndex: "SectionName",
       key: "SectionName",
       sorter: (a: any, b: any) =>

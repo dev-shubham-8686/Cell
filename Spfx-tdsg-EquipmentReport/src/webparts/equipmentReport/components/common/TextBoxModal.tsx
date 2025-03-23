@@ -187,6 +187,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
               ]}
             >
               <Select
+              allowClear
                 showSearch
                 optionFilterProp="children"
                 // style={{ width: "100%" }}
@@ -214,6 +215,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
               rules={[{ required: true, message: "Please select Advisor" }]}
             >
               <Select
+              allowClear
                 showSearch
                 options={advisors?.map((advisor) => ({
                   label: advisor.employeeName,

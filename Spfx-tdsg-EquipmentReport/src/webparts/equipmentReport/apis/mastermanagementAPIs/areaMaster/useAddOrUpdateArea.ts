@@ -5,7 +5,7 @@ import { MASTER_URL } from "../../../URLs";
 
 export const addOrUpdateAreaMaster = async (data: any) => {
   const config: ICustomAxiosConfig = {
-          SHOW_NOTIFICATION: false,
+          SHOW_NOTIFICATION: true,
         };
     const response = await http.post(
       `${MASTER_URL}/AddUpdateArea`,

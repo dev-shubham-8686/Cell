@@ -1215,6 +1215,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
             rules={validationRules.Person}
           >
             <Select
+            allowClear
               disabled={
                 isModeView ||
                 (!isAdmin &&
@@ -1463,6 +1464,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Section}
                 >
                   <Select
+                  allowClear
                     disabled={
                       isModeView || submitted
                       //  ||
@@ -1587,6 +1589,7 @@ const EquipmentReportForm: React.FC<ICreateEditEquipmentReportProps> = ({
                   rules={validationRules.Machine}
                 >
                   <Select
+                  allowClear
                     disabled={
                       isModeView || (!isAdmin && submitted && !underAmmendment)
                     }

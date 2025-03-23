@@ -6,7 +6,8 @@ export const fetchSectionMaster = async () => {
     const response = await http.get<{ ReturnValue: any[] }>(
       `${MASTER_URL}/GetSectionMaster`
     );
-    return response.data.ReturnValue ?? [];
+    const updatedTableData = response?.data?.ReturnValue?.filter(item => (item.SectionId !== 6));
+    return updatedTableData ?? [];
   };
   
   export const useGetSectionMaster = () =>
