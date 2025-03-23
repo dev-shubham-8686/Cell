@@ -117,7 +117,9 @@ useEffect(() => {
           </button>
           <div className=" justify-content-right mr-50">
             <WorkFlowButtons
-                currentApprover={currentApproverDetail}
+            workflowOne={approverFlowData?.WorkflowOne}
+            workflowTwo={approverFlowData?.WorkflowTwo}
+            currentApprover={currentApproverDetail}
             currentApproverTask={currentApprover?.data}
             eqReport={equipmentReport?.data}
             isTargetDateSet={equipmentReport?.data?.ToshibaApprovalRequired ||equipmentReport?.data?.ToshibaTeamDiscussion } 

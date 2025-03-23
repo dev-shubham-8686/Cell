@@ -43,6 +43,7 @@ export  interface IEquipmentImprovementReport {
   ResultAfterImplementation?:IResultAfterImplementation  ;
   WorkflowLevel?:number;
   SeqNo?:number;
+  SeqNotwo?:number;
   // attachment: File;
 }
 
