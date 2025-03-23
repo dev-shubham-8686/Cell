@@ -82,6 +82,7 @@ const SubmitModal: React.FC<SubmitModalProps> = ({
             name="sectionHeadId"
           >
             <Select
+            allowClear
               showSearch
               filterOption={(input, option) =>
                 (option?.label ?? "")
