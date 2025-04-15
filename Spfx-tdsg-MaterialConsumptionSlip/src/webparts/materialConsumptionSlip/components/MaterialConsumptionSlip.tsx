@@ -10,6 +10,11 @@ import { WebPartContext } from "../context/webpartContext";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import { WEB_URL } from "../GLOBAL_CONSTANT";
 import NotFound from "./pages/notFound";
+import MasterTab from "./pages/MasterIndex/MasterTab";
+import UOMMasterPage from "./pages/MasterIndex/UOMMaster";
+import CategoryMasterPage from "./pages/MasterIndex/CategoryMaster";
+import MaterialMasterPage from "./pages/MasterIndex/MaterialMaster";
+import CostCenterMasterPage from "./pages/MasterIndex/CostCenterMaster";
 
 
 SPComponentLoader.loadCss(
@@ -42,6 +47,12 @@ const MaterialConsumptionSlipWebpart: React.FC<
                 path="/form/:mode?/:id?"
                 element={<CreateEditMaterialConsumptionSlipLayout />}
               />
+              <Route path="/master" element={<MasterTab />} />
+              <Route path="/master/material" element={<MaterialMasterPage />} />
+              <Route path="/master/uom" element={<UOMMasterPage />} />
+              <Route path="/master/category" element={<CategoryMasterPage />} />
+              <Route path="/master/costcenter" element={<CostCenterMasterPage />} />
+
                <Route path="*" element={<NotFound />} />
             </Routes>
           </HashRouter>

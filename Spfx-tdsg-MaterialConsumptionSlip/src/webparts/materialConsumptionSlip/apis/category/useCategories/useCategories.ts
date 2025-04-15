@@ -9,7 +9,9 @@ interface ICategory {
 }
 
 const getCategories = async () => {
+  
   const response = await http.get<{ ReturnValue: ICategory[] }>(GET_CATEGORIES);
+  
   return response.data.ReturnValue;
 };
 
