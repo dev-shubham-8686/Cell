@@ -9,7 +9,7 @@ import CreateEditMaterialConsumptionSlip from "../createEditMaterialConsumptionS
 import useMaterialConsumptionSlip from "../../../../apis/materialConsumptionSlip/useMaterialConsumptionSlip";
 import { Spin } from "antd";
 import History from "../materialConsumptionHistoryTab/materialConsumptionHistory";
-import Workflow from "../materialConsumptionWorkflowTab/materialConsumptionWorkflow";
+import Workflow, { IWorkflowDetail } from "../materialConsumptionWorkflowTab/materialConsumptionWorkflow";
 import CloseModal from "../../../common/CloseModal";
 import useGetApproverFlowData from "../../../../apis/workflow/useGetApproverFlowData/useGetApproverFlowData";
 import WorkFlowButtons from "../../../common/workFlowButtons";
@@ -18,6 +18,7 @@ import { UserContext } from "../../../../context/userContext";
 import { sessionExpiredStatus } from "../../../table/useTable";
 import displayjsx from "../../../../utility/displayjsx";
 import { redirectToHome } from "../../../../utility/utility";
+import { REQUEST_STATUS } from "../../../../GLOBAL_CONSTANT";
 
 const tabs = [
   {
@@ -38,6 +39,7 @@ const CreateEditMaterialConsumptionSlipLayout = () => {
   const { id, mode } = useParams();
   const user = useContext(UserContext);
   const [isFormModified, setIsFormModified] = useState(false);
+  const [currentApproverDetail, setCurrentApproverDetail] = useState<IWorkflowDetail | null>(null);
 
   const navigate = useNavigate();
   const [currentApprovertask, setCurrentApprovertask] =
@@ -67,7 +69,14 @@ const CreateEditMaterialConsumptionSlipLayout = () => {
     if (currentApprover?.data) {
       setCurrentApprovertask(currentApprover.data);
     }
-  }, [currentApprover]);
+
+    if (approveerFlowData) {
+      const approverInReview = approveerFlowData?.find(
+        (approver) => approver.Status === REQUEST_STATUS.InReview
+      );
+      setCurrentApproverDetail(approverInReview || null);
+    }
+  }, [currentApprover,approveerFlowData]);
   const location = useLocation();
   const { isApproverRequest, currentTabState, fromReviewTab } =
   location.state || {};
@@ -101,6 +110,7 @@ const CreateEditMaterialConsumptionSlipLayout = () => {
           </button>
         </div>
        <WorkFlowButtons   
+               currentApprover={currentApproverDetail}
        isFormModified={isFormModified}
        currentApproverTask={currentApprovertask}
        existingMaterialConsumptionSlip={materialConsumptionSlip.data}

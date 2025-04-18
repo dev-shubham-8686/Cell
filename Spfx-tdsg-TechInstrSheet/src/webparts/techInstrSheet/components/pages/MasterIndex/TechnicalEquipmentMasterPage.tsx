@@ -29,6 +29,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import displayjsx from "../../../utils/displayjsx";
 import "../../../../../../src/styles/customStyles.css";
+import dayjs from "dayjs";
 
 interface TechnicalEquipmentMaster {
   EquipmentId: number;
@@ -182,20 +183,7 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
       dataIndex: "EquipmentName",
       key: "EquipmentName",
       sorter: (a: any, b: any) =>
-        a.EquipmentName.localeCompare(b.EquipmentName),
-    },
-    {
-      title: "Created By",
-      dataIndex: "UserName",
-      key: "UserName",
-      sorter: (a: any, b: any) => a.UserName.localeCompare(b.UserName),
-    },
-    {
-      title: "Updated By",
-      dataIndex: "UpdatedUserName",
-      key: "UpdatedUserName",
-      sorter: (a: any, b: any) =>
-        a.UpdatedUserName.localeCompare(b.UpdatedUserName),
+        (a.EquipmentName || "").localeCompare(b.EquipmentName || ""),
     },
     {
       title: "Is Active",
@@ -204,35 +192,57 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
       render: (IsActive: boolean) => (IsActive ? "Yes" : "No"), // Display Yes/No for IsActive
       sorter: (a: any, b: any) => a.IsActive - b.IsActive,
     },
-    // {
-    //   title: "Created Date",
-    //   dataIndex: "CreatedDate",
-    //   key: "CreatedDate",
-    //   render: (CreatedDate: string) => (
-    //     <span>
-    //       {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : ""}
-    //     </span>
-    //   ),
-    //   sorter: (a: any, b: any) =>
-    //     dayjs(a.CreatedDate).unix() - dayjs(b.CreatedDate).unix(),
-    // },
+    {
+      title: "Created Date",
+      dataIndex: "CreatedDate",
+      key: "CreatedDate",
+      render: (CreatedDate: string) => (
+        <span>
+          {CreatedDate ? dayjs(CreatedDate).format("DD-MM-YYYY") : ""}
+        </span>
+      ),
+      sorter: (a: any, b: any) => {
+        const dateA = a.CreatedDate ? dayjs(a.CreatedDate).unix() : 0;
+        const dateB = b.CreatedDate ? dayjs(b.CreatedDate).unix() : 0;
+        return dateA - dateB;
+      },
+    },
+    {
+      title: "Created By",
+      dataIndex: "UserName",
+      key: "UserName",
+      sorter: (a: any, b: any) =>
+        (a.UserName || "").localeCompare(b.UserName || ""),
+    },
+    {
+      title: "Modified Date",
+      dataIndex: "ModifiedDate",
+      key: "ModifiedDate",
+      render: (ModifiedDate: string) => (
+        <span>
+          {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : ""}
+        </span>
+      ),
+      sorter: (a: any, b: any) => {
+        const dateA = a.ModifiedDate ? dayjs(a.ModifiedDate).unix() : 0;
+        const dateB = b.ModifiedDate ? dayjs(b.ModifiedDate).unix() : 0;
+        return dateA - dateB;
+      },
+    },
+    {
+      title: "Modified By",
+      dataIndex: "UpdatedUserName",
+      key: "UpdatedUserName",
+      sorter: (a: any, b: any) =>
+        (a.UpdatedUserName || "").localeCompare(b.UpdatedUserName || ""),
+    },
+
     // {
     //   title: "Created By",
     //   dataIndex: "UserName",
     //   key: "UserName",
     // },
-    // {
-    //   title: "Modified Date",
-    //   dataIndex: "ModifiedDate",
-    //   key: "ModifiedDate",
-    //   render: (ModifiedDate: string) => (
-    //     <span>
-    //       {ModifiedDate ? dayjs(ModifiedDate).format("DD-MM-YYYY") : ""}
-    //     </span>
-    //   ),
-    //   sorter: (a: any, b: any) =>
-    //     dayjs(a.ModifiedDate).unix() - dayjs(b.ModifiedDate).unix(),
-    // },
+
     // {
     //   title: "Modified By",
     //   dataIndex: "UpdatedUserName",
@@ -301,7 +311,9 @@ const TechnicalEquipmentMasterPage: React.FC = () => {
         }}
       />
       <Modal
-        title={isViewMode ? "View Item" : editingItem ? "Edit Item" : "Add Item"}
+        title={
+          isViewMode ? "View Item" : editingItem ? "Edit Item" : "Add Item"
+        }
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         onOk={() => !isViewMode && form.submit()}

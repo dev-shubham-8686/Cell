@@ -23,23 +23,33 @@ const MaterialConsumptionSlips: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isApproverRequest, currentTabState } = location.state || {};
-  const [currentTab, setCurrentTab] = useState(currentTabState ?? "myrequest-tab");
-  console.log("CUREENTTAB",location.state,currentTab)
+  const [currentTab, setCurrentTab] = useState(
+    currentTabState ?? "myrequest-tab"
+  );
+  console.log("CUREENTTAB", location.state, currentTab);
 
   return (
     <Page title="Material Consumption Dashboard">
       <div className="content flex-grow-1 p-4">
-      <div className="request-btn">
-        {currentTab === "myrequest-tab" && (
-          <div className="text-end">
-            <Link to="/form/add">
-              <button className="btn btn-primary">
-                <FontAwesomeIcon className="me-1 mt-50" icon={faCirclePlus} /> New Request
-              </button>
-            </Link>
-          </div>
+        <div className="request-btn d-flex align-items-center justify-content-between">
+        {/* {<button
+            className="btn btn-primary masterbutton"
+            onClick={() => navigate("/master")}
+          >
+            MASTER
+          </button>} */}
+
+          {currentTab === "myrequest-tab" && (
+            <div className="text-end">
+              <Link to="/form/add">
+                <button className="btn btn-primary">
+                  <FontAwesomeIcon className="me-1 mt-50" icon={faCirclePlus} />{" "}
+                  New Request
+                </button>
+              </Link>
+            </div>
+          )}
           
-        )}
         </div>
 
         <ul className="nav nav-tab-bar nav-underline" id="myTab" role="tablist">

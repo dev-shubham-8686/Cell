@@ -1,7 +1,9 @@
-import { Button, Form, Input, Modal } from "antd";
+import { Button, Form, Input, Modal, Select } from "antd";
 import React from "react";
+import useEmployeeMaster from "../../apis/MasterAPIs/EmployeeMaster";
 
 export interface ITextBoxModal {
+  showDelegate?: boolean;
   label: string | JSX.Element;
   titleKey: string;
   initialValue: string;
@@ -29,6 +31,7 @@ export interface ITextBoxModal {
 // }
 
 const TextBoxModal: React.FC<ITextBoxModal> = ({
+  showDelegate,
   modelTitle = "",
   label,
   titleKey,
@@ -43,6 +46,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
 }) => {
   const [form] = Form.useForm();
   const { TextArea } = Input;
+  const { data: employees, isLoading: employeeIsLoading } = useEmployeeMaster();
 
   const handleChange = (): void => {
     const fieldErrors = form.getFieldError(titleKey);
@@ -84,6 +88,36 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
           }}
           layout="vertical"
         >
+
+{ showDelegate ? (
+            <Form.Item
+              name="DelegateUserId"
+              label="Select a Delegate User"
+              rules={[
+                { required: true, message: "Please select a Delegate User." },
+              ]}
+            >
+              <Select
+                showSearch
+                optionFilterProp="children"
+                // style={{ width: "100%" }}
+                placeholder="Select a Delegate User "
+                filterOption={(input, option) =>
+                  option?.label
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={employees?.map((emp) => ({
+                  label: emp.employeeName,
+                  value: emp.employeeId,
+                }))}
+                className="custom-disabled-select"
+              />
+            </Form.Item>
+          ) : (
+            <></>
+          )}
           <Form.Item
             name={titleKey}
             label={label}

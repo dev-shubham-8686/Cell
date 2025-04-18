@@ -5,6 +5,7 @@ export const GET_LOGIN_SESSION = "/api/TroubleReport/GetLoginSession";
 export const GET_CATEGORIES = "/GetAllCategories";
 
 export const GET_MATERIALS = "/GetAllMaterials";
+export const GET_MATERIAL_Master = "/MasterTbl/GetMaterialMaster";
 
 export const GET_UNITS_OF_MEASURE = "/unitsOfMeasures";
 
@@ -35,3 +36,5 @@ export const GET_APPROVE_ASK_TO_AMMEND =
 export const CLOSE_REQUEST = "/api/Material/CloseMaterial";
 
 export const GET_PULLBACK = "/api/Material/PullBack";
+export const GET_EMPLOYEE_MASTER= "GetAllEmployees";
+export const DELEGATE_USER = "/api/Material/InsertDelegate";

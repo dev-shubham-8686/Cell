@@ -8,6 +8,9 @@ import usePullBack from "../../apis/workflow/usePullBack";
 import { IMaterialConsumptionSlipForm } from "../../interface";
 import { IApproverTask } from "../../apis/workflow/useGetCurrentApprover/useGetCurrentApprover";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
+import useDelegate, { IDelegate } from "../../apis/delegate/Delegate";
+import { IWorkflowDetail } from "../pages/materialConsumptionSlip/materialConsumptionWorkflowTab/materialConsumptionWorkflow";
 
 export interface IApproveAskToAmendPayload {
   ApproverTaskId: number;
@@ -23,18 +26,20 @@ export interface IPullBack {
   comment: string;
 }
 export interface IWorkFlowProps {
-  isFormModified:boolean
+  currentApprover?: IWorkflowDetail;
+  isFormModified: boolean;
   currentApproverTask: IApproverTask;
   existingMaterialConsumptionSlip?: IMaterialConsumptionSlipForm;
 }
 const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
+  currentApprover,
   currentApproverTask,
   existingMaterialConsumptionSlip,
-  isFormModified
+  isFormModified,
 }) => {
   const user = useContext(UserContext);
-  const { id ,mode } = useParams();
-  const {  info } = Modal;
+  const { id, mode } = useParams();
+  const { info } = Modal;
   const navigate = useNavigate();
   const location = useLocation();
   const { isApproverRequest } = location.state || {};
@@ -43,15 +48,15 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   const [clickedAction, setClickedAction] = useState<WorkflowActionType>();
   const [submitbuttontext, setsubmitbuttontext] = useState<string>("Save");
   const [approverRequest, setApproverRequest] = useState(isApproverRequest);
+  const [showDelegate, setshowDelegate] = useState<boolean>(false);
 
-  const { mutate: approveAskToAmmend ,isLoading:approvingRequest } = useApproveAskToAmmend(
+  const { mutate: approveAskToAmmend, isLoading: approvingRequest } =
+    useApproveAskToAmmend(id ? parseInt(id) : undefined, user.employeeId);
+  const { mutate: pullBack, isLoading: pullbacking } = usePullBack(
     id ? parseInt(id) : undefined,
     user.employeeId
   );
-  const { mutate: pullBack,isLoading:pullbacking } = usePullBack(
-    id ? parseInt(id) : undefined,
-    user.employeeId
-  );
+  const { mutate: delegate, isLoading: delegating } = useDelegate();
 
   const onApproveAmendHandler = async (
     actionType: 1 | 3,
@@ -68,18 +73,17 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
 
       approveAskToAmmend(payload, {
         onSuccess: (Response) => {
-          
           console.log("ATA Response: ", Response);
-          navigate("/",{
+          navigate("/", {
             state: {
               currentTabState: "myapproval-tab",
-            }});
+            },
+          });
         },
-        
+
         onError: (error) => {
           console.error("Export error:", error);
         },
-  
       });
     } catch (error) {
       console.error(error);
@@ -95,21 +99,37 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
       };
       pullBack(params, {
         onSuccess: (Response) => {
-          
           console.log("pullback Response: ", Response);
           navigate(`/material-consumption-slip`);
         },
-        
+
         onError: (error) => {
           console.error("Export error:", error);
         },
-  
       });
     } catch (error) {
       console.error(error);
-    } 
+    }
   };
 
+  const handleDeligate = async (
+    comment: string,
+    deligateUserId: number
+  ): Promise<void> => {
+    const data: IDelegate = {
+      FormId: id ? parseInt(id) : 0,
+      UserId: user?.employeeId ?? 0,
+      activeUserId: currentApprover?.AssignedToUserId,
+      DelegateUserId: deligateUserId,
+      ApproverTaskId: currentApprover?.ApproverTaskId,
+      Comments: comment,
+    };
+    delegate(data, {
+      onSuccess: (data: any) => {
+        navigate("/");
+      },
+    });
+  };
   useEffect(() => {
     const url = window.location.href;
     const [baseUrl, queryString] = url.split("?");
@@ -156,10 +176,12 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
     Approve: (comment: string) => onApproveAmendHandler(1, comment),
     Amendment: (comment: string) => onApproveAmendHandler(3, comment),
     PullBack: (comment: string) => onPullbackHandler(comment),
+    Delegate: (comment: string, DelegateUserId?: number) =>
+      handleDeligate(comment, DelegateUserId),
   };
   return (
     <>
-{    console.log("LOADING",approvingRequest,pullbacking)}      
+      {console.log("LOADING", approvingRequest, pullbacking)}
 
       <div className="d-flex gap-3 justify-content-end">
         <span
@@ -172,7 +194,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             <button
               className="btn btn-primary"
               onClick={() => {
-                if(isFormModified){
+                if (isFormModified) {
                   info({
                     title: "Please save the data before proceeding further.",
                     icon: (
@@ -187,10 +209,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                       console.log("OK clicked");
                     },
                   });
-                }
-                else{
-                openCommentsPopup("Approve");
-                setsubmitbuttontext("Approve");
+                } else {
+                  openCommentsPopup("Approve");
+                  setsubmitbuttontext("Approve");
                 }
               }}
             >
@@ -200,7 +221,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             <button
               className="btn btn-primary"
               onClick={() => {
-                if(isFormModified){
+                if (isFormModified) {
                   info({
                     title: "Please save the data before proceeding further.",
                     icon: (
@@ -215,10 +236,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                       console.log("OK clicked");
                     },
                   });
-                }
-                else{
-                openCommentsPopup("Amendment");
-                setsubmitbuttontext("Ask to Amend");
+                } else {
+                  openCommentsPopup("Amendment");
+                  setsubmitbuttontext("Ask to Amend");
                 }
               }}
             >
@@ -236,7 +256,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
             className="btn btn-primary"
             onClick={() => {
               openCommentsPopup("PullBack");
-               setsubmitbuttontext("Pull Back");
+              setsubmitbuttontext("Pull Back");
             }}
           >
             Pull Back
@@ -244,8 +264,26 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         ) : (
           <></>
         )}
+        {existingMaterialConsumptionSlip?.status == REQUEST_STATUS.InReview &&
+        user?.isAdmin ? (
+          <div className="button-container">
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                openCommentsPopup("Delegate");
+                setsubmitbuttontext("Delegate");
+                setshowDelegate(true);
+              }}
+            >
+              Delegate
+            </button>
+          </div>
+        ) : (
+          <></>
+        )}
       </div>
       <TextBoxModal
+      showDelegate={showDelegate}
         label={"Comments"}
         titleKey={"comment"}
         initialValue={""}
@@ -254,11 +292,14 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         onCancel={() => {
           setShowModal(false);
         }}
-        onSubmit={(values: { comment: string }) => {
+        onSubmit={(values: { comment: string; DelegateUserId?: any }) => {
           setShowModal(false);
           if (values.comment && clickedAction) {
             if (WORKFLOW_ACTIONS[clickedAction]) {
-              WORKFLOW_ACTIONS[clickedAction](values.comment).catch((error) =>
+              WORKFLOW_ACTIONS[clickedAction](
+                values.comment,
+                values.DelegateUserId
+              ).catch((error) =>
                 console.error("Error in executing the workflow action:", error)
               ); // Execute the corresponding action
             } else {
@@ -270,7 +311,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         }}
         isRequiredField={true}
       />
-      <Spin spinning={(approvingRequest||pullbacking)} fullscreen />
+      <Spin spinning={approvingRequest || pullbacking} fullscreen />
     </>
   );
 };
