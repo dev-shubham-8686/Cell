@@ -154,7 +154,7 @@ const Workflow: React.FC<IProps> = ({
       {
         head: "Reviewer Comments",
         cellValues: approverTasks?.WorkflowTwo.map((item) => (
-          <Popover content={<span className="font-bold">{item.Comments}</span>}>
+          <Popover key={`${item.ApproverTaskId}_comment`} content={<span className="font-bold">{item.Comments}</span>}>
             {item.Comments}
           </Popover>
         )),
