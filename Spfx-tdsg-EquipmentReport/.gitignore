@@ -14,6 +14,11 @@ solution
 temp
 *.sppkg
 .heft
+Spfx-tdsg-TroubleReport/lib/
+Spfx-tdsg-AdjustmentReport/lib/
+Spfx-tdsg-CellFormatForms/lib/
+Spfx-tdsg-MaterialConsumptionSlip/lib/
+Spfx-tdsg-TechInstrSheet/lib/
 
 # Coverage directory used by tools like istanbul
 coverage
