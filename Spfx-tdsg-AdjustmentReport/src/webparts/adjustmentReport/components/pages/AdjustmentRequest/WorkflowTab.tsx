@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import {  DATE_FORMAT, DATETIME, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
+import { DATE_TIME_FORMAT, DATETIME, REQUEST_STATUS } from "../../../GLOBAL_CONSTANT";
 import { Button, message, Tooltip } from "antd";
 import { displayRequestStatus } from "../../../utils/utility";
 import { useUserContext } from "../../../context/UserContext";
@@ -26,12 +26,9 @@ export interface IRequestDetails extends IRequestStatus {
 
 interface IProps {
   approverTasks: IWorkflowDetail[];
-  advisorId?:number,
-  submitted?:boolean,
-  status?:string
-
-  // requestStatus?: IRequestDetails;
-  // userId: number;
+  advisorId?: number,
+  submitted?: boolean,
+  status?: string
 }
 
 const Workflow: React.FC<IProps> = ({
@@ -39,101 +36,98 @@ const Workflow: React.FC<IProps> = ({
   advisorId,
   submitted,
   status
-  //   requestStatus,
-  //   userId,
 }) => {
   const { user } = useUserContext();
   const [advisorComments, setAdvisorComments] = useState<string>("");
-  const {id,mode}=useParams();
+  const { id, mode } = useParams();
   const isViewMode = mode === "view";
   const { mutate: addUpdateAdvisorComment } = useAddOrUpdateAdvisorComment();
   const { data: advisorCommentData } = useGetAdvisorCommentsById(
     id ? parseInt(id) : 0
   );
-  console.log("Advisor Comment Data",advisorCommentData,advisorId,user?.employeeId)
-  const handleSave =async () => {
-    
+
+  const handleSave = async (): Promise<void> => {
     if (advisorComments.trim() === "") {
       await message.warning("Advisor Comments cannot be empty.");
       return;
     }
-    const payload:IAdvisorCommentsData={
-      AdjustmentReportId:parseInt(id),
-      AdjustmentAdvisorId:advisorCommentData?.ReturnValue?.AdjustmentAdvisorId,
-      AdvisorId:advisorId,
-      Comment:advisorComments,
-      ModifiedBy:user?.employeeId
+    const payload: IAdvisorCommentsData = {
+      AdjustmentReportId: parseInt(id),
+      AdjustmentAdvisorId: advisorCommentData?.ReturnValue?.AdjustmentAdvisorId,
+      AdvisorId: advisorId,
+      Comment: advisorComments,
+      ModifiedBy: user?.employeeId
     }
-    
+
     addUpdateAdvisorComment(payload, {
       onSuccess: () => {
         // void message.success("Comments updated successfully!");
         console.log("Advisor Comments saved:", advisorComments);
       },
       onError: () => {
-       void  message.error("Failed to update comments. Please try again.");
+        void message.error("Failed to update comments. Please try again.");
       },
     }
     )
   };
 
-  useEffect(() => {
-    
-    if (advisorCommentData?.ReturnValue?.Comment) {
-      setAdvisorComments(advisorCommentData.ReturnValue.Comment);
-    }
-  }, [advisorCommentData]);
-  
   const workflowTableBody: {
     head: string;
     cellValues: string[];
     cellColourClass?: string[];
   }[] = [
-    {
-      head: "Approver",
-      cellValues: approverTasks?.map((item) => item.employeeName) ?? [],
-    },
-    {
-      head: "Process Status",
-      cellValues:
-        approverTasks?.map((item) => {
-          const statusValue: string = item?.Status
-            ? displayRequestStatus(item.Status)
-            : "";
-
-          if (statusValue === REQUEST_STATUS.Pending) return "";
-          return statusValue;
+      {
+        head: "Approver",
+        cellValues: approverTasks?.map((item) => {
+          if (item.Status === REQUEST_STATUS.NA) return "-";
+          return item.employeeName
         }) ?? [],
-      cellColourClass:
-        approverTasks?.map((item) => {
-          let className = "";
-          if (item.Status !== REQUEST_STATUS.Pending) {
-            className = `status-cell-${item.Status.toLowerCase()} ${
-              item.Status === REQUEST_STATUS.InReview &&
-              item.AssignedToUserId === user?.employeeId
+      },
+      {
+        head: "Process Status",
+        cellValues:
+          approverTasks?.map((item) => {
+            const statusValue: string = item?.Status
+              ? displayRequestStatus(item.Status)
+              : "";
+
+            if (statusValue === REQUEST_STATUS.Pending) return "";
+            return statusValue;
+          }) ?? [],
+        cellColourClass:
+          approverTasks?.map((item) => {
+            let className = "";
+            if (item.Status !== REQUEST_STATUS.Pending) {
+              className = `status-cell-${item.Status.toLowerCase()} ${item.Status === REQUEST_STATUS.InReview &&
+                item.AssignedToUserId === user?.employeeId
                 ? "active-approver"
                 : ""
-            }`;
-          }
-          return className;
-        }) ?? [],
-    },
-    {
-      head: "Reviewer Comments",
-      cellValues: approverTasks?.map((item) => item.Comments) ?? [],
-    },
-    {
-      head: "Date",
-      cellValues:
-        approverTasks?.map((item) =>
-          item.ActionTakenDate
-    ? dayjs(item.ActionTakenDate).format(DATE_FORMAT)
-            //  (item.ActionTakenDate, DATETIME)
-            : 
-              ""
-        ) ?? [],
-    },
-  ];
+                }`;
+            }
+            return className;
+          }) ?? [],
+      },
+      {
+        head: "Reviewer Comments",
+        cellValues: approverTasks?.map((item) => item.Comments) ?? [],
+      },
+      {
+        head: "Date",
+        cellValues:
+          approverTasks?.map((item) =>
+            item.ActionTakenDate
+              ? dayjs(item.ActionTakenDate).format(DATE_TIME_FORMAT)
+              : item?.Status === REQUEST_STATUS.NA ? REQUEST_STATUS.NA : ""
+          ) ?? [],
+      },
+    ];
+
+  useEffect(() => {
+    if (advisorCommentData?.ReturnValue?.Comment) {
+      setAdvisorComments(advisorCommentData.ReturnValue.Comment);
+    }
+  }, [advisorCommentData]);
+
   return (
     <div className="tab-section">
       <div className="table-responsive pb-2">
@@ -159,9 +153,8 @@ const Workflow: React.FC<IProps> = ({
                       row.cellValues.map((cellValue, cellIndex) => (
                         <td
                           key={cellIndex}
-                          className={`${
-                            (row.cellColourClass || [])[cellIndex] ?? "" // Provide an empty array as default
-                          }`}
+                          className={`${(row.cellColourClass || [])[cellIndex] ?? "" // Provide an empty array as default
+                            }`}
                         >
                           {row.head === "Reviewer Comments" && cellValue ? (
                             <Tooltip title={cellValue}>
@@ -179,26 +172,26 @@ const Workflow: React.FC<IProps> = ({
           </table>
         )}
       </div>
-     { submitted ? <div className="advisor-comments-section">
+      {submitted ? <div className="advisor-comments-section">
         <p className="mb-0" style={{ fontSize: "20px" }}>
           Advisor Comments
         </p>
         <TextArea
           value={advisorComments}
-          disabled={isViewMode ||( user?.isAdmin ? false:!(advisorId==user?.employeeId &&status!=REQUEST_STATUS.Completed))}
+          disabled={isViewMode || (user?.isAdmin ? false : !(advisorId == user?.employeeId && status != REQUEST_STATUS.Completed))}
           onChange={(e) => setAdvisorComments(e.target.value)}
           rows={4}
           placeholder="Enter your comments here"
         />
-       { (((advisorId == user?.employeeId && status!=REQUEST_STATUS.Completed) || user?.isAdmin) && !isViewMode)? 
-       (<Button
-          type="primary"
-          onClick={()=>handleSave()}
-          style={{ marginTop: "10px" }}
-        >
-          Save
-        </Button>):(<></>)}
-      </div>:<></>}
+        {(((advisorId == user?.employeeId && status != REQUEST_STATUS.Completed) || user?.isAdmin) && !isViewMode) ?
+          (<Button
+            type="primary"
+            onClick={() => handleSave()}
+            style={{ marginTop: "10px" }}
+          >
+            Save
+          </Button>) : (<></>)}
+      </div> : <></>}
     </div>
   );
 };
