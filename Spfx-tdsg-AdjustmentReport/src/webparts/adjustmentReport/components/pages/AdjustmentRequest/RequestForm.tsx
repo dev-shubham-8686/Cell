@@ -87,8 +87,8 @@ const RequestForm: React.FC<RequestFormProps> = ({
         RiskAssociated: "",
         Factor: "",
         CounterMeasures: "",
-        DueDate: null, 
-        PersonInCharge: null, 
+        DueDate: null,
+        PersonInCharge: null,
         Results: "",
       },
     ]);
@@ -640,8 +640,8 @@ const RequestForm: React.FC<RequestFormProps> = ({
   };
 
   const handleDelete = (key: React.Key): void => {
-    
-    const newData = ChangeRiskManagementDetails.filter(
+
+    const newData: IChangeRiskData[] = ChangeRiskManagementDetails.filter(
       (item) => item.key !== key
     ).map((item, index) => {
       return {
@@ -650,7 +650,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
         DueDate: item?.DueDate ? dayjs(item.DueDate, DATE_FORMAT).format(DATE_FORMAT) : null,
       };
     });
-    
+
     console.log("after deleting", ChangeRiskManagementDetails, newData);
     setChangeRiskManagementDetails(newData);
     // form.resetFields();
@@ -671,7 +671,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
       "PersonInCharge",
       "Results",
     ].map((field) => ["ChangeRiskManagementDetails", 0, field]);
-  
+
     form.resetFields(fieldsToReset);
   };
 
@@ -1029,26 +1029,26 @@ const RequestForm: React.FC<RequestFormProps> = ({
           {(mode == "add" ||
             (user?.isAdmin && !isViewMode) ||
             (!isViewMode && (!submitted || underamendment))) && (
-            <button
-              className="btn btn-primary"
-              onClick={() => onFinish(OPERATION.Save)}
-            >
-              <i className="fa-solid fa-floppy-disk" />
-              Save
-            </button>
-          )}
+              <button
+                className="btn btn-primary"
+                onClick={() => onFinish(OPERATION.Save)}
+              >
+                <i className="fa-solid fa-floppy-disk" />
+                Save
+              </button>
+            )}
 
           {(mode == "add" ||
-            (user?.isAdmin && !isViewMode && (!submitted && reportData?.ReturnValue?.CreatedBy==user?.employeeId)) ||
+            (user?.isAdmin && !isViewMode && (!submitted && reportData?.ReturnValue?.CreatedBy == user?.employeeId)) ||
             (!isViewMode && !submitted)) && (
-            <button
-              className="btn btn-darkgrey "
-              onClick={() => onFinish(OPERATION.Submit)}
-            >
-              <i className="fa-solid fa-share-from-square" />
-              Submit
-            </button>
-          )}
+              <button
+                className="btn btn-darkgrey "
+                onClick={() => onFinish(OPERATION.Submit)}
+              >
+                <i className="fa-solid fa-share-from-square" />
+                Submit
+              </button>
+            )}
 
           {!isViewMode && underamendment && (
             <button
@@ -1066,7 +1066,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
           layout="vertical"
           form={form}
           onFinish={onFinish}
-          // initialValues={initialData}
+        // initialValues={initialData}
         >
           <Row gutter={48} className="mb-3">
             <Col span={6}>
@@ -1201,21 +1201,21 @@ const RequestForm: React.FC<RequestFormProps> = ({
                     label: area.AreaName,
                     value: area.AreaId,
                   }))}
-                  // onChange={(selected) => {
-                  //   if (selected.includes("all")) {
-                  //     const allAreaIds =
-                  //       areasResult?.ReturnValue.map(
-                  //         (area: IArea) => area.AreaId
-                  //       ) || [];
-                  //     // If "Select All" is checked, select all items. Otherwise, clear selection.
-                  //     form.setFieldValue(
-                  //       "area",
-                  //       selected.length === allAreaIds.length + 1
-                  //         ? []
-                  //         : allAreaIds
-                  //     );
-                  //   }
-                  // }}
+                // onChange={(selected) => {
+                //   if (selected.includes("all")) {
+                //     const allAreaIds =
+                //       areasResult?.ReturnValue.map(
+                //         (area: IArea) => area.AreaId
+                //       ) || [];
+                //     // If "Select All" is checked, select all items. Otherwise, clear selection.
+                //     form.setFieldValue(
+                //       "area",
+                //       selected.length === allAreaIds.length + 1
+                //         ? []
+                //         : allAreaIds
+                //     );
+                //   }
+                // }}
                 >
                   {/* "Select All" Option */}
                   {/* <Option key="all" value="all">
@@ -1267,7 +1267,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                 <Form.Item
                   label="Other Machine Name"
                   name="OtherMachine"
-                  // rules={validationRules.OtherMachine}
+                // rules={validationRules.OtherMachine}
                 >
                   <TextArea
                     disabled={
@@ -1323,7 +1323,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                 <Form.Item
                   label="Other Sub Machine Name "
                   name="OtherSubMachine"
-                  // rules={validationRules.OtherSubMachine}
+                // rules={validationRules.OtherSubMachine}
                 >
                   <TextArea
                     disabled={
@@ -1648,7 +1648,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                 }}
                 value={cRMRequired}
                 name="cRMRequired"
-                // disabled={isViewMode}
+              // disabled={isViewMode}
               >
                 <Radio
                   disabled={
@@ -1690,14 +1690,14 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   (!isViewMode &&
                     (isAdmin ||
                       (!isAdmin && (!submitted || underamendment))))) && (
-                  <button
-                    className="btn btn-primary mt-3"
-                    type="button"
-                    onClick={handleAdd}
-                  >
-                    <i className="fa-solid fa-circle-plus" /> Add
-                  </button>
-                )}
+                    <button
+                      className="btn btn-primary mt-3"
+                      type="button"
+                      onClick={handleAdd}
+                    >
+                      <i className="fa-solid fa-circle-plus" /> Add
+                    </button>
+                  )}
               </div>
               {console.log("savingData", savingData)}
               <Table
@@ -1705,13 +1705,13 @@ const RequestForm: React.FC<RequestFormProps> = ({
                 dataSource={ChangeRiskManagementDetails}
                 columns={nestedTableColumns}
                 scroll={{ x: "max-content" }}
-                // locale={{
-                //   emptyText: (
-                //     <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                //       <Empty description="No Data Available" />
-                //     </div>
-                //   ),
-                // }}
+              // locale={{
+              //   emptyText: (
+              //     <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              //       <Empty description="No Data Available" />
+              //     </div>
+              //   ),
+              // }}
               />
             </div>
           ) : (
