@@ -95,9 +95,6 @@ const FileUpload: FC<IFileUpload> = ({
     }
     // Check file type
 
-    // if(isEmailAttachments && !VALIDATIONS.attachment.emailAttachment.includes(fileExtension)){
-    //   description= "Only Email Attachments are allowed. "
-    // }
     // Check file name size
     if (file.name?.length > VALIDATIONS.attachment.fileNameSize) {
       description = VALIDATIONS.attachment.fileNameSizeErrMsg;
