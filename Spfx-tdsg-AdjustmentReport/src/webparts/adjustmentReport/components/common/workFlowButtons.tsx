@@ -272,56 +272,56 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
     <>
       {/* Action Buttons */}
       {console.log("approval data", showWorkflowBtns, approverRequest)}{" "}
-     <div className="d-flex gap-3">
-     {showWorkflowBtns && approverRequest ? (
-        <>
-          <Button
-            className="btn btn-primary"
-            onClick={() => {
-              handleClick("approve");
-            }}
-            style={{ marginRight: "10px", marginBottom: "50px" }}
-          >
-            Approve
-          </Button>
+      <div className="d-flex gap-2">
+        {showWorkflowBtns && approverRequest ? (
+          <>
+            <Button
+              className="btn btn-primary"
+              onClick={() => {
+                handleClick("approve");
+              }}
+              style={{ marginRight: "10px", marginBottom: "50px" }}
+            >
+              Approve
+            </Button>
 
+            <Button
+              className="btn btn-primary"
+              onClick={() => {
+                handleClick("amend");
+              }}
+              style={{ marginRight: "10px", marginBottom: "50px" }}
+            >
+              Ask to Amend
+            </Button>
+          </>
+        ) : null}
+        {user?.isAdmin &&
+        existingAdjustmentReport?.Status == REQUEST_STATUS.InReview ? (
+          <div className="button-container">
+            <Button
+              className="btn btn-primary"
+              onClick={() => handleClick("delegate")}
+            >
+              Delegate
+            </Button>
+          </div>
+        ) : (
+          <></>
+        )}
+        {!approverRequest &&
+        existingAdjustmentReport?.IsSubmit &&
+        existingAdjustmentReport?.Status !== REQUEST_STATUS.UnderAmendment &&
+        existingAdjustmentReport?.Status !== REQUEST_STATUS.Completed &&
+        user?.employeeId === existingAdjustmentReport?.CreatedBy ? (
           <Button
             className="btn btn-primary"
-            onClick={() => {
-              handleClick("amend");
-            }}
-            style={{ marginRight: "10px", marginBottom: "50px" }}
+            onClick={() => handleClick("pullback")}
           >
-            Ask to Amend
+            Pull Back
           </Button>
-        </>
-      ) : null}
-      {user?.isAdmin &&
-      existingAdjustmentReport?.Status == REQUEST_STATUS.InReview ? (
-        <div className="button-container">
-          <Button
-            className="btn btn-primary"
-            onClick={() => handleClick("delegate")}
-          >
-            Delegate
-          </Button>
-        </div>
-      ) : (
-        <></>
-      )}
-      {!approverRequest &&
-      existingAdjustmentReport?.IsSubmit &&
-      existingAdjustmentReport?.Status !== REQUEST_STATUS.UnderAmendment &&
-      existingAdjustmentReport?.Status !== REQUEST_STATUS.Completed &&
-      user?.employeeId === existingAdjustmentReport?.CreatedBy ? (
-        <Button
-          className="btn btn-primary"
-          onClick={() => handleClick("pullback")}
-        >
-          Pull Back
-        </Button>
-      ) : null}
-     </div>
+        ) : null}
+      </div>
       {/* Comment Modal */}
       {console.log("IsModalVisible", isModalVisible)}{" "}
       <Modal
