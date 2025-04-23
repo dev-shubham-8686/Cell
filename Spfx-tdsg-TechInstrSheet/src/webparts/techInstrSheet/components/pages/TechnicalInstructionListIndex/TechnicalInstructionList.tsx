@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Tabs } from "antd";
 import { PlusCircleFilled } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -28,6 +28,17 @@ const TechnicalInstructionList: React.FC = () => {
   });
   const navigate = useNavigate();
 
+  // Refresh content when a tab is clicked
+  const handleTabChange = (key: string): void => {
+    setActiveKey(key);
+  };
+
+  useEffect(() => {
+    if (user?.isITSupportUser && !user?.isAdmin) {
+      handleTabChange(TAB_KEYS.ALLREQUESTS);
+    }
+  }, [user]);
+
   const tabOperations = (
     <div style={{ marginRight: "34px" }}>
       {activeKey === TAB_KEYS.REQUESTS && (
@@ -51,11 +62,6 @@ const TechnicalInstructionList: React.FC = () => {
       )} */}
     </div>
   );
-
-  // Refresh content when a tab is clicked
-  const handleTabChange = (key: string): void => {
-    setActiveKey(key);
-  };
 
   const items = [
     {
@@ -131,6 +137,11 @@ const TechnicalInstructionList: React.FC = () => {
       ),
     },
   ];
+
+  if (user?.isITSupportUser && !user?.isAdmin) {
+    items.shift();
+    items.shift();
+  }
 
   return (
     <div>
