@@ -87,8 +87,8 @@ const RequestForm: React.FC<RequestFormProps> = ({
         RiskAssociated: "",
         Factor: "",
         CounterMeasures: "",
-        DueDate: null, 
-        PersonInCharge: null, 
+        DueDate: null,
+        PersonInCharge: null,
         Results: "",
       },
     ]);
@@ -640,17 +640,18 @@ const RequestForm: React.FC<RequestFormProps> = ({
   };
 
   const handleDelete = (key: React.Key): void => {
-    
     const newData = ChangeRiskManagementDetails.filter(
       (item) => item.key !== key
     ).map((item, index) => {
       return {
         ...item,
         key: index,
-        DueDate: item?.DueDate ? dayjs(item.DueDate, DATE_FORMAT).format(DATE_FORMAT) : null,
+        DueDate: item?.DueDate
+          ? dayjs(item.DueDate, DATE_FORMAT).format(DATE_FORMAT)
+          : null,
       };
     });
-    
+
     console.log("after deleting", ChangeRiskManagementDetails, newData);
     setChangeRiskManagementDetails(newData);
     // form.resetFields();
@@ -671,7 +672,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
       "PersonInCharge",
       "Results",
     ].map((field) => ["ChangeRiskManagementDetails", 0, field]);
-  
+
     form.resetFields(fieldsToReset);
   };
 
@@ -1039,7 +1040,10 @@ const RequestForm: React.FC<RequestFormProps> = ({
           )}
 
           {(mode == "add" ||
-            (user?.isAdmin && !isViewMode && (!submitted && reportData?.ReturnValue?.CreatedBy==user?.employeeId)) ||
+            (user?.isAdmin &&
+              !isViewMode &&
+              !submitted &&
+              reportData?.ReturnValue?.CreatedBy == user?.employeeId) ||
             (!isViewMode && !submitted)) && (
             <button
               className="btn btn-darkgrey "
@@ -1633,17 +1637,19 @@ const RequestForm: React.FC<RequestFormProps> = ({
               <Radio.Group
                 onChange={(e: any) => {
                   setCRMRequired(e.target.value);
-                  setChangeRiskManagementDetails([{
-                    key: 0,
-                    Changes: "",
-                    FunctionId: "",
-                    RiskAssociated: "",
-                    Factor: "",
-                    CounterMeasures: "",
-                    DueDate: null, // Set to current date or adjust as needed
-                    PersonInCharge: null, // Default value for PersonInCharge
-                    Results: "",
-                  },]);
+                  setChangeRiskManagementDetails([
+                    {
+                      key: 0,
+                      Changes: "",
+                      FunctionId: "",
+                      RiskAssociated: "",
+                      Factor: "",
+                      CounterMeasures: "",
+                      DueDate: null, // Set to current date or adjust as needed
+                      PersonInCharge: null, // Default value for PersonInCharge
+                      Results: "",
+                    },
+                  ]);
                   resetFieldsForKeyZero();
                 }}
                 value={cRMRequired}

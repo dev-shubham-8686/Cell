@@ -18,7 +18,8 @@ export interface IUser {
   isDivHeadUser: boolean;
   isAdmin: boolean;
   isAdminId: number;
-  isMCSAdmin:number;
+  isMCSAdmin: number;
+  isITSupportUser: boolean;
 }
 
 export type ObjectType = { [key: string]: string | number | undefined };
@@ -37,19 +38,19 @@ export interface IMaterialConsumptionSlipForm {
       url: string;
     }[];
   }[];
-  employeeCode:string
+  employeeCode: string;
   remarks: string;
   userId: number;
   materialConsumptionSlipId?: number;
   createdDate?: string;
   requestor?: string;
-  seqNumber?:number;
+  seqNumber?: number;
   department?: string;
   materialConsumptionSlipNo?: string;
-  isSubmit:boolean,
-  isAmendReSubmitTask:boolean,
-  status:string,
-  cpcDeptHead:number
+  isSubmit: boolean;
+  isAmendReSubmitTask: boolean;
+  status: string;
+  cpcDeptHead: number;
 }
 
 export interface ICustomAxiosConfig extends AxiosRequestConfig<any> {

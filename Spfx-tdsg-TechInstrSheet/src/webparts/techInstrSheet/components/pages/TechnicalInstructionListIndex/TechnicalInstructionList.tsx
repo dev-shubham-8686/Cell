@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Tabs } from "antd";
 import { PlusCircleFilled } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -28,6 +28,17 @@ const TechnicalInstructionList: React.FC = () => {
   });
   const navigate = useNavigate();
 
+  // Refresh content when a tab is clicked
+  const handleTabChange = (key: string): void => {
+    setActiveKey(key);
+  };
+
+  useEffect(() => {
+    if (user?.isITSupportUser && !user?.isAdmin) {
+      handleTabChange(TAB_KEYS.ALLREQUESTS);
+    }
+  }, [user]);
+
   const tabOperations = (
     <div style={{ marginRight: "34px" }}>
       {activeKey === TAB_KEYS.REQUESTS && (
@@ -51,11 +62,6 @@ const TechnicalInstructionList: React.FC = () => {
       )} */}
     </div>
   );
-
-  // Refresh content when a tab is clicked
-  const handleTabChange = (key: string): void => {
-    setActiveKey(key);
-  };
 
   const items = [
     {
@@ -132,17 +138,22 @@ const TechnicalInstructionList: React.FC = () => {
     },
   ];
 
+  if (user?.isITSupportUser && !user?.isAdmin) {
+    items.shift();
+    items.shift();
+  }
+
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          marginRight: "34px",
-          marginBottom: "-50px",
-        }}
-      >
-        {user?.isAdmin && (
+      {user?.isAdmin && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginRight: "34px",
+            marginBottom: "-50px",
+          }}
+        >
           <Button
             type="primary"
             style={{
@@ -152,14 +163,15 @@ const TechnicalInstructionList: React.FC = () => {
               fontWeight: "600",
               color: "black", // Ensure text color is visible
               border: "none", // Remove border if needed
-              margin: "8px"
+              margin: "8px",
             }}
             onClick={() => navigate("/masterlist")}
           >
             Master Configuration
           </Button>
-        )}
-      </div>
+        </div>
+      )}
+
       <h2 className="title">TECHNICAL INSTRUCTIONS DASHBOARD</h2>
       <Tabs
         tabBarExtraContent={tabOperations}
