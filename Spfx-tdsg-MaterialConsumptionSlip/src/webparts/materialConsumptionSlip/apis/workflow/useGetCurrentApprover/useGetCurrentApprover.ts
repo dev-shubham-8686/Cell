@@ -1,29 +1,33 @@
 import { useQuery } from "@tanstack/react-query";
 import http from "../../../http";
-import {  GET_CURRENT_APPROVER_DATA,  } from "../../../URLS";
-
+import { GET_CURRENT_APPROVER_DATA } from "../../../URLS";
 
 export interface IApproverTask {
-    approverTaskId: number;
-    status: string; //this will mostly be InReview
-    userId: number;
-    seqNumber?:number;
-  }
+  approverTaskId: number;
+  status: string; //this will mostly be InReview
+  userId: number;
+  seqNumber?: number;
+}
 
-const getCurrentApproverData = async (materialConsumptionId?: number,userId?: number) => {
+const getCurrentApproverData = async (
+  materialConsumptionId?: number,
+  userId?: number
+) => {
   if (!userId || !materialConsumptionId) return undefined;
 
   const response = await http.get<{
     ReturnValue: IApproverTask;
-  }>(GET_CURRENT_APPROVER_DATA, { params: {materialConsumptionId,userId } });
-  console.log("CURRENT APPROVER DATA RESPONSE",response)
+  }>(GET_CURRENT_APPROVER_DATA, { params: { materialConsumptionId, userId } });
   return response.data.ReturnValue;
 };
 
-const useGetCurrentApproverData = (materialConsumptionId?: number,userId?: number) =>
+const useGetCurrentApproverData = (
+  materialConsumptionId?: number,
+  userId?: number
+) =>
   useQuery<IApproverTask | undefined>({
-    queryKey: ["get-current-approver-data", {materialConsumptionId,userId}],
-    queryFn: () => getCurrentApproverData(materialConsumptionId,userId),
+    queryKey: ["get-current-approver-data", { materialConsumptionId, userId }],
+    queryFn: () => getCurrentApproverData(materialConsumptionId, userId),
     cacheTime: 0,
   });
 

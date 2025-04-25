@@ -32,7 +32,7 @@ export const pageSizeOptions: DefaultOptionType[] = [
   { label: "100 / page", value: 100 },
 ];
 
-const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
+const Table: React.FC<ITable> = ({ columns, url, paginationRequired }) => {
   const user = useContext(UserContext);
   const { isLoading, data, mutate } = useTable();
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,7 +43,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
   const [searchText, setSearchText] = useState("");
   const { id } = useParams();
   const exportReportBoxRef = useRef(null);
-  console.log("TABLEDATA",data)
+
   const staticData = [
     {
       key: '1',
@@ -57,88 +57,88 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
       actionType: 'Rejected',
       comment: 'The request was rejected due to missing information.',
       actionTakenBy: 'Jinal Panchal',
-      actionTakenDate: '2024-09-02', 
+      actionTakenDate: '2024-09-02',
     },
     {
       key: '3',
       actionType: 'Pending',
       comment: 'Awaiting further information from the requester.',
       actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
+      actionTakenDate: '2024-09-03',
     },
     {
       key: '4',
       actionType: 'Approved',
       comment: 'Final approval given after all revisions were made.',
       actionTakenBy: 'Jinal Panchal',
-      actionTakenDate: '2024-09-04', 
+      actionTakenDate: '2024-09-04',
     },
     {
       key: '5',
       actionType: 'Pending',
       comment: 'Awaiting further information from the requester.',
       actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
+      actionTakenDate: '2024-09-03',
     },
     {
       key: '6',
       actionType: 'Pending',
       comment: 'Awaiting further information from the requester.',
       actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
+      actionTakenDate: '2024-09-03',
     },
     {
       key: '7',
       actionType: 'Pending',
       comment: 'Awaiting further information from the requester.',
       actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
+      actionTakenDate: '2024-09-03',
     },
     {
       key: '8',
       actionType: 'Pending',
       comment: 'Awaiting further information from the requester.',
       actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
+      actionTakenDate: '2024-09-03',
     },
     {
       key: '9',
       actionType: 'Pending',
       comment: 'Awaiting further information from the requester.',
       actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
+      actionTakenDate: '2024-09-03',
     },
     {
       key: '10',
       actionType: 'Pending',
       comment: 'Awaiting further information from the requester.',
       actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
+      actionTakenDate: '2024-09-03',
     },
     {
       key: '11',
       actionType: 'Pending',
       comment: 'Awaiting further information from the requester.',
       actionTakenBy: 'Raj',
-      actionTakenDate: '2024-09-03', 
+      actionTakenDate: '2024-09-03',
     },
     {
       key: '12',
       actionType: 'Pending',
       comment: 'Awaiting further information from the requester.',
       actionTakenBy: 'Raj ',
-      actionTakenDate: '2024-09-03', 
+      actionTakenDate: '2024-09-03',
     },
     {
       key: '13',
       actionType: 'Pending',
       comment: 'Awaiting further information from the requester.',
       actionTakenBy: 'Raj Parmar',
-      actionTakenDate: '2024-09-03', 
+      actionTakenDate: '2024-09-03',
     },
   ];
-  
-  
+
+
   const onChange = useCallback(
     (
       pagination: TablePaginationConfig,
@@ -183,7 +183,6 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
     ) => {
       e?.preventDefault();
       const trimmedSearchText = searchText.replace(/\s+/g, '');
-      console.log("trimmedtext",trimmedSearchText)
       setColumnFilter({ columnName: "", columnFilterText: trimmedSearchText.trim() });
       setCurrentPage(1);
     },
@@ -197,8 +196,8 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
   useEffect(() => {
     if (url) {
       let params;
-      if(paginationRequired){
-        params={
+      if (paginationRequired) {
+        params = {
           createdBy: user?.employeeId,
           skip: (currentPage - 1) * pageSize,
           take: pageSize,
@@ -209,18 +208,18 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
         }
       }
       else {
-         params={
-          materialConsumptionId:id
+        params = {
+          materialConsumptionId: id
         }
       }
       mutate({
         url: url,
-        params:params,
-        listingScreen:paginationRequired
+        params: params,
+        listingScreen: paginationRequired
       });
     }
-  }, [url, currentPage, pageSize, order, orderBy, columnFilter,id,user.employeeId]);
-  console.log("DATA",data)
+  }, [url, currentPage, pageSize, order, orderBy, columnFilter, id, user.employeeId]);
+
   return (
     <>
       <div className="row">
@@ -242,24 +241,22 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
                 }}
               />
             )}
-            {console.log("SEARCHTEXT",searchText)}
-            
             <div className="position-relative">
               {searchText && (
-               <FontAwesomeIcon className="me-1 position-absolute text-gray font-18" icon={faXmark} 
+                <FontAwesomeIcon className="me-1 position-absolute text-gray font-18" icon={faXmark}
                   style={{
                     right: "6rem",
                     top: "50%",
                     transform: "translateY(-50%)",
                     cursor: "pointer",
-                
+
                   }}
                   onClick={() => {
                     setSearchText("");
                     setColumnFilter(null);
                   }}
-                /> 
-           )} 
+                />
+              )}
               {paginationRequired && (
                 <button
                   className="btn btn-primary text-nowrap"
@@ -278,13 +275,13 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired}) => {
             Export to Excel
           </button>
         </div>}  */}
-       {paginationRequired && <div className="col-md-4 text-end">
+        {paginationRequired && <div className="col-md-4 text-end">
           <button
             className="btn btn-outline-darkgrey text-nowrap"
             onClick={handleExportButtonClick}
           >
-            <FontAwesomeIcon title="View" icon={faFileExport} className="me-1"/>
-              Export to Excel
+            <FontAwesomeIcon title="View" icon={faFileExport} className="me-1" />
+            Export to Excel
           </button>
 
           <ExportReportBox

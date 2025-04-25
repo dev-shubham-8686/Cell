@@ -41,9 +41,7 @@ const MaterialConsumptionAllRequests: React.FC = () => {
 
   const handleExportToExcel = (id: any, materialNo: any) => {
     try {
-      console.log("MATERIALID", id);
       exportToExcel({ id, materialNo });
-      console.log("Export to Excel ");
     } catch (error) {
       console.error("Export error:", error);
     }
@@ -51,22 +49,15 @@ const MaterialConsumptionAllRequests: React.FC = () => {
 
   const handlePDF = (id: any, materialNo: any) => {
     try {
-      console.log("MATERIALID", id);
 
       pdfDownload(
         { id, materialNo },
         {
-          onSuccess: (pdfResponse) => {
-            console.log("PDF Response: ", pdfResponse);
-            // window.open(pdfResponse, "_blank");  //this will Open the PDF in a new tab
-          },
-
           onError: (error) => {
             console.error("Export error:", error);
           },
         }
       );
-      console.log("PDF downloaded ");
     } catch (error) {
       console.error("Export error:", error);
     }
@@ -91,7 +82,6 @@ const MaterialConsumptionAllRequests: React.FC = () => {
       onOk() {
         deleteMaterialConsumption(id, {
           onSuccess: (Response) => {
-            console.log("ATA Response: ", Response);
             window.location.reload();
           },
 
@@ -179,9 +169,8 @@ const MaterialConsumptionAllRequests: React.FC = () => {
       ),
       render: (text) => (
         <span
-          className={`status-badge status-badge-${
-            STATUS_COLOUR_CLASS[text] ?? ""
-          }`}
+          className={`status-badge status-badge-${STATUS_COLOUR_CLASS[text] ?? ""
+            }`}
         >
           {displayRequestStatus(text)}
         </span>
@@ -192,7 +181,6 @@ const MaterialConsumptionAllRequests: React.FC = () => {
       key: "action",
       render: (row) => (
         <div className="">
-          {console.log("DATAOFMATERIAL", row)}
           <button
             type="button"
             style={{ background: "none", border: "none" }}
@@ -207,64 +195,64 @@ const MaterialConsumptionAllRequests: React.FC = () => {
             ((row.Status === REQUEST_STATUS.Draft ||
               row.Status === REQUEST_STATUS.UnderAmendment) &&
               row.CreatedBy == user.employeeId)) && (
-            <button
-              type="button"
-              style={{ background: "none", border: "none" }}
-              onClick={() =>
-                navigate(`/form/edit/${row.MaterialConsumptionSlipId}`)
-              }
-            >
-              <FontAwesomeIcon title="Edit" icon={faEdit} />
-            </button>
-          )}
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() =>
+                  navigate(`/form/edit/${row.MaterialConsumptionSlipId}`)
+                }
+              >
+                <FontAwesomeIcon title="Edit" icon={faEdit} />
+              </button>
+            )}
 
           {(user.isAdmin ||
             row.Status == REQUEST_STATUS.Closed ||
             row.Status == REQUEST_STATUS.Approved) && (
-            <button
-              type="button"
-              style={{ background: "none", border: "none" }}
-              onClick={() => {
-                handleExportToExcel(
-                  row.MaterialConsumptionSlipId,
-                  row.MaterialConsumptionSlipNo
-                );
-              }}
-            >
-              <FontAwesomeIcon title="Export To Excel" icon={faFileExcel} />
-            </button>
-          )}
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() => {
+                  handleExportToExcel(
+                    row.MaterialConsumptionSlipId,
+                    row.MaterialConsumptionSlipNo
+                  );
+                }}
+              >
+                <FontAwesomeIcon title="Export To Excel" icon={faFileExcel} />
+              </button>
+            )}
 
           {(user.isAdmin ||
             row.Status == REQUEST_STATUS.Closed ||
             row.Status == REQUEST_STATUS.Approved) && (
-            <button
-              type="button"
-              style={{ background: "none", border: "none" }}
-              onClick={() => {
-                handlePDF(
-                  row.MaterialConsumptionSlipId,
-                  row.MaterialConsumptionSlipNo
-                );
-              }}
-            >
-              <FontAwesomeIcon title="PDF" icon={faFilePdf} />
-            </button>
-          )}
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() => {
+                  handlePDF(
+                    row.MaterialConsumptionSlipId,
+                    row.MaterialConsumptionSlipNo
+                  );
+                }}
+              >
+                <FontAwesomeIcon title="PDF" icon={faFilePdf} />
+              </button>
+            )}
 
           {((user.isAdmin && row.Status != REQUEST_STATUS.Closed) ||
             (row.Status == REQUEST_STATUS.Draft &&
               row.CreatedBy == user.employeeId)) && (
-            <button
-              type="button"
-              style={{ background: "none", border: "none" }}
-              onClick={() => {
-                handleDelete(row.MaterialConsumptionSlipId);
-              }}
-            >
-              <FontAwesomeIcon title="Delete" icon={faTrash} />
-            </button>
-          )}
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() => {
+                  handleDelete(row.MaterialConsumptionSlipId);
+                }}
+              >
+                <FontAwesomeIcon title="Delete" icon={faTrash} />
+              </button>
+            )}
         </div>
       ),
       sorter: false,

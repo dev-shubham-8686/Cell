@@ -80,12 +80,8 @@ const CreateEditMaterialConsumptionSlipLayout = () => {
   const location = useLocation();
   const { isApproverRequest, currentTabState, fromReviewTab } =
     location.state || {};
-  console.log("APPROVER DATA", approveerFlowData)
-  console.log("Current APPROVER DATA", currentApprover)
   const [currentTab, setCurrentTab] = useState(tabs[0].id);
-  console.log("ISAPPROVERREQUEST")
   const onBack = React.useCallback(() => {
-    console.log("ISAPPROVERREQUEST", isApproverRequest)
     navigate("/", {
       state: {
         currentTabState: isApproverRequest

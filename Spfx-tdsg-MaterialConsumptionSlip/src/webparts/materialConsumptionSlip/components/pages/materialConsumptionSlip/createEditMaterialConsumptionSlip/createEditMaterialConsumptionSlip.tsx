@@ -60,7 +60,6 @@ const CreateEditMaterialConsumptionSlip: React.FC<
     const { isApproverRequest } = location.state || {};
     const { id: paramId } = useParams();
     const id = paramId ? parseInt(paramId) : 0;
-    console.log("ISADMIN", user);
     const [isLoading, setIsLoading] = useState(false);
     const [submitted, setsubmitted] = useState(false);
     const [underAmmendment, setunderAmmendment] = useState(false);
@@ -131,7 +130,6 @@ const CreateEditMaterialConsumptionSlip: React.FC<
             okButtonProps: { className: "btn btn-primary" },
             cancelButtonProps: { className: "btn-outline-primary" },
             onOk() {
-              console.log("OK clicked");
               createUpdateMaterialConsumptionSlip.mutate(
                 {
                   ...formData,
@@ -152,9 +150,6 @@ const CreateEditMaterialConsumptionSlip: React.FC<
                 }
               );
             },
-            onCancel() {
-              console.log("Cancel Clicked");
-            },
           });
         } else {
           info({
@@ -168,15 +163,6 @@ const CreateEditMaterialConsumptionSlip: React.FC<
             okText: "OK",
             okType: "primary",
             okButtonProps: { className: "btn btn-primary" },
-            onOk() {
-              console.log("OK clicked");
-              // createUpdateMaterialConsumptionSlip.mutate({
-              //   ...formData,
-              //   isSubmit: true,
-              //   isAmendReSubmitTask: false,
-              //   userId: user?.employeeId,
-              // });
-            },
           });
         }
       }
@@ -185,9 +171,6 @@ const CreateEditMaterialConsumptionSlip: React.FC<
     const onSave = (formData: IMaterialConsumptionSlipForm) => {
       if (!user?.employeeId) return;
       formData = getValues();
-
-      console.log("FormData", formData);
-      console.log("CURRENTAPPROVERTASKBEFORESUBMISSION", currentApproverTask);
 
       createUpdateMaterialConsumptionSlip.mutate(
         {
@@ -215,7 +198,6 @@ const CreateEditMaterialConsumptionSlip: React.FC<
             }
 
             setIsFormModified(false);
-            console.log("On save Response: ", Response);
           },
 
           onError: (error) => {
@@ -228,8 +210,6 @@ const CreateEditMaterialConsumptionSlip: React.FC<
     const onResubmit = (formData: IMaterialConsumptionSlipForm) => {
       if (!user?.employeeId) return;
       formData = getValues();
-
-      console.log("Resubmit FormData", formData);
 
       createUpdateMaterialConsumptionSlip.mutate(
         {
@@ -278,19 +258,12 @@ const CreateEditMaterialConsumptionSlip: React.FC<
     }, [createUpdateMaterialConsumptionSlip.isSuccess]);
 
     const onValuesChange = () => {
-      console.log("FORMCHANGED", formState.isDirty);
       setIsFormModified(formState.isDirty); // To track when the form is modified
     };
 
     return (
       <div>
         <form onChange={onValuesChange} onSubmit={handleSubmit(onSubmit)}>
-          {console.log(
-            "CONDITIONS",
-            submitted,
-            currentApproverTask?.userId,
-            user.employeeId
-          )}
           <div
             style={{
               position: "absolute",
@@ -865,7 +838,6 @@ const CreateEditMaterialConsumptionSlip: React.FC<
               ]}
             />
           ))}
-          {console.log("ID", id)}
           {mode != "view" &&
             (user.isAdmin ||
               ((!submitted || underAmmendment) &&

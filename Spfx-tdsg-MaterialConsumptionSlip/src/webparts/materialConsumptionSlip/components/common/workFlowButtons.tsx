@@ -73,7 +73,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
 
       approveAskToAmmend(payload, {
         onSuccess: (Response) => {
-          console.log("ATA Response: ", Response);
           navigate("/", {
             state: {
               currentTabState: "myapproval-tab",
@@ -99,7 +98,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
       };
       pullBack(params, {
         onSuccess: (Response) => {
-          console.log("pullback Response: ", Response);
           navigate(`/material-consumption-slip`);
         },
 
@@ -143,9 +141,8 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
       params.delete("OR");
       params.delete("CID");
 
-      const newUrl = `${baseUrl.split("#")[0]}${
-        params.toString() ? "?" + params.toString() : ""
-      }${window.location.hash}`;
+      const newUrl = `${baseUrl.split("#")[0]}${params.toString() ? "?" + params.toString() : ""
+        }${window.location.hash}`;
 
       // window.location.replace(newUrl);
       // window.history.replaceState({ isApproverRequest: true }, "", newUrl);
@@ -162,7 +159,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   useEffect(() => {
     setShowWorkflowBtns(
       currentApproverTask?.approverTaskId &&
-        currentApproverTask?.approverTaskId !== 0
+      currentApproverTask?.approverTaskId !== 0
     );
   }, [currentApproverTask]);
 
@@ -181,8 +178,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   };
   return (
     <>
-      {console.log("LOADING", approvingRequest, pullbacking)}
-
       <div className="d-flex gap-3 justify-content-end">
         <span
           style={{
@@ -205,9 +200,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                     okText: "OK",
                     okButtonProps: { className: "btn btn-primary" },
                     okType: "primary",
-                    onOk() {
-                      console.log("OK clicked");
-                    },
                   });
                 } else {
                   openCommentsPopup("Approve");
@@ -232,9 +224,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                     okText: "OK",
                     okButtonProps: { className: "btn btn-primary" },
                     okType: "primary",
-                    onOk() {
-                      console.log("OK clicked");
-                    },
                   });
                 } else {
                   openCommentsPopup("Amendment");
@@ -249,9 +238,9 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           <></>
         )}
         {existingMaterialConsumptionSlip?.isSubmit &&
-        existingMaterialConsumptionSlip?.status != "UnderAmendment" &&
-        user.employeeId == existingMaterialConsumptionSlip?.userId &&
-        existingMaterialConsumptionSlip?.seqNumber < 2 ? (
+          existingMaterialConsumptionSlip?.status != "UnderAmendment" &&
+          user.employeeId == existingMaterialConsumptionSlip?.userId &&
+          existingMaterialConsumptionSlip?.seqNumber < 2 ? (
           <button
             className="btn btn-primary"
             onClick={() => {
@@ -265,7 +254,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           <></>
         )}
         {existingMaterialConsumptionSlip?.status == REQUEST_STATUS.InReview &&
-        user?.isAdmin ? (
+          user?.isAdmin ? (
           <div className="button-container">
             <button
               className="btn btn-primary"
@@ -283,7 +272,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
         )}
       </div>
       <TextBoxModal
-      showDelegate={showDelegate}
+        showDelegate={showDelegate}
         label={"Comments"}
         titleKey={"comment"}
         initialValue={""}
