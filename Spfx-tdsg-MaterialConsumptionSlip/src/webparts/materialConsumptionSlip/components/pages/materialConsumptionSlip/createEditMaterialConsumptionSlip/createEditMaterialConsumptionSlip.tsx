@@ -274,7 +274,7 @@ const CreateEditMaterialConsumptionSlip: React.FC<
                   : "40px",
               top:
                 mode !== "view" && currentApproverTask?.userId == user.employeeId
-                  ? "86px"
+                  ? "68px"
                   // ? "133px"
                   : "80px",
             }}

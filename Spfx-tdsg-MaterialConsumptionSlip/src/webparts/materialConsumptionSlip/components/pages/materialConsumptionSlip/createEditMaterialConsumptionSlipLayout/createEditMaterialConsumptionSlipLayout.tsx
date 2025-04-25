@@ -97,7 +97,7 @@ const CreateEditMaterialConsumptionSlipLayout = () => {
       <div className="content flex-grow-1 p-4 pt-0">
         <div className=" d-flex justify-content-between align-items-center">
           <button
-            className="btn btn-link btn-back pt-2"
+            className="btn btn-link btn-back pt-4"
             type="button"
             onClick={onBack}
           >
