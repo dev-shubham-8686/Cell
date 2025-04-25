@@ -26,6 +26,7 @@ export interface IUser {
   isQcTeamUser: boolean;
   isAdmin: boolean;
   isAdminId: number;
+  isITSupportUser: boolean;
 }
 
 export const UserContext = createContext<IUser | null | any>(null);
@@ -42,9 +43,7 @@ export const UserProvider: React.FC<IUserProvider> = ({
   // TODO: change the email
   // const isLoading=false
   // const data=[]
-  const { data, isLoading } = useUser(
-    userEmail 
-  );
+  const { data, isLoading } = useUser(userEmail);
 
   console.log("USERROLE Res", data);
   return (

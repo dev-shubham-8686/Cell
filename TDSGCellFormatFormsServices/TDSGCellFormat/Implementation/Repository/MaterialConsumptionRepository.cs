@@ -66,6 +66,30 @@ namespace TDSGCellFormat.Implementation.Repository
             }
         }
 
+        public async Task<object> GetAllMaterialConsumptionList(int createdBy, int skip, int take, string order, string orderBy, string searchColumn, string searchValue)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var command = new SqlCommand("GetMaterialConsumptionList", connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                command.Parameters.AddWithValue("@createdOne", createdBy);
+                command.Parameters.AddWithValue("@skip", skip);
+                command.Parameters.AddWithValue("@take", take);
+                command.Parameters.AddWithValue("@order", order);
+                command.Parameters.AddWithValue("@orderBy", orderBy);
+                command.Parameters.AddWithValue("@searchColumn", searchColumn);
+                command.Parameters.AddWithValue("@searchValue", searchValue);
+
+                await connection.OpenAsync();
+                var jsonResult = await command.ExecuteScalarAsync();
+
+                return jsonResult;
+
+            }
+        }
+
         public async Task<List<MaterialConsumptionListView>> GetMaterialConsumptionList1(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
             var listData = await _context.GetMaterialConsumptionList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);

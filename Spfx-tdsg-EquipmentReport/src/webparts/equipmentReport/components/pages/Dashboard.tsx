@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Page from "../page/page";
 import EquipmentReportTable from "./dashboard/EquipmentReportTable";
@@ -7,16 +7,25 @@ import AllRequestTable from "./dashboard/AllRequestTable";
 import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "antd";
+import { IUser, UserContext } from "../../context/userContext";
 
 type TabName = "myrequest-tab" | "myapproval-tab" | "allrequest-tab";
 
 const EquipmentReport: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const user: IUser = useContext(UserContext);
   const { isApproverRequest, currentTabState } = location.state || {};
   const [currentTab, setCurrentTab] = useState<TabName>(
     currentTabState ?? "myrequest-tab"
   );
+
+  useEffect(() => {
+    if (user?.isITSupportUser && !user?.isAdmin) {
+      setCurrentTab("allrequest-tab");
+    }
+  }, [user]);
+
   const tabs: {
     id: TabName;
     name: string;
@@ -35,12 +44,17 @@ const EquipmentReport: React.FC = () => {
     },
   ];
 
+  if (user?.isITSupportUser && !user?.isAdmin) {
+    tabs.shift();
+    tabs.shift();
+  }
+
   return (
     <Page title="Equipment Improvement Dashboard">
       <div className="content flex-grow-1 p-4">
         <div className="text-end px-4 position-relative">
           <div className="request-btn">
-              {/* {<button
+            {/* {<button
             className="btn btn-primary masterbutton "
             onClick={() => navigate("/master")}
           >
