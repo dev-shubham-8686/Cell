@@ -10,7 +10,7 @@
     font-family: $font-family, sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color:$primary;
+    color: $primary;
   }
 
   .toggler {
@@ -42,14 +42,13 @@
   }
 }
 
-.request-btn{
+.request-btn {
   width: fit-content;
   position: absolute;
-  right: 3.2rem;
+  right: 1.5rem;
   top: 83px;
 }
 
-
 .fsz-15 {
-  font-size: .9375rem !important;
+  font-size: 0.9375rem !important;
 }
