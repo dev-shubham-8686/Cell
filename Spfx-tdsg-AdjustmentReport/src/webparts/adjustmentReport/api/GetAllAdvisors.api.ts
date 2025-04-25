@@ -14,8 +14,9 @@ export interface IAdvisorDetail {
 }
 
 export const getAllAdvisors = async (): Promise<IAdvisorDetail[]> => {
-  const response = await apiClient.get<IAjaxResult>(`${basePath}/GetAllAdvisors`);
-  console.log({ response });
+  const response = await apiClient.get<IAjaxResult>(
+    `${basePath}/GetAllAdvisors`
+  );
 
   const list: IAdvisorDetail[] = response.data.ReturnValue;
   return list;

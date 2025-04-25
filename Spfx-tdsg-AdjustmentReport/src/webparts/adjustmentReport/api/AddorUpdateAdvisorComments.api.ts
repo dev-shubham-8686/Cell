@@ -4,14 +4,12 @@ import apiClient from "../utils/axiosInstance";
 import { ICustomAxiosConfig } from "../interface";
 
 export interface IAdvisorCommentsData {
-    AdjustmentAdvisorId?: number ;
-    AdvisorId?: number 
-    AdjustmentReportId?: number 
-    Comment?: string ; 
-    ModifiedBy?:number;
-  }
-
-
+  AdjustmentAdvisorId?: number;
+  AdvisorId?: number;
+  AdjustmentReportId?: number;
+  Comment?: string;
+  ModifiedBy?: number;
+}
 
 export const addUpdateAdvisorComment = async (
   payload: IAdvisorCommentsData
@@ -20,7 +18,6 @@ export const addUpdateAdvisorComment = async (
     SHOW_NOTIFICATION: true,
   };
   const url = `${basePathwithprefix}/AdjustmentReport/InsertAdvisor`; // need to change
-  console.log(JSON.stringify(payload))
-  const response = await apiClient.post<boolean>(url, payload,config);
+  const response = await apiClient.post<boolean>(url, payload, config);
   return response.data;
 };

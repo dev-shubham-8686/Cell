@@ -77,7 +77,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
   const { isApproverRequest } = location.state || {};
   const { data: employeesResult } = useGetAllEmployees();
 
-  console.log({ isApproverRequest });
   const [ChangeRiskManagementDetails, setChangeRiskManagementDetails] =
     useState<IChangeRiskData[]>([
       {
@@ -132,7 +131,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
   const { data: checkedByResult, isLoading: checkedloading } =
     useGetCheckedBy();
   const { mode, id } = useParams();
-  console.log({ id });
   const isViewMode = mode === "view";
   const isEditMode = mode === "edit";
   const initialData = {
@@ -153,7 +151,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
         ? beforeAdjustmentReportPhotos
         : undefined,
     });
-    console.log(form.getFieldValue("beforeImages"));
   }, [beforeAdjustmentReportPhotos]);
 
   useEffect(() => {
@@ -263,7 +260,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
         describeProblem: reportData?.ReturnValue.DescribeProblem,
       });
 
-      console.log("DATE", form.getFieldValue("dateTime"));
       // Pre-filter sub-machines based on the machine from reportData?
       // if (
       //   reportData?.ReturnValue.MachineName &&
@@ -332,7 +328,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
         OtherSubMachine: "",
       });
     }
-    console.log("OtherSub", showOtherSubMachine, showOtherMachine);
   };
 
   const validationRules = {
@@ -396,7 +391,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
 
   // const handleProceed = (approvalData) => {
   //   // Process the approvalData, which contains selected department heads and sequences
-  //   console.log("Additional Approvals:", approvalData);
   //   setApprovalModalVisible(false);
 
   //   // Here, integrate logic to add department heads to the workflow.
@@ -416,7 +410,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
 
   // const addFormSection = () => {
   //   setFormSections((prevSections) => [...prevSections, prevSections.length]);
-  //   console.log({ formSections });
   // };
 
   // const deleteFormSection = (sectionIndex: number) => {
@@ -437,13 +430,9 @@ const RequestForm: React.FC<RequestFormProps> = ({
   //   });
   //   const values = form.getFieldsValue();
   //
-  //   console.log("CR after deleting ", formSections);
-  //   console.log(`Deleted section at index: ${sectionIndex}`);
   // };
 
   const CreatePayload = (values: any, operation?: any) => {
-    console.log("FormData", values);
-
     const payload: IAddUpdateReportPayload = {
       AdjustmentReportId: id ? parseInt(id, 10) : 0,
       EmployeeId: user?.employeeId,
@@ -532,7 +521,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
               }
               onChange={(e) => {
                 setselectedAdvisor(e);
-                console.log("Advisor", selectedAdvisor);
               }}
             />
           </Form.Item>
@@ -579,7 +567,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
       },
       onCancel: () => {
         form.setFieldsValue({ AdvisorId: null });
-        console.log("Submission cancelled");
       },
     });
   };
@@ -589,7 +576,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
       const payload = CreatePayload(values, operation);
       await addUpdateReport(payload, {
         onSuccess: async (response: any) => {
-          console.log("Resubmit Success Res", response);
           navigate("/");
         },
         onError: () => {
@@ -632,11 +618,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
       },
     ];
     setChangeRiskManagementDetails(newData);
-    console.log(
-      "after adding change req data",
-      ChangeRiskManagementDetails,
-      newData
-    );
   };
 
   const handleDelete = (key: React.Key): void => {
@@ -651,7 +632,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
       };
     });
 
-    console.log("after deleting", ChangeRiskManagementDetails, newData);
     setChangeRiskManagementDetails(newData);
     // form.resetFields();
 
@@ -690,7 +670,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
       return item;
     });
     setChangeRiskManagementDetails(newData);
-    console.log("Uppdated Change risk", ChangeRiskManagementDetails, newData);
   };
 
   const nestedTableColumns: ColumnsType<any> = [
@@ -1440,12 +1419,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   beforeImages?.length == 0 ? validationRules.attachment : null
                 }
               >
-                {/* all types except exe  ,  max size -30MB  , no-10*/}
-                {console.log(
-                  "USERID",
-                  user?.employeeId.toString(),
-                  form?.getFieldValue("reportNo")
-                )}
                 <FileUpload
                   disabled={
                     isViewMode || (!isAdmin && submitted && !underamendment)
@@ -1470,7 +1443,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   isLoading={false}
                   onAddFile={async (name: string, url: string, file: File) => {
                     const existingAttachments = beforeImages ?? [];
-                    console.log("FILES", existingAttachments);
                     let imageBytes: string | null = null;
 
                     if (file.type.startsWith("image")) {
@@ -1507,13 +1479,11 @@ const RequestForm: React.FC<RequestFormProps> = ({
 
                     setbeforeImages(updatedAttachments);
 
-                    console.log("Validation successful after file removal");
                     if (updatedAttachments?.length == 0) {
                       form.setFieldValue("BeforeImages", []);
                     }
                     await form.validateFields(["BeforeImages"]);
 
-                    console.log("File Removed");
                   }}
                 />
               </Form.Item>
@@ -1561,10 +1531,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   isLoading={false}
                   onAddFile={async (name: string, url: string, file: File) => {
                     const existingAttachments = afterImages ?? [];
-
-                    console.log("FileObject", file);
-                    console.log("After Files", existingAttachments);
-
                     let imageBytes: string | null = null;
 
                     if (file.type.startsWith("image")) {
@@ -1595,20 +1561,14 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   }}
                   onRemoveFile={async (documentName: string) => {
                     const existingAttachments = afterImages ?? [];
-
                     const updatedAttachments = existingAttachments?.filter(
                       (doc) => doc.AfterImgName !== documentName
                     );
-
                     setafterImages(updatedAttachments);
-
-                    console.log("Validation successful after file removal");
                     if (updatedAttachments?.length == 0) {
                       form.setFieldValue("AfterImages", []);
                     }
                     await form.validateFields(["AfterImages"]);
-
-                    console.log("After File Removed");
                   }}
                 />
               </Form.Item>
@@ -1625,11 +1585,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
               <span style={{ marginRight: 16 }}>
                 Change Risk Management Required ?
               </span>
-              {console.log(
-                "Radio Group",
-                form.getFieldValue("cRMRequired"),
-                cRMRequired
-              )}
               <Radio.Group
                 onChange={(e: any) => {
                   setCRMRequired(e.target.value);
@@ -1675,7 +1630,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
               </Radio.Group>
             </div>
           </div>
-          {console.log("CHANGE RISK DATA", ChangeRiskManagementDetails)}{" "}
           {cRMRequired ? (
             <div>
               <div className="d-flex justify-content-between my-3">
@@ -1685,7 +1639,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
                 >
                   Change Risk Management
                 </p>
-                {console.log("Mode", mode)}
                 {(mode == "add" ||
                   (!isViewMode &&
                     (isAdmin ||
@@ -1699,7 +1652,6 @@ const RequestForm: React.FC<RequestFormProps> = ({
                     </button>
                   )}
               </div>
-              {console.log("savingData", savingData)}
               <Table
                 className="change-risk-table"
                 dataSource={ChangeRiskManagementDetails}

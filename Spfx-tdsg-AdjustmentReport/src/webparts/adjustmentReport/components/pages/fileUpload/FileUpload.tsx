@@ -57,10 +57,8 @@ const FileUpload: FC<IFileUpload> = ({
       fileNameSizeErrMsg: "The file name must not exceed 350 characters.",
     },
   };
-  console.log("DISABLEUPLOAD", disabled);
   const webPartContext = React.useContext(WebPartContext);
   const [itemLoading, setItemLoading] = React.useState(false);
-  console.log("FILES", files)
 
   const onBeforeUpload = (file: ExtendedUploadFile): boolean | string => {
     const maxSize = VALIDATIONS.attachment.fileSize;
@@ -338,7 +336,7 @@ const FileUpload: FC<IFileUpload> = ({
       setIsLoading(false);
     }
   };
-  console.log("FILESSS", files)
+
   return (
     < >
       {itemLoading && <Spin />}

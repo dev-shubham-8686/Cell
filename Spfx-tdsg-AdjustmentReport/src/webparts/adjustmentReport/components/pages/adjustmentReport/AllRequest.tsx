@@ -28,23 +28,20 @@ import { displayRequestStatus } from "../../../utils/utility";
 import Table from "../../table/table";
 import ColumnFilter from "../../table/columnFilter/columnFilter";
 
-const AllRequest: React.FC<{}> = ({}) => {
+const AllRequest: React.FC<{}> = ({ }) => {
   const navigate = useNavigate();
   const { user } = useUserContext();
   const { mutate: deleteAdjustment } = useDeleteAdjustmentReport();
   const { mutate: pdfDownload, isLoading: pdfLoading } =
     useGetAdjustmentReportPDF();
   const [refetchKey, setrefetchKey] = useState<number>(0);
-  const location = useLocation();
-  const { currentTabState } = location.state || {};
-  console.log("location", location.state);
+
   const handlePDF = (id: number, AdjustmentReportNo: any) => {
     try {
       pdfDownload(
         { id, AdjustmentReportNo },
         {
           onSuccess: (pdfResponse: any) => {
-            console.log("PDF Response: ", pdfResponse);
             // window.open(pdfResponse, "_blank");  //this will Open the PDF in a new tab
           },
 
@@ -53,7 +50,6 @@ const AllRequest: React.FC<{}> = ({}) => {
           },
         }
       );
-      console.log("PDF downloaded ");
     } catch (error) {
       console.error("Export error:", error);
     }
@@ -78,7 +74,6 @@ const AllRequest: React.FC<{}> = ({}) => {
       onOk() {
         deleteAdjustment(id, {
           onSuccess: (Response: any) => {
-            console.log("ATA Response: ", Response);
             setrefetchKey((prevKey) => prevKey + 1);
             // window.location.reload();
           },
@@ -189,9 +184,8 @@ const AllRequest: React.FC<{}> = ({}) => {
       sorter: true,
       render: (text) => (
         <span
-          className={`status-badge status-badge-${
-            STATUS_COLOUR_CLASS[text] ?? ""
-          }`}
+          className={`status-badge status-badge-${STATUS_COLOUR_CLASS[text] ?? ""
+            }`}
         >
           {displayRequestStatus(text)}
         </span>
@@ -226,19 +220,18 @@ const AllRequest: React.FC<{}> = ({}) => {
               record.EmployeeId === user?.employeeId) ||
             (record.AdvisorId == user?.employeeId &&
               record.Status == REQUEST_STATUS.InReview)) && (
-            <button
-              type="button"
-              style={{ background: "none", border: "none" }}
-              onClick={() =>
-                navigate(`/form/edit/${record.AdjustmentReportId}`, {
-                  state: { allReq: true },
-                })
-              }
-            >
-              <FontAwesomeIcon title="Edit" icon={faEdit} />
-            </button>
-          )}
-          {console.log("My Req Data", record)}
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() =>
+                  navigate(`/form/edit/${record.AdjustmentReportId}`, {
+                    state: { allReq: true },
+                  })
+                }
+              >
+                <FontAwesomeIcon title="Edit" icon={faEdit} />
+              </button>
+            )}
           {record.Status === REQUEST_STATUS.Completed && (
             <button
               type="button"
@@ -254,16 +247,16 @@ const AllRequest: React.FC<{}> = ({}) => {
           {((user?.isAdmin && record.Status != REQUEST_STATUS.Completed) ||
             (record.Status === REQUEST_STATUS.Draft &&
               record.CreatedBy == user?.employeeId)) && (
-            <button
-              type="button"
-              style={{ background: "none", border: "none" }}
-              onClick={() => {
-                handleDelete(record.AdjustmentReportId);
-              }}
-            >
-              <FontAwesomeIcon title="Delete" icon={faTrash} />
-            </button>
-          )}
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() => {
+                  handleDelete(record.AdjustmentReportId);
+                }}
+              >
+                <FontAwesomeIcon title="Delete" icon={faTrash} />
+              </button>
+            )}
         </div>
       ),
     },
