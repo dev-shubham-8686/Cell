@@ -24,7 +24,11 @@ export const exportToExcelListing = async ({
   );
 
   const data = response.data.ReturnValue;
-
+  if (response?.data?.StatusCode == 7) {
+    void showSuccess(response?.data?.Message);
+  } else {
+    void showErrorMsg(response?.data?.Message);
+  }
   // Use a utility function to download the Excel file
   downloadExcelFileListing(data);
 };
