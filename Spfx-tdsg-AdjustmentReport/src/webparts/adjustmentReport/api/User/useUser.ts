@@ -61,8 +61,6 @@ const authenticateUser = async (email: string): Promise<boolean> => {
     GET_LOGIN_SESSION,
     JSON.stringify(body)
   );
-  console.log(response);
-
   const data = response.data;
 
   // eslint-disable-next-line require-atomic-updates
@@ -73,7 +71,6 @@ const authenticateUser = async (email: string): Promise<boolean> => {
 };
 
 const getUser = async (email: string) => {
-  console.log(email);
   let res = await authenticateUser(email);
   if (res) {
     const response = await apiClient.get<IAjaxResult>(GET_USER, {
@@ -86,7 +83,6 @@ const getUser = async (email: string) => {
 };
 
 const useUser = (email: string): UseQueryResult<any> => {
-  console.log(email);
   return useQuery(["get-user"], () => getUser(email), {
     keepPreviousData: true,
   });

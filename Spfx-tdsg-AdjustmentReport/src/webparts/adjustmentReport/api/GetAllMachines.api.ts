@@ -15,7 +15,6 @@ export interface IMachines {
 
 export const getAllMachines = async (): Promise<IMachines> => {
   const response = await apiClient.get<IMachines>(`${basePath}/GetAllMachines`);
-  console.log({ response });
 
   return {
     Message: response.data.Message,

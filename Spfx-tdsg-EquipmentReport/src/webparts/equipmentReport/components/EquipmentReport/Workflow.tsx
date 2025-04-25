@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DATE_FORMAT, REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
+import { DATE_FORMAT, DATE_TIME_FORMAT, REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
 import { displayRequestStatus } from "../../utility/utility";
 import dayjs from "dayjs";
 import { IWorkFlow } from "../../apis/workflow/useGetApprovalFlowData";
@@ -154,7 +154,7 @@ const Workflow: React.FC<IProps> = ({
       {
         head: "Reviewer Comments",
         cellValues: approverTasks?.WorkflowTwo.map((item) => (
-          <Popover content={<span className="font-bold">{item.Comments}</span>}>
+          <Popover key={`${item.ApproverTaskId}_comment`} content={<span className="font-bold">{item.Comments}</span>}>
             {item.Comments}
           </Popover>
         )),
@@ -164,7 +164,7 @@ const Workflow: React.FC<IProps> = ({
         cellValues:
           approverTasks?.WorkflowTwo.map((item) =>
             item.ActionTakenDate
-              ? dayjs(item.ActionTakenDate).format(DATE_FORMAT)
+              ? dayjs(item.ActionTakenDate).format(DATE_TIME_FORMAT)
               : item?.Status === REQUEST_STATUS.NA ? REQUEST_STATUS.NA : ""
           ) ?? [],
       },

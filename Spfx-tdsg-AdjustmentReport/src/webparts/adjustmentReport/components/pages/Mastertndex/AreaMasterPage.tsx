@@ -118,7 +118,7 @@ const AreaMasterPage: React.FC = () => {
         AreaId: editingItem.AreaId,
         AreaName: values.AreaName,
         IsActive: values.IsActive,
-        ModifiedBy:user?.employeeId
+        ModifiedBy: user?.employeeId
       })
         .then((response) => {
 
@@ -201,12 +201,10 @@ const AreaMasterPage: React.FC = () => {
       dataIndex: "CreatedByName",
       key: "CreatedByName",
       render: (text) => {
-        return <p className="text-cell">{text??"-"}</p>;
+        return <p className="text-cell">{text ?? "-"}</p>;
       },
-      sorter: (a: any, b: any) =>
-        {
-          console.log("DATA",a,b);
-          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      sorter: (a: any, b: any) => {
+        return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
       },
     },
     {
@@ -226,12 +224,10 @@ const AreaMasterPage: React.FC = () => {
       dataIndex: "ModifiedByName",
       key: "ModifiedBy",
       render: (text) => {
-        return <p className="text-cell">{text??"-"}</p>;
+        return <p className="text-cell">{text ?? "-"}</p>;
       },
-      sorter: (a: any, b: any) =>
-        {
-          console.log("DATA",a,b);
-          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      sorter: (a: any, b: any) => {
+        return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
       },
     },
     {
@@ -252,19 +248,19 @@ const AreaMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-          {record?.IsActive &&<Popconfirm
+          {record?.IsActive && <Popconfirm
             title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.AreaId!)}
             okText="Yes"
             cancelText="No"
-            okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
-            cancelButtonProps={{ className:"btn btn-outline-primary"}}
+            okButtonProps={{ disabled: isViewMode, className: "btn btn-primary" }}
+            cancelButtonProps={{ className: "btn btn-outline-primary" }}
           >
             <Button
               title="Delete"
               className="action-btn"
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
-              //onClick={() => handleDelete(record.EquipmentId)}
+            //onClick={() => handleDelete(record.EquipmentId)}
             />
           </Popconfirm>}
         </span>
@@ -276,7 +272,7 @@ const AreaMasterPage: React.FC = () => {
     <Page title="Area Master">
       <div className="content flex-grow-1 p-4">
         <div className="d-flex justify-content-between items-center mb-3">
-          
+
           <button
             className="btn btn-link btn-back"
             type="button"
@@ -305,35 +301,35 @@ const AreaMasterPage: React.FC = () => {
             //     </div>
             //   ),
             // }}
-             pagination={{
-                    onChange:()=>{
-                      scrollToElementsTop("table-container");
-                    },
-                   
-                    showTotal: (total, range) => (
-                      <div className="d-flex align-items-center gap-3">
-                        <span style={{ marginRight: "auto" }}>
-                          Showing {range[0]}-{range[1]} of {total} items
-                        </span>
-            
-                       
-                      </div>
-                    ),
-                    itemRender: (_, __, originalElement) => originalElement,
-                  }}
+            pagination={{
+              onChange: () => {
+                scrollToElementsTop("table-container");
+              },
+
+              showTotal: (total, range) => (
+                <div className="d-flex align-items-center gap-3">
+                  <span style={{ marginRight: "auto" }}>
+                    Showing {range[0]}-{range[1]} of {total} items
+                  </span>
+
+
+                </div>
+              ),
+              itemRender: (_, __, originalElement) => originalElement,
+            }}
           />
         </div>
         <Modal
-        title={isViewMode?"View Item":editingItem ? "Edit Item" : "Add Item"}
-        open={modalVisible}
+          title={isViewMode ? "View Item" : editingItem ? "Edit Item" : "Add Item"}
+          open={modalVisible}
           onCancel={() => setModalVisible(false)}
           onOk={() => !isViewMode && form.submit()}
           okButtonProps={{ disabled: isViewMode }}
           footer={
-          isViewMode
-            ? null 
-            : undefined 
-        }
+            isViewMode
+              ? null
+              : undefined
+          }
         >
           <Form
             form={form}
@@ -345,14 +341,14 @@ const AreaMasterPage: React.FC = () => {
               name="AreaName"
               label="Area Name"
               rules={[{ required: true, message: "Please enter Area Name" },
-                {
-                  validator: (_, value) => {
-                    if (value && value.trim() === "") {
-                      return Promise.reject(new Error("Only spaces are not allowed"));
-                    }
-                    return Promise.resolve();
-                  },
+              {
+                validator: (_, value) => {
+                  if (value && value.trim() === "") {
+                    return Promise.reject(new Error("Only spaces are not allowed"));
+                  }
+                  return Promise.resolve();
                 },
+              },
               ]}
             >
               <Input type="text" disabled={isViewMode} />

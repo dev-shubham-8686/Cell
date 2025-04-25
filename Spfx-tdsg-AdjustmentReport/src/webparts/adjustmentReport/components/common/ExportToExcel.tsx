@@ -19,7 +19,7 @@ const ExportToExcel = forwardRef(({ type }: ExportToExcelProps, ref) => {
   const user = useUserContext();
 
   const { mutate } = useExportAdjustmentExcelListing();
-  
+
   // Expose some methods to the parent via ref
   useImperativeHandle(ref, () => ({
     openModal() {
@@ -69,8 +69,6 @@ const ExportToExcel = forwardRef(({ type }: ExportToExcelProps, ref) => {
       const toDate = values.toDate
         ? dayjs(values.toDate).format("YYYY-MM-DD")
         : "";
-      console.log(fromDate);
-      console.log(toDate);
       mutate(
         {
           fromDate,
