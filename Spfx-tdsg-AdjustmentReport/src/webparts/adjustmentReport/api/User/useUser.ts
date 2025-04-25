@@ -41,6 +41,7 @@ export interface IUser {
   isDivHeadUser: boolean;
   isAdmin: boolean;
   isAdminId: number;
+  isITSupportUser: boolean;
 }
 
 const authenticateUser = async (email: string): Promise<boolean> => {
@@ -60,7 +61,6 @@ const authenticateUser = async (email: string): Promise<boolean> => {
     GET_LOGIN_SESSION,
     JSON.stringify(body)
   );
-
   const data = response.data;
 
   // eslint-disable-next-line require-atomic-updates

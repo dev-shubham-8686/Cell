@@ -628,13 +628,14 @@ const RequestForm: React.FC<RequestFormProps> = ({
       return {
         ...item,
         key: index,
-        DueDate: item?.DueDate ? dayjs(item.DueDate, DATE_FORMAT).format(DATE_FORMAT) : null,
+        DueDate: item?.DueDate
+          ? dayjs(item.DueDate, DATE_FORMAT).format(DATE_FORMAT)
+          : null,
       };
     });
 
     setChangeRiskManagementDetails(newData);
     // form.resetFields();
-
     // form.setFieldsValue({
     //   ["ChangeRiskManagementDetails"]: newData,
     // });
@@ -1018,7 +1019,10 @@ const RequestForm: React.FC<RequestFormProps> = ({
             )}
 
           {(mode == "add" ||
-            (user?.isAdmin && !isViewMode && (!submitted && reportData?.ReturnValue?.CreatedBy == user?.employeeId)) ||
+            (user?.isAdmin &&
+              !isViewMode &&
+              !submitted &&
+              reportData?.ReturnValue?.CreatedBy == user?.employeeId) ||
             (!isViewMode && !submitted)) && (
               <button
                 className="btn btn-darkgrey "
@@ -1588,17 +1592,19 @@ const RequestForm: React.FC<RequestFormProps> = ({
               <Radio.Group
                 onChange={(e: any) => {
                   setCRMRequired(e.target.value);
-                  setChangeRiskManagementDetails([{
-                    key: 0,
-                    Changes: "",
-                    FunctionId: "",
-                    RiskAssociated: "",
-                    Factor: "",
-                    CounterMeasures: "",
-                    DueDate: null, // Set to current date or adjust as needed
-                    PersonInCharge: null, // Default value for PersonInCharge
-                    Results: "",
-                  },]);
+                  setChangeRiskManagementDetails([
+                    {
+                      key: 0,
+                      Changes: "",
+                      FunctionId: "",
+                      RiskAssociated: "",
+                      Factor: "",
+                      CounterMeasures: "",
+                      DueDate: null, // Set to current date or adjust as needed
+                      PersonInCharge: null, // Default value for PersonInCharge
+                      Results: "",
+                    },
+                  ]);
                   resetFieldsForKeyZero();
                 }}
                 value={cRMRequired}

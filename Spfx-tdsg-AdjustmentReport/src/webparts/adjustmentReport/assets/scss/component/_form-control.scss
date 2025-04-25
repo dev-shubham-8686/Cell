@@ -13,13 +13,14 @@
 
 .button-wrapper {
   position: absolute;
-  right:0;
-  top: -5rem;
+  right: 0;
+  top: -6rem;
   z-index: 1000;
 }
 
 .button-container {
   display: flex;
+  height: fit-content;
   gap: 1rem;
 }
 
