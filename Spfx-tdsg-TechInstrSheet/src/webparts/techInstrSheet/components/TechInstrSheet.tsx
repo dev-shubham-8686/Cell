@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { ITechInstrSheetProps } from "./ITechInstrSheetProps";
-import "../../../styles/dist/tailwind.css";
+// import "../../../styles/dist/tailwind.css";
 import { ConfigProvider } from "antd";
 import { WebPartContext } from "../context/WebPartContext";
 import { Route, HashRouter as Router, Routes } from "react-router-dom";
@@ -56,12 +56,12 @@ const TechInstrSheet: React.FC<ITechInstrSheetProps> = ({
   userEmail,
 }) => {
 
-  const style = { padding: "1rem"};
+  const style = { padding: "1rem" };
 
   document.addEventListener('copy', (e) => {
     if (typeof window !== "undefined" && window !== null) {
       const selection = window.getSelection()?.toString().trim() || ''; // Default to an empty string if selection is undefined
-  
+
       // Check if clipboardData is not null before using it
       if (e.clipboardData) {
         e.clipboardData.setData('text/plain', selection);
@@ -69,36 +69,36 @@ const TechInstrSheet: React.FC<ITechInstrSheetProps> = ({
       }
     }
   });
-  
+
 
   return (
     <WebPartContext.Provider value={context}>
-       <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
         <UserProvider userEmail={userEmail}>
-        <ConfigProvider
-          theme={{
-            token: {
-              colorTextDisabled: "var(--color-disabled-text)",
-              colorPrimary: "#c50017",
-            },
-          }}
-        >
+          <ConfigProvider
+            theme={{
+              token: {
+                colorTextDisabled: "var(--color-disabled-text)",
+                colorPrimary: "#c50017",
+              },
+            }}
+          >
 
-        <Router>
-            <main className="main-content" style={style}>
-              <Routes>
-                <Route path="/" element={<TechnicalInstructionList />} />
-                <Route path="/form/create" element={<TechnicalInstructionFrom isViewMode={false} />} />
-                <Route path="/form/edit/:id" element={<TechnicalInstructionFrom isViewMode={false} />} />
-                <Route path="/form/view/:id" element={<TechnicalInstructionFrom isViewMode={true} />} />
-                <Route path="/masterlist" element={<MasterTab />} />
-                <Route path="/masterlist/equipment" element={<TechnicalEquipmentMasterPage />} />
-              </Routes>
-            </main>
-          </Router>
-        </ConfigProvider>
+            <Router>
+              <main className="main-content" style={style}>
+                <Routes>
+                  <Route path="/" element={<TechnicalInstructionList />} />
+                  <Route path="/form/create" element={<TechnicalInstructionFrom isViewMode={false} />} />
+                  <Route path="/form/edit/:id" element={<TechnicalInstructionFrom isViewMode={false} />} />
+                  <Route path="/form/view/:id" element={<TechnicalInstructionFrom isViewMode={true} />} />
+                  <Route path="/masterlist" element={<MasterTab />} />
+                  <Route path="/masterlist/equipment" element={<TechnicalEquipmentMasterPage />} />
+                </Routes>
+              </main>
+            </Router>
+          </ConfigProvider>
         </UserProvider>
-        </QueryClientProvider>
+      </QueryClientProvider>
     </WebPartContext.Provider>
   );
 };

@@ -18,8 +18,9 @@ export const StatusColors = {
 // TODO: change URLs
 export const WEB_URL =
   //"https://synopsandbox.sharepoint.com/sites/Training2024"
-  "https://synopsandbox.sharepoint.com/sites/e-app-stage";
-//"https://tdsgj.sharepoint.com/sites/e-app-stage"
+  // "https://synopsandbox.sharepoint.com/sites/e-app-stage";
+  "https://tdsgj.sharepoint.com/sites/e-app-stage";
+// "https://tdsgj.sharepoint.com/sites/e-app";
 
 export const DOCUMENT_LIBRARIES = {
   Technical_Attachment: "TechnicalSheetDocs",
@@ -31,17 +32,21 @@ export const DOCUMENT_LIBRARIES = {
 
 export const SERVICE_URL =
   //"http://localhost:5246"
-  "https://localhost:44353";
-//"https://cellformservice-qa.tdsgj.co.in/"
-//"https://cellformservice-stage.tdsgj.co.in"
+  // "https://tdsg-eapp-cellforms.tdsgj.co.in";
+  //"https://cellformservice-qa.tdsgj.co.in/"
+  "https://cellformservice-stage.tdsgj.co.in";
 //"https://localhost:7190"
 //"https://localhost:7190/api/Technical"
 
 //export const TECNICAL_API_SERVICE_URL = "https://localhost:7190/api/Technical";
-export const TECNICAL_API_SERVICE_URL = "https://localhost:44353/api/Technical";
+export const TECNICAL_API_SERVICE_URL =
+  "https://cellformservice-stage.tdsgj.co.in/api/Technical";
+// "https://tdsg-eapp-cellforms.tdsgj.co.in/api/Technical";
 
 //export const TECNICAL_ROOT_SERVICE_URL = "https://localhost:7190";
-export const TECNICAL_ROOT_SERVICE_URL = "https://localhost:44353";
+export const TECNICAL_ROOT_SERVICE_URL =
+  "https://cellformservice-stage.tdsgj.co.in";
+// "https://tdsg-eapp-cellforms.tdsgj.co.in";
 
 export const DATE_FORMAT = "dd-MM-yyyy";
 export const EXCEL_DATE_FORMAT = "YYYY-MM-DD";
