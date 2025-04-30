@@ -24,11 +24,6 @@ namespace TDSGCellFormat.Implementation.Service
         {
             return _materialRepository.GetMaterialConsumptionList(createdOne, pageIndex, pageSize, order, orderBy, searchColumn, searchValue);
         }
-        public Task<object> GetAllMCSData(int createdOne, int pageIndex, int pageSize, string order, string orderBy, string searchColumn, string searchValue)
-        {
-            return _materialRepository.GetAllMaterialConsumptionList(createdOne, pageIndex, pageSize, order, orderBy, searchColumn, searchValue);
-        }
-
 
         public Task<object> GetMaterialConsumptionApproverList(int createdOne, int pageIndex, int pageSize, string order, string orderBy, string searchColumn, string searchValue)
         {

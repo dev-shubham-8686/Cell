@@ -1555,7 +1555,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                         var nextTask = _context.EquipmentImprovementApproverTaskMasters
                                         .Where(x => x.EquipmentImprovementId == equipmentData.EquipmentImprovementId && x.IsActive == true
-                                         && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (equipmentData.SequenceNo) + 1)
+                                         && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo > equipmentData.SequenceNo)
                                         .FirstOrDefault();
 
 
@@ -1589,7 +1589,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                                 var nextPendingTask = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == equipmentData.EquipmentImprovementId
                                         && x.IsActive == true
-                                      && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (nextTask.SequenceNo) + 1).FirstOrDefault();
+                                      && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo > nextTask.SequenceNo).FirstOrDefault();
 
                                 if (nextPendingTask != null)
                                 {
@@ -2369,6 +2369,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 string advisorComment = approvalData.FirstOrDefault(a => a.SequenceNo == 2 && (a.Status == ApprovalTaskStatus.Approved.ToString() ||  a.Status == ApprovalTaskStatus.Rejected.ToString()))?.Comments ?? string.Empty;
                 string advisorDate = approvalData.FirstOrDefault(a => a.SequenceNo == 2 && (a.Status == ApprovalTaskStatus.Approved.ToString() || a.Status == ApprovalTaskStatus.Rejected.ToString()))?.ActionTakenDate?.ToString("dd-MM-yyyy") ?? string.Empty;
 
+                string clsSectionHead = approvalData.FirstOrDefault(a => a.SequenceNo == 1 && a.WorkFlowlevel == 2 && a.ActionTakenBy != null)?.employeeNameWithoutCode ?? "N/A";
+
                 sb.Replace("#SectionHeadName#", approveSectioneHead);
                 sb.Replace("#DepartmentHeadName#", approvedByDepHead);
                 sb.Replace("#DivisionHeadName#", approvedByDivHead);
@@ -2386,7 +2388,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (equipmentData.WorkFlowLevel == 2 && equipmentData.Status == ApprovalTaskStatus.Completed.ToString())
                 {
-                    sb.Replace("#clsSectionHead#", approveSectioneHead);
+                    sb.Replace("#clsSectionHead#", clsSectionHead);
                 }
                 else
                 {
