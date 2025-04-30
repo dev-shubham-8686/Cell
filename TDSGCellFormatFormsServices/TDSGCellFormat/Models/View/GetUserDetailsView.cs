@@ -23,7 +23,6 @@
         public int isAdminId { get; set; }
         public bool isQcTeamUser  { get; set; }
         public bool isQcTeamHead { get; set; }
-        public bool? isITSupportUser { get; set; }
     }
 
     public class GetEquipmentUser
@@ -47,6 +46,5 @@
         public int isAdminId { get; set; }
         public bool isQcTeamUser { get; set; }
         public bool isQcTeamHead { get; set; }
-        public bool? isITSupportUser { get; set; }
     }
 }
