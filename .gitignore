@@ -38,3 +38,4 @@ obj
 
 # Styles Generated Code
 *.scss.ts
+/TDSGCellFormatFormsServices/TDSGCellFormat/Properties/PublishProfiles

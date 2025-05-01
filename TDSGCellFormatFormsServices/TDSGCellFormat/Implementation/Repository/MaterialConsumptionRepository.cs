@@ -599,7 +599,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             var commonHelper = new CommonHelper(_context, _cloneContext);
             int substituteUserId = 0;
-            bool IsSubstitute = false;
+            bool IsSubstitute = false; 
             try
             {
                 var requestTaskData = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.ApproverTaskId == ApproverTaskId && x.IsActive == true
