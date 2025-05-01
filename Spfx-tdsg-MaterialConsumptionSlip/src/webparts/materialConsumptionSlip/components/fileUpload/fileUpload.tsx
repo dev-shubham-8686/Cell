@@ -66,7 +66,6 @@ const FileUpload: FC<IFileUpload> = ({
     let description = null;
     if (files.length >= VALIDATIONS.attachment.maxFileCount) {
       description = ` ${VALIDATIONS.attachment.noOfFiles}`;
-
     }
 
     if (file.size && file.size > maxSize) {
