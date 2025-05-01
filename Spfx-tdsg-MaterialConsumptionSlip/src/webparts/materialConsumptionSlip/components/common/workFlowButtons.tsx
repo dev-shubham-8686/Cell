@@ -254,7 +254,7 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
           <></>
         )}
         {existingMaterialConsumptionSlip?.status == REQUEST_STATUS.InReview &&
-          user?.isAdmin ? (
+          user?.isTdsgAdmin ? (
           <div className="button-container">
             <button
               className="btn btn-primary"
