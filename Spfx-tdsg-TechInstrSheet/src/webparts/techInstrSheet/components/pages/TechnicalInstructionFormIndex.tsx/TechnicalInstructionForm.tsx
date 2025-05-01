@@ -2157,7 +2157,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           </TabPane>
 
           {existingTechniaclInstructionSlip !== null &&
-            existingTechniaclInstructionSlip.isClosed === true && (
+            existingTechniaclInstructionSlip?.isClosed === true && (
               <TabPane
                 tab={
                   <span
