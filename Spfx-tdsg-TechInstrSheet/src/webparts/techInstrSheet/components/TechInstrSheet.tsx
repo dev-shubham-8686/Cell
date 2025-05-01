@@ -1,6 +1,6 @@
 import * as React from "react";
 import type { ITechInstrSheetProps } from "./ITechInstrSheetProps";
-// import "../../../styles/dist/tailwind.css";
+import "../../../styles/dist/tailwind.css";
 import { ConfigProvider } from "antd";
 import { WebPartContext } from "../context/WebPartContext";
 import { Route, HashRouter as Router, Routes } from "react-router-dom";

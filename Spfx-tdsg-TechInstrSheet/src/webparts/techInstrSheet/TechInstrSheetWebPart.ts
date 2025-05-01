@@ -12,7 +12,7 @@ import * as strings from "TechInstrSheetWebPartStrings";
 import TechInstrSheet from "./components/TechInstrSheet";
 import { ITechInstrSheetProps } from "./components/ITechInstrSheetProps";
 
-// import "../../styles/dist/tailwind.css";
+import "../../styles/dist/tailwind.css";
 import "../../styles/index.scss";
 
 export interface ITechInstrSheetWebPartProps {
@@ -32,11 +32,6 @@ export default class TechInstrSheetWebPart extends BaseClientSideWebPart<ITechIn
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
         userDisplayName: this.context.pageContext.user.displayName,
         context: this.context,
-        //userEmail: "shubham@synopsandbox.onmicrosoft.com",
-        //userEmail: "Ebrahim@synopsandbox.onmicrosoft.com",
-        //userEmail: "amrut@synopsandbox.onmicrosoft.com",
-        //userEmail: "dparikh@synoptek.com",
-        // userEmail: "sourabh.joshi910@tdsgj.co.in",
         userEmail: this.context.pageContext.user.email,
       });
 
