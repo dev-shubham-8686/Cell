@@ -633,19 +633,54 @@ namespace TDSGCellFormat.Implementation.Repository
                     if (currentApproverTask != null)
                     {
                         var nextApproveTask = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.MaterialConsumptionId == requestTaskData.MaterialConsumptionId && x.IsActive == true
-                                 && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (requestTaskData.SequenceNo) + 1).ToList();
+                                 && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (requestTaskData.SequenceNo) + 1).FirstOrDefault();
 
-                        if (nextApproveTask.Any())
+                        if (nextApproveTask != null)
                         {
-                            foreach (var nextTask in nextApproveTask)
+                            int nextUser = nextApproveTask.DelegateUserId == 0 ? nextApproveTask.AssignedToUserId??0 : nextApproveTask.DelegateUserId??0;
+                            if(nextUser == CurrentUserId)
                             {
-                             
-                                nextTask.Status = ApprovalTaskStatus.InReview.ToString();
-                                nextTask.ModifiedDate = DateTime.Now;
+                                nextApproveTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
+                                nextApproveTask.ModifiedDate = DateTime.Now;
+                                nextApproveTask.ModifiedDate = DateTime.Now;
+                                nextApproveTask.ModifiedBy = CurrentUserId;
+                                nextApproveTask.ActionTakenBy = CurrentUserId;
+                                nextApproveTask.ActionTakenBy = CurrentUserId;
+                                nextApproveTask.Comments = comment;
                                 await _context.SaveChangesAsync();
-                                await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Approved, null, nextTask.ApproverTaskId);
 
+                                var nextToNextApproveTask = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.MaterialConsumptionId == requestTaskData.MaterialConsumptionId && x.IsActive == true
+                               && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (nextApproveTask.SequenceNo) + 1).FirstOrDefault();
+
+                                if(nextToNextApproveTask!=null)
+                                {                                
+                                    nextToNextApproveTask.Status = ApprovalTaskStatus.InReview.ToString();
+                                    nextToNextApproveTask.ModifiedDate = DateTime.Now;
+                                    await _context.SaveChangesAsync();
+
+                                    await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Approved, null, nextToNextApproveTask.ApproverTaskId);
+                                }
+                                else
+                                {
+                                    var materialConsumptionSlips = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == materialConsumptionId && x.IsDeleted == false && x.IsDeleted == false).FirstOrDefault();
+                                    if (materialConsumptionSlips != null)
+                                    {
+                                        materialConsumptionSlips.Status = ApprovalTaskStatus.Approved.ToString();
+                                        await _context.SaveChangesAsync();
+                                        await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Completed, null, 0);
+                                    }
+                                }
                             }
+                            else
+                            {
+                                nextApproveTask.Status = ApprovalTaskStatus.InReview.ToString();
+                                nextApproveTask.ModifiedDate = DateTime.Now;
+                                await _context.SaveChangesAsync();
+                                await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Approved, null, nextApproveTask.ApproverTaskId);
+                            }
+
+                               
+
                             // Notification code (if applicable)
                         }
                         else

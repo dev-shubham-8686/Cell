@@ -1102,6 +1102,12 @@ namespace TDSGCellFormat.Helper
                         {
                             string baseDirectory = AppContext.BaseDirectory;
                             string docLink = documentLink + "view/" + requestId;
+
+                            //local
+                            // string projectRootDirectory = Path.GetFullPath(Path.Combine(baseDirectory, @"..\..\..\"));
+                           // templateFilePath = Path.Combine(projectRootDirectory, templateDirectory, templateFile);
+
+                            //stage
                             templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
                             if (!string.IsNullOrEmpty(templateFilePath))
                             {
