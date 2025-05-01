@@ -2616,19 +2616,48 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+        //public IQueryable<SectionHeadSelectionView> GetAllSections()
+        //{
+
+        //    IQueryable<SectionHeadSelectionView> res = _context.SectionHeadEmpMasters.Where(x => x.IsActive == true)
+        //                                   .Select(x => new SectionHeadSelectionView
+        //                                   {
+        //                                       sectionHeadId = x.SectionHeadMasterId,
+        //                                       head = x.EmployeeId,
+        //                                       sectionName = _context.SectionMasters
+        //                                       .Where(c => c.SectionId == x.SectionId)
+        //                                       .Select(c => c.SectionName)
+        //                                       .FirstOrDefault()
+        //                                   });
+        //    return res;
+        //}
         public IQueryable<SectionHeadSelectionView> GetAllSections()
         {
 
-            IQueryable<SectionHeadSelectionView> res = _context.SectionHeadEmpMasters.Where(x => x.IsActive == true)
-                                           .Select(x => new SectionHeadSelectionView
-                                           {
-                                               sectionHeadId = x.SectionHeadMasterId,
-                                               head = x.EmployeeId,
-                                               sectionName = _context.SectionMasters
-                                               .Where(c => c.SectionId == x.SectionId)
-                                               .Select(c => c.SectionName)
-                                               .FirstOrDefault()
-                                           });
+            var empList = _cloneContext.EmployeeMasters
+                .Select(x => new
+                {
+                    x.EmployeeID,
+                    x.EmployeeName
+                })
+                .ToList();
+
+            var sectionList = _context.SectionMasters
+                .Select(s => new { s.SectionId, s.SectionName })
+                .ToList();
+
+
+            var res = _context.SectionHeadEmpMasters
+                .Where(x => x.IsActive == true)
+                .AsEnumerable()
+                .Select(x => new SectionHeadSelectionView
+                {
+                    sectionHeadId = x.SectionHeadMasterId,
+                    head = x.EmployeeId,
+                    headName = empList.FirstOrDefault(c => c.EmployeeID == x.EmployeeId)?.EmployeeName ?? "",
+                    sectionName = sectionList.FirstOrDefault(s => s.SectionId == x.SectionId)?.SectionName ?? ""
+                }).AsQueryable();
+
             return res;
         }
 
