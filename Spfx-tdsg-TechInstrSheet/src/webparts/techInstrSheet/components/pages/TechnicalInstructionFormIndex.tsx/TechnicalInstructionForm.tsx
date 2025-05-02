@@ -1779,6 +1779,10 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
         .catch((c) => {
           setLoading(false);
         });
+    } else {
+      void displayjsx.showErrorMsg(
+        "Please upload closure attachments."
+      );
     }
   };
 
