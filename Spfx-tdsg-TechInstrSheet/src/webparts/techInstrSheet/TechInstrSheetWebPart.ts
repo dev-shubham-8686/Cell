@@ -32,6 +32,7 @@ export default class TechInstrSheetWebPart extends BaseClientSideWebPart<ITechIn
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
         userDisplayName: this.context.pageContext.user.displayName,
         context: this.context,
+        // userEmail: "sourabh.joshi910@tdsgj.co.in",
         userEmail: this.context.pageContext.user.email,
       });
 
