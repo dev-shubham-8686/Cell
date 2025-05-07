@@ -18,7 +18,6 @@ const MaterialConsumptionSlips: React.FC = () => {
   const [currentTab, setCurrentTab] = useState(
     currentTabState ?? "myrequest-tab"
   );
-  console.log("CUREENTTAB", location.state, currentTab);
 
   const tabs = [
     {
@@ -31,17 +30,15 @@ const MaterialConsumptionSlips: React.FC = () => {
     },
     ...(user?.isITSupportUser && !user?.isAdmin
       ? [
-          {
-            id: "allrequests-tab",
-            name: "All Requests",
-          },
-        ]
+        {
+          id: "allrequests-tab",
+          name: "All Requests",
+        },
+      ]
       : []),
   ];
 
   React.useEffect(() => {
-    console.log({ user });
-
     if (user?.isITSupportUser && !user?.isAdmin) {
       setCurrentTab("allrequests-tab");
     }
@@ -80,9 +77,8 @@ const MaterialConsumptionSlips: React.FC = () => {
             return (
               <li key={tab.id} className="nav-item" role="presentation">
                 <button
-                  className={`nav-link ${
-                    currentTab === tab.id ? "active" : ""
-                  }`}
+                  className={`nav-link ${currentTab === tab.id ? "active" : ""
+                    }`}
                   id={tab.id}
                   data-bs-toggle="tab"
                   data-bs-target={`#${tab.id}-pane`}

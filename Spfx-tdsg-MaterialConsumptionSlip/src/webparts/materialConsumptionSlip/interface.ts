@@ -17,6 +17,7 @@ export interface IUser {
   cMRoleId: number;
   isDivHeadUser: boolean;
   isAdmin: boolean;
+  isTdsgAdmin: boolean;
   isAdminId: number;
   isMCSAdmin: number;
   isITSupportUser: boolean;

@@ -1,6 +1,7 @@
 import { Button, Form, Input, Modal, Select } from "antd";
-import React from "react";
+import React, { useContext } from "react";
 import useEmployeeMaster from "../../apis/MasterAPIs/EmployeeMaster";
+import { UserContext } from "../../context/userContext";
 
 export interface ITextBoxModal {
   showDelegate?: boolean;
@@ -47,6 +48,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
   const [form] = Form.useForm();
   const { TextArea } = Input;
   const { data: employees, isLoading: employeeIsLoading } = useEmployeeMaster();
+  const user = useContext(UserContext);
 
   const handleChange = (): void => {
     const fieldErrors = form.getFieldError(titleKey);
@@ -73,7 +75,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
           form={form}
           onFinish={(values) => {
             if (isRequiredField && !values[titleKey]) {
-              
+
               form.setFields([
                 {
                   name: titleKey,
@@ -81,7 +83,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
                 },
               ]);
             } else {
-              
+
               onSubmit(values);
               form.resetFields();
             }
@@ -89,7 +91,7 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
           layout="vertical"
         >
 
-{ showDelegate ? (
+          {showDelegate ? (
             <Form.Item
               name="DelegateUserId"
               label="Select a Delegate User"
@@ -122,17 +124,17 @@ const TextBoxModal: React.FC<ITextBoxModal> = ({
             name={titleKey}
             label={label}
             initialValue={initialValue}
-            // rules={inputRules}
-            
+          // rules={inputRules}
+
           >
-            <TextArea className="mt-2" rows={4} onChange={handleChange} maxLength={500}/>
+            <TextArea className="mt-2" rows={4} onChange={handleChange} maxLength={500} />
           </Form.Item>
           <div className="d-flex gap-3 justify-content-end ">
             <Button
               key="back"
               className="btn-outline-primary"
               onClick={() => {
-                
+
                 form.resetFields(); // Reset all fields --  for removing comments 
                 onCancel();
               }}

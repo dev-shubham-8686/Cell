@@ -19,12 +19,12 @@ import { scrollToElementsTop } from "../../../utility/utility";
 interface IUnitOfMeasureMaster {
   UOMId: number;
   UOMName: string;
-    CreatedDate?: string;
+  CreatedDate?: string;
   CreatedBy?: number;
   ModifiedBy?: number;
   ModifiedDate?: string;
   IsActive?: boolean;
-  }
+}
 
 
 const UOMMasterPage: React.FC = () => {
@@ -37,7 +37,7 @@ const UOMMasterPage: React.FC = () => {
   const [form] = Form.useForm();
   const user = useContext(UserContext);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
-//   const { data: unitsOfMeasure , isLoading:UOMLoading} = useUnitsOfMeasure();
+  //   const { data: unitsOfMeasure , isLoading:UOMLoading} = useUnitsOfMeasure();
 
   const fetchData = () => {
     setLoading(true);
@@ -89,28 +89,28 @@ const UOMMasterPage: React.FC = () => {
 
   const handleSave = (values: IUnitOfMeasureMaster) => {
     if (editingItem) {
-        uomMasterAddOrUpdate({
+      uomMasterAddOrUpdate({
         UomId: editingItem.UOMId,
         UOMName: values.UOMName,
         IsActive: values.IsActive,
-        ModifiedBy:user?.employeeId
+        ModifiedBy: user?.employeeId
       })
         .then((response) => {
 
-           let result = response?.ReturnValue;
-          
-                    if (result.UomId == -1) {
-                      void displayjsx.showInfo("Duplicate record found");
-                      return false;
-                    }
+          let result = response?.ReturnValue;
+
+          if (result.UomId == -1) {
+            void displayjsx.showInfo("Duplicate record found");
+            return false;
+          }
           void displayjsx.showSuccess("Record updated successfully");
-          
+
           fetchData();
           setModalVisible(false);
         })
         .catch(() => {
           void displayjsx.showErrorMsg("Failed to update record");
-          
+
         });
     } else {
       // Create new record
@@ -124,19 +124,19 @@ const UOMMasterPage: React.FC = () => {
 
           let result = response.ReturnValue;
 
-          if(result.UomId == -1){
+          if (result.UomId == -1) {
             void displayjsx.showInfo("Duplicate record found");
-             return false;
+            return false;
           }
 
           void displayjsx.showSuccess("Record created successfully");
-          
+
           fetchData();
           setModalVisible(false);
         })
         .catch(() => {
           void displayjsx.showErrorMsg("Failed to create record");
-         
+
         });
     }
   };
@@ -176,13 +176,11 @@ const UOMMasterPage: React.FC = () => {
       title: "Created By",
       dataIndex: "CreatedByName",
       key: "CreatedByName",
-      render: (text:any) => {
-        return <p className="text-cell">{text??"-"}</p>;
+      render: (text: any) => {
+        return <p className="text-cell">{text ?? "-"}</p>;
       },
-      sorter: (a: any, b: any) =>
-        {
-          console.log("DATA",a,b);
-          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      sorter: (a: any, b: any) => {
+        return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
       },
     },
     {
@@ -201,13 +199,11 @@ const UOMMasterPage: React.FC = () => {
       title: "Modified By",
       dataIndex: "ModifiedByName",
       key: "ModifiedByName",
-      render: (text:any) => {
-        return <p className="text-cell">{text??"-"}</p>;
+      render: (text: any) => {
+        return <p className="text-cell">{text ?? "-"}</p>;
       },
-      sorter: (a: any, b: any) =>
-        {
-          console.log("DATA",a,b);
-          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      sorter: (a: any, b: any) => {
+        return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
       },
     },
     {
@@ -228,19 +224,19 @@ const UOMMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-         {record?.IsActive && <Popconfirm
+          {record?.IsActive && <Popconfirm
             title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.UOMId!)}
             okText="Yes"
             cancelText="No"
-            okButtonProps={{className:"btn btn-primary"}}
-            cancelButtonProps={{className:"btn btn-outline-primary"}}
+            okButtonProps={{ className: "btn btn-primary" }}
+            cancelButtonProps={{ className: "btn btn-outline-primary" }}
           >
             <Button
               title="Delete"
               className="action-btn"
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
-              // onClick={() => handleDelete(record.UOMId)}
+            // onClick={() => handleDelete(record.UOMId)}
             />
           </Popconfirm>}
         </span>
@@ -250,95 +246,95 @@ const UOMMasterPage: React.FC = () => {
 
   return (
     <Page title="Material Master">
-    <div className="content flex-grow-1 p-4">
+      <div className="content flex-grow-1 p-4">
 
-      <div className="d-flex justify-content-between items-center mb-3">
-        <div>
-        <button
-                 className="btn btn-link btn-back px-0"
-                 type="button"
-                 onClick={() => navigate(`/master`)}
-               >
-                 <FontAwesomeIcon
-            className="me-2"
-            icon={faCircleChevronLeft}
-                 />
-                 Back
-               </button>
-        </div>
-        
-        <div>
-        <Button type="primary"
-                  className="btn btn-primary"
-                  onClick={handleAdd}>
-          Add New
-        </Button>
-      </div>
-      </div>
-      <div className="table-container pt-0">
-      <Table
-        columns={columns}
-        dataSource={data}
-        rowKey="id"
-        loading={loading}
-        pagination={{
-          onChange:()=>{
-            scrollToElementsTop("table-container");
-          },
-         
-          showTotal: (total, range) => (
-            <div className="d-flex align-items-center gap-3">
-              <span style={{ marginRight: "auto" }}>
-                Showing {range[0]}-{range[1]} of {total} items
-              </span>
-  
-             
-            </div>
-          ),
-          itemRender: (_, __, originalElement) => originalElement,
-        }}
-      />
-      </div>
-      <Modal
-        title={isViewMode?"View Item":editingItem ? "Edit Item" : "Add Item"}
-        open={modalVisible}
-        
-        onCancel={() => setModalVisible(false)}
-        onOk={() => !isViewMode && form.submit()}
-        okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
-        cancelButtonProps={{ className:"btn btn-outline-primary"}}
-        footer={
-          isViewMode
-            ? null 
-            : undefined 
-        }
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSave}
-          initialValues={{ UOMName: "", IsActive: false }}
-        >
-          <Form.Item
-            name="UOMName"
-            label="UOM Name"
-            rules={[{ required: true, message: "Please enter UOM Name" }]}
-          >
-            <Input type="text" disabled={isViewMode} />
-          </Form.Item>
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <Form.Item
-              name="IsActive"
-              valuePropName="checked"
-              style={{ marginBottom: 0 }}
-              className="btn-outline-primary"
+        <div className="d-flex justify-content-between items-center mb-3">
+          <div>
+            <button
+              className="btn btn-link btn-back px-0"
+              type="button"
+              onClick={() => navigate(`/master`)}
             >
-              <Checkbox disabled={isViewMode} >Is Active</Checkbox>
-            </Form.Item>
+              <FontAwesomeIcon
+                className="me-2"
+                icon={faCircleChevronLeft}
+              />
+              Back
+            </button>
           </div>
-        </Form>
-      </Modal>
-    </div>
+
+          <div>
+            <Button type="primary"
+              className="btn btn-primary"
+              onClick={handleAdd}>
+              Add New
+            </Button>
+          </div>
+        </div>
+        <div className="table-container pt-0">
+          <Table
+            columns={columns}
+            dataSource={data}
+            rowKey="id"
+            loading={loading}
+            pagination={{
+              onChange: () => {
+                scrollToElementsTop("table-container");
+              },
+
+              showTotal: (total, range) => (
+                <div className="d-flex align-items-center gap-3">
+                  <span style={{ marginRight: "auto" }}>
+                    Showing {range[0]}-{range[1]} of {total} items
+                  </span>
+
+
+                </div>
+              ),
+              itemRender: (_, __, originalElement) => originalElement,
+            }}
+          />
+        </div>
+        <Modal
+          title={isViewMode ? "View Item" : editingItem ? "Edit Item" : "Add Item"}
+          open={modalVisible}
+
+          onCancel={() => setModalVisible(false)}
+          onOk={() => !isViewMode && form.submit()}
+          okButtonProps={{ disabled: isViewMode, className: "btn btn-primary" }}
+          cancelButtonProps={{ className: "btn btn-outline-primary" }}
+          footer={
+            isViewMode
+              ? null
+              : undefined
+          }
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSave}
+            initialValues={{ UOMName: "", IsActive: false }}
+          >
+            <Form.Item
+              name="UOMName"
+              label="UOM Name"
+              rules={[{ required: true, message: "Please enter UOM Name" }]}
+            >
+              <Input type="text" disabled={isViewMode} />
+            </Form.Item>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <Form.Item
+                name="IsActive"
+                valuePropName="checked"
+                style={{ marginBottom: 0 }}
+                className="btn-outline-primary"
+              >
+                <Checkbox disabled={isViewMode} >Is Active</Checkbox>
+              </Form.Item>
+            </div>
+          </Form>
+        </Modal>
+      </div>
     </Page>
   );
 };
