@@ -932,7 +932,7 @@ namespace TDSGCellFormat.Helper
                         {
                             case EmailNotificationAction.Submitted:
                                 templateFile = "MaterialConsumption_Submitted.html";
-                                emailSubject = string.Format("[Action required!] MCS_{0} has been Submitted for Approval", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action required!] {0} has been Submitted for Approval", materialData.MaterialConsumptionSlipNo);
                                 isInReviewTask = true;
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
@@ -940,7 +940,7 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.ReSubmitted:
                                 templateFile = "MaterialConsumption_ReSubmitted.html";
-                                emailSubject = string.Format("[Action required!] MCS_{0} has been ReSubmitted", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action required!] {0} has been ReSubmitted", materialData.MaterialConsumptionSlipNo);
                                 isInReviewTask = true;
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
@@ -948,7 +948,7 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.Approved:
                                 templateFile = "MaterialConsumption_Approved.html";
-                                emailSubject = string.Format("[Action required!] MCS_{0} has been Submitted for Approval", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action required!] {0} has been Submitted for Approval", materialData.MaterialConsumptionSlipNo);
                                 isInReviewTask = true;
                                 isApprovedtask = true;
                                 approvelink = true;
@@ -957,20 +957,26 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.ApproveInformed:
                                 templateFile = "MaterialConsumption_ApprovedInfo.html";
-                                emailSubject = string.Format("[Action taken!] MCS_{0} has been Approved", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action taken!] {0} has been Approved", materialData.MaterialConsumptionSlipNo);
                                 isRequestorinToEmail = true;
+                                break;
+
+                            case EmailNotificationAction.AutoApproved:
+                                templateFile = "MaterialConsumption_AutoApprove.html";
+                                emailSubject = string.Format("[Action taken!] {0} has been Auto Approved", materialData.MaterialConsumptionSlipNo);                          
+                                isRequestorinCCEmail = true;
                                 break;
 
                             case EmailNotificationAction.Amended:
                                 templateFile = "MaterialConsumption_AskForAmendment .html";
-                                emailSubject = string.Format("[Action taken!] MCS_{0} has been Asked for Amendment", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action taken!] {0} has been Asked for Amendment", materialData.MaterialConsumptionSlipNo);
                                 isRequestorinToEmail = true;
                                 approvelink = true;
                                 break;
 
                             case EmailNotificationAction.PullBack:
                                 templateFile = "MaterialConsumption_PullBack.html";
-                                emailSubject = string.Format("[Action taken!] MCS_{0} has been Pull Backed", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action taken!] {0} has been Pull Backed", materialData.MaterialConsumptionSlipNo);
                                 isApprovedtask = true;
                                 isInReviewTask = true;
                                 isRequestorinCCEmail = true;
@@ -978,14 +984,14 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.Completed:
                                 templateFile = "MaterialConsumption_Completed.html";
-                                emailSubject = string.Format("[Action required!]  MCS_{0} has been Approved and Submitted for close request", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action required!]  {0} has been Approved and Submitted for close request", materialData.MaterialConsumptionSlipNo);
                                 isRequestorinToEmail = true;
                                 cpcDeptPeople = true;
                                 break;
 
                             case EmailNotificationAction.Closed:
                                 templateFile = "MaterialConsumption_Closed.html";
-                                emailSubject = string.Format("[Action Taken] MCS_{0} has been Closed", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action Taken] {0} has been Closed", materialData.MaterialConsumptionSlipNo);
                                 isDepartMentHead = true;
                                 break;
 
@@ -1094,6 +1100,17 @@ namespace TDSGCellFormat.Helper
                                     {
                                         emailCCAddressList.Add(item.email);
                                     }
+                                }
+                            }
+                        }
+
+                        if (emailNotification == EmailNotificationAction.AutoApproved)
+                        {
+                            foreach (var item in approverData)
+                            {
+                                if (item.Status == ApprovalTaskStatus.Approved.ToString())
+                                {
+                                    emailToAddressList.Add(item.email);
                                 }
                             }
                         }

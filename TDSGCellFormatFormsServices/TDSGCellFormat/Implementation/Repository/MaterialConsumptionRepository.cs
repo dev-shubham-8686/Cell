@@ -641,18 +641,24 @@ namespace TDSGCellFormat.Implementation.Repository
                             if(nextUser == CurrentUserId)
                             {
                                 nextApproveTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
-                                nextApproveTask.ModifiedDate = DateTime.Now;
-                                nextApproveTask.ModifiedDate = DateTime.Now;
+                                nextApproveTask.ModifiedDate = DateTime.Now;                             
                                 nextApproveTask.ModifiedBy = CurrentUserId;
                                 nextApproveTask.ActionTakenBy = CurrentUserId;
-                                nextApproveTask.ActionTakenBy = CurrentUserId;
+                                nextApproveTask.ActionTakenDate = currentApproverTask.ActionTakenDate;
                                 nextApproveTask.Comments = comment;
                                 await _context.SaveChangesAsync();
+
+                                InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, comment, requestTaskData.Status, Convert.ToInt32(CurrentUserId), "Auto Approved", 0);
+
+
+                                await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.AutoApproved, comment);
 
                                 var nextToNextApproveTask = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.MaterialConsumptionId == requestTaskData.MaterialConsumptionId && x.IsActive == true
                                && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (nextApproveTask.SequenceNo) + 1).FirstOrDefault();
 
-                                if(nextToNextApproveTask!=null)
+
+                               
+                                    if (nextToNextApproveTask!=null)
                                 {                                
                                     nextToNextApproveTask.Status = ApprovalTaskStatus.InReview.ToString();
                                     nextToNextApproveTask.ModifiedDate = DateTime.Now;
@@ -711,7 +717,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var materialData = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == materialConsumptionId && x.IsDeleted == false).FirstOrDefault();
                     materialData.Status = ApprovalTaskStatus.UnderAmendment.ToString();
 
-                    InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, requestTaskData.Comments, requestTaskData.Status, Convert.ToInt32(requestTaskData.ModifiedBy), ApprovalTaskStatus.AskToAmend.ToString(), 0);
+                    InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, requestTaskData.Comments, requestTaskData.Status, Convert.ToInt32(requestTaskData.ModifiedBy), "Ask To Amend", 0);
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Amended, comment, ApproverTaskId);
@@ -1338,12 +1344,25 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var material = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId 
+
+                var materialAssignedToUsers = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId && x.DelegateUserId == 0
                                                                                        && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
                                                                                       && x.MaterialConsumptionId == request.FormId && x.IsActive == true).ToList();
-                if (material != null)
+
+                var materialDelegateUsers = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.DelegateUserId == request.activeUserId 
+                                                                                       && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
+                                                                                      && x.MaterialConsumptionId == request.FormId && x.IsActive == true).ToList();
+
+                //var inReviewTask = _context.MaterialConsumptionApproverTaskMasters.FirstOrDefault(x => x.Status == ApprovalTaskStatus.InReview.ToString() && x.MaterialConsumptionId == request.FormId && x.IsActive == true);
+                //int lastUserId = 0;
+                //if(inReviewTask != null)
+                //{
+                //    lastUserId = inReviewTask.DelegateUserId == 0 ? inReviewTask.AssignedToUserId??0 : inReviewTask.DelegateUserId ?? 0;
+                //}
+
+                if (materialAssignedToUsers != null)
                 {
-                    foreach (var user in material)
+                    foreach (var user in materialAssignedToUsers)
                     {
                         user.DelegateUserId = request.DelegateUserId;
                         user.DelegateBy = request.UserId;
@@ -1351,6 +1370,23 @@ namespace TDSGCellFormat.Implementation.Repository
                         //user.Comments = request.Comments;
                         await _context.SaveChangesAsync();
                     }
+                }
+
+                if (materialDelegateUsers != null)
+                {
+                    foreach (var user in materialDelegateUsers)
+                    {
+                        user.DelegateUserId = request.DelegateUserId;
+                        user.DelegateBy = request.UserId;
+                        user.DelegateOn = DateTime.Now;
+                        //user.Comments = request.Comments;
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                if (materialAssignedToUsers != null || materialDelegateUsers != null)
+                {
+                    
                     InsertHistoryData(request.FormId, FormType.MaterialConsumption.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
                     var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.MaterialConsumption.ToString()).OrderByDescending(x=>x.DelegateUserId).FirstOrDefault();
