@@ -58,32 +58,6 @@ namespace TDSGCellFormat.Controllers
             return Ok(Ajaxresponse);
         }
 
-        [HttpGet("GetAllMCSData")]
-        public async Task<IActionResult> GetAllMCSData(int createdBy, int skip, int take, string order = "", string orderBy = "", string searchColumn = "", string? searchValue = "")
-        {
-
-            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
-            // Call the IsValidAuthentication method
-            AjaxResult authResult;
-            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
-
-            if (!isValidAuth)
-            {
-                // Return unauthorized response if authentication fails
-                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
-                return Unauthorized(Ajaxresponse);
-            }
-
-            var res = await _materialService.GetAllMCSData(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
-            if (res != null)
-                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Success, Enums.GetEnumDescription(Enums.Message.RetrivedSuccess), res);
-            else
-                Ajaxresponse = responseHelper.ResponseMessage(Enums.Status.Error, Enums.GetEnumDescription(Enums.Message.DataNotFound), res);
-
-            return Ok(Ajaxresponse);
-        }
-
-
 
         [HttpGet("materialList")]
         public async Task<IActionResult> Get(int createdBy, int skip, int take, string order = "", string orderBy = "", string searchColumn = "", string searchValue = "")
@@ -484,17 +458,17 @@ namespace TDSGCellFormat.Controllers
         [HttpPost("InsertDelegate")]
         public async Task<IActionResult> InsertDelegate(DelegateUser request)
         {
-            var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
-            // Call the IsValidAuthentication method
-            AjaxResult authResult;
-            bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
+            //var authHelper = new AuthenticationHelper(_context, _cloneContext, _httpContextAccessor);
+            //// Call the IsValidAuthentication method
+            //AjaxResult authResult;
+            //bool isValidAuth = authHelper.IsValidAuthentication(out authResult);
 
-            if (!isValidAuth)
-            {
-                // Return unauthorized response if authentication fails
-                Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
-                return Unauthorized(Ajaxresponse);
-            }
+            //if (!isValidAuth)
+            //{
+            //    // Return unauthorized response if authentication fails
+            //    Ajaxresponse = responseHelper.ResponseMessage(authResult.StatusCode, authResult.Message, authResult.ResultType);
+            //    return Unauthorized(Ajaxresponse);
+            //}
 
             var result = await _materialService.InsertDelegate(request);
             if (result != null)

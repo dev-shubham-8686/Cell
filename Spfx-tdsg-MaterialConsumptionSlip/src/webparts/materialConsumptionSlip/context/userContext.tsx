@@ -28,7 +28,7 @@ export const UserProvider: React.FC<IUserProvider> = ({
     // "diparmar@synoptek.com"
     // "ebrahim@synopsandbox.onmicrosoft.com"     //  admin
   );
-  console.log("USERROLE Res", data);
+
   return (
     <UserContext.Provider value={data ?? null}>
       {isLoading && <Spin spinning fullscreen />}

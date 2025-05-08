@@ -80,11 +80,8 @@ const CreateEditMaterialConsumptionSlipLayout = () => {
   const location = useLocation();
   const { isApproverRequest, currentTabState, fromReviewTab } =
     location.state || {};
-
   const [currentTab, setCurrentTab] = useState(tabs[0].id);
-
   const onBack = React.useCallback(() => {
-
     navigate("/", {
       state: {
         currentTabState: isApproverRequest
@@ -97,10 +94,10 @@ const CreateEditMaterialConsumptionSlipLayout = () => {
 
   return (
     <Page title="Material Consumption Form">
-      <div className="content flex-grow-1 p-4">
+      <div className="content flex-grow-1 p-4 pt-0">
         <div className=" d-flex justify-content-between align-items-center">
           <button
-            className="btn btn-link btn-back pl-0"
+            className="btn btn-link btn-back pt-4"
             type="button"
             onClick={onBack}
           >
@@ -121,8 +118,7 @@ const CreateEditMaterialConsumptionSlipLayout = () => {
             return (
               <li key={tab.id} className="nav-item" role="presentation">
                 <button
-                  className={`nav-link ${currentTab === tab.id ? "active" : ""
-                    }`}
+                  className={`nav-link form-tab ${currentTab === tab.id ? "active" : ""}`}
                   id={tab.id}
                   data-bs-toggle="tab"
                   data-bs-target={`#${tab.id}-pane`}

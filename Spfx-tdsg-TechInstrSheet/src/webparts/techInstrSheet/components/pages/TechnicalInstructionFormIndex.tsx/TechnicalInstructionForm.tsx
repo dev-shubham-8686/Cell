@@ -217,16 +217,16 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
               : null,
             technicalAttachmentAdds: returnValue.technicalAttachmentAdds
               ? setFileList(
-                  mapTechnicalAttachments(returnValue.technicalAttachmentAdds)
-                )
+                mapTechnicalAttachments(returnValue.technicalAttachmentAdds)
+              )
               : null,
             technicalOutlineAttachmentAdds:
               returnValue.technicalOutlineAttachmentAdds
                 ? setTechnicalOutlineFileList(
-                    mapTechnicalOutlineAttachments(
-                      returnValue.technicalOutlineAttachmentAdds
-                    )
+                  mapTechnicalOutlineAttachments(
+                    returnValue.technicalOutlineAttachmentAdds
                   )
+                )
                 : null,
           });
 
@@ -1270,6 +1270,10 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
         `File "${file.name}" exceeds the size limit of ${MAX_FILE_SIZE_MB} MB.`
       );
       return false;
+    } else if (/[*'",%&#^@]/.test(file.name)) {
+      void displayjsx.showErrorMsg(
+        "File name must not contain Invalid Characters(*'\"%,&#^@) !"
+      );
     }
 
     // Validate file type using `some` instead of `includes`
@@ -1302,7 +1306,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
 
           console.log(isValidFolder);
           // Upload the file
-          await uploadFile(
+          const fileResponse = await uploadFile(
             webPartContext,
             DOCUMENT_LIBRARIES.Technical_Attachment,
             folderName,
@@ -1311,22 +1315,28 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
             DOCUMENT_LIBRARIES.Technical_Attachment__Related_Document
           );
 
-          // Add a record in the technical attachments
-          await createTechnicalAttachment({
-            TechnicalId: id,
-            DocumentName: uploadFileItem.name,
-            CreatedBy: user?.employeeId,
-          });
+          if (fileResponse) {
+            // Add a record in the technical attachments
+            await createTechnicalAttachment({
+              TechnicalId: id,
+              DocumentName: uploadFileItem.name,
+              CreatedBy: user?.employeeId,
+            });
 
-          // Refresh the technical instruction to get the updated file list
-          const data = await getTechnicalInstructionById(id!);
-          const returnValue = data.ReturnValue;
-          setFileList(
-            mapTechnicalAttachments(returnValue.technicalAttachmentAdds)
-          );
-          void displayjsx.showSuccess(
-            `${uploadFileItem.name} saved successfully.`
-          );
+            // Refresh the technical instruction to get the updated file list
+            const data = await getTechnicalInstructionById(id!);
+            const returnValue = data.ReturnValue;
+            setFileList(
+              mapTechnicalAttachments(returnValue.technicalAttachmentAdds)
+            );
+            void displayjsx.showSuccess(
+              `${uploadFileItem.name} saved successfully.`
+            );
+          } else {
+            void displayjsx.showErrorMsg(
+              `Failed to saved ${uploadFileItem.name}. Please try again.`
+            );
+          }
         } catch (error) {
           setLoading(false);
           void displayjsx.showErrorMsg(
@@ -1361,7 +1371,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
 
           console.log(isValidFolder);
           // Upload the file
-          await uploadFile(
+          const fileRes = await uploadFile(
             webPartContext,
             DOCUMENT_LIBRARIES.Technical_Attachment,
             folderName,
@@ -1371,7 +1381,12 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           );
 
           // If no duplicate, add the file to the fileList directly
-          setFileList([...fileList, file]);
+          if (fileRes) setFileList([...fileList, file]);
+          else {
+            void displayjsx.showErrorMsg(
+              `Failed to saved ${uploadFileItem.name}. Please try again.`
+            );
+          }
         } catch (error) {
           setLoading(false);
           void displayjsx.showErrorMsg(
@@ -1423,6 +1438,10 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
         `File "${file.name}" exceeds the size limit of ${MAX_FILE_SIZE_MB} MB.`
       );
       return false;
+    } else if (/[*'",%&#^@]/.test(file.name)) {
+      void displayjsx.showErrorMsg(
+        "File name must not contain Invalid Characters(*'\"%,&#^@) !"
+      );
     }
 
     // Validate file type using `some` instead of `includes`
@@ -1455,7 +1474,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
 
           console.log(isValidFolder);
           // Upload the file
-          await uploadFile(
+          const fileRes = await uploadFile(
             webPartContext,
             DOCUMENT_LIBRARIES.Technical_Attachment,
             folderName,
@@ -1464,24 +1483,30 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
             DOCUMENT_LIBRARIES.Technical_Attachment__Outline_Attachment
           );
 
-          // Add a record in the technical attachments
-          await createTechnicalOutlineAttachment({
-            TechnicalId: id,
-            DocumentName: uploadFileItem.name,
-            CreatedBy: user?.employeeId,
-          });
+          if (fileRes) {
+            // Add a record in the technical attachments
+            await createTechnicalOutlineAttachment({
+              TechnicalId: id,
+              DocumentName: uploadFileItem.name,
+              CreatedBy: user?.employeeId,
+            });
 
-          // Refresh the technical instruction to get the updated file list
-          const data = await getTechnicalInstructionById(id!);
-          const returnValue = data.ReturnValue;
-          setTechnicalOutlineFileList(
-            mapTechnicalOutlineAttachments(
-              returnValue.technicalOutlineAttachmentAdds
-            )
-          );
-          void displayjsx.showSuccess(
-            `${uploadFileItem.name} saved successfully.`
-          );
+            // Refresh the technical instruction to get the updated file list
+            const data = await getTechnicalInstructionById(id!);
+            const returnValue = data.ReturnValue;
+            setTechnicalOutlineFileList(
+              mapTechnicalOutlineAttachments(
+                returnValue.technicalOutlineAttachmentAdds
+              )
+            );
+            void displayjsx.showSuccess(
+              `${uploadFileItem.name} saved successfully.`
+            );
+          } else {
+            void displayjsx.showErrorMsg(
+              `Failed to saved ${uploadFileItem.name}. Please try again.`
+            );
+          }
         } catch (error) {
           setLoading(false);
           void displayjsx.showErrorMsg(
@@ -1516,7 +1541,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
 
           console.log(isValidFolder);
           // Upload the file
-          await uploadFile(
+          const fileRes = await uploadFile(
             webPartContext,
             DOCUMENT_LIBRARIES.Technical_Attachment,
             folderName,
@@ -1526,7 +1551,12 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           );
 
           // If no duplicate, add the file to the fileList directly
-          setTechnicalOutlineFileList([...technicalOutlineFileList, file]);
+          if (fileRes) setTechnicalOutlineFileList([...technicalOutlineFileList, file]);
+          else {
+            void displayjsx.showErrorMsg(
+              `Failed to saved ${uploadFileItem.name}. Please try again.`
+            );
+          }
         } catch (error) {
           setLoading(false);
           void displayjsx.showErrorMsg(
@@ -1543,62 +1573,6 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
   };
 
   const handleClosureUpload = async (file: any) => {
-    // const MAX_FILES = 3;
-    // const MAX_FILE_SIZE_MB = 10;
-    // const ALLOWED_FILE_TYPES = [
-    //   "application/msword",
-    //   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    //   "application/vnd.ms-excel",
-    //   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    //   "application/pdf",
-    //   "application/vnd.ms-powerpoint",
-    //   "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    //   "image/jpeg", // Added for JPG and JPEG
-    //   "image/png", // Added for PNG
-    // ];
-
-    // // Check if the file with the same name already exists in the fileList
-    // const isDuplicate = technicalClosureFileList.some(
-    //   (existingFile: any) => existingFile.name === file.name
-    // );
-
-    // if (isDuplicate) {
-    //   // Display a message indicating that the file already exists
-    //   void displayjsx.showErrorMsg(
-    //     `File with the name "${file.name}" already exists.`
-    //   );
-    //   return false; // Prevent the file from being added to the list
-    // }
-
-    // // Validate the maximum file count
-    // if (technicalClosureFileList.length >= MAX_FILES) {
-    //   void displayjsx.showErrorMsg(
-    //     `Cannot upload more than ${MAX_FILES} files.`
-    //   );
-    //   return false;
-    // }
-
-    // // Validate file size (convert size from bytes to MB)
-    // const fileSizeInMB = file.size / (1024 * 1024);
-    // if (fileSizeInMB > MAX_FILE_SIZE_MB) {
-    //   void displayjsx.showErrorMsg(
-    //     `File "${file.name}" exceeds the size limit of ${MAX_FILE_SIZE_MB} MB.`
-    //   );
-    //   return false;
-    // }
-
-    // // Validate file type using `some` instead of `includes`
-    // const isAllowedFileType = ALLOWED_FILE_TYPES.some(
-    //   (type) => type === file.type
-    // );
-
-    // if (!isAllowedFileType) {
-    //   void displayjsx.showErrorMsg(
-    //     `File type not supported. Allowed types are: Word, Excel, PDF, PPT, JPG, PNG, JPEG.`
-    //   );
-    //   return false;
-    // }
-
     const MAX_FILES = 3;
     const MAX_FILE_SIZE_MB = 10;
     const DISALLOWED_FILE_TYPE = "application/x-msdownload"; // MIME type for .exe
@@ -1630,6 +1604,10 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
         `File "${file.name}" exceeds the size limit of ${MAX_FILE_SIZE_MB} MB.`
       );
       return false;
+    } else if (/[*'",%&#^@]/.test(file.name)) {
+      void displayjsx.showErrorMsg(
+        "File name must not contain Invalid Characters(*'\"%,&#^@) !"
+      );
     }
 
     // Validate file type (disallow .exe files)
@@ -1640,106 +1618,70 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
       return false;
     }
 
-    if (isViewMode) {
-      const folderName = ctiNumber;
-      const uploadFileItem = file; // Process only the new file
+    const folderName = ctiNumber;
+    const uploadFileItem = file; // Process only the new file
 
-      if (uploadFileItem && folderName) {
-        try {
-          setLoading(true);
+    if (uploadFileItem && folderName) {
+      try {
+        setLoading(true);
 
-          // Check and create folder if necessary
-          const isValidFolder = await checkAndCreateFolder(
-            webPartContext,
-            DOCUMENT_LIBRARIES.Technical_Attachment,
-            folderName,
-            DOCUMENT_LIBRARIES.Technical_Attchment__Closure_Attachment
-          );
+        // Check and create folder if necessary
+        const isValidFolder = await checkAndCreateFolder(
+          webPartContext,
+          DOCUMENT_LIBRARIES.Technical_Attachment,
+          folderName,
+          DOCUMENT_LIBRARIES.Technical_Attchment__Closure_Attachment
+        );
 
-          console.log(isValidFolder);
-          // Upload the file
-          await uploadFile(
-            webPartContext,
-            DOCUMENT_LIBRARIES.Technical_Attachment,
-            folderName,
-            uploadFileItem,
-            uploadFileItem.name,
-            DOCUMENT_LIBRARIES.Technical_Attchment__Closure_Attachment
-          );
+        console.log(isValidFolder);
+        // Upload the file
+        const fileUploadResult = await uploadFile(
+          webPartContext,
+          DOCUMENT_LIBRARIES.Technical_Attachment,
+          folderName,
+          uploadFileItem,
+          uploadFileItem.name,
+          DOCUMENT_LIBRARIES.Technical_Attchment__Closure_Attachment
+        );
+        // Add a record in the technical attachments
+        // await createTechnicalOutlineAttachment({
+        //   TechnicalId: id,
+        //   DocumentName: uploadFileItem.name,
+        //   CreatedBy: user?.employeeId,
+        // });
 
-          // Add a record in the technical attachments
-          // await createTechnicalOutlineAttachment({
-          //   TechnicalId: id,
-          //   DocumentName: uploadFileItem.name,
-          //   CreatedBy: user?.employeeId,
-          // });
+        // Refresh the technical instruction to get the updated file list
+        // const data = await getTechnicalInstructionById(id!);
+        // const returnValue = data.ReturnValue;
+        // setTechnicalOutlineFileList(
+        //   mapClosureFiles(
+        //     returnValue.technicalClosureAttachmentAdds
+        //   )
+        // );
 
-          // Refresh the technical instruction to get the updated file list
-          // const data = await getTechnicalInstructionById(id!);
-          // const returnValue = data.ReturnValue;
-          // setTechnicalOutlineFileList(
-          //   mapClosureFiles(
-          //     returnValue.technicalClosureAttachmentAdds
-          //   )
-          // );
-
-          // If no duplicate, add the file to the fileList directly
+        // If no duplicate, add the file to the fileList directly
+        if (fileUploadResult) {
           setTechnicalClosureFileList((prev: any) => [...prev, file]);
-
           void displayjsx.showSuccess(
             `${uploadFileItem.name} saved successfully.`
           );
-        } catch (error) {
-          setLoading(false);
+        } else {
           void displayjsx.showErrorMsg(
-            `Failed to saved ${uploadFileItem.name}.`
+            `Failed to saved ${uploadFileItem.name}. Please try again.`
           );
-          //console.error("Error uploading files:", error);
-        } finally {
-          setLoading(false);
         }
+
+      } catch (error) {
+        setLoading(false);
+        void displayjsx.showErrorMsg(
+          `Failed to saved ${uploadFileItem.name}.`
+        );
+        console.error("Error uploading files:", error);
+      } finally {
+        setLoading(false);
       }
-    } else {
-      // if (intialFolderName == "") {
-      //   setIntialFolderName(
-      //     `${user?.employeeId}_${Date.now().toString().slice(-6)}`
-      //   );
-      // } else {
-      // }
-      // const folderName = intialFolderName;
-      // const uploadFileItem = file; // Process only the new file
-      // if (uploadFileItem) {
-      //   try {
-      //     setLoading(true);
-      //     // Check and create folder if necessary
-      //     const isValidFolder = await checkAndCreateFolder(
-      //       webPartContext,
-      //       DOCUMENT_LIBRARIES.Technical_Attachment,
-      //       folderName,
-      //       DOCUMENT_LIBRARIES.Technical_Attachment__Outline_Attachment
-      //     );
-      //     console.log(isValidFolder);
-      //     // Upload the file
-      //     await uploadFile(
-      //       webPartContext,
-      //       DOCUMENT_LIBRARIES.Technical_Attachment,
-      //       folderName,
-      //       uploadFileItem,
-      //       uploadFileItem.name,
-      //       DOCUMENT_LIBRARIES.Technical_Attachment__Outline_Attachment
-      //     );
-      //     // If no duplicate, add the file to the fileList directly
-      //     setTechnicalOutlineFileList([...technicalOutlineFileList, file]);
-      //   } catch (error) {
-      //     setLoading(false);
-      //     void displayjsx.showErrorMsg(
-      //       `Failed to saved ${uploadFileItem.name}.`
-      //     );
-      //   } finally {
-      //     setLoading(false);
-      //   }
-      // }
     }
+
 
     // Return false to prevent the default upload behavior
     return false;
@@ -1837,14 +1779,18 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
         .catch((c) => {
           setLoading(false);
         });
+    } else {
+      void displayjsx.showErrorMsg(
+        "Please upload closure attachments."
+      );
     }
   };
 
   const operations = (
     <div>
-      { ((!isViewMode && activeKey === "1" && !submitted) 
+      {((!isViewMode && activeKey === "1" && !submitted)
         || (!isViewMode && activeKey === "1" && user?.isAdmin))
-       && ( //||
+        && ( //||
           //(currentApproverTask?.userId == user?.employeeId //&& currentApproverTask?.seqNumber != 3)
           <Form.Item
             style={{
@@ -1881,25 +1827,25 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
         </Form.Item>
       )} */}
 
-      { ((!isViewMode && activeKey === "1" && !submitted)
+      {((!isViewMode && activeKey === "1" && !submitted)
         || (!isViewMode && activeKey === "1" && !submitted && user?.isAdmin))
-      && (
-        <Form.Item
-          style={{
-            display: "inline-block", // Inline display for second button as well
-            marginRight: "10px",
-          }}
-        >
-          <Button
-            color="default"
-            variant="solid"
-            //loading={loading}
-            onClick={handleSubmit}
+        && (
+          <Form.Item
+            style={{
+              display: "inline-block", // Inline display for second button as well
+              marginRight: "10px",
+            }}
           >
-            Submit
-          </Button>
-        </Form.Item>
-      )}
+            <Button
+              color="default"
+              variant="solid"
+              //loading={loading}
+              onClick={handleSubmit}
+            >
+              Submit
+            </Button>
+          </Form.Item>
+        )}
 
       {!isViewMode && activeKey === "1" && underAmmendment && (
         <Form.Item
@@ -2119,7 +2065,7 @@ const TechnicalInstructionForm: React.FC<TechnicalInstructionFormProps> = ({
           </TabPane>
 
           {existingTechniaclInstructionSlip !== null &&
-            existingTechniaclInstructionSlip.isClosed === true && (
+            existingTechniaclInstructionSlip?.isClosed === true && (
               <TabPane
                 tab={
                   <span

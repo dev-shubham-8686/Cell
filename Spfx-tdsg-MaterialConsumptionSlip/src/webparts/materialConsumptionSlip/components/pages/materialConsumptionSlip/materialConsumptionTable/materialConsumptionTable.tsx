@@ -22,38 +22,26 @@ import dayjs from "dayjs";
 
 const MaterialConsumptionTable: React.FC = () => {
   const navigate = useNavigate();
-  const {mutate:exportToExcel,isLoading:excelLoading}=useExportToExcel()
-  const {mutate:pdfDownload,isLoading:pdfLoading}= usePDFViewer()
+  const { mutate: exportToExcel, isLoading: excelLoading } = useExportToExcel()
+  const { mutate: pdfDownload, isLoading: pdfLoading } = usePDFViewer()
   const { mutate: deleteMaterialConsumption } = useDeleteMaterialConsumptionSlip();
-    const user = useContext(UserContext);
+  const user = useContext(UserContext);
 
-  const handleExportToExcel = (id: any,materialNo:any) => {
+  const handleExportToExcel = (id: any, materialNo: any) => {
     try {
-      console.log("MATERIALID",id)
-      exportToExcel({id,materialNo})
-      console.log("Export to Excel ")
+      exportToExcel({ id, materialNo })
     } catch (error) {
       console.error("Export error:", error);
     }
   };
 
-  const handlePDF = (id: any , materialNo:any) => {
+  const handlePDF = (id: any, materialNo: any) => {
     try {
-      console.log("MATERIALID",id)
-
-      pdfDownload({id,materialNo},{
-      onSuccess: (pdfResponse) => {
-        
-        console.log("PDF Response: ", pdfResponse);
-        // window.open(pdfResponse, "_blank");  //this will Open the PDF in a new tab
-      },
-      
-      onError: (error) => {
-        console.error("Export error:", error);
-      },
-
-    });
-      console.log("PDF downloaded ")
+      pdfDownload({ id, materialNo }, {
+        onError: (error) => {
+          console.error("Export error:", error);
+        },
+      });
     } catch (error) {
       console.error("Export error:", error);
     }
@@ -72,28 +60,26 @@ const MaterialConsumptionTable: React.FC = () => {
         />
       ),
       okText: "Yes",
-      cancelText:"No",
+      cancelText: "No",
       cancelButtonProps: { className: "btn btn-outline-primary" },
       okButtonProps: { className: "btn btn-primary" },
       onOk() {
-        deleteMaterialConsumption(id ,{
+        deleteMaterialConsumption(id, {
           onSuccess: (Response) => {
-            
-            console.log("ATA Response: ", Response);
             window.location.reload();
           },
-          
+
           onError: (error) => {
             console.error("Export error:", error);
           },
-    
+
         })
       },
       // centered: true,
     });
   }
-  
-  
+
+
 
 
   const columns: ColumnsType<AnyObject> = [
@@ -171,9 +157,8 @@ const MaterialConsumptionTable: React.FC = () => {
       ),
       render: (text) => (
         <span
-          className={`status-badge status-badge-${
-            STATUS_COLOUR_CLASS[text] ?? ""
-          }`}
+          className={`status-badge status-badge-${STATUS_COLOUR_CLASS[text] ?? ""
+            }`}
         >
           {displayRequestStatus(text)}
         </span>
@@ -184,7 +169,6 @@ const MaterialConsumptionTable: React.FC = () => {
       key: "action",
       render: (row) => (
         <div className="">
-          {console.log("DATAOFMATERIAL", row)}
           <button
             type="button"
             style={{ background: "none", border: "none" }}
@@ -201,68 +185,68 @@ const MaterialConsumptionTable: React.FC = () => {
             ((row.Status === REQUEST_STATUS.Draft ||
               row.Status === REQUEST_STATUS.UnderAmendment) &&
               row.CreatedBy == user.employeeId)) && (
-            <button
-              type="button"
-              style={{ background: "none", border: "none" }}
-              onClick={() =>
-                navigate(
-                  `/form/edit/${row.MaterialConsumptionSlipId}`
-                )
-              }
-            >
-              <FontAwesomeIcon title="Edit" icon={faEdit} />
-            </button>
-          )}
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() =>
+                  navigate(
+                    `/form/edit/${row.MaterialConsumptionSlipId}`
+                  )
+                }
+              >
+                <FontAwesomeIcon title="Edit" icon={faEdit} />
+              </button>
+            )}
 
           {(user.isAdmin ||
             row.Status == REQUEST_STATUS.Closed ||
             row.Status == REQUEST_STATUS.Approved) && (
-            <button
-              type="button"
-              style={{ background: "none", border: "none" }}
-              onClick={() => {
-                handleExportToExcel(
-                  row.MaterialConsumptionSlipId,
-                  row.MaterialConsumptionSlipNo
-                );
-              }}
-            >
-              <FontAwesomeIcon title="Export To Excel" icon={faFileExcel} />
-            </button>
-          )}
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() => {
+                  handleExportToExcel(
+                    row.MaterialConsumptionSlipId,
+                    row.MaterialConsumptionSlipNo
+                  );
+                }}
+              >
+                <FontAwesomeIcon title="Export To Excel" icon={faFileExcel} />
+              </button>
+            )}
 
           {(user.isAdmin ||
             row.Status == REQUEST_STATUS.Closed ||
             row.Status == REQUEST_STATUS.Approved) && (
-            <button
-              type="button"
-              style={{ background: "none", border: "none" }}
-              onClick={() => {
-                handlePDF(
-                  row.MaterialConsumptionSlipId,
-                  row.MaterialConsumptionSlipNo
-                );
-              }}
-            >
-              <FontAwesomeIcon title="PDF" icon={faFilePdf} />
-            </button>
-          )}
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() => {
+                  handlePDF(
+                    row.MaterialConsumptionSlipId,
+                    row.MaterialConsumptionSlipNo
+                  );
+                }}
+              >
+                <FontAwesomeIcon title="PDF" icon={faFilePdf} />
+              </button>
+            )}
 
           {((user.isAdmin && row.Status != REQUEST_STATUS.Closed) ||
             (row.Status == REQUEST_STATUS.Draft &&
               row.CreatedBy == user.employeeId)) && (
-            <button
-              type="button"
-              style={{ background: "none", border: "none" }}
-              onClick={() => {
-                handleDelete(
-                  row.MaterialConsumptionSlipId
-                );
-              }}
-            >
-              <FontAwesomeIcon title="Delete" icon={faTrash} />
-            </button>
-          )}
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() => {
+                  handleDelete(
+                    row.MaterialConsumptionSlipId
+                  );
+                }}
+              >
+                <FontAwesomeIcon title="Delete" icon={faTrash} />
+              </button>
+            )}
         </div>
       ),
       sorter: false,
@@ -277,7 +261,7 @@ const MaterialConsumptionTable: React.FC = () => {
         paginationRequired={true}
         url="/api/Material/Get"
       />
-      <Spin spinning={(excelLoading||pdfLoading)} fullscreen />
+      <Spin spinning={(excelLoading || pdfLoading)} fullscreen />
     </>
   );
 };

@@ -73,7 +73,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
 
       approveAskToAmmend(payload, {
         onSuccess: (Response) => {
-          console.log("ATA Response: ", Response);
           navigate("/", {
             state: {
               currentTabState: "myapproval-tab",
@@ -99,7 +98,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
       };
       pullBack(params, {
         onSuccess: (Response) => {
-          console.log("pullback Response: ", Response);
           navigate(`/material-consumption-slip`);
         },
 
@@ -180,8 +178,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
   };
   return (
     <>
-      {console.log("LOADING", approvingRequest, pullbacking)}
-
       <div className="d-flex gap-3 justify-content-end">
         <span
           style={{
@@ -204,9 +200,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                     okText: "OK",
                     okButtonProps: { className: "btn btn-primary" },
                     okType: "primary",
-                    onOk() {
-                      console.log("OK clicked");
-                    },
                   });
                 } else {
                   openCommentsPopup("Approve");
@@ -231,9 +224,6 @@ const WorkFlowButtons: React.FC<IWorkFlowProps> = ({
                     okText: "OK",
                     okButtonProps: { className: "btn btn-primary" },
                     okType: "primary",
-                    onOk() {
-                      console.log("OK clicked");
-                    },
                   });
                 } else {
                   openCommentsPopup("Amendment");

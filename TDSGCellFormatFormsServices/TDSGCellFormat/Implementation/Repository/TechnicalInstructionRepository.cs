@@ -48,7 +48,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
 
             IQueryable<TechnicalInstructionAdd> res = _context.TechnicalInstructionSheets
-                                  .Where(n => n.IsDeleted == false) 
+                                  .Where(n => n.IsDeleted == false)  // Filter out deleted records
                                   .Select(n => new TechnicalInstructionAdd
                                   {
                                       TechnicalId = n.TechnicalId,
@@ -62,6 +62,7 @@ namespace TDSGCellFormat.Implementation.Repository
                                       attachment = n.Attachment,
                                       status = n.Status,
                                       userId = n.CreatedBy,
+                                      // Add other properties as needed
                                   });
 
             return res;
@@ -189,7 +190,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 employeeCode = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == technicalInstruction.CreatedBy && x.IsActive == true).Select(x => x.EmployeeCode).FirstOrDefault(),
                 seqNumber = _context.TechnicalInstructionApproverTaskMasters.Where(x => x.TechnicalId == Id && x.IsActive == true && x.Status == ApprovalTaskStatus.Approved.ToString())
                                             .OrderByDescending(x => x.CreatedDate).Select(x => x.SequenceNo).FirstOrDefault(),
-                
+                //sectionHead = _context.TechnicalInstructionApproverTaskMasters.Where(x => x.TechnicalId == Id && x.IsActive == true && x.SequenceNo == 1).Select(c => c.AssignedToUserId).FirstOrDefault(),
                 requestor = requestor.EmployeeName,
                 department = department,
                 createdDate = technicalInstruction.CreatedDate?.ToString("dd-MM-yyyy"),
@@ -312,6 +313,8 @@ namespace TDSGCellFormat.Implementation.Repository
                     CreatedBy = report.userId,
                     IsSubmit = report.isSubmit ?? false,
                     Status = ApprovalTaskStatus.Draft.ToString(),
+                    //ModifiedDate = DateTime.Now,
+                    //ModifiedBy = report.CreatedBy,
                     IsClosed = false,
                     IsReOpen = false
                 };
@@ -321,7 +324,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 await _context.SaveChangesAsync();
 
                 _context.TechnicalRevisonMapLists.Add(new TechnicalRevisonMapList { TechnicalId = newReport.TechnicalId, UserId = report.userId });
-                
+                //newReport.CTINumber = $"CTI-{DateTime.Now.Year}-{newReport.TechnicalId:D4}";
 
                 var technicalInstructionIdParams = new Microsoft.Data.SqlClient.SqlParameter("@technicalId", newReport.TechnicalId);
                 _context.Set<TechnicalInstructionCTINumberResult>()
@@ -348,7 +351,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         }).ToList();
 
                         _context.TechnicalEquipmentMasterItems.AddRange(objs);
-                        
+                        //await _context.SaveChangesAsync();
                     }
                 }
 
@@ -365,7 +368,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }).ToList();
 
                     _context.TechnicalAttachments.AddRange(objs);
-                    
+                    //await _context.SaveChangesAsync();
                 }
 
                 if (report.technicalOutlineAttachmentAdds != null && report.technicalOutlineAttachmentAdds.Count > 0)
@@ -381,18 +384,19 @@ namespace TDSGCellFormat.Implementation.Repository
                     }).ToList();
 
                     _context.TechnicalOutlineAttachments.AddRange(objs);
-                    
+                    //await _context.SaveChangesAsync();
                 }
 
                 await _context.SaveChangesAsync();
 
                 report.TechnicalId = newReport.TechnicalId;
-                
+                //report.ctiNumber = newReport.CTINumber;
 
 
                 technicalId = newReport.TechnicalId;
                 if (report.isSubmit == true && report.isAmendReSubmitTask == false)
                 {
+                    //report.sectionId = 2;
 
                     var data = await SubmitRequest(technicalId, report.userId ?? 0, report.sectionId ?? 0);
                     if (data.StatusCode == Status.Success)
@@ -420,6 +424,8 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.Title = report.title;
                 existingReport.IssueDate = !string.IsNullOrEmpty(report.issueDate) ? DateTime.Parse(report.issueDate) : (DateTime?)null;
                 existingReport.IssuedBy = report.issuedBy;
+                //existingReport.CTINumber = report.ctiNumber;
+                //existingReport.RevisionNo = report.revisionNo;
                 existingReport.Purpose = report.purpose;
                 existingReport.ProductType = report.productType;
                 existingReport.Quantity = report.quantity;
@@ -431,6 +437,12 @@ namespace TDSGCellFormat.Implementation.Repository
                 existingReport.ApplicationStartDate = !string.IsNullOrEmpty(report.applicationStartDate) ? DateTime.Parse(report.applicationStartDate) : (DateTime?)null;
                 existingReport.ApplicationLotNo = report.applicationLotNo;
                 existingReport.ApplicationEquipment = report.applicationEquipment;
+                //existingReport.ProductType = report.productType;
+                //existingReport.Quantity = report.quantity;
+                //existingReport.Outline = report.outline;
+                //existingReport.TISApplicable = DateTime.Parse(report.tisApplicabilityDate);
+                //existingReport.Attachment = report.attachment;
+                //existingReport.IsDeleted = false;
                 existingReport.ModifiedDate = DateTime.Now;
                 existingReport.ModifiedBy = report.userId;
 
@@ -475,7 +487,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }).ToList();
 
                     _context.TechnicalAttachments.AddRange(objs);
-                   
+                    // await _context.SaveChangesAsync();
                 }
 
                 if (report.technicalOutlineAttachmentAdds != null && report.technicalOutlineAttachmentAdds.Count > 0)
@@ -492,7 +504,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     }).ToList();
 
                     _context.TechnicalOutlineAttachments.AddRange(objs);
-                    
+                    // await _context.SaveChangesAsync();
                 }
 
                 try
@@ -568,7 +580,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
 
                 report.IsDeleted = true;
-               
+                //report.ModifiedDate = DateTime.Now;
                 int rowsAffected = await _context.SaveChangesAsync();
 
                 if (rowsAffected > 0)
@@ -593,6 +605,7 @@ namespace TDSGCellFormat.Implementation.Repository
             if (existingReport != null)
             {
                 existingReport.Outline = updateOutlineEditor.outline;
+                //existingReport.OutlineImageBytes = updateOutlineEditor.outlineImageBytes;
 
                 await _context.SaveChangesAsync();
 
@@ -634,6 +647,7 @@ namespace TDSGCellFormat.Implementation.Repository
             else
             {
                 report.IsDeleted = true;
+                //report.ModifiedDate = DateTime.Now;
                 int rowsAffected = await _context.SaveChangesAsync();
 
                 if (rowsAffected > 0)
@@ -662,6 +676,7 @@ namespace TDSGCellFormat.Implementation.Repository
             else
             {
                 report.IsDeleted = true;
+                //report.ModifiedDate = DateTime.Now;
                 int rowsAffected = await _context.SaveChangesAsync();
 
                 if (rowsAffected > 0)
@@ -786,6 +801,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Status.Error;
                 var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical SubmitRequest");
+                //return res;
             }
             return res;
         }
@@ -823,6 +839,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Status.Error;
                 var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical ReSubmitRequest");
+                //return res;
             }
             return res;
         }
@@ -840,12 +857,20 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 res.Message = Enums.TechnicalResubmit;
                 res.StatusCode = Status.Success;
+                //var approverTaskDetails = await _context.TechnicalInstructionApproverTaskMasters.Where(x => x.TechnicalId == technicalId).ToListAsync();
+                //approverTaskDetails.ForEach(a =>
+                //{
+                //    a.IsActive = false;
+                //    a.ModifiedBy = userId;
+                //    a.ModifiedDate = DateTime.Now;
+                //});
 
                 //When flow want to start as before under-amendment
                 var approverTaskDetails_GetUnderAmendment = await _context.TechnicalInstructionApproverTaskMasters.Where(x => x.TechnicalId == technicalId && x.Status == ApprovalTaskStatus.UnderAmendment.ToString() && x.IsActive == true).FirstOrDefaultAsync();
                 approverTaskDetails_GetUnderAmendment.Status = ApprovalTaskStatus.InReview.ToString();
 
                 await _context.SaveChangesAsync();
+                //_context.CallTechnicalInstructionApproverMatrix(userId, technicalId, sectionId);
                 InsertHistoryData(technicalId, FormType.TechnicalInstruction.ToString(), "Requestor", comment, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(userId), HistoryAction.ReSubmitted.ToString(), 0);
                 var notificationHelper = new NotificationHelper(_context, _cloneContext);
                 await notificationHelper.SendTechanicalInstructionEmail(technicalId, EmailNotificationAction.ReSubmitted, comment, 0);
@@ -856,6 +881,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.StatusCode = Status.Error;
                 var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical ReSubmitRequest");
+                //return res;
             }
             return res;
         }
@@ -901,12 +927,19 @@ namespace TDSGCellFormat.Implementation.Repository
                         {
                             foreach (var nextTask in nextApproveTask)
                             {
+                                // int substituteUserId = 0;
+                                // int substitutePer = nextTask.AssignedToUserId ?? 0;
+                                // substituteUserId = commonHelper.CheckSubstituteDelegate(substitutePer, FormType.AdjustmentReport.ToString());
+                                //
+                                // nextTask.AssignedToUserId = substituteUserId;
+
                                 nextTask.Status = ApprovalTaskStatus.InReview.ToString();
                                 nextTask.ModifiedDate = DateTime.Now;
                                 await _context.SaveChangesAsync();
                                 await notificationHelper.SendTechanicalInstructionEmail(technicalId, EmailNotificationAction.Approved, null, nextTask.ApproverTaskId);
 
                             }
+                            // Notification code (if applicable)
                         }
                         else
                         {
@@ -946,6 +979,7 @@ namespace TDSGCellFormat.Implementation.Repository
             {
                 res.Message = "Fail " + ex;
                 res.StatusCode = Status.Error;
+                //var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "Technical UpdateApproveAskToAmend");
 
             }
@@ -966,7 +1000,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                     await _context.SaveChangesAsync();
 
-                    InsertHistoryData(technicalId, FormType.TechnicalInstruction.ToString(), Enums.WorkDoneLead, comment, ApprovalTaskStatus.PullBack.ToString(), userId, ApprovalTaskStatus.PullBack.ToString(), 0);
+                    InsertHistoryData(technicalId, FormType.TroubleReport.ToString(), Enums.WorkDoneLead, comment, ApprovalTaskStatus.PullBack.ToString(), userId, ApprovalTaskStatus.PullBack.ToString(), 0);
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendTechanicalInstructionEmail(technicalId, EmailNotificationAction.PullBack, comment, 0);
 
@@ -1007,6 +1041,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
         public Technical_ApproverTaskId_dto GetCurrentApproverTask(int technicalId, int userId)
         {
+            //var materialApprovers = _context.TechnicalInstructionApproverTaskMasters.FirstOrDefault(x => x.TechnicalId == technicalId && x.AssignedToUserId == userId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
             var technicalApprovers = _context.TechnicalInstructionApproverTaskMasters.Where(x => x.TechnicalId == technicalId && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true).ToList();
 
             var delegate_user = technicalApprovers.FirstOrDefault(c => c.DelegateUserId == userId);
@@ -1041,7 +1076,34 @@ namespace TDSGCellFormat.Implementation.Repository
 
             }
 
+
             return data;
+
+            //var technicalDelegateApprover = _context.TechnicalInstructionApproverTaskMasters.FirstOrDefault(x => x.TechnicalId == technicalId && x.DelegateUserId == userId && x.DelegateUserId != 0 && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+
+            //var data = new Technical_ApproverTaskId_dto();
+
+            //if (technicalDelegateApprover != null)
+            //{
+            //    data.approverTaskId = technicalDelegateApprover.ApproverTaskId;
+            //    data.userId = technicalDelegateApprover.AssignedToUserId ?? 0;
+            //    data.status = technicalDelegateApprover.Status;
+            //    data.seqNumber = technicalDelegateApprover.SequenceNo;
+
+            //    return data;
+            //}
+
+            //var technicalApprover = _context.TechnicalInstructionApproverTaskMasters.FirstOrDefault(x => x.TechnicalId == technicalId && x.AssignedToUserId == userId && (x.DelegateUserId == 0 || x.DelegateUserId == null) && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
+
+            //if (technicalApprover != null)
+            //{
+            //    data.approverTaskId = technicalApprover.ApproverTaskId;
+            //    data.userId = technicalApprover.AssignedToUserId ?? 0;
+            //    data.status = technicalApprover.Status;
+            //    data.seqNumber = technicalApprover.SequenceNo;
+            //}
+
+            //return data;
         }
 
         public List<TechnicalHistoryView> GetHistoryData(int technicalId)
@@ -1095,11 +1157,28 @@ namespace TDSGCellFormat.Implementation.Repository
 
 
                     technicalData.IsClosed = true;
-                    
+                    //technicalData.IsScraped = report.isScraped;
                     technicalData.ClosedDate = DateTime.Now;
+                    //technicalData.ScrapRemarks = report.scrapRemarks;
+                    //technicalData.ScrapTicketNo = report.scrapTicketNo;
                     technicalData.Status = ApprovalTaskStatus.Closed.ToString();
                     await _context.SaveChangesAsync();
-                    
+
+                    //var adminId = _context.AdminApprovers.Where(x => x.IsActive == true && x.FormName == "MaterialCosnumption").Select(x => x.AdminId).FirstOrDefault();
+                    //if (adminId == report.userId)
+                    //{
+                    //    InsertHistoryData(report.TechnicalId, FormType.TechnicalInstruction.ToString(), "Admin", "Request is Closed by Admin", ApprovalTaskStatus.Closed.ToString(), report.userId, ApprovalTaskStatus.Closed.ToString(), 0);
+
+                    //}
+                    //else if (report.userId == technicalData.CreatedBy)
+                    //{
+                    //    InsertHistoryData(report.TechnicalId, FormType.TechnicalInstruction.ToString(), "Requestor", "Request is Closed by Requestor", ApprovalTaskStatus.Closed.ToString(), report.userId, ApprovalTaskStatus.Closed.ToString(), 0);
+                    //}
+                    //else
+                    //{
+                    //    InsertHistoryData(report.TechnicalId, FormType.TechnicalInstruction.ToString(), "CPC Department", "Request is Closed by CPC DepartmentHead", ApprovalTaskStatus.Closed.ToString(), report.userId, ApprovalTaskStatus.Closed.ToString(), 0);
+
+                    //}
 
                     if (report.userId == technicalData.CreatedBy)
                     {
@@ -1141,6 +1220,7 @@ namespace TDSGCellFormat.Implementation.Repository
             else
             {
                 report.IsDeleted = true;
+                //report.ModifiedDate = DateTime.Now;
                 int rowsAffected = await _context.SaveChangesAsync();
 
                 if (rowsAffected > 0)
@@ -1178,6 +1258,7 @@ namespace TDSGCellFormat.Implementation.Repository
             try
             {
 
+                // Fetch the data based on the provided ID
                 var data = await GetTechnicalInstructionData(technicalId);
 
                 if (data == null || !data.Any())
@@ -1191,6 +1272,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     var worksheet = package.Workbook.Worksheets.Add("Technaical Instruction Slip");
 
+                    // Add Request No and Date at the top
                     worksheet.Cells[1, 1].Value = "Requestor Dept:";
                     worksheet.Cells[1, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                     worksheet.Cells[1, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightPink);
@@ -1199,15 +1281,17 @@ namespace TDSGCellFormat.Implementation.Repository
                     worksheet.Cells[1, 4].Value = "Request No:";
                     worksheet.Cells[1, 4].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                     worksheet.Cells[1, 4].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightPink);
-                    worksheet.Cells[1, 5].Value = data.FirstOrDefault()?.RequestNo; 
+                    worksheet.Cells[1, 5].Value = data.FirstOrDefault()?.RequestNo; // Assuming same request number for all records
 
                     worksheet.Cells[1, 7].Value = "Date:";
                     worksheet.Cells[1, 7].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                     worksheet.Cells[1, 7].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightPink);
-                    worksheet.Cells[1, 8].Value = data.FirstOrDefault()?.Date.ToString("dd/MM/yyyy"); 
+                    worksheet.Cells[1, 8].Value = data.FirstOrDefault()?.Date.ToString("dd/MM/yyyy"); // Format the date
 
+                    // Add some space between the top info and the table header
                     int startRow = 3;
 
+                    // Add header row
                     worksheet.Cells[startRow, 1].Value = "Sr. No.";
                     worksheet.Cells[startRow, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                     worksheet.Cells[startRow, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
@@ -1227,7 +1311,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     worksheet.Cells[startRow, 4].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                     worksheet.Cells[startRow, 4].Style.WrapText = true;
 
-                   
+                    // Add data rows
                     int row = startRow + 1;
                     int serialNumber = 1;
 
@@ -1239,6 +1323,16 @@ namespace TDSGCellFormat.Implementation.Repository
                         worksheet.Cells[row, 4].Value = item.Purpose;
                         row++;
                     }
+
+                    // Add Remarks at the end
+                    //worksheet.Cells[row + 1, 1].Value = "Remarks :";
+                    //worksheet.Cells[row + 1, 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    //worksheet.Cells[row + 1, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightPink);
+                    //worksheet.Cells[row + 1, 1].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                    //worksheet.Cells[row + 1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    //worksheet.Cells[row + 1, 1].Style.WrapText = true;
+                    //worksheet.Cells[row + 1, 2].Value = data.FirstOrDefault()?.Remarks;
+
 
                     // Adjust column widths to fit the content
                     worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
@@ -1261,6 +1355,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = "Fail " + ex.Message;
                 res.StatusCode = Status.Error;
 
+                // Log the exception using your logging mechanism
                 var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ExportTechnicalInstructionToExcel");
 
@@ -1483,8 +1578,10 @@ namespace TDSGCellFormat.Implementation.Repository
                     commaSeparatedEquipmentNames = string.Join(", ", equipmentNames);
                 }
 
+                //normal data
                 var data = await GetTechnicalInstructionData(technicalId);
 
+                //approvers data
                 var approverData = await _context.GetTechnicalWorkFlowData(technicalId);
 
                 StringBuilder sb = new StringBuilder();
@@ -1502,6 +1599,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#TechnicalNo#", data.FirstOrDefault()?.RequestNo);
                 sb.Replace("#RequestorDept#", data.FirstOrDefault()?.Department);
                 sb.Replace("#Date#", data.FirstOrDefault()?.Date.ToString("dd-MM-yyyy"));
+                //sb.Replace("#Remarks#", data.FirstOrDefault()?.Remarks);
                 sb.Replace("#issueDate#", materialdata.IssueDate?.ToString("dd-MM-yyyy") ?? "N/A");
                 sb.Replace("#issuedBy#", materialdata.IssuedBy?.ToString() ?? "");
                 sb.Replace("#title#", materialdata.Title?.ToString() ?? "");
@@ -1517,11 +1615,32 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#applicationLotNo#", materialdata.ApplicationLotNo?.ToString() ?? "");
                 sb.Replace("#equipmentList#", commaSeparatedEquipmentNames ?? "");
 
+                //var base64Images = await GetBase64ImagesForTechnicalInstruction(technicalId); // List of Base64 image strings
                 sb.Replace("#technicalOutlineAttachment#", null ?? "");
 
 
                 StringBuilder tableBuilder = new StringBuilder();
                 int serialNumber = 1;
+                //foreach (var item in data)
+                //{
+                //    tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
+
+                //    // Add the serial number to the first column
+                //    tableBuilder.Append("<td style=\"width:5%; border:0.25px; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
+
+                //    // Add the rest of the data to the respective columns
+                //    tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.Title + "</td>");
+                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.MaterialDescription + "</td>");
+                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.MaterialNo + "</td>");
+                //    tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.Quantity + "</td>");
+                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.UOM + "</td>");
+                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.CostCenter + "</td>");
+                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.GLCode + "</td>");
+                //    tableBuilder.Append("<td style=\"width:20%; border:0.25px; height: 20px; padding: 5px\">" + item.Purpose + "</td>");
+
+                //    tableBuilder.Append("</tr>");
+                //}
+                //sb.Replace("#ItemTable#", tableBuilder.ToString());
 
                 string reqName = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == materialdata.CreatedBy && x.IsActive == true).Select(x => x.EmployeeName).FirstOrDefault() ?? "";
                 string approvedByDepHead = approverData.FirstOrDefault(a => a.SequenceNo == 1)?.employeeNameWithoutCode ?? "N/A";
@@ -1542,8 +1661,16 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#CMFapproveDate#", cpcDate?.ToString("dd-MM-yyyy") ?? "N/A");
                 sb.Replace("#CQCapproveDate#", divHeadDate?.ToString("dd-MM-yyyy") ?? "N/A");
 
+                // Replace all image URLs with base64 data
+                //string updatedHtmlContent = ConvertImagesToBase64(sb.ToString());
+
                 var renderer = new HtmlToPdf();
-                
+
+                // Convert <img> tags to <a> tags
+                //string updatedHtml = Regex.Replace(sb.ToString(), @"<img\s+[^>]*src\s*=\s*['""]([^'""]+)['""][^>]*>",
+                //    "<a href='$1'><img src='$1' alt='Linked Image'/>Linked Image</a>");
+
+                // Convert <img> tags to <a> tags with target="_blank" and a descriptive link name
                 string updatedHtml = Regex.Replace(sb.ToString(),
                     @"<img\s+[^>]*src\s*=\s*['""]([^'""]+)['""][^>]*>",
                     "<a href='$1' target='_blank' rel='noopener noreferrer'>Linked Image</a>");
@@ -1556,13 +1683,15 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 byte[] PDFBytes = File.ReadAllBytes(tempPath);
 
+                // Clean up the temporary file
                 File.Delete(tempPath);
 
                 string base64StringPDF = Convert.ToBase64String(PDFBytes);
 
+                // Set response values
                 res.StatusCode = Status.Success;
                 res.Message = Enums.TechnicalPdf;
-                res.ReturnValue = base64StringPDF; 
+                res.ReturnValue = base64StringPDF; // Send the Base64 string to the frontend
 
                 return res;
 
@@ -1642,6 +1771,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = "Fail " + ex.Message;
                 res.StatusCode = Status.Error;
 
+                // Log the exception using your logging mechanism
                 var commonHelper = new CommonHelper(_context, _cloneContext);
                 commonHelper.LogException(ex, "ExportToPdf_v2");
 
@@ -1679,6 +1809,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     commaSeparatedEquipmentNames = materialdata.OtherEquipment;
                 }
 
+                //get histroy data
                 var revesionHistroy = "";
                 if (materialdata.TechnicalReviseId != null)
                 {
@@ -1708,13 +1839,16 @@ namespace TDSGCellFormat.Implementation.Repository
                     Attachments_String += @"<ul style='list-style-type: none; margin: 0;'>";
                     foreach (var a in get_attachemnts)
                     {
+                        // Assuming `DocumentUrl` contains the file's URL or relative path
                         Attachments_String += $"<li><a href='{documentLink}{a.DocumentFilePath}' target='_blank'>{a.DocumentName}</a></li>";
                     }
                     Attachments_String += "</ul>";
                 }
 
+                //normal data
                 var data = await GetTechnicalInstructionData(technicalId);
 
+                //approvers data
                 var approverData = await _context.GetTechnicalWorkFlowData(technicalId);
 
                 StringBuilder sb = new StringBuilder();
@@ -1732,6 +1866,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#TechnicalNo#", data.FirstOrDefault()?.RequestNo);
                 sb.Replace("#RequestorDept#", data.FirstOrDefault()?.Department);
                 sb.Replace("#Date#", data.FirstOrDefault()?.Date.ToString("dd-MM-yyyy"));
+                //sb.Replace("#Remarks#", data.FirstOrDefault()?.Remarks);
                 sb.Replace("#issueDate#", materialdata.IssueDate?.ToString("dd-MM-yyyy") ?? "N/A");
                 sb.Replace("#issuedBy#", materialdata.IssuedBy?.ToString() ?? "");
                 sb.Replace("#title#", materialdata.Title?.ToString() ?? "");
@@ -1747,11 +1882,32 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#applicationLotNo#", materialdata.ApplicationLotNo?.ToString() ?? "");
                 sb.Replace("#equipmentList#", commaSeparatedEquipmentNames ?? "");
                 sb.Replace("#revisionHistroy#", revesionHistroy ?? "");
+                //var base64Images = await GetBase64ImagesForTechnicalInstruction(technicalId); // List of Base64 image strings
                 sb.Replace("#technicalOutlineAttachment#", null ?? "");
                 sb.Replace("#relatedDocument#", Attachments_String ?? "");
 
                 StringBuilder tableBuilder = new StringBuilder();
                 int serialNumber = 1;
+                //foreach (var item in data)
+                //{
+                //    tableBuilder.Append("<tr style=\"padding:10px; height: 20px;\">");
+
+                //    // Add the serial number to the first column
+                //    tableBuilder.Append("<td style=\"width:5%; border:0.25px; height: 20px; padding: 5px\">" + serialNumber++ + "</td>");
+
+                //    // Add the rest of the data to the respective columns
+                //    tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.Title + "</td>");
+                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.MaterialDescription + "</td>");
+                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.MaterialNo + "</td>");
+                //    tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.Quantity + "</td>");
+                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.UOM + "</td>");
+                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.CostCenter + "</td>");
+                //    //tableBuilder.Append("<td style=\"width:15%; border:0.25px; height: 20px; padding: 5px\">" + item.GLCode + "</td>");
+                //    tableBuilder.Append("<td style=\"width:20%; border:0.25px; height: 20px; padding: 5px\">" + item.Purpose + "</td>");
+
+                //    tableBuilder.Append("</tr>");
+                //}
+                //sb.Replace("#ItemTable#", tableBuilder.ToString());
 
                 string reqName = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == materialdata.CreatedBy && x.IsActive == true).Select(x => x.EmployeeName).FirstOrDefault() ?? "";
                 string approvedByDepHead = approverData.FirstOrDefault(a => a.SequenceNo == 1)?.employeeNameWithoutCode ?? "N/A";
@@ -1772,12 +1928,32 @@ namespace TDSGCellFormat.Implementation.Repository
                 sb.Replace("#CMFapproveDate#", cpcDate?.ToString("dd-MM-yyyy") ?? "N/A");
                 sb.Replace("#CQCapproveDate#", divHeadDate?.ToString("dd-MM-yyyy") ?? "N/A");
 
+                // Replace all image URLs with base64 data
+                //string updatedHtmlContent = ConvertImagesToBase64(sb.ToString());
+
                 var renderer = new SelectPdf.HtmlToPdf();
 
+                // Convert <img> tags to <a> tags
+                //string updatedHtml = Regex.Replace(sb.ToString(), @"<img\s+[^>]*src\s*=\s*['""]([^'""]+)['""][^>]*>",
+                //    "<a href='$1'><img src='$1' alt='Linked Image'/>Linked Image</a>");
+
+                // Convert <img> tags to <a> tags with target="_blank" and a descriptive link name
+                //string updatedHtml = Regex.Replace(sb.ToString(),
+                //    @"<img\s+[^>]*src\s*=\s*['""]([^'""]+)['""][^>]*>",
+                //    "<a href='$1' target='_blank' rel='noopener noreferrer'>Linked Image</a>");
+
+                // Create PDF using SelectPDF
                 var converter = new SelectPdf.HtmlToPdf();
-                converter.Options.ExternalLinksEnabled = true; 
+                converter.Options.ExternalLinksEnabled = true; // Ensure external links (like images) are enabled
+                                                               // Automatically fit the content width
                 converter.Options.AutoFitWidth = SelectPdf.HtmlToPdfPageFitMode.AutoFit;
                 converter.Options.MarginTop = 8;
+                // Adjust the page size to accommodate larger content
+                //converter.Options.AutoFitHeight = SelectPdf.HtmlToPdfPageFitMode.AutoFit;
+
+                // Set a standard page size, such as A4
+                //converter.Options.PdfPageSize = SelectPdf.PdfPageSize.A4;
+
                 // Set the orientation to landscape if the content is wide
                 converter.Options.PdfPageOrientation = SelectPdf.PdfPageOrientation.Portrait;
                 // footer settings
@@ -1953,6 +2129,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (imageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                 {
+                    // Download image from URL
                     using (var webClient = new WebClient())
                     {
                         imageBytes = webClient.DownloadData(imageUrl);
@@ -1960,6 +2137,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 }
                 else
                 {
+                    // Load image from local file path
                     imageBytes = File.ReadAllBytes(imageUrl);
                 }
 
@@ -1971,6 +2149,48 @@ namespace TDSGCellFormat.Implementation.Repository
                 return null;
             }
         }
+        //public async Task<string> GetBase64ImagesForTechnicalInstruction(int technicalId)
+        //{
+        //    var images = new List<string>();
+        //    var str = "";
+        //    try
+        //    {
+        //        // Retrieve list of Base64 images for the given TechnicalId
+        //        var technicalOutlintDocs = await _context.TechnicalOutlineAttachments.Where(c => c.TechnicalId == technicalId && c.IsDeleted == false).ToListAsync();
+
+        //        //foreach (var t in technicalOutlintDocs)
+        //        //{
+        //        //    using (var webClient = new WebClient())
+        //        //    {
+        //        //        var imageUrl = $"https://synopsandbox.sharepoint.com/sites/e-app-stage{t.DocumentFilePath}";
+        //        //        byte[] imageBytes = await webClient.DownloadDataTaskAsync(imageUrl);
+        //        //        string base64Image = Convert.ToBase64String(imageBytes);
+        //        //        images.Add(base64Image);
+        //        //    }
+        //        //}
+
+        //        foreach(var t in technicalOutlintDocs)
+        //        {
+        //            var imageUrl = $"https://synopsandbox.sharepoint.com/sites/e-app-stage{t.DocumentFilePath}";
+        //            images.Add(imageUrl);
+        //        }
+        //        //string imageUrl = "https://picsum.photos/seed/picsum/200/300";
+
+        //        int index = 1;
+        //       foreach(var img in images)
+        //       {
+        //            str += $"<li>< a href = \"{img}\" target = \"_blank\" >Link{index}</a></li>";
+        //            index = + 1;
+        //       }
+
+
+        //    }
+        //    catch(Exception ex)
+        //    {
+
+        //    }
+        //    return str;
+        //}
         public async Task<AjaxResult> GetTechnicalInstructionExcel(DateTime fromDate, DateTime toDate, int employeeId, int type)
         {
             var res = new AjaxResult();
@@ -1982,13 +2202,15 @@ namespace TDSGCellFormat.Implementation.Repository
                 {
                     var worksheet = workbook.Worksheets.Add("Technical Instruction");
 
+                    // Get properties and determine columns to exclude
                     var properties = excelData.GetType().GetGenericArguments()[0].GetProperties();
-                    var columnsToExclude = new List<int>() { 9 }; 
+                    var columnsToExclude = new List<int>() { 9 }; // Adjust this list based on your exclusion logic
 
                     if (type == 2)
                     {
                         columnsToExclude.Add(6);
                     }
+                    // Write header, excluding specified columns
                     int columnIndex = 1;
 
                     foreach (var property in properties)
@@ -1999,6 +2221,7 @@ namespace TDSGCellFormat.Implementation.Repository
                             string headerText = ColumnHeaderMapping.ContainsKey(property.Name) ? ColumnHeaderMapping[property.Name] : CapitalizeFirstLetter(property.Name);
                             cell.Value = headerText;
 
+                            // Apply style to the header cell
                             cell.Style.Fill.BackgroundColor = XLColor.LightBlue;
                             cell.Style.Font.Bold = true;
                             cell.Style.Border.BottomBorder = XLBorderStyleValues.Thick;
@@ -2006,7 +2229,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         }
                     }
 
-                    
+                    // Write data, excluding specified columns
                     for (int i = 0; i < excelData.Count; i++)
                     {
                         var item = excelData[i];
@@ -2067,7 +2290,9 @@ namespace TDSGCellFormat.Implementation.Repository
             {"TargetClosureDate","Target Closure Date" },
             {"EquipmentNames","Equipment" },
             {"CurrentApprover", "Current Approver" }
+            //{"ClosedDate","Closed Date" }
         };
+
         private string CapitalizeFirstLetter(string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -2088,23 +2313,35 @@ namespace TDSGCellFormat.Implementation.Repository
                 if (technical != null)
                 {
                     technical.IsReOpen = true;
+                    //var internalFlow = _context.TroubleReportReviewerTaskMasters.Where(x => x.TroubleReportId == troubleReportId && x.IsActive == true && x.IsClsoed == false).ToList();
+                    //internalFlow.ForEach(a =>
+                    //{
+                    //    a.IsClsoed = true;
+                    //    a.ModifiedDate = DateTime.Now;
+                    //});
                     if (technical.RevisionNo == null || technical.RevisionNo == 0)
                     {
-                        technical.RevisionNo = 0;
+                        technical.RevisionNo = 0;//GetFormattedCTISuffix(technical.CTINumber ?? "");
                     }
+                    //technical.RevisionNo = (technical.RevisionNo ?? 0) + 1;
                     await _context.SaveChangesAsync();
+
+                    //add map - 1 in create time
 
                     var technicalRevise = new TechnicalInstructionSheet();
                     technicalRevise.TechnicalReviseId = technicalId;
                     technicalRevise.IsReOpen = false;
+                    //technicalRevise.Title = technical.Title;
                     technicalRevise.Status = ApprovalTaskStatus.Draft.ToString();
                     technicalRevise.CreatedDate = DateTime.Now;
+                    //technicalRevise.IsActive = true;
                     technicalRevise.IsDeleted = false;
                     technicalRevise.CreatedBy = userId;
                     technicalRevise.IsSubmit = false;
                     technicalRevise.IsClosed = false;
                     technicalRevise.ApplicationStartDate = DateTime.Now;
-                   
+                    //technicalRevise.IsReview = false;
+
                     _context.TechnicalInstructionSheets.Add(technicalRevise);
                     await _context.SaveChangesAsync();
 
@@ -2181,6 +2418,7 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             return res;
         }
+
         public async Task<string> GetReviseDataListing(int technicalId)
         {
 
@@ -2199,6 +2437,7 @@ namespace TDSGCellFormat.Implementation.Repository
 
             }
         }
+
         public int GetFormattedCTISuffix(string ctiNumber)
         {
             // Split the CTI number by '-' to check for a suffix
@@ -2213,6 +2452,7 @@ namespace TDSGCellFormat.Implementation.Repository
             // Return 0 if no valid suffix exists
             return 0;
         }
+
         public async Task<AjaxResult> ChangeRequestOwner(int technicalId, int userId, string comment)
         {
             var res = new AjaxResult();
@@ -2222,24 +2462,36 @@ namespace TDSGCellFormat.Implementation.Repository
                 var technical = await _context.TechnicalInstructionSheets.Where(x => x.TechnicalId == technicalId).FirstOrDefaultAsync();
                 if (technical != null)
                 {
+                    //int? OldCreatedBy = technical.CreatedBy;
                     technical.IsReOpen = true;
-                    
+                    //var internalFlow = _context.TroubleReportReviewerTaskMasters.Where(x => x.TroubleReportId == troubleReportId && x.IsActive == true && x.IsClsoed == false).ToList();
+                    //internalFlow.ForEach(a =>
+                    //{
+                    //    a.IsClsoed = true;
+                    //    a.ModifiedDate = DateTime.Now;
+                    //});
                     if (technical.RevisionNo == null || technical.RevisionNo == 0)
                     {
-                        technical.RevisionNo = 0;
+                        technical.RevisionNo = 0;//GetFormattedCTISuffix(technical.CTINumber ?? "");
                     }
+                    //technical.RevisionNo = (technical.RevisionNo ?? 0) + 1;
                     await _context.SaveChangesAsync();
 
                     var technicalRevise = new TechnicalInstructionSheet();
                     technicalRevise.TechnicalReviseId = technicalId;
                     technicalRevise.IsReOpen = false;
+                    //technicalRevise.Title = technical.Title;
                     technicalRevise.Status = ApprovalTaskStatus.Draft.ToString();
                     technicalRevise.CreatedDate = DateTime.Now;
+                    //technicalRevise.IsActive = true;
                     technicalRevise.IsDeleted = false;
+                    //technical.OldCreatedBy = OldCreatedBy;
                     technicalRevise.CreatedBy = userId;
                     technicalRevise.IsSubmit = false;
                     technicalRevise.IsClosed = false;
                     technicalRevise.ApplicationStartDate = DateTime.Now;
+                    //technicalRevise.IsReview = false;
+
 
                     _context.TechnicalInstructionSheets.Add(technicalRevise);
                     await _context.SaveChangesAsync();
@@ -2320,6 +2572,7 @@ namespace TDSGCellFormat.Implementation.Repository
             }
             return res;
         }
+
         public async Task<AjaxResult> ChangeRequestOwner_V0(int technicalId, int userId)
         {
             var res = new AjaxResult();
@@ -2363,6 +2616,21 @@ namespace TDSGCellFormat.Implementation.Repository
             return res;
         }
 
+        //public IQueryable<SectionHeadSelectionView> GetAllSections()
+        //{
+
+        //    IQueryable<SectionHeadSelectionView> res = _context.SectionHeadEmpMasters.Where(x => x.IsActive == true)
+        //                                   .Select(x => new SectionHeadSelectionView
+        //                                   {
+        //                                       sectionHeadId = x.SectionHeadMasterId,
+        //                                       head = x.EmployeeId,
+        //                                       sectionName = _context.SectionMasters
+        //                                       .Where(c => c.SectionId == x.SectionId)
+        //                                       .Select(c => c.SectionName)
+        //                                       .FirstOrDefault()
+        //                                   });
+        //    return res;
+        //}
         public IQueryable<SectionHeadSelectionView> GetAllSections()
         {
 
@@ -2378,10 +2646,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 .Select(s => new { s.SectionId, s.SectionName })
                 .ToList();
 
-            
+
             var res = _context.SectionHeadEmpMasters
                 .Where(x => x.IsActive == true)
-                .AsEnumerable() 
+                .AsEnumerable()
                 .Select(x => new SectionHeadSelectionView
                 {
                     sectionHeadId = x.SectionHeadMasterId,
@@ -2430,6 +2698,8 @@ namespace TDSGCellFormat.Implementation.Repository
                         .ToListAsync();
 
                     notifyCellDivPartView.emails = get_emps.Any() ? string.Join(";", get_emps) : null;
+
+                    // Return a comma-separated string if there are any emails, otherwise return null.
                     return notifyCellDivPartView;
                 }
 
@@ -2449,6 +2719,7 @@ namespace TDSGCellFormat.Implementation.Repository
         {
             try
             {
+                // Fetch the employee data first
                 var employeeMasters = await _cloneContext.EmployeeMasters
                     .Select(x => new
                     {
@@ -2458,6 +2729,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     })
                     .ToListAsync();
 
+                // Fetch the equipment data first
                 var equipmentMasters = await _context.EquipmentMasters.Select(c => new equipment_master_list
                 {
                     EquipmentId = c.EquipmentId,
@@ -2636,6 +2908,7 @@ namespace TDSGCellFormat.Implementation.Repository
                         user.DelegateUserId = request.DelegateUserId;
                         user.DelegateBy = request.UserId;
                         user.DelegateOn = DateTime.Now;
+                        //user.Comments = request.Comments;
                         await _context.SaveChangesAsync();
                     }
 

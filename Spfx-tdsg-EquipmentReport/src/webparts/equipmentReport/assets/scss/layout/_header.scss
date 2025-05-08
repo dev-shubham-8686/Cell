@@ -14,7 +14,6 @@
     text-transform: uppercase;
   }
 
-
   .toggler {
     height: 1.75rem;
     width: 1.75rem;
@@ -31,7 +30,7 @@
     .fa-xmark {
       display: none;
     }
-  
+
     // .fa-chevron-left {
     //   display: none;
     // }
@@ -44,7 +43,7 @@
       .fa-xmark {
         display: block;
       }
-     
+
       // .fa-chevron-left {
       //   display: block;
       // }
@@ -63,13 +62,8 @@
 .fsz-16 {
   font-size: 1rem !important;
 }
-.request-btn{
+.request-btn {
   width: fit-content;
   position: absolute;
-   right: 1rem;
-  // top: 83px;
+  right: 0;
 }
-// .custom-upload > div{
-//   display: block !important;
-  
-// }

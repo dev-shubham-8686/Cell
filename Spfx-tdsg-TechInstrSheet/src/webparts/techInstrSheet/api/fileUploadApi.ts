@@ -21,7 +21,7 @@ export const VALIDATIONS = {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MS Excel (xlsx)
       "application/vnd.ms-excel", // MS Excel (xls)
       "application/vnd.ms-outlook", // .msg (Outlook email)
-      "message/rfc822" // .eml (generic email)
+      "message/rfc822", // .eml (generic email)
     ],
     uploadAcceptTypes: ".jpeg,.pdf,.jpg,.png,.xlsx,.xls,.msg,.eml",
     noOfFiles: "Maximum 2 Files are allowed!",
@@ -29,7 +29,10 @@ export const VALIDATIONS = {
   },
 };
 
-export const validateFile = (file: UploadFile, existingFiles: UploadFile[]): ValidationResults => {
+export const validateFile = (
+  file: UploadFile,
+  existingFiles: UploadFile[]
+): ValidationResults => {
   const maxSize = VALIDATIONS.attachment.fileSize;
 
   if (existingFiles.length >= VALIDATIONS.attachment.maxFileCount) {
@@ -48,30 +51,50 @@ export const validateFile = (file: UploadFile, existingFiles: UploadFile[]): Val
     file.type &&
     !VALIDATIONS.attachment.allowedFileTypes.some((type) => type === file.type)
   ) {
-    return { isValid: false, message: "Only JPEG, PDF, JPG, PNG, Excel, and Email Attachments are allowed." };
+    return {
+      isValid: false,
+      message:
+        "Only JPEG, PDF, JPG, PNG, Excel, and Email Attachments are allowed.",
+    };
   }
 
   return { isValid: true };
 };
 
-export const uploadFile = async (webPartContext: any, libraryName: string, folderName: string, file: File, fileName: string, subFolderName: string = ""): Promise<boolean> => {
+export const uploadFile = async (
+  webPartContext: any,
+  libraryName: string,
+  folderName: string,
+  file: File,
+  fileName: string,
+  subFolderName: string = ""
+): Promise<boolean> => {
+  const encodedFilename = encodeURI(fileName);
+  const newFile = new File([file], encodedFilename, { type: file.type });
+  const newFileWithUID = Object.assign(newFile, { uid: (file as any).uid });
   try {
     let url = "";
-    if(subFolderName === ""){
-       url = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Lists/getByTitle('${libraryName}')/RootFolder/folders('${folderName}')/Files/Add(url='${fileName}', overwrite=true)?$expand=ListItemAllFields`;
-    }else{
-       url = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}')/Files/Add(url='${fileName}', overwrite=true)?$expand=ListItemAllFields`;
+    if (subFolderName === "") {
+      url = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Lists/getByTitle('${libraryName}')/RootFolder/folders('${folderName}')/Files/Add(url='${encodedFilename}', overwrite=true)?$expand=ListItemAllFields`;
+    } else {
+      url = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}')/Files/Add(url='${encodedFilename}', overwrite=true)?$expand=ListItemAllFields`;
     }
-    const response = await webPartContext.spHttpClient.post(url, SPHttpClient.configurations.v1, {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json;odata=verbose",
-      },
-      body: file,
-    });
+    const response = await webPartContext.spHttpClient.post(
+      url,
+      SPHttpClient.configurations.v1,
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;odata=verbose",
+        },
+        body: newFileWithUID,
+      }
+    );
 
     if (response.status !== 200) {
-      console.error(`Error while uploading attachment ${fileName}. Error code: ${response.status}`);
+      console.error(
+        `Error while uploading attachment ${encodedFilename}. Error code: ${response.status}`
+      );
       return false;
     }
 
@@ -83,7 +106,9 @@ export const uploadFile = async (webPartContext: any, libraryName: string, folde
 };
 
 export const downloadFile = (file: UploadFile): void => {
-  const url = file.url ? file.url : URL.createObjectURL(file.originFileObj as Blob);
+  const url = file.url
+    ? file.url
+    : URL.createObjectURL(file.originFileObj as Blob);
   const link = document.createElement("a");
   link.href = url;
   link.download = file.name;
@@ -91,45 +116,65 @@ export const downloadFile = (file: UploadFile): void => {
   URL.revokeObjectURL(url);
 };
 
-export const previewFile = (file: UploadFile, libraryName: string, folderName: string, subFolderName: string = ""): void => {
+export const previewFile = (
+  file: UploadFile,
+  libraryName: string,
+  folderName: string,
+  subFolderName: string = ""
+): void => {
   let sharePointUrl = "";
-  
-  if(subFolderName == ""){
+
+  if (subFolderName == "") {
     sharePointUrl = file.url
-    ? file.url
-    : `${WEB_URL}/${libraryName}/${folderName}/${encodeURIComponent(file.name)}`;
-  }else{
+      ? file.url
+      : `${WEB_URL}/${libraryName}/${folderName}/${encodeURIComponent(
+          file.name
+        )}`;
+  } else {
     sharePointUrl = file.url
-    ? file.url
-    : `${WEB_URL}/${libraryName}/${folderName}/${subFolderName}/${encodeURIComponent(file.name)}`;
+      ? file.url
+      : `${WEB_URL}/${libraryName}/${folderName}/${subFolderName}/${encodeURIComponent(
+          file.name
+        )}`;
   }
-  
 
   window.open(sharePointUrl, "_blank");
 };
 
-export const checkAndCreateFolder = async (webPartContext: any, libraryName: string, folderName: string, subFolderName: string = "") => {
+export const checkAndCreateFolder = async (
+  webPartContext: any,
+  libraryName: string,
+  folderName: string,
+  subFolderName: string = ""
+) => {
   const checkFolderUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Lists/getByTitle('${libraryName}')/RootFolder/Folders('${folderName}')`;
-  const checkFolderResponse = await webPartContext.spHttpClient.get(checkFolderUrl, SPHttpClient.configurations.v1, {
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json;odata=verbose",
-    },
-  });
-
-  if (checkFolderResponse.status === 404) {
-    // Folder does not exist, create it
-    const folderCreateUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Lists/getByTitle('${libraryName}')/RootFolder/Folders/Add('${folderName}')`;
-    await webPartContext.spHttpClient.post(folderCreateUrl, SPHttpClient.configurations.v1, {
+  const checkFolderResponse = await webPartContext.spHttpClient.get(
+    checkFolderUrl,
+    SPHttpClient.configurations.v1,
+    {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json;odata=verbose",
       },
-    });
+    }
+  );
+
+  if (checkFolderResponse.status === 404) {
+    // Folder does not exist, create it
+    const folderCreateUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Lists/getByTitle('${libraryName}')/RootFolder/Folders/Add('${folderName}')`;
+    await webPartContext.spHttpClient.post(
+      folderCreateUrl,
+      SPHttpClient.configurations.v1,
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json;odata=verbose",
+        },
+      }
+    );
   }
 
-
-  if(subFolderName !== ""){
+  if (subFolderName !== "") {
     let checkSubFolderUrl;
     checkSubFolderUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/GetFolderByServerRelativeUrl('${libraryName}/${folderName}/${subFolderName}')`;
 
@@ -147,7 +192,7 @@ export const checkAndCreateFolder = async (webPartContext: any, libraryName: str
     if (checkSubFolderResponse.status === 404) {
       let subFolderCreateUrl;
       subFolderCreateUrl = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Folders/add('${libraryName}/${folderName}/${subFolderName}')`;
-      
+
       await webPartContext.spHttpClient
         .post(subFolderCreateUrl, SPHttpClient.configurations.v1, {
           headers: {
@@ -155,8 +200,7 @@ export const checkAndCreateFolder = async (webPartContext: any, libraryName: str
             "Content-Type": "application/json;odata=verbose",
           },
         })
-        .catch((err:any) => console.error(err));
+        .catch((err: any) => console.error(err));
     }
-
   }
 };

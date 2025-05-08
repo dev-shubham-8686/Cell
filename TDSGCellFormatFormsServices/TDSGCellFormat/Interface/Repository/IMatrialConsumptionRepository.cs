@@ -8,7 +8,6 @@ namespace TDSGCellFormat.Interface.Repository
     public interface IMatrialConsumptionRepository : IBaseRepository<MaterialConsumptionSlip>
     {
         Task<object> GetMaterialConsumptionList(int createdBy, int skip, int take, string order, string orderBy, string searchColumn, string searchValue);
-        Task<object> GetAllMaterialConsumptionList(int createdBy, int skip, int take, string order, string orderBy, string searchColumn, string searchValue);
         Task<object> GetMaterialConsumptionApproverList(int createdBy, int skip, int take, string order, string orderBy, string searchColumn, string searchValue);
         MaterialConsumptionSlipView GetById(int Id);
         Task<AjaxResult> DeleteReport(int Id);

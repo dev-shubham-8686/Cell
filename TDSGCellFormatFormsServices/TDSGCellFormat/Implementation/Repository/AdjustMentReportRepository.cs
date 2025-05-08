@@ -1578,55 +1578,63 @@ namespace TDSGCellFormat.Implementation.Repository
 
                 if (data.Any() && data != null)
                 {
-                    changeRiskBuilder.Append("<div style= 'margin-top: 15px; border: 1px solid black; padding: 10px; page-break-inside: avoid; break-inside: avoid;'>");
-                    changeRiskBuilder.Append("<table style='border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%;  align='center'>");
-
-                    changeRiskBuilder.Append("<tr style='page-break-inside: avoid; break-inside: avoid;'>");
-                    changeRiskBuilder.Append("<td style = 'border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px'>Change Risk Management</td>");
-                    changeRiskBuilder.Append("</tr>");
-                    changeRiskBuilder.Append("<tr style='padding: 10px; height: 20px; page-break-inside: avoid;'>");
-                    changeRiskBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Sr. No</b></td>");
-                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Changes</b></td>");
-                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Functions</b></td>");
-                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Risk associated with changes</b></td>");
-                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Factors/ Causes</b></td>");
-                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Counter measures</b></td>");
-                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Due Date</b></td>");
-                    changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Person in charge</b></td>");
-                    changeRiskBuilder.Append("<td style='width: 20%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Results</b></td>");
-                    changeRiskBuilder.Append("</tr>");
-
-                    foreach (var item in data)
+                    if (adjustMentReportData?.ChangeRiskManagementRequired == true)
                     {
-                        tableBuilder.Append("<tr style='padding:10px; height: 20px; page-break-inside: avoid; break-inside: avoid;'>");
+                        changeRiskBuilder.Append("<div style= 'margin-top: 15px; border: 1px solid black; padding: 10px; page-break-inside: avoid; break-inside: avoid;'>");
+                        changeRiskBuilder.Append("<table style='border-color: black; border-collapse: collapse; font-size: 10px; text-align: left; width: 100%;  align='center'>");
 
-                        // Add the serial number to the first column
-                        tableBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; padding: 5px'>" + serialNumber++ + "</td>");
+                        changeRiskBuilder.Append("<tr style='page-break-inside: avoid; break-inside: avoid;'>");
+                        changeRiskBuilder.Append("<td style = 'border: 0.25px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 15px'>Change Risk Management</td>");
+                        changeRiskBuilder.Append("</tr>");
+                        changeRiskBuilder.Append("<tr style='padding: 10px; height: 20px; page-break-inside: avoid;'>");
+                        changeRiskBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Sr. No</b></td>");
+                        changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Changes</b></td>");
+                        changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Functions</b></td>");
+                        changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Risk associated with changes</b></td>");
+                        changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Factors/ Causes</b></td>");
+                        changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Counter measures</b></td>");
+                        changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Due Date</b></td>");
+                        changeRiskBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Person in charge</b></td>");
+                        changeRiskBuilder.Append("<td style='width: 20%; border: 1px solid black; height: 20px; background-color: #d8e6f3; padding: 5px'><b>Results</b></td>");
+                        changeRiskBuilder.Append("</tr>");
 
-                        // Add the rest of the data to the respective columns
-                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.Changes + "</td>");
-                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.FunctionId + "</td>");
-                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.RisksWithChanges + "</td>");
-                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.Factors + "</td>");
-                        tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.CounterMeasures + "</td>");
-                        //tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + (item.DueDate.HasValue ? item.DueDate.Value.ToString("dd-MM-yyyy") : "") + "</td>");
-                        //tableBuilder.Append($"<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">{(string.IsNullOrEmpty(item.DueDate) ? "" : item.DueDate)}</td>");
-                        DateTime parsedDate;
-                        tableBuilder.Append($"<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">{(DateTime.TryParse(item.DueDate, out parsedDate) ? parsedDate.ToString("dd-MM-yyyy") : "")}</td>");
+                        foreach (var item in data)
+                        {
+                            tableBuilder.Append("<tr style='padding:10px; height: 20px; page-break-inside: avoid; break-inside: avoid;'>");
 
-                        tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.PersonInCharge + "</td>");
-                        tableBuilder.Append("<td style=\"width: 20%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Results + "</td>");
+                            // Add the serial number to the first column
+                            tableBuilder.Append("<td style='width: 3%; border: 1px solid black; height: 20px; padding: 5px'>" + serialNumber++ + "</td>");
 
-                        tableBuilder.Append("</tr>");
+                            // Add the rest of the data to the respective columns
+                            tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.Changes + "</td>");
+                            tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.FunctionId + "</td>");
+                            tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.RisksWithChanges + "</td>");
+                            tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.Factors + "</td>");
+                            tableBuilder.Append("<td style='width: 11%; border: 1px solid black; height: 20px; padding: 5px'>" + item.CounterMeasures + "</td>");
+                            //tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + (item.DueDate.HasValue ? item.DueDate.Value.ToString("dd-MM-yyyy") : "") + "</td>");
+                            //tableBuilder.Append($"<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">{(string.IsNullOrEmpty(item.DueDate) ? "" : item.DueDate)}</td>");
+                            DateTime parsedDate;
+                            tableBuilder.Append($"<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">{(DateTime.TryParse(item.DueDate, out parsedDate) ? parsedDate.ToString("dd-MM-yyyy") : "")}</td>");
+
+                            tableBuilder.Append("<td style=\"width: 11%; border: 1px solid black; height: 20px; padding: 5px\">" + item.PersonInCharge + "</td>");
+                            tableBuilder.Append("<td style=\"width: 20%; border: 1px solid black; height: 20px; padding: 5px\">" + item.Results + "</td>");
+
+                            tableBuilder.Append("</tr>");
+                        }
+                        tableBuilder.Append("</table>");
+                        tableBuilder.Append("</div>");
+
+                        sb.Replace("#changeRiskHeaders#", changeRiskBuilder.ToString());
+                        sb.Replace("#ChangeriskTable#", tableBuilder.ToString());
                     }
-                    tableBuilder.Append("</table>");
-                    tableBuilder.Append("</div>");
+                    else
+                    {
+                        sb.Replace("#changeRiskHeaders#", "");
+                        sb.Replace("#ChangeriskTable#", "");
+                    }
 
+                        
                 }
-
-                sb.Replace("#changeRiskHeaders#", changeRiskBuilder.ToString());
-                sb.Replace("#ChangeriskTable#", tableBuilder.ToString());
-
                 // Add checkbox logic based on EquipmentData.ToshibaApprovalRequired
                 if (adjustMentReportData?.ChangeRiskManagementRequired == true)
                 {
@@ -1707,11 +1715,12 @@ namespace TDSGCellFormat.Implementation.Repository
                     dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Other Department Head 2</th>";
                     dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedByOtherDepartmentHead2}</td>";
                 }
-                if (approvedByDivisionHead != "N/A")
-                {
+                //if (approvedByDivisionHead != "N/A")
+                //{
                     dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Deputy Division Head</th>";
                     dynamicCells += $"<td style='border: 1px solid black; height: 20px; padding: 5px; text-align: center;'>{approvedByDivisionHead}</td>";
-                }
+                //}
+                
                 if (divisionHead != "N/A")
                 {
                     dynamicHeaders += "<th style='border: 1px solid black; padding: 5px; text-align: center;'>Division Head</th>";

@@ -274,7 +274,6 @@ namespace TDSGCellFormat.Models.Add
         public int isAdminId { get; set; }
         public bool isQcTeamUser { get; set; }
         public bool isQcTeamHead { get; set; }
-        public bool? isITSupportUser { get; set; }
     }
 
 
