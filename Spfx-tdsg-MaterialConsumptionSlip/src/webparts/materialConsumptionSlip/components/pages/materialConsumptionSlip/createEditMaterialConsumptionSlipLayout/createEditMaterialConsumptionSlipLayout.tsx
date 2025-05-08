@@ -45,18 +45,18 @@ const CreateEditMaterialConsumptionSlipLayout = () => {
   const [currentApprovertask, setCurrentApprovertask] =
     useState<IApproverTask>(null);
   const materialConsumptionSlip = useMaterialConsumptionSlip(
-    id ? parseInt(id) : undefined, 
-      (error) => {
-        console.error("Error fetching material consumption slip by Id:", error);
-    
-        if (sessionExpiredStatus.includes(error.response?.StatusCode)) {
-          void displayjsx.showErrorMsg(error.response.Message);
-          redirectToHome();
-        } 
+    id ? parseInt(id) : undefined,
+    (error) => {
+      console.error("Error fetching material consumption slip by Id:", error);
+
+      if (sessionExpiredStatus.includes(error.response?.StatusCode)) {
+        void displayjsx.showErrorMsg(error.response.Message);
+        redirectToHome();
       }
-);
-  
-  const {data:approveerFlowData} = useGetApproverFlowData(
+    }
+  );
+
+  const { data: approveerFlowData } = useGetApproverFlowData(
     id ? parseInt(id) : undefined
   );
 
@@ -76,16 +76,15 @@ const CreateEditMaterialConsumptionSlipLayout = () => {
       );
       setCurrentApproverDetail(approverInReview || null);
     }
-  }, [currentApprover,approveerFlowData]);
+  }, [currentApprover, approveerFlowData]);
   const location = useLocation();
   const { isApproverRequest, currentTabState, fromReviewTab } =
-  location.state || {};
-  console.log("APPROVER DATA",approveerFlowData)
-  console.log("Current APPROVER DATA",currentApprover)
+    location.state || {};
+
   const [currentTab, setCurrentTab] = useState(tabs[0].id);
- console.log("ISAPPROVERREQUEST")
+
   const onBack = React.useCallback(() => {
-    console.log("ISAPPROVERREQUEST",isApproverRequest)
+
     navigate("/", {
       state: {
         currentTabState: isApproverRequest
@@ -105,16 +104,16 @@ const CreateEditMaterialConsumptionSlipLayout = () => {
             type="button"
             onClick={onBack}
           >
-            <FontAwesomeIcon style={{marginRight:"5px"}} icon={faCircleChevronLeft} />
+            <FontAwesomeIcon style={{ marginRight: "5px" }} icon={faCircleChevronLeft} />
             Back
           </button>
         </div>
-       <WorkFlowButtons   
-               currentApprover={currentApproverDetail}
-       isFormModified={isFormModified}
-       currentApproverTask={currentApprovertask}
-       existingMaterialConsumptionSlip={materialConsumptionSlip.data}
-       />
+        <WorkFlowButtons
+          currentApprover={currentApproverDetail}
+          isFormModified={isFormModified}
+          currentApproverTask={currentApprovertask}
+          existingMaterialConsumptionSlip={materialConsumptionSlip.data}
+        />
         <Spin spinning={materialConsumptionSlip.isLoading} fullscreen />
 
         <ul className="nav nav-tab-bar nav-underline" id="myTab" role="tablist">
@@ -122,9 +121,8 @@ const CreateEditMaterialConsumptionSlipLayout = () => {
             return (
               <li key={tab.id} className="nav-item" role="presentation">
                 <button
-                  className={`nav-link ${
-                    currentTab === tab.id ? "active" : ""
-                  }`}
+                  className={`nav-link ${currentTab === tab.id ? "active" : ""
+                    }`}
                   id={tab.id}
                   data-bs-toggle="tab"
                   data-bs-target={`#${tab.id}-pane`}
@@ -167,12 +165,12 @@ const CreateEditMaterialConsumptionSlipLayout = () => {
                   mode={mode}
                 />
               )}
-               {currentTab === "history-tab" && (
+              {currentTab === "history-tab" && (
                 <History />
               )}
-               {currentTab === "workflow-tab" && (
-                <Workflow 
-                approverTasks={approveerFlowData ?? []}/>
+              {currentTab === "workflow-tab" && (
+                <Workflow
+                  approverTasks={approveerFlowData ?? []} userId={user.employeeId} />
               )}
             </div>
           </div>
