@@ -847,10 +847,10 @@ namespace TDSGCellFormat.Implementation.Repository
             if (materialDelegate != null)
             {
                 data.approverTaskId = materialDelegate.ApproverTaskId;
-                data.userId = materialDelegate.AssignedToUserId ?? 0;
+                data.userId = materialDelegate.DelegateUserId ?? 0;
                 data.status = materialDelegate.Status;
                 data.seqNumber = materialDelegate.SequenceNo;
-
+                return data;
             }
 
             var materialApprovers = _context.MaterialConsumptionApproverTaskMasters.FirstOrDefault(x => x.MaterialConsumptionId == materialConsumptionId && x.AssignedToUserId == userId && x.DelegateUserId == 0 && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
@@ -861,9 +861,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 data.userId = materialApprovers.AssignedToUserId ?? 0;
                 data.status = materialApprovers.Status;
                 data.seqNumber = materialApprovers.SequenceNo;
-
+                return data;
             }
             return data;
+
         }
 
         public void InsertHistoryData(int formId, string formtype, string role, string comment, string status, int actionByUserID, string actionType, int delegateUserId)
