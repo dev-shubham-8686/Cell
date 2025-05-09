@@ -9,6 +9,7 @@ namespace TDSGCellFormat.Interface.Service
     {
         Task<object> GetAll(int createdBy, int skip, int take, string order, string orderBy, string searchColumn, string searchValue);
         Task<object> GetMaterialConsumptionApproverList(int createdBy, int skip, int take, string order, string orderBy, string searchColumn, string searchValue);
+        Task<object> GetAllMCSData(int createdBy, int skip, int take, string order, string orderBy, string searchColumn, string searchValue);
         MaterialConsumptionSlipView GetById(int Id);
         Task<AjaxResult> DeleteReport(int Id);
         Task<AjaxResult> AddOrUpdateReport(MaterialConsumptionSlipAdd report);
