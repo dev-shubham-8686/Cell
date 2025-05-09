@@ -28,13 +28,13 @@ export const WEB_URL =
   //"https://synopsandbox.sharepoint.com/sites/Training2024"
   // "https://synopsandbox.sharepoint.com/sites/e-app-stage"; //local
   // "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA"; //qa
-  // "https://tdsgj.sharepoint.com/sites/e-app-stage"; //stage
-  "https://tdsgj.sharepoint.com/sites/e-app"; //prod
+  "https://tdsgj.sharepoint.com/sites/e-app-stage"; //stage
+// "https://tdsgj.sharepoint.com/sites/e-app"; //prod
 
 export const SERVICE_URL =
   //"http://localhost:5246"
-  "https://tdsg-eapp-cellforms.tdsgj.co.in"; //prod
-// "https://cellformservice-stage.tdsgj.co.in"; //stage
+  // "https://tdsg-eapp-cellforms.tdsgj.co.in"; //prod
+  "https://cellformservice-stage.tdsgj.co.in"; //stage
 // "https://cellformservice-qa.tdsgj.co.in/"; // QA
 // "https://localhost:44353"; //local
 // "https://localhost:44353/api/Technical";
@@ -42,14 +42,14 @@ export const SERVICE_URL =
 export const TECNICAL_API_SERVICE_URL =
   // "https://localhost:44353/api/Technical";
   // "https://cellformservice-qa.tdsgj.co.in/api/Technical"; //qa
-  // "https://cellformservice-stage.tdsgj.co.in/api/Technical"; //stage
-  "https://tdsg-eapp-cellforms.tdsgj.co.in/api/Technical"; //prod
+  "https://cellformservice-stage.tdsgj.co.in/api/Technical"; //stage
+// "https://tdsg-eapp-cellforms.tdsgj.co.in/api/Technical"; //prod
 
 export const TECNICAL_ROOT_SERVICE_URL =
   // "https://localhost:44353";
   // "https://cellformservice-qa.tdsgj.co.in"; //qa
-  // "https://cellformservice-stage.tdsgj.co.in"; //stage
-  "https://tdsg-eapp-cellforms.tdsgj.co.in"; //prod
+  "https://cellformservice-stage.tdsgj.co.in"; //stage
+// "https://tdsg-eapp-cellforms.tdsgj.co.in"; //prod
 
 export const DATE_FORMAT = "dd-MM-yyyy";
 export const EXCEL_DATE_FORMAT = "YYYY-MM-DD";

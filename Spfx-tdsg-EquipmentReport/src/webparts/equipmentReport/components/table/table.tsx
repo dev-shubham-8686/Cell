@@ -33,7 +33,7 @@ export const pageSizeOptions: DefaultOptionType[] = [
   { label: "100 / page", value: 100 },
 ];
 
-const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey}) => {
+const Table: React.FC<ITable> = ({ columns, url, paginationRequired, refetchKey }) => {
   const user = useContext(UserContext);
   const { isLoading, data, mutate } = useTable();
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,42 +43,15 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
   const [columnFilter, setColumnFilter] = useState<IColumnFilter | null>(null);
   const [searchText, setSearchText] = useState("");
   const { id } = useParams();
-  
+
   const exportReportBoxRef = useRef(null);
 
-  const staticData = [
-    {
-      key: '1',
-      EquipmentImprovementNo: 'EIR-001',
-      SectionName: 'Production',
-      ImprovementName: 'Safety Upgrade',
-      MachineName: 'Press Machine',
-      SubMachineName: 'Hydraulic Press',
-      IssueDate: '2023-09-15',
-      Requestor: 'John Doe',
-      Status: 'InProgress',
-      EquipmentImprovementId: 1,
-    },
-    {
-      key: '2',
-      EquipmentImprovementNo: 'EIR-002',
-      SectionName: 'Maintenance',
-      ImprovementName: 'Efficiency Improvement',
-      MachineName: 'Lathe Machine',
-      SubMachineName: 'CNC Lathe',
-      IssueDate: '2023-09-10',
-      Requestor: 'Jane Smith',
-      Status: 'Completed',
-      EquipmentImprovementId: 2,
-    }
-   
-  ];
-  
   const handleExportButtonClick = () => {
     if (exportReportBoxRef.current) {
       exportReportBoxRef.current.openModal();
     }
   };
+
   const onChange = useCallback(
     (
       pagination: TablePaginationConfig,
@@ -123,7 +96,7 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
     ) => {
       e?.preventDefault();
       const trimmedSearchText = searchText.replace(/\s+/g, '');
-      console.log("trimmedtext",trimmedSearchText)
+      console.log("trimmedtext", trimmedSearchText)
       setColumnFilter({ columnName: "", columnFilterText: trimmedSearchText.trim() });
       setCurrentPage(1);
     },
@@ -131,11 +104,11 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
   );
 
   useEffect(() => {
-    if (url) {   
+    if (url) {
       let params;
-      if(paginationRequired){
-        
-        params={
+      if (paginationRequired) {
+
+        params = {
           createdBy: user?.employeeId,
           skip: (currentPage - 1) * pageSize,
           take: pageSize,
@@ -146,22 +119,22 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
         }
       }
       else {
-         params={
-          equipmentId:id
+        params = {
+          equipmentId: id
         }
       }
-      
+
       mutate({
-        
+
         url: url,
-        params:params,
-        listingScreen:paginationRequired
+        params: params,
+        listingScreen: paginationRequired
       });
-      
-      console.log("data",data,columns)
+
+      console.log("data", data, columns)
     }
-  }, [url, currentPage, pageSize, order, orderBy, columnFilter,id,user.employeeId,refetchKey]);
-  console.log("DATA",data)
+  }, [url, currentPage, pageSize, order, orderBy, columnFilter, id, user.employeeId, refetchKey]);
+
   return (
     <>
       <div className="row">
@@ -183,24 +156,22 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
                 }}
               />
             )}
-            {console.log("SEARCHTEXT",searchText)}
-            
             <div className="position-relative">
               {searchText && (
-               <FontAwesomeIcon className="me-1 position-absolute text-gray font-18" icon={faXmark} 
+                <FontAwesomeIcon className="me-1 position-absolute text-gray font-18" icon={faXmark}
                   style={{
                     right: "7.5rem",
                     top: "50%",
                     transform: "translateY(-50%)",
                     cursor: "pointer",
-                
+
                   }}
                   onClick={() => {
                     setSearchText("");
                     setColumnFilter(null);
                   }}
-                /> 
-           )} 
+                />
+              )}
               {paginationRequired && (
                 <button
                   className="btn btn-primary text-nowrap"
@@ -213,26 +184,26 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey})
           </div>
         </div>
         <div className="col-md-4" />
-        {paginationRequired &&<div className="col-md-4 text-end">
-          <button className="btn btn-outline-darkgrey text-nowrap" 
-                      onClick={handleExportButtonClick}
->
-<FontAwesomeIcon className="me-2" icon={faFileExport} />
+        {paginationRequired && !user?.isITSupportUser && <div className="col-md-4 text-end">
+          <button className="btn btn-outline-darkgrey text-nowrap"
+            onClick={handleExportButtonClick}
+          >
+            <FontAwesomeIcon className="me-2" icon={faFileExport} />
             Export to Excel
           </button>
-        </div>} 
+        </div>}
       </div>
       <ExportReportBox
-            ref={exportReportBoxRef}
-            // onFinish={handleExportFormSubmit}
-            buttonText=""
-            onCancel={undefined}
-          />
-         {/* <div className="table"> */}
+        ref={exportReportBoxRef}
+        // onFinish={handleExportFormSubmit}
+        buttonText=""
+        onCancel={undefined}
+      />
+      {/* <div className="table"> */}
       <AntdTable
         columns={columns}
         dataSource={data}
-        scroll={{ x: "max-content", y:"300px" }}
+        scroll={{ x: "max-content", y: "300px" }}
         loading={isLoading}
         onChange={onChange}
         pagination={{

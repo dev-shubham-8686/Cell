@@ -40,10 +40,10 @@ const AdjustmentReportMain: React.FC = () => {
           key == "1"
             ? "myrequest-tab"
             : key == "2"
-            ? "myapproval-tab"
-            : key == "3"
-            ? "allrequest-tab"
-            : "",
+              ? "myapproval-tab"
+              : key == "3"
+                ? "allrequest-tab"
+                : "",
       },
     });
   };
@@ -63,7 +63,7 @@ const AdjustmentReportMain: React.FC = () => {
       >
         MASTER
       </Button> */}
-      <Button
+      {!user?.isITSupportUser && <Button
         type="primary"
         className="btn btn-primary mb-8"
         onClick={() => onAddRequest()}
@@ -74,7 +74,7 @@ const AdjustmentReportMain: React.FC = () => {
         }
       >
         New Request
-      </Button>
+      </Button>}
     </>
   );
 

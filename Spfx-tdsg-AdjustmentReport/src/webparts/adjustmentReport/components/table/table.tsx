@@ -184,7 +184,7 @@ const Table: React.FC<ITable> = ({ columns, url, paginationRequired, refetchKey,
           </div>
         </div>
         <div className="col-md-4" />
-        {paginationRequired && <div className="col-md-4 text-end">
+        {paginationRequired && !user?.isITSupportUser && <div className="col-md-4 text-end">
           <button className="btn btn-outline-darkgrey text-nowrap"
             onClick={handleExportButtonClick}
           >
