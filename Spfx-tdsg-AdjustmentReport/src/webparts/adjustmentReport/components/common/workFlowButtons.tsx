@@ -217,7 +217,7 @@ const WorkFlowButtons: React.FC<WorkFlowButtonsProps> = ({
     const data: IDelegate = {
       FormId: id ? parseInt(id) : 0,
       UserId: user?.employeeId ?? 0,
-      activeUserId: currentApprover?.AssignedToUserId,
+      activeUserId: currentApprover?.DelegateUserId ? currentApprover?.DelegateUserId : currentApprover?.AssignedToUserId,
       DelegateUserId: deligateUserId,
       // ApproverTaskId:currentApprover?.ApproverTaskId,
       Comments: comment,
