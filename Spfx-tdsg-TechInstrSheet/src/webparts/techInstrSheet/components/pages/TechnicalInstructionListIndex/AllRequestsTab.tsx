@@ -139,10 +139,11 @@ const AllRequestsTab: React.FC = () => {
     setSearchText(selectedKeys[0] || "");
   };
 
-  const handleColumnReset = (clearFilters: any) => {
+  const handleColumnReset = (clearFilters: any, confirm: any) => {
     clearFilters();
     setSearchColumn("");
     setSearchText("");
+    confirm();
   };
 
   // Column-specific search filter
@@ -178,7 +179,7 @@ const AllRequestsTab: React.FC = () => {
           Search
         </Button>
         <Button
-          onClick={() => handleColumnReset(clearFilters)}
+          onClick={() => handleColumnReset(clearFilters, confirm)}
           size="small"
           style={{ width: 90 }}
         >
@@ -527,8 +528,9 @@ const AllRequestsTab: React.FC = () => {
       ...getColumnSearchProps("Status", "Status"),
       render: (text) => (
         <span
-          className={`status-badge status-badge-${STATUS_COLOUR_CLASS[text] ?? ""
-            }`}
+          className={`status-badge status-badge-${
+            STATUS_COLOUR_CLASS[text] ?? ""
+          }`}
         >
           {displayRequestStatus(text)}
         </span>
@@ -709,8 +711,9 @@ const AllRequestsTab: React.FC = () => {
         width: "10%",
         render: (text) => (
           <span
-            className={`status-badge status-badge-${STATUS_COLOUR_CLASS[text] ?? ""
-              }`}
+            className={`status-badge status-badge-${
+              STATUS_COLOUR_CLASS[text] ?? ""
+            }`}
           >
             {text ? displayRequestStatus(text) : "-"}
           </span>
@@ -750,7 +753,7 @@ const AllRequestsTab: React.FC = () => {
           columns={nestedColumns}
           pagination={false}
           showHeader={false}
-        // scroll={{ x: "max-content" }}
+          // scroll={{ x: "max-content" }}
         />
       </>
     );
@@ -820,13 +823,19 @@ const AllRequestsTab: React.FC = () => {
           </Button>
         </div>
         {/* Export to Excel button */}
-        {!user?.isITSupportUser && <Button
-          className="bg-blue-600 text-white font-bold px-6 py-2"
-          onClick={handleExportToExcel}
-        >
-          <FontAwesomeIcon title="View" icon={faFileExport} className="me-1" />
-          Export to Excel
-        </Button>}
+        {!user?.isITSupportUser && (
+          <Button
+            className="bg-blue-600 text-white font-bold px-6 py-2"
+            onClick={handleExportToExcel}
+          >
+            <FontAwesomeIcon
+              title="View"
+              icon={faFileExport}
+              className="me-1"
+            />
+            Export to Excel
+          </Button>
+        )}
         <ExportToExcel ref={exportRef} type={"3"} />
       </div>
       <Table
