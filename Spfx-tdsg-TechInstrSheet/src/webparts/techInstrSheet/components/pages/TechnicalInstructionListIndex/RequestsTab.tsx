@@ -229,14 +229,18 @@ const RequestsTab: React.FC = () => {
     setSearchText(selectedKeys[0] || "");
   };
 
-  const handleColumnReset = (clearFilters: any) => {
+  const handleColumnReset = (clearFilters: any, confirm: any) => {
     clearFilters();
     setSearchColumn("");
     setSearchText("");
+    confirm();
   };
 
   // Column-specific search filter
-  const getColumnSearchProps = (dataIndex: string, placeholderString:string) => ({
+  const getColumnSearchProps = (
+    dataIndex: string,
+    placeholderString: string
+  ) => ({
     filterDropdown: ({
       setSelectedKeys,
       selectedKeys,
@@ -265,7 +269,7 @@ const RequestsTab: React.FC = () => {
           Search
         </Button>
         <Button
-          onClick={() => handleColumnReset(clearFilters)}
+          onClick={() => handleColumnReset(clearFilters, confirm)}
           size="small"
           style={{ width: 90 }}
         >
@@ -406,7 +410,7 @@ const RequestsTab: React.FC = () => {
         });
     }
   };
-  
+
   const showModal = () => setVisible(true);
 
   const handleAddRevision = (id: string): void => {
@@ -445,19 +449,25 @@ const RequestsTab: React.FC = () => {
 
   const handleFinalSubmit = async () => {
     if (comment.length > 1000) {
-      void displayjsx.showErrorMsg("Comment length cannot exceed 1000 characters.");
+      void displayjsx.showErrorMsg(
+        "Comment length cannot exceed 1000 characters."
+      );
       return; // Stop further execution if validation fails
     }
     setRevisonLoading(true);
     setVisible(false);
     try {
-      await technicalReopen(revTecId, user?.employeeId.toString() ?? "", comment);
+      await technicalReopen(
+        revTecId,
+        user?.employeeId.toString() ?? "",
+        comment
+      );
       void displayjsx.showSuccess("Revision added successfully.");
       window.location.reload(); // Reload the page after success
     } catch (error) {
       setRevisonLoading(false);
       setVisible(true);
-    }finally{
+    } finally {
       setRevisonLoading(false);
     }
   };
@@ -470,7 +480,7 @@ const RequestsTab: React.FC = () => {
       width: "10%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("CTINumber","Request No"),
+      ...getColumnSearchProps("CTINumber", "Request No"),
     },
     {
       //title: "Attachments",
@@ -790,11 +800,11 @@ const RequestsTab: React.FC = () => {
               onClick={() => handleView(record.TechnicalId)}
             />
             <Button
-                title="PDF"
-                className="action-btn"
-                icon={<FontAwesomeIcon title="PDF" icon={faFilePdf} />}
-                onClick={() => handlePdf(record.TechnicalId, record.CTINumber)}
-              />
+              title="PDF"
+              className="action-btn"
+              icon={<FontAwesomeIcon title="PDF" icon={faFilePdf} />}
+              onClick={() => handlePdf(record.TechnicalId, record.CTINumber)}
+            />
           </span>
         ),
         sorter: false,
@@ -825,12 +835,18 @@ const RequestsTab: React.FC = () => {
               type="text"
               placeholder="Search Here"
               value={searchText}
-              onChange={(e) => {setSearchText(e.target.value); setSearchColumn("");}}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                setSearchColumn("");
+              }}
               style={{ width: "300px" }}
             />
             {searchText && (
               <CloseOutlined
-                onClick={() => {setSearchText(""); setSearchColumn(""); }}
+                onClick={() => {
+                  setSearchText("");
+                  setSearchColumn("");
+                }}
                 className="text-gray-400 cursor-pointer"
                 style={{
                   position: "absolute",
@@ -884,7 +900,7 @@ const RequestsTab: React.FC = () => {
         }}
         onChange={handleTableChange}
         rowKey="TechnicalId"
-        scroll={{ x: 'max-content', y: '300px' }} // Ensure 'max-content' for dynamic width
+        scroll={{ x: "max-content", y: "300px" }} // Ensure 'max-content' for dynamic width
         className="no-radius-table dashboard-table"
       />
       <Spin spinning={pdfLoading || mailLoading || revisonLoading} fullscreen />
@@ -913,40 +929,40 @@ const RequestsTab: React.FC = () => {
 
       {
         <Modal
-        title={
-          <>
-            <FontAwesomeIcon
-              icon={faCircleExclamation}
-              style={{ marginRight: "10px", marginTop: "5px" }}
-            />
-            Are you sure you want to revise the request?
-          </>
-        }
-        maskClosable={false}
-        open={visible}
-        onCancel={() => setVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setVisible(false)}>
-            Cancel
-          </Button>,
-          <Button
-            key="submit"
-            type="primary"
-            onClick={handleFinalSubmit}
-            disabled={comment.trim() === ""} // Disable if comment is empty
-          >
-            Submit
-          </Button>,
-        ]}
-      >
-        <Input.TextArea
-          placeholder="Enter Comment"
-          rows={4}
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          style={{margin:"10px 0px 10px 0px"}}
-        />
-      </Modal>
+          title={
+            <>
+              <FontAwesomeIcon
+                icon={faCircleExclamation}
+                style={{ marginRight: "10px", marginTop: "5px" }}
+              />
+              Are you sure you want to revise the request?
+            </>
+          }
+          maskClosable={false}
+          open={visible}
+          onCancel={() => setVisible(false)}
+          footer={[
+            <Button key="cancel" onClick={() => setVisible(false)}>
+              Cancel
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              onClick={handleFinalSubmit}
+              disabled={comment.trim() === ""} // Disable if comment is empty
+            >
+              Submit
+            </Button>,
+          ]}
+        >
+          <Input.TextArea
+            placeholder="Enter Comment"
+            rows={4}
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            style={{ margin: "10px 0px 10px 0px" }}
+          />
+        </Modal>
       }
     </div>
   );

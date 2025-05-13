@@ -121,14 +121,18 @@ const ApprovalsTab: React.FC = () => {
     setSearchText(selectedKeys[0] || "");
   };
 
-  const handleColumnReset = (clearFilters: any) => {
+  const handleColumnReset = (clearFilters: any, confirm: any) => {
     clearFilters();
     setSearchColumn("");
     setSearchText("");
+    confirm();
   };
 
   // Column-specific search filter
-  const getColumnSearchProps = (dataIndex: string, placeholderString: string) => ({
+  const getColumnSearchProps = (
+    dataIndex: string,
+    placeholderString: string
+  ) => ({
     filterDropdown: ({
       setSelectedKeys,
       selectedKeys,
@@ -157,7 +161,7 @@ const ApprovalsTab: React.FC = () => {
           Search
         </Button>
         <Button
-          onClick={() => handleColumnReset(clearFilters)}
+          onClick={() => handleColumnReset(clearFilters, confirm)}
           size="small"
           style={{ width: 90 }}
         >
@@ -208,7 +212,7 @@ const ApprovalsTab: React.FC = () => {
       width: "10%",
       sorter: true,
       sortDirections: ["ascend", "descend"],
-      ...getColumnSearchProps("CTINumber","Request No"),
+      ...getColumnSearchProps("CTINumber", "Request No"),
     },
     {
       //title: "Attachments",
@@ -313,9 +317,10 @@ const ApprovalsTab: React.FC = () => {
             onClick={() => handleView(record.TechnicalId)}
           />
 
-          {//record.seqNumber == 1 &&
-            (//user?.isAdmin ||
-              record.Status == REQUEST_STATUS.Closed ||
+          {
+            //record.seqNumber == 1 &&
+            //user?.isAdmin ||
+            (record.Status == REQUEST_STATUS.Closed ||
               record.Status == REQUEST_STATUS.Completed ||
               record.Status == REQUEST_STATUS.Approved) && (
               <Button
@@ -324,7 +329,8 @@ const ApprovalsTab: React.FC = () => {
                 icon={<FontAwesomeIcon title="PDF" icon={faFilePdf} />}
                 onClick={() => handlePdf(record.TechnicalId, record.CTINumber)}
               />
-            )}
+            )
+          }
 
           {/* {record.ApproverTaskStatus == REQUEST_STATUS.InReview &&
             (record.seqNumber == 1 || record.seqNumber == 2 || record.seqNumber == 3) && (
@@ -349,12 +355,18 @@ const ApprovalsTab: React.FC = () => {
               type="text"
               placeholder="Search Here"
               value={searchText}
-              onChange={(e) => {setSearchText(e.target.value); setSearchColumn("");}}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                setSearchColumn("");
+              }}
               style={{ width: "300px" }}
             />
             {searchText && (
               <CloseOutlined
-              onClick={() => {setSearchText(""); setSearchColumn(""); }}
+                onClick={() => {
+                  setSearchText("");
+                  setSearchColumn("");
+                }}
                 className="text-gray-400 cursor-pointer"
                 style={{
                   position: "absolute",
@@ -390,17 +402,20 @@ const ApprovalsTab: React.FC = () => {
       <Table
         columns={columns}
         dataSource={data}
-        pagination={{...pagination, showTotal: (total, range) => (
-          <div className="d-flex align-items-center gap-3">
-            <span style={{ marginRight: "auto" }}>
+        pagination={{
+          ...pagination,
+          showTotal: (total, range) => (
+            <div className="d-flex align-items-center gap-3">
+              <span style={{ marginRight: "auto" }}>
                 Showing {range[0]}-{range[1]} of {total} items
               </span>
             </div>
-        )}}
+          ),
+        }}
         loading={loading}
         onChange={handleTableChange}
         rowKey="TechnicalId"
-        scroll={{ x: 'max-content', y: '300px' }} // Ensure 'max-content' for dynamic width
+        scroll={{ x: "max-content", y: "300px" }} // Ensure 'max-content' for dynamic width
         className="no-radius-table dashboard-table"
       />
 
