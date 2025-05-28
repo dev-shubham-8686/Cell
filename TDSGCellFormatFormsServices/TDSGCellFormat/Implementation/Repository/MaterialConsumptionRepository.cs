@@ -66,6 +66,30 @@ namespace TDSGCellFormat.Implementation.Repository
             }
         }
 
+        public async Task<object> GetAllMaterialConsumptionList(int createdBy, int skip, int take, string order, string orderBy, string searchColumn, string searchValue)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var command = new SqlCommand("GetMaterialConsumptionList", connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                command.Parameters.AddWithValue("@createdOne", createdBy);
+                command.Parameters.AddWithValue("@skip", skip);
+                command.Parameters.AddWithValue("@take", take);
+                command.Parameters.AddWithValue("@order", order);
+                command.Parameters.AddWithValue("@orderBy", orderBy);
+                command.Parameters.AddWithValue("@searchColumn", searchColumn);
+                command.Parameters.AddWithValue("@searchValue", searchValue);
+
+                await connection.OpenAsync();
+                var jsonResult = await command.ExecuteScalarAsync();
+
+                return jsonResult;
+
+            }
+        }
+
         public async Task<List<MaterialConsumptionListView>> GetMaterialConsumptionList1(int createdBy, int skip, int take, string? order, string? orderBy, string? searchColumn, string? searchValue)
         {
             var listData = await _context.GetMaterialConsumptionList(createdBy, skip, take, order, orderBy, searchColumn, searchValue);
@@ -599,7 +623,7 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             var commonHelper = new CommonHelper(_context, _cloneContext);
             int substituteUserId = 0;
-            bool IsSubstitute = false;
+            bool IsSubstitute = false; 
             try
             {
                 var requestTaskData = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.ApproverTaskId == ApproverTaskId && x.IsActive == true
@@ -633,19 +657,60 @@ namespace TDSGCellFormat.Implementation.Repository
                     if (currentApproverTask != null)
                     {
                         var nextApproveTask = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.MaterialConsumptionId == requestTaskData.MaterialConsumptionId && x.IsActive == true
-                                 && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (requestTaskData.SequenceNo) + 1).ToList();
+                                 && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (requestTaskData.SequenceNo) + 1).FirstOrDefault();
 
-                        if (nextApproveTask.Any())
+                        if (nextApproveTask != null)
                         {
-                            foreach (var nextTask in nextApproveTask)
+                            int nextUser = nextApproveTask.DelegateUserId == 0 ? nextApproveTask.AssignedToUserId??0 : nextApproveTask.DelegateUserId??0;
+                            if(nextUser == CurrentUserId)
                             {
-                             
-                                nextTask.Status = ApprovalTaskStatus.InReview.ToString();
-                                nextTask.ModifiedDate = DateTime.Now;
+                                nextApproveTask.Status = ApprovalTaskStatus.AutoApproved.ToString();
+                                nextApproveTask.ModifiedDate = DateTime.Now;                             
+                                nextApproveTask.ModifiedBy = CurrentUserId;
+                                nextApproveTask.ActionTakenBy = CurrentUserId;
+                                nextApproveTask.ActionTakenDate = currentApproverTask.ActionTakenDate;
+                                nextApproveTask.Comments = comment;
                                 await _context.SaveChangesAsync();
-                                await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Approved, null, nextTask.ApproverTaskId);
 
+                                InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, comment, requestTaskData.Status, Convert.ToInt32(CurrentUserId), "Auto Approved", 0);
+
+
+                                await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.AutoApproved, comment);
+
+                                var nextToNextApproveTask = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.MaterialConsumptionId == requestTaskData.MaterialConsumptionId && x.IsActive == true
+                               && x.Status == ApprovalTaskStatus.Pending.ToString() && x.SequenceNo == (nextApproveTask.SequenceNo) + 1).FirstOrDefault();
+
+
+                               
+                                    if (nextToNextApproveTask!=null)
+                                {                                
+                                    nextToNextApproveTask.Status = ApprovalTaskStatus.InReview.ToString();
+                                    nextToNextApproveTask.ModifiedDate = DateTime.Now;
+                                    await _context.SaveChangesAsync();
+
+                                    await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Approved, null, nextToNextApproveTask.ApproverTaskId);
+                                }
+                                else
+                                {
+                                    var materialConsumptionSlips = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == materialConsumptionId && x.IsDeleted == false && x.IsDeleted == false).FirstOrDefault();
+                                    if (materialConsumptionSlips != null)
+                                    {
+                                        materialConsumptionSlips.Status = ApprovalTaskStatus.Approved.ToString();
+                                        await _context.SaveChangesAsync();
+                                        await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Completed, null, 0);
+                                    }
+                                }
                             }
+                            else
+                            {
+                                nextApproveTask.Status = ApprovalTaskStatus.InReview.ToString();
+                                nextApproveTask.ModifiedDate = DateTime.Now;
+                                await _context.SaveChangesAsync();
+                                await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Approved, null, nextApproveTask.ApproverTaskId);
+                            }
+
+                               
+
                             // Notification code (if applicable)
                         }
                         else
@@ -676,7 +741,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var materialData = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == materialConsumptionId && x.IsDeleted == false).FirstOrDefault();
                     materialData.Status = ApprovalTaskStatus.UnderAmendment.ToString();
 
-                    InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, requestTaskData.Comments, requestTaskData.Status, Convert.ToInt32(requestTaskData.ModifiedBy), ApprovalTaskStatus.UnderAmendment.ToString(), 0);
+                    InsertHistoryData(requestTaskData.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), requestTaskData.Role, requestTaskData.Comments, requestTaskData.Status, Convert.ToInt32(requestTaskData.ModifiedBy), "Ask To Amend", 0);
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendMaterialConsumptionEmail(materialConsumptionId, EmailNotificationAction.Amended, comment, ApproverTaskId);
@@ -812,10 +877,10 @@ namespace TDSGCellFormat.Implementation.Repository
             if (materialDelegate != null)
             {
                 data.approverTaskId = materialDelegate.ApproverTaskId;
-                data.userId = materialDelegate.AssignedToUserId ?? 0;
+                data.userId = materialDelegate.DelegateUserId ?? 0;
                 data.status = materialDelegate.Status;
                 data.seqNumber = materialDelegate.SequenceNo;
-
+                return data;
             }
 
             var materialApprovers = _context.MaterialConsumptionApproverTaskMasters.FirstOrDefault(x => x.MaterialConsumptionId == materialConsumptionId && x.AssignedToUserId == userId && x.DelegateUserId == 0 && x.Status == ApprovalTaskStatus.InReview.ToString() && x.IsActive == true);
@@ -826,9 +891,10 @@ namespace TDSGCellFormat.Implementation.Repository
                 data.userId = materialApprovers.AssignedToUserId ?? 0;
                 data.status = materialApprovers.Status;
                 data.seqNumber = materialApprovers.SequenceNo;
-
+                return data;
             }
             return data;
+
         }
 
         public void InsertHistoryData(int formId, string formtype, string role, string comment, string status, int actionByUserID, string actionType, int delegateUserId)
@@ -902,9 +968,17 @@ namespace TDSGCellFormat.Implementation.Repository
                         InsertHistoryData(report.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), "CPC Department", "Request is Closed by CPC DepartmentHead", ApprovalTaskStatus.Closed.ToString(), report.userId, ApprovalTaskStatus.Closed.ToString(), 0);
 
                     }
+                    if(materialData.IsScraped == true)
+                    {
+                        InsertHistoryData(report.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), "", "Scrap Ticket No : " + materialData.ScrapTicketNo, ApprovalTaskStatus.Closed.ToString(), report.userId, ApprovalTaskStatus.Scrap.ToString(), 0);
+                    }
+                    else
+                    {
+                        InsertHistoryData(report.MaterialConsumptionId, FormType.MaterialConsumption.ToString(), "", "Remarks : " + materialData.ScrapRemarks, ApprovalTaskStatus.Closed.ToString(), report.userId, "No Scrap", 0);
 
+                    }
 
-                    var notificationHelper = new NotificationHelper(_context, _cloneContext);
+                        var notificationHelper = new NotificationHelper(_context, _cloneContext);
                     await notificationHelper.SendMaterialConsumptionEmail(report.MaterialConsumptionId, EmailNotificationAction.Closed, string.Empty, report.userId);
 
                 }
@@ -1124,9 +1198,12 @@ namespace TDSGCellFormat.Implementation.Repository
                 string approvedByCPC = approverData.FirstOrDefault(a => a.SequenceNo == 2)?.employeeNameWithoutCode ?? "N/A";
                 string approvedByDivHead = approverData.FirstOrDefault(a => a.SequenceNo == 3)?.employeeNameWithoutCode ?? "N/A";
 
+                string approvedByDivHeadTitle = approverData.FirstOrDefault(a => a.SequenceNo == 3)?.DisplayName ?? "N/A";
+
                 sb.Replace("#RequestorName#", reqName);
                 sb.Replace("#HODName#", approvedByDepHead);
                 sb.Replace("#CPCName#", approvedByCPC);
+                sb.Replace("#DeputyOrDivision#", approvedByDivHeadTitle);
                 sb.Replace("#DivHeadName#", approvedByDivHead);
 
                 DateTime? depHeadDate = approverData.FirstOrDefault(a => a.SequenceNo == 1)?.ActionTakenDate;
@@ -1291,12 +1368,25 @@ namespace TDSGCellFormat.Implementation.Repository
             var res = new AjaxResult();
             try
             {
-                var material = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId 
+
+                var materialAssignedToUsers = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.AssignedToUserId == request.activeUserId && x.DelegateUserId == 0
                                                                                        && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
                                                                                       && x.MaterialConsumptionId == request.FormId && x.IsActive == true).ToList();
-                if (material != null)
+
+                var materialDelegateUsers = _context.MaterialConsumptionApproverTaskMasters.Where(x => x.DelegateUserId == request.activeUserId 
+                                                                                       && (x.Status == ApprovalTaskStatus.Pending.ToString() || x.Status == ApprovalTaskStatus.InReview.ToString())
+                                                                                      && x.MaterialConsumptionId == request.FormId && x.IsActive == true).ToList();
+
+                //var inReviewTask = _context.MaterialConsumptionApproverTaskMasters.FirstOrDefault(x => x.Status == ApprovalTaskStatus.InReview.ToString() && x.MaterialConsumptionId == request.FormId && x.IsActive == true);
+                //int lastUserId = 0;
+                //if(inReviewTask != null)
+                //{
+                //    lastUserId = inReviewTask.DelegateUserId == 0 ? inReviewTask.AssignedToUserId??0 : inReviewTask.DelegateUserId ?? 0;
+                //}
+
+                if (materialAssignedToUsers != null)
                 {
-                    foreach (var user in material)
+                    foreach (var user in materialAssignedToUsers)
                     {
                         user.DelegateUserId = request.DelegateUserId;
                         user.DelegateBy = request.UserId;
@@ -1304,9 +1394,26 @@ namespace TDSGCellFormat.Implementation.Repository
                         //user.Comments = request.Comments;
                         await _context.SaveChangesAsync();
                     }
+                }
+
+                if (materialDelegateUsers != null)
+                {
+                    foreach (var user in materialDelegateUsers)
+                    {
+                        user.DelegateUserId = request.DelegateUserId;
+                        user.DelegateBy = request.UserId;
+                        user.DelegateOn = DateTime.Now;
+                        //user.Comments = request.Comments;
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                if (materialAssignedToUsers != null || materialDelegateUsers != null)
+                {
+                    
                     InsertHistoryData(request.FormId, FormType.MaterialConsumption.ToString(), "TDSG Admin", request.Comments, ApprovalTaskStatus.InReview.ToString(), Convert.ToInt32(request.UserId), HistoryAction.Delegate.ToString(), 0);
 
-                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.MaterialConsumption.ToString()).FirstOrDefault();
+                    var existingAdjDelegate = _context.CellDelegateMasters.Where(x => x.RequestId == request.FormId && x.FormName == FormType.MaterialConsumption.ToString()).OrderByDescending(x=>x.DelegateUserId).FirstOrDefault();
                     if (existingAdjDelegate != null)
                     {
                         existingAdjDelegate.DelegateUserId = request.DelegateUserId;
@@ -1328,7 +1435,7 @@ namespace TDSGCellFormat.Implementation.Repository
                     var materialData = _context.MaterialConsumptionSlips.Where(x => x.MaterialConsumptionSlipId == request.FormId && x.IsDeleted == false).FirstOrDefault();
 
                     var notificationHelper = new NotificationHelper(_context, _cloneContext);
-                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, materialData.MaterialConsumptionSlipNo, FormType.MaterialConsumption.ToString(),request.Comments, request.FormId);
+                    await notificationHelper.DelegateEmail(request.FormId, EmailNotificationAction.delegateUser, request.UserId, request.DelegateUserId, request.activeUserId, materialData.MaterialConsumptionSlipNo?? "", FormType.MaterialConsumption.ToString(),request.Comments, request.FormId);
 
                     res.StatusCode = Enums.Status.Success;
                     res.Message = Enums.Delegate;
@@ -1339,7 +1446,7 @@ namespace TDSGCellFormat.Implementation.Repository
                 res.Message = "Fail " + ex;
                 res.StatusCode = Enums.Status.Error;
                 var commonHelper = new CommonHelper(_context, _cloneContext);
-                commonHelper.LogException(ex, "Adjustment AddOrUpdate");
+                commonHelper.LogException(ex, "MCS InsertDelegate");
 
             }
             return res;

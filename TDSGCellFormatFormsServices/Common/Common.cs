@@ -168,8 +168,11 @@ namespace TDSGCellFormat.Common
             PCRNPending = 31,
             UnderImplementation = 32,
             ResultMonitoring = 33,
-            LogicalAmendmentInReview = 34
-            
+            LogicalAmendmentInReview = 34,
+            AskToAmend=35,
+            Scrap=36,
+            NoScrap=37
+
 
         }
         public enum FormType

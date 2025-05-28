@@ -19,6 +19,7 @@ Spfx-tdsg-AdjustmentReport/lib/
 Spfx-tdsg-CellFormatForms/lib/
 Spfx-tdsg-MaterialConsumptionSlip/lib/
 Spfx-tdsg-TechInstrSheet/lib/
+Spfx-tdsg-EquipmentReport/lib/
 
 # Coverage directory used by tools like istanbul
 coverage
@@ -37,3 +38,5 @@ obj
 
 # Styles Generated Code
 *.scss.ts
+/TDSGCellFormatFormsServices/TDSGCellFormat/Properties/PublishProfiles
+/TDSGCellFormatFormsServices/TDSGCellFormat/TDSGCellFormat.csproj.user

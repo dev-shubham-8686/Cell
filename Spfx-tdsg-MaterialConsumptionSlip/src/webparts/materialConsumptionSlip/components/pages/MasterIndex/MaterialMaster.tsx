@@ -210,7 +210,7 @@ const MaterialMasterPage: React.FC = () => {
         });
     }
   };
-  console.log("UOMS", UOM);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -277,8 +277,8 @@ const MaterialMasterPage: React.FC = () => {
         const costCenterA = costCenters?.find((m: any) => m.costCenterId === a.CostCenter)?.name || "";
         const costCenterB = costCenters?.find((m: any) => m.costCenterId === b.CostCenter)?.name || "";
         return costCenterA.localeCompare(costCenterB);
-      },     
-       render: (value: any) => {
+      },
+      render: (value: any) => {
         const costcenter = costCenters?.find(
           (m: any) => m.costCenterId === value
         );
@@ -305,7 +305,6 @@ const MaterialMasterPage: React.FC = () => {
         return <p className="text-cell">{text ?? "-"}</p>;
       },
       sorter: (a: any, b: any) => {
-        console.log("DATA", a, b);
         return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
       },
     },
@@ -339,7 +338,7 @@ const MaterialMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-        { record?.IsActive && <Popconfirm
+          {record?.IsActive && <Popconfirm
             title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.MaterialId!)}
             okText="Yes"
@@ -351,7 +350,7 @@ const MaterialMasterPage: React.FC = () => {
               title="Delete"
               className="action-btn"
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
-              //onClick={() => handleDelete(record.EquipmentId)}
+            //onClick={() => handleDelete(record.EquipmentId)}
             />
           </Popconfirm>}
         </span>

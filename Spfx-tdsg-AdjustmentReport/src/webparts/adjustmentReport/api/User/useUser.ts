@@ -41,6 +41,7 @@ export interface IUser {
   isDivHeadUser: boolean;
   isAdmin: boolean;
   isAdminId: number;
+  isITSupportUser: boolean;
 }
 
 const authenticateUser = async (email: string): Promise<boolean> => {
@@ -55,12 +56,13 @@ const authenticateUser = async (email: string): Promise<boolean> => {
   const body = {
     parameter: btoa(JSON.stringify(token)),
     type: "ADJUSTMENTREPORT",
-  }
-  const response = await apiClient.post<any>(GET_LOGIN_SESSION, JSON.stringify(body));
-  console.log(response)
-  
+  };
+  const response = await apiClient.post<any>(
+    GET_LOGIN_SESSION,
+    JSON.stringify(body)
+  );
   const data = response.data;
-  
+
   // eslint-disable-next-line require-atomic-updates
   apiClient.defaults.headers.common.Authorization = data.Message;
 
@@ -69,26 +71,21 @@ const authenticateUser = async (email: string): Promise<boolean> => {
 };
 
 const getUser = async (email: string) => {
-  console.log(email)
   let res = await authenticateUser(email);
   if (res) {
+    const response = await apiClient.get<IAjaxResult>(GET_USER, {
+      params: { email },
+    });
 
-    const response = await apiClient.get<IAjaxResult>(GET_USER, { params: { email } });
-    
     return response.data;
   }
   return null;
 };
 
 const useUser = (email: string): UseQueryResult<any> => {
-  console.log(email)
-  return useQuery(
-    ["get-user"],
-    () => getUser(email),
-    {
-      keepPreviousData: true
-    }
-  )
+  return useQuery(["get-user"], () => getUser(email), {
+    keepPreviousData: true,
+  });
 };
 
 export default useUser;

@@ -167,6 +167,26 @@ namespace TDSGCellFormat.Helper
             return emailSent;
         }
 
+        private string AddSpaceBeforeCapitalLetters(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return input;
+
+            var result = new StringBuilder();
+            result.Append(input[0]); // Add the first character as is
+
+            for (int i = 1; i < input.Length; i++)
+            {
+                if (char.IsUpper(input[i]) && !char.IsWhiteSpace(input[i - 1]))
+                {
+                    result.Append(' ');
+                }
+                result.Append(input[i]);
+            }
+
+            return result.ToString();
+        }
+
 
         public async Task<bool> DelegateEmail(int formId, EmailNotificationAction emailNotificationAction, int? userId, int delegateId, int? assignedToUserId, string reportNo, string formType, string comment, int requestId)
         {
@@ -183,7 +203,8 @@ namespace TDSGCellFormat.Helper
 
                 string? templateFile = null, templateFilePath = null;
 
-                string emailSubject = $"[{formType} Delegate Information!] " + reportNo;
+                string updatedFormType = AddSpaceBeforeCapitalLetters(formType);
+                string emailSubject = $"[{updatedFormType} Delegate Information!] " + reportNo;
 
                 string? baseUrl = _configuration["SPSiteUrl"];
                 string? documentationLink = null;
@@ -218,7 +239,13 @@ namespace TDSGCellFormat.Helper
                     if (!string.IsNullOrEmpty(templateFile))
                     {
                         string baseDirectory = AppContext.BaseDirectory;
-                        templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
+
+                        //local
+                       // string projectRootDirectory = Path.GetFullPath(Path.Combine(baseDirectory, @"..\..\..\"));
+                        //templateFilePath = Path.Combine(projectRootDirectory, templateDirectory, templateFile);
+
+                        //stage
+                       templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
 
                         if (!string.IsNullOrEmpty(templateFilePath))
                         {
@@ -240,7 +267,7 @@ namespace TDSGCellFormat.Helper
                             emailBody = emailBody.Replace("#ApprovedBy#", ApproverUser.EmployeeName);
                             emailBody = emailBody.Replace("#AdminUserName#", EmployeeRequestUser.EmployeeName);
                             emailBody = emailBody.Replace("#AdminEmailID#", AdminEmailNotification);
-                            emailBody = emailBody.Replace("#FormName#", formType);
+                            emailBody = emailBody.Replace("#FormName#", updatedFormType);
                             emailBody = emailBody.Replace("#DocumentationLink#", docLink);
 
                             emailToAddressList.Add(DelegateUser.Email);
@@ -905,7 +932,7 @@ namespace TDSGCellFormat.Helper
                         {
                             case EmailNotificationAction.Submitted:
                                 templateFile = "MaterialConsumption_Submitted.html";
-                                emailSubject = string.Format("[Action required!] MCS_{0} has been Submitted for Approval", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action required!] {0} has been Submitted for Approval", materialData.MaterialConsumptionSlipNo);
                                 isInReviewTask = true;
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
@@ -913,7 +940,7 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.ReSubmitted:
                                 templateFile = "MaterialConsumption_ReSubmitted.html";
-                                emailSubject = string.Format("[Action required!] MCS_{0} has been amended", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action required!] {0} has been ReSubmitted", materialData.MaterialConsumptionSlipNo);
                                 isInReviewTask = true;
                                 approvelink = true;
                                 isRequestorinCCEmail = true;
@@ -921,7 +948,7 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.Approved:
                                 templateFile = "MaterialConsumption_Approved.html";
-                                emailSubject = string.Format("[Action required!] MCS_{0} has been Submitted for Approval", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action required!] {0} has been Submitted for Approval", materialData.MaterialConsumptionSlipNo);
                                 isInReviewTask = true;
                                 isApprovedtask = true;
                                 approvelink = true;
@@ -930,20 +957,26 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.ApproveInformed:
                                 templateFile = "MaterialConsumption_ApprovedInfo.html";
-                                emailSubject = string.Format("[Action taken!] MCS_{0} has been Approved", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action taken!] {0} has been Approved", materialData.MaterialConsumptionSlipNo);
                                 isRequestorinToEmail = true;
+                                break;
+
+                            case EmailNotificationAction.AutoApproved:
+                                templateFile = "MaterialConsumption_AutoApprove.html";
+                                emailSubject = string.Format("[Action taken!] {0} has been Auto Approved", materialData.MaterialConsumptionSlipNo);                          
+                                isRequestorinCCEmail = true;
                                 break;
 
                             case EmailNotificationAction.Amended:
                                 templateFile = "MaterialConsumption_AskForAmendment .html";
-                                emailSubject = string.Format("[Action taken!] MCS_{0} has been Asked for Amendment", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action taken!] {0} has been Asked for Amendment", materialData.MaterialConsumptionSlipNo);
                                 isRequestorinToEmail = true;
                                 approvelink = true;
                                 break;
 
                             case EmailNotificationAction.PullBack:
                                 templateFile = "MaterialConsumption_PullBack.html";
-                                emailSubject = string.Format("[Action taken!] MCS_{0} has been Pull Backed", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action taken!] {0} has been Pull Backed", materialData.MaterialConsumptionSlipNo);
                                 isApprovedtask = true;
                                 isInReviewTask = true;
                                 isRequestorinCCEmail = true;
@@ -951,14 +984,14 @@ namespace TDSGCellFormat.Helper
 
                             case EmailNotificationAction.Completed:
                                 templateFile = "MaterialConsumption_Completed.html";
-                                emailSubject = string.Format("[Action required!]  MCS_{0} has been Approved and Submitted for close request", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action required!]  {0} has been Approved and Submitted for close request", materialData.MaterialConsumptionSlipNo);
                                 isRequestorinToEmail = true;
                                 cpcDeptPeople = true;
                                 break;
 
                             case EmailNotificationAction.Closed:
                                 templateFile = "MaterialConsumption_Closed.html";
-                                emailSubject = string.Format("[Action Taken] MCS_{0} has been Closed", materialData.MaterialConsumptionSlipNo);
+                                emailSubject = string.Format("[Action Taken] {0} has been Closed", materialData.MaterialConsumptionSlipNo);
                                 isDepartMentHead = true;
                                 break;
 
@@ -1071,10 +1104,27 @@ namespace TDSGCellFormat.Helper
                             }
                         }
 
+                        if (emailNotification == EmailNotificationAction.AutoApproved)
+                        {
+                            foreach (var item in approverData)
+                            {
+                                if (item.Status == ApprovalTaskStatus.Approved.ToString())
+                                {
+                                    emailToAddressList.Add(item.email);
+                                }
+                            }
+                        }
+
                         if (!string.IsNullOrEmpty(templateFile))
                         {
                             string baseDirectory = AppContext.BaseDirectory;
                             string docLink = documentLink + "view/" + requestId;
+
+                            //local
+                            // string projectRootDirectory = Path.GetFullPath(Path.Combine(baseDirectory, @"..\..\..\"));
+                           // templateFilePath = Path.Combine(projectRootDirectory, templateDirectory, templateFile);
+
+                            //stage
                             templateFilePath = Path.Combine(baseDirectory, templateDirectory, templateFile);
                             if (!string.IsNullOrEmpty(templateFilePath))
                             {
@@ -1090,6 +1140,16 @@ namespace TDSGCellFormat.Helper
                                 {
                                     docLink = documentLink + "view/" + requestId;
                                 }
+
+                                emailToAddressList = emailToAddressList
+                                .Where(email => !string.IsNullOrWhiteSpace(email))
+                                .Distinct()
+                                .ToList();
+
+                                emailCCAddressList = emailCCAddressList
+                                .Where(email => !string.IsNullOrWhiteSpace(email))
+                                .Distinct()
+                                .ToList();
 
                                 emailBody = emailBody.Replace("#MaterialLink#", docLink);
                                 emailBody = emailBody.Replace("#MaterialConsumptionNo#", materialNum);
@@ -1145,7 +1205,7 @@ namespace TDSGCellFormat.Helper
                 bool isInReviewTask = false;
                 bool isRequestorinToEmail = false;
                 bool isRequestorinCCEmail = false;
-                bool isSectionHeadIncc = false, isSectionHeadInTo = false;
+                bool isSectionHeadIncc = false, isSectionHeadInTo = false, isSectionHeadInToWorkflow2=false;
                 bool isIsAmendTask = false, allApprover = false, isLogicalAmend = false;
                 string? requesterUserName = null, requesterUserEmail = null;
                 int reqDeptId = 0;
@@ -1283,19 +1343,22 @@ namespace TDSGCellFormat.Helper
                             case EmailNotificationAction.UnderImplementation:
                                 templateFile = "Equipment_UnderImplementation.html";
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} Target Date Entered", equipmentNo);
-                                isSectionHeadInTo = true;
+                                //isSectionHeadInTo = true;
+                                isSectionHeadInToWorkflow2 = true;
                                 break;
 
                             case EmailNotificationAction.ResultMonitoring:
                                 templateFile = "Equipment_ResultMonitoring.html";
                                 emailSubject = string.Format("[Action taken!] Equipment Improvement_{0} Actual Date Entered", equipmentNo);
-                                isSectionHeadInTo = true;
+                                //isSectionHeadInTo = true;
+                                isSectionHeadInToWorkflow2 = true;
                                 break;
 
                             case EmailNotificationAction.ResultSubmit:
                                 templateFile = "Equipment_ResultSubmit.html";
                                 emailSubject = string.Format("[Action required!] Equipment Improvement_{0} Result Section has been Submitted for Approval", equipmentNo);
-                                isSectionHeadInTo = true;
+                                //isSectionHeadInTo = true;
+                                isSectionHeadInToWorkflow2 = true;
                                 approvelink = true;
                                 break;
 
@@ -1331,7 +1394,7 @@ namespace TDSGCellFormat.Helper
                         {
                             foreach (var item in approverData)
                             {
-                                if (item.Status != ApprovalTaskStatus.Pending.ToString())
+                                if (item.Status != ApprovalTaskStatus.Pending.ToString() )
                                 {
                                     emailToAddressList.Add(item.email);
                                 }
@@ -1542,11 +1605,31 @@ namespace TDSGCellFormat.Helper
                             }
                         }
 
-                        if (isSectionHeadInTo)
+                        //if (isSectionHeadInTo)
+                        //{
+                        //    foreach (var item in approverData)
+                        //    {
+                        //        if (item.SequenceNo == 1 && item.WorkFlowlevel == 1)
+                        //        {
+                        //            emailToAddressList.Add(item.email);
+                        //        }
+                        //    }
+                        //    if (emailNotification == EmailNotificationAction.ResultSubmit)
+                        //    {
+                        //        var sectionHeadId = _context.SectionHeadEmpMasters.Where(x => x.EmployeeId != equipmentData.SectionHeadId).Select(x => x.EmployeeId).ToList();
+                        //        foreach (var section in sectionHeadId)
+                        //        {
+                        //            var sectionEmail = _cloneContext.EmployeeMasters.Where(x => x.EmployeeID == section && x.IsActive == true).Select(x => x.Email).FirstOrDefault();
+
+                        //            emailCCAddressList.Add(sectionEmail);
+                        //        }
+                        //    }
+                        //}
+                        if (isSectionHeadInToWorkflow2)
                         {
                             foreach (var item in approverData)
                             {
-                                if (item.SequenceNo == 1 && item.WorkFlowlevel == 1)
+                                if (item.SequenceNo == 1 && item.WorkFlowlevel == 2)
                                 {
                                     emailToAddressList.Add(item.email);
                                 }
@@ -1608,7 +1691,7 @@ namespace TDSGCellFormat.Helper
 
                         if (nextApproverTaskId > 0)
                         {
-                            var approvalData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == requestId && (x.Status != ApprovalTaskStatus.InReview.ToString() && x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true)
+                            var approvalData = _context.EquipmentImprovementApproverTaskMasters.Where(x => x.EquipmentImprovementId == requestId && (x.Status != ApprovalTaskStatus.InReview.ToString() && x.Status != ApprovalTaskStatus.Pending.ToString() && x.Status != "N/A") && x.IsActive == true)
                                 .OrderByDescending(x => x.ApproverTaskId)
                                 .FirstOrDefault();
                             Role = approvalData?.Role;
@@ -1641,6 +1724,16 @@ namespace TDSGCellFormat.Helper
                                     }
 
                                 }
+
+                                emailToAddressList = emailToAddressList
+                              .Where(email => !string.IsNullOrWhiteSpace(email))
+                              .Distinct()
+                              .ToList();
+
+                                emailCCAddressList = emailCCAddressList
+                                .Where(email => !string.IsNullOrWhiteSpace(email))
+                                .Distinct()
+                                .ToList();
 
                                 emailBody = emailBody.Replace("#EquipmentLink#", docLink);
                                 emailBody = emailBody.Replace("#ApplicationNo#", equipmentNo);
@@ -2270,7 +2363,7 @@ namespace TDSGCellFormat.Helper
 
                         if (nextApproverTaskId > 0)
                         {
-                            var approvalData = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == requestId && (x.Status != ApprovalTaskStatus.InReview.ToString() && x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true)
+                            var approvalData = _context.AdjustmentReportApproverTaskMasters.Where(x => x.AdjustmentReportId == requestId && (x.Status != ApprovalTaskStatus.InReview.ToString() && x.Status != ApprovalTaskStatus.Pending.ToString()) && x.IsActive == true && x.Status != "N/A")
                                 .OrderByDescending(x => x.ApproverTaskId)
                                 .FirstOrDefault();
                             Role = approvalData?.Role;
@@ -2314,6 +2407,16 @@ namespace TDSGCellFormat.Helper
                                     }
 
                                 }
+
+                                emailToAddressList = emailToAddressList
+                                .Where(email => !string.IsNullOrWhiteSpace(email))
+                                .Distinct()
+                                .ToList();
+
+                                emailCCAddressList = emailCCAddressList
+                                .Where(email => !string.IsNullOrWhiteSpace(email))
+                                .Distinct()
+                                .ToList();
 
                                 emailBody = emailBody.Replace("#Requestor#", requesterUserName);
                                 emailBody = emailBody.Replace("#AdjustmentLink#", docLink);

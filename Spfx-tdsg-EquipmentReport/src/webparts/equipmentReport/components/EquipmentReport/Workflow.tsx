@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DATE_FORMAT, REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
+import { DATE_FORMAT, DATE_TIME_FORMAT, REQUEST_STATUS } from "../../GLOBAL_CONSTANT";
 import { displayRequestStatus } from "../../utility/utility";
 import dayjs from "dayjs";
 import { IWorkFlow } from "../../apis/workflow/useGetApprovalFlowData";
@@ -58,122 +58,124 @@ const Workflow: React.FC<IProps> = ({
     cellValues: string[] | any;
     cellColourClass?: string[];
   }[] = [
-    {
-      head: "Approver",
-      cellValues:
-        approverTasks?.WorkflowOne.map((item) => item.employeeName) ?? [],
-    },
-    {
-      head: "Process Status",
-      cellValues:
-        approverTasks?.WorkflowOne.map((item) => {
-          const statusValue: string = item?.Status
-            ? displayRequestStatus(item.Status)
-            : "";
+      {
+        head: "Approver",
+        cellValues:
+          approverTasks?.WorkflowOne.map((item) => {
+            if (item.Status === REQUEST_STATUS.NA) return "-";
+            return item.employeeName
+          }) ?? [],
+      },
+      {
+        head: "Process Status",
+        cellValues:
+          approverTasks?.WorkflowOne.map((item) => {
+            const statusValue: string = item?.Status
+              ? displayRequestStatus(item.Status)
+              : "";
 
-          if (statusValue === REQUEST_STATUS.Pending) return "";
-          return statusValue;
-        }) ?? [],
-      cellColourClass:
-        approverTasks?.WorkflowOne.map((item) => {
-          let className = "";
-          if (item.Status !== REQUEST_STATUS.Pending) {
-            className = `status-cell-${item.Status.toLowerCase()} ${
-              item.Status === REQUEST_STATUS.InReview &&
-              item.AssignedToUserId === userId
+            if (statusValue === REQUEST_STATUS.Pending) return "";
+            return statusValue;
+          }) ?? [],
+        cellColourClass:
+          approverTasks?.WorkflowOne.map((item) => {
+            let className = "";
+            if (item.Status !== REQUEST_STATUS.Pending) {
+              className = `status-cell-${item.Status.toLowerCase()} ${item.Status === REQUEST_STATUS.InReview &&
+                item.AssignedToUserId === userId
                 ? "active-approver"
                 : ""
-            }`;
-          }
-          return className;
-        }) ?? [],
-    },
-    {
-      head: "Reviewer Comments",
-      cellValues: approverTasks?.WorkflowOne.map((item) => (
-        
-        <Popover
-          content={
-            <span className="font-bold">{item.Comments}</span>
-          }
-        >
-          {item.Comments}
-        </Popover>
-      )),
-    },
-    {
-      head: "Date",
-      cellValues:
-        approverTasks?.WorkflowOne.map((item) =>
-          item.ActionTakenDate
-            ? dayjs(item.ActionTakenDate).format(DATE_FORMAT)
-            : // ?item.ActionTakenDate
-              ""
-        ) ?? [],
-    },
-  ];
+                }`;
+            }
+            return className;
+          }) ?? [],
+      },
+      {
+        head: "Reviewer Comments",
+        cellValues: approverTasks?.WorkflowOne.map((item) => (
+
+          <Popover
+            content={
+              <span className="font-bold">{item.Comments}</span>
+            }
+          >
+            {item.Comments}
+          </Popover>
+        )),
+      },
+      {
+        head: "Date",
+        cellValues:
+          approverTasks?.WorkflowOne.map((item) =>
+            item.ActionTakenDate
+              ? dayjs(item.ActionTakenDate).format(DATE_FORMAT)
+              : item?.Status === REQUEST_STATUS.NA ? REQUEST_STATUS.NA : ""
+          ) ?? [],
+      },
+    ];
 
   const workflowTableBody2: {
     head: string;
     cellValues: string[] | any;
     cellColourClass?: string[];
   }[] = [
-    {
-      head: "Approver",
-      cellValues:
-        approverTasks?.WorkflowTwo.map((item) => item.employeeName) ?? [],
-    },
-    {
-      head: "Process Status",
-      cellValues:
-        approverTasks?.WorkflowTwo.map((item) => {
-          const statusValue: string = item?.Status
-            ? displayRequestStatus(item.Status)
-            : "";
+      {
+        head: "Approver",
+        cellValues:
+          approverTasks?.WorkflowTwo.map((item) => {
+            if (item.Status === REQUEST_STATUS.NA) return "-";
+            return item.employeeName
+          }) ?? [],
+      },
+      {
+        head: "Process Status",
+        cellValues:
+          approverTasks?.WorkflowTwo.map((item) => {
+            const statusValue: string = item?.Status
+              ? displayRequestStatus(item.Status)
+              : "";
 
-          if (statusValue === REQUEST_STATUS.Pending) return "";
-          return statusValue;
-        }) ?? [],
-      cellColourClass:
-        approverTasks?.WorkflowTwo.map((item) => {
-          let className = "";
-          if (item.Status !== REQUEST_STATUS.Pending) {
-            className = `status-cell-${item.Status.toLowerCase()} ${
-              item.Status === REQUEST_STATUS.InReview &&
-              item.AssignedToUserId === userId
+            if (statusValue === REQUEST_STATUS.Pending) return "";
+            return statusValue;
+          }) ?? [],
+        cellColourClass:
+          approverTasks?.WorkflowTwo.map((item) => {
+            let className = "";
+            if (item.Status !== REQUEST_STATUS.Pending) {
+              className = `status-cell-${item.Status.toLowerCase()} ${item.Status === REQUEST_STATUS.InReview &&
+                item.AssignedToUserId === userId
                 ? "active-approver"
                 : ""
-            }`;
-          }
-          return className;
-        }) ?? [],
-    },
-    {
-      head: "Reviewer Comments",
-      cellValues: approverTasks?.WorkflowTwo.map((item) => (
-        <Popover content={<span className="font-bold">{item.Comments}</span>}>
-          {item.Comments}
-        </Popover>
-      )),
-    },
-    {
-      head: "Date",
-      cellValues:
-        approverTasks?.WorkflowTwo.map((item) =>
-          item.ActionTakenDate
-            ? dayjs(item.ActionTakenDate).format(DATE_FORMAT)
-            : // ?item.ActionTakenDate
-              ""
-        ) ?? [],
-    },
-  ];
+                }`;
+            }
+            return className;
+          }) ?? [],
+      },
+      {
+        head: "Reviewer Comments",
+        cellValues: approverTasks?.WorkflowTwo.map((item) => (
+          <Popover key={`${item.ApproverTaskId}_comment`} content={<span className="font-bold">{item.Comments}</span>}>
+            {item.Comments}
+          </Popover>
+        )),
+      },
+      {
+        head: "Date",
+        cellValues:
+          approverTasks?.WorkflowTwo.map((item) =>
+            item.ActionTakenDate
+              ? dayjs(item.ActionTakenDate).format(DATE_TIME_FORMAT)
+              : item?.Status === REQUEST_STATUS.NA ? REQUEST_STATUS.NA : ""
+          ) ?? [],
+      },
+    ];
   return (
     <div className="tab-section p-4">
-      <p className=" mb-0" style={{ fontSize: "20px", color: "#C50017"}}>
-          Approval Workflow
-        </p>
+      <p className=" mb-0" style={{ fontSize: "20px", color: "#C50017" }}>
+        Approval Workflow
+      </p>
       <div className="table-responsive ">
-        
+
         {approverTasks?.WorkflowOne.length === 0 ? (
           <div>Workflow has not been assigned for this request.</div>
         ) : (
@@ -195,11 +197,10 @@ const Workflow: React.FC<IProps> = ({
                     {row.cellValues.map((cellValue, index) => (
                       <td
                         key={index}
-                        className={`${
-                          row?.cellColourClass?.length > 0
-                            ? row.cellColourClass[index]
-                            : ""
-                        }`}
+                        className={`${row?.cellColourClass?.length > 0
+                          ? row.cellColourClass[index]
+                          : ""
+                          }`}
                       >
                         {cellValue}
                       </td>
@@ -237,11 +238,10 @@ const Workflow: React.FC<IProps> = ({
                     {row.cellValues.map((cellValue, index) => (
                       <td
                         key={index}
-                        className={`${
-                          row?.cellColourClass?.length > 0
-                            ? row.cellColourClass[index]
-                            : ""
-                        }`}
+                        className={`${row?.cellColourClass?.length > 0
+                          ? row.cellColourClass[index]
+                          : ""
+                          }`}
                       >
                         {cellValue}
                       </td>

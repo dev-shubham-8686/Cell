@@ -19,14 +19,14 @@ import { categoryMasterAddOrUpdate, deleteCategoryMaster, getAllCategoryMaster }
 import Page from "../../page/page";
 import { scrollToElementsTop } from "../../../utility/utility";
 interface ICategoryMaster {
-    CategoryId: number;
-    CategoryName: string;
-    CreatedDate?: string;
+  CategoryId: number;
+  CategoryName: string;
+  CreatedDate?: string;
   CreatedBy?: number;
   ModifiedBy?: number;
   ModifiedDate?: string;
   IsActive?: boolean;
-  }
+}
 
 
 const CategoryMasterPage: React.FC = () => {
@@ -91,11 +91,11 @@ const CategoryMasterPage: React.FC = () => {
 
   const handleSave = (values: ICategoryMaster) => {
     if (editingItem) {
-        categoryMasterAddOrUpdate({
-          CategoryId: editingItem.CategoryId,
-          CategoryName: values.CategoryName,
+      categoryMasterAddOrUpdate({
+        CategoryId: editingItem.CategoryId,
+        CategoryName: values.CategoryName,
         IsActive: values.IsActive,
-        ModifiedBy:user?.employeeId
+        ModifiedBy: user?.employeeId
       })
         .then((response) => {
 
@@ -106,13 +106,13 @@ const CategoryMasterPage: React.FC = () => {
             return false;
           }
           void displayjsx.showSuccess("Record updated successfully");
-          
+
           fetchData();
           setModalVisible(false);
         })
         .catch(() => {
           void displayjsx.showErrorMsg("Failed to update record");
-          
+
         });
     } else {
       // Create new record
@@ -126,19 +126,19 @@ const CategoryMasterPage: React.FC = () => {
 
           let result = response.ReturnValue;
 
-          if(result.CategoryId == -1){
+          if (result.CategoryId == -1) {
             void displayjsx.showInfo("Duplicate record found");
-             return false;
+            return false;
           }
 
           void displayjsx.showSuccess("Record created successfully");
-          
+
           fetchData();
           setModalVisible(false);
         })
         .catch(() => {
           void displayjsx.showErrorMsg("Failed to create record");
-         
+
         });
     }
   };
@@ -178,13 +178,11 @@ const CategoryMasterPage: React.FC = () => {
       title: "Created By",
       dataIndex: "CreatedByName",
       key: "CreatedByName",
-      render: (text:any) => {
-        return <p className="text-cell">{text??"-"}</p>;
+      render: (text: any) => {
+        return <p className="text-cell">{text ?? "-"}</p>;
       },
-      sorter: (a: any, b: any) =>
-        {
-          console.log("DATA",a,b);
-          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      sorter: (a: any, b: any) => {
+        return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
       },
     },
     {
@@ -203,13 +201,11 @@ const CategoryMasterPage: React.FC = () => {
       title: "Modified By",
       dataIndex: "ModifiedByName",
       key: "ModifiedByName",
-      render: (text:any) => {
-        return <p className="text-cell">{text??"-"}</p>;
+      render: (text: any) => {
+        return <p className="text-cell">{text ?? "-"}</p>;
       },
-      sorter: (a: any, b: any) =>
-        {
-          console.log("DATA",a,b);
-          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      sorter: (a: any, b: any) => {
+        return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
       },
     },
     {
@@ -231,19 +227,19 @@ const CategoryMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-        {record?.IsActive  &&  <Popconfirm
+          {record?.IsActive && <Popconfirm
             title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.CategoryId!)}
             okText="Yes"
-            okButtonProps={{className:"btn btn-primary"}}
-            cancelButtonProps={{className:"btn btn-outline-primary"}}
+            okButtonProps={{ className: "btn btn-primary" }}
+            cancelButtonProps={{ className: "btn btn-outline-primary" }}
             cancelText="No"
           >
             <Button
               title="Delete"
               className="action-btn"
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
-              //onClick={() => handleDelete(record.EquipmentId)}
+            //onClick={() => handleDelete(record.EquipmentId)}
             />
           </Popconfirm>}
         </span>
@@ -253,95 +249,95 @@ const CategoryMasterPage: React.FC = () => {
 
   return (
     <Page title="Category Master">
-              <div className="content flex-grow-1 p-4">
+      <div className="content flex-grow-1 p-4">
 
-      <div className="d-flex justify-content-between items-center mb-3">
-        <div>
-        <button
-                 className="btn btn-link btn-back px-0"
-                 type="button"
-                 onClick={() => navigate(`/master`)}
-               >
-                 <FontAwesomeIcon
-            className="me-2"
-            icon={faCircleChevronLeft}
-                 />
-                 Back
-               </button>
-        </div>
-        
-        <div >
-        <Button type="primary"
-                  className="btn btn-primary"
-                  onClick={handleAdd}>
-          Add New
-        </Button>
-      </div>
-      </div>
-      <div className="table-container pt-0">
-
-      <Table
-        columns={columns}
-        dataSource={data}
-        rowKey="id"
-        loading={loading}
-        pagination={{
-          onChange:()=>{
-            scrollToElementsTop("table-container");
-          },
-         
-          showTotal: (total, range) => (
-            <div className="d-flex align-items-center gap-3">
-              <span style={{ marginRight: "auto" }}>
-                Showing {range[0]}-{range[1]} of {total} items
-              </span>
-  
-             
-            </div>
-          ),
-          itemRender: (_, __, originalElement) => originalElement,
-        }}
-      />
-      </div>
-      <Modal
-        title={isViewMode?"View Item":editingItem ? "Edit Item" : "Add Item"}
-        open={modalVisible}
-        
-        onCancel={() => setModalVisible(false)}
-        onOk={() => !isViewMode && form.submit()}
-        okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
-        cancelButtonProps={{ className:"btn btn-outline-primary"}}
-        footer={
-          isViewMode
-            ? null 
-            : undefined 
-        }
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSave}
-          initialValues={{ CategoryName: "", IsActive: false }}
-        >
-          <Form.Item
-            name="CategoryName"
-            label="Category Name"
-            rules={[{ required: true, message: "Please enter Category Name" }]}
-          >
-            <Input type="text" disabled={isViewMode} />
-          </Form.Item>
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <Form.Item
-              name="IsActive"
-              valuePropName="checked"
-              style={{ marginBottom: 0 }}
-              className="btn-outline-primary"
+        <div className="d-flex justify-content-between items-center mb-3">
+          <div>
+            <button
+              className="btn btn-link btn-back px-0"
+              type="button"
+              onClick={() => navigate(`/master`)}
             >
-              <Checkbox disabled={isViewMode} >Is Active</Checkbox>
-            </Form.Item>
+              <FontAwesomeIcon
+                className="me-2"
+                icon={faCircleChevronLeft}
+              />
+              Back
+            </button>
           </div>
-        </Form>
-      </Modal>
+
+          <div >
+            <Button type="primary"
+              className="btn btn-primary"
+              onClick={handleAdd}>
+              Add New
+            </Button>
+          </div>
+        </div>
+        <div className="table-container pt-0">
+
+          <Table
+            columns={columns}
+            dataSource={data}
+            rowKey="id"
+            loading={loading}
+            pagination={{
+              onChange: () => {
+                scrollToElementsTop("table-container");
+              },
+
+              showTotal: (total, range) => (
+                <div className="d-flex align-items-center gap-3">
+                  <span style={{ marginRight: "auto" }}>
+                    Showing {range[0]}-{range[1]} of {total} items
+                  </span>
+
+
+                </div>
+              ),
+              itemRender: (_, __, originalElement) => originalElement,
+            }}
+          />
+        </div>
+        <Modal
+          title={isViewMode ? "View Item" : editingItem ? "Edit Item" : "Add Item"}
+          open={modalVisible}
+
+          onCancel={() => setModalVisible(false)}
+          onOk={() => !isViewMode && form.submit()}
+          okButtonProps={{ disabled: isViewMode, className: "btn btn-primary" }}
+          cancelButtonProps={{ className: "btn btn-outline-primary" }}
+          footer={
+            isViewMode
+              ? null
+              : undefined
+          }
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSave}
+            initialValues={{ CategoryName: "", IsActive: false }}
+          >
+            <Form.Item
+              name="CategoryName"
+              label="Category Name"
+              rules={[{ required: true, message: "Please enter Category Name" }]}
+            >
+              <Input type="text" disabled={isViewMode} />
+            </Form.Item>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <Form.Item
+                name="IsActive"
+                valuePropName="checked"
+                style={{ marginBottom: 0 }}
+                className="btn-outline-primary"
+              >
+                <Checkbox disabled={isViewMode} >Is Active</Checkbox>
+              </Form.Item>
+            </div>
+          </Form>
+        </Modal>
       </div>
     </Page>
   );

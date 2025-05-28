@@ -30,24 +30,19 @@ export const Message = {
     }),
 };
 
-
-export const APP_NAME="EquipmentReport.aspx";
+export const APP_NAME = "EquipmentReport.aspx";
 
 export const SERVICE_URL =
   // "https://localhost:44353"; //dev    TODO: update before deployment
-  // "https://cellformservice-qa.tdsgj.co.in"   // QA
-  // "https://cellformservice-stage.tdsgj.co.in"; //stage
-   "https://tdsg-eapp-cellforms.tdsgj.co.in";         //    prod
-
-
-
+  // "https://cellformservice-qa.tdsgj.co.in"; // QA
+  "https://cellformservice-stage.tdsgj.co.in"; //stage
+//  "https://tdsg-eapp-cellforms.tdsgj.co.in";         //    prod
 
 export const WEB_URL =
   // "https://synopsandbox.sharepoint.com/sites/Training2024"; //dev   TODO: update before deployment
-  // "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA"    // --QA
-// "https://tdsgj.sharepoint.com/sites/e-app-stage"; //stage
-   "https://tdsgj.sharepoint.com/sites/e-app"            // prod
-
+  // "https://tdsgj.sharepoint.com/sites/TDSGe-ApplictionQA"; // --QA
+  "https://tdsgj.sharepoint.com/sites/e-app-stage"; //stage
+//  "https://tdsgj.sharepoint.com/sites/e-app"            // prod
 
 export const DATE_TIME_FORMAT = "DD-MM-YYYY HH:mm:ss";
 export const DATE_FORMAT = "DD-MM-YYYY";
@@ -55,9 +50,8 @@ export const TIME_FORMAT = "HH:mm:ss";
 export const EXCEL_DATE_FORMAT = "YYYY-MM-DD";
 
 export const DocumentLibraries = {
-  EQ_Report:"EqReportDocuments"
+  EQ_Report: "EqReportDocuments",
 };
-
 
 export const SEQUENCE = {
   Seq1: 1,
@@ -66,10 +60,10 @@ export const SEQUENCE = {
   Seq4: 4,
   Seq5: 5,
   Seq6: 6,
-}
+};
 export const REQUEST_STATUS = {
-  PCRNPending:"PCRNPending",
-  UnderToshibaApproval:"UnderToshibaApproval",
+  PCRNPending: "PCRNPending",
+  UnderToshibaApproval: "UnderToshibaApproval",
   InReview: "InReview",
   UnderAmendment: "UnderAmendment",
   Cancelled: "Cancelled",
@@ -83,22 +77,23 @@ export const REQUEST_STATUS = {
   AutoApproved: "AutoApproved",
   Approved: "Approved",
   Rejected: "Rejected",
-  W1Completed :"W1Completed",
-  ResultMonitoring:"ResultMonitoring",
-  UnderImplementation:"UnderImplementation",
-  LogicalAmendmentInReview:"LogicalAmendmentInReview",
-  LogicalAmendment:"LogicalAmendment",
-  ToshibaTechnicalReview:"ToshibaTechnicalReview",
-  ToshibaTeamDiscussion:"ToshibaTeamDiscussion"
+  W1Completed: "W1Completed",
+  ResultMonitoring: "ResultMonitoring",
+  UnderImplementation: "UnderImplementation",
+  LogicalAmendmentInReview: "LogicalAmendmentInReview",
+  LogicalAmendment: "LogicalAmendment",
+  ToshibaTechnicalReview: "ToshibaTechnicalReview",
+  ToshibaTeamDiscussion: "ToshibaTeamDiscussion",
+  NA: "N/A",
 };
 
 // It returns the background colour class for the status
 export const STATUS_COLOUR_CLASS: { [key: string]: string } = {
   InReview: "in-review",
   UnderAmendment: "under-amendment",
-  ToshibaTechnicalReview:"toshiba-technical-review",
-  PCRNPending:"pcrn-pending",
-  UnderToshibaApproval:"under-toshiba-approval",
+  ToshibaTechnicalReview: "toshiba-technical-review",
+  PCRNPending: "pcrn-pending",
+  UnderToshibaApproval: "under-toshiba-approval",
   Draft: "draft",
   Approved: "approved",
   Rejected: "rejected",
@@ -110,10 +105,10 @@ export const STATUS_COLOUR_CLASS: { [key: string]: string } = {
   AutoApproved: "approved",
   Cancelled: "rejected",
   Revised: "pending",
-  LogicalAmendment:"logical-amendment",
-  LogicalAmendmentInReview:"logical-amendment-inReview",
-  UnderImplementation:"under-implementation",
-  ResultMonitoring:"result-monitoring"
+  LogicalAmendment: "logical-amendment",
+  LogicalAmendmentInReview: "logical-amendment-inReview",
+  UnderImplementation: "under-implementation",
+  ResultMonitoring: "result-monitoring",
 };
 
 export const DASHBOARD_LISTING_PAGESIZE = 10;

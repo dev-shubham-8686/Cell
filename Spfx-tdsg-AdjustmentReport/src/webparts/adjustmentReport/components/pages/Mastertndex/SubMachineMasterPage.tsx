@@ -22,7 +22,7 @@ import { scrollToElementsTop } from "../../../utils/utility";
 interface ISubMachineMaster {
   SubMachineId: number;
   SubMachineName?: number;
-  MachineId:number;
+  MachineId: number;
   CreatedDate?: string;
   CreatedBy?: number;
   ModifiedBy?: number;
@@ -40,8 +40,8 @@ const SubMachineMasterPage: React.FC = () => {
   const [form] = Form.useForm();
   const { user } = useUserContext();
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
- const { data: machinesResult, isLoading: machineloading } =
-     useGetAllMachines();
+  const { data: machinesResult, isLoading: machineloading } =
+    useGetAllMachines();
   const fetchData = () => {
     setLoading(true);
     getAllSubMachineMaster()
@@ -80,7 +80,7 @@ const SubMachineMasterPage: React.FC = () => {
 
   const handleDelete = (id: number) => {
     deleteSubMachineMaster(id.toString())
-      .then(() => { 
+      .then(() => {
         void displayjsx.showSuccess("Record Inactivated successfully");
         fetchData();
       })
@@ -96,33 +96,33 @@ const SubMachineMasterPage: React.FC = () => {
       subMachineMasterAddOrUpdate({
         SubMachineId: editingItem.SubMachineId,
         SubMachineName: values.SubMachineName,
-        MachineId:values.MachineId,
+        MachineId: values.MachineId,
         IsActive: values.IsActive,
-        ModifiedBy:user?.employeeId
+        ModifiedBy: user?.employeeId
       })
         .then((response) => {
 
-            let result = response?.ReturnValue;
-                              
-                                        if (result.SubMachineId == -1) {
-                                          void displayjsx.showInfo("Duplicate record found");
-                                          return false;
-                                        }
+          let result = response?.ReturnValue;
+
+          if (result.SubMachineId == -1) {
+            void displayjsx.showInfo("Duplicate record found");
+            return false;
+          }
           void displayjsx.showSuccess("Record updated successfully");
-          
+
           fetchData();
           setModalVisible(false);
         })
         .catch(() => {
           void displayjsx.showErrorMsg("Failed to update record");
-          
+
         });
     } else {
       // Create new record
       subMachineMasterAddOrUpdate({
         SubMachineId: 0,
         SubMachineName: values.SubMachineName,
-        MachineId:values.MachineId,
+        MachineId: values.MachineId,
         IsActive: values.IsActive,
         CreatedBy: user?.employeeId,
       })
@@ -130,19 +130,19 @@ const SubMachineMasterPage: React.FC = () => {
 
           let result = response.ReturnValue;
 
-          if(result.EquipmentId == -1){
+          if (result.EquipmentId == -1) {
             void displayjsx.showInfo("Duplicate record found");
-             return false;
+            return false;
           }
 
           void displayjsx.showSuccess("Record created successfully");
-          
+
           fetchData();
           setModalVisible(false);
         })
         .catch(() => {
           void displayjsx.showErrorMsg("Failed to create record");
-         
+
         });
     }
   };
@@ -156,7 +156,7 @@ const SubMachineMasterPage: React.FC = () => {
       title: "Sub Machine Name",
       dataIndex: "SubMachineName",
       key: "SubMachineName",
-      width:"400px",
+      width: "400px",
       sorter: (a: any, b: any) =>
         a.SubMachineName.localeCompare(b.SubMachineName),
     },
@@ -164,16 +164,15 @@ const SubMachineMasterPage: React.FC = () => {
       title: "Machine Name",
       dataIndex: "MachineId",
       key: "MachineId",
-      sorter: (a: any, b: any) =>{
-        
-        console.log("DATA",a,b)
+      sorter: (a: any, b: any) => {
+
         const machineA = machinesResult?.ReturnValue.find(
           (m: IMachine) => m.MachineId === a.MachineId
         )?.MachineName || "";
         const machineB = machinesResult?.ReturnValue.find(
           (m: IMachine) => m.MachineId === b.MachineId
         )?.MachineName || "";
-    
+
         return machineA.localeCompare(machineB);
       },
       render: (MachineId: number, record: any) => {
@@ -207,12 +206,10 @@ const SubMachineMasterPage: React.FC = () => {
       dataIndex: "CreatedByName",
       key: "CreatedByName",
       render: (text) => {
-        return <p className="text-cell">{text??"-"}</p>;
+        return <p className="text-cell">{text ?? "-"}</p>;
       },
-      sorter: (a: any, b: any) =>
-        {
-          console.log("DATA",a,b);
-          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      sorter: (a: any, b: any) => {
+        return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
       },
     },
     {
@@ -232,12 +229,10 @@ const SubMachineMasterPage: React.FC = () => {
       dataIndex: "ModifiedByName",
       key: "ModifiedByName",
       render: (text) => {
-        return <p className="text-cell">{text??"-"}</p>;
+        return <p className="text-cell">{text ?? "-"}</p>;
       },
-      sorter: (a: any, b: any) =>
-        {
-          console.log("DATA",a,b);
-          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      sorter: (a: any, b: any) => {
+        return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
       },
     },
     {
@@ -258,19 +253,19 @@ const SubMachineMasterPage: React.FC = () => {
             icon={<FontAwesomeIcon title="Edit" icon={faEdit} />}
             onClick={() => handleEdit(record)}
           />
-         {record?.IsActive && <Popconfirm
+          {record?.IsActive && <Popconfirm
             title="Are you sure to inactivate this record?"
             onConfirm={() => handleDelete(record.SubMachineId!)}
             okText="Yes"
             cancelText="No"
-            okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
-            cancelButtonProps={{ className:"btn btn-outline-primary"}}
+            okButtonProps={{ disabled: isViewMode, className: "btn btn-primary" }}
+            cancelButtonProps={{ className: "btn btn-outline-primary" }}
           >
             <Button
               title="Delete"
               className="action-btn"
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
-              //onClick={() => handleDelete(record.EquipmentId)}
+            //onClick={() => handleDelete(record.EquipmentId)}
             />
           </Popconfirm>}
         </span>
@@ -282,77 +277,77 @@ const SubMachineMasterPage: React.FC = () => {
     <Page title="Sub-Machine Master">
       <div className="content flex-grow-1 p-4">
         <div className="d-flex justify-content-between items-center mb-3">
-      <button
+          <button
             className="btn btn-link btn-back"
             type="button"
             onClick={() => navigate(`/master`)}
           >
             <FontAwesomeIcon
-            className="me-2"
+              className="me-2"
               icon={faCircleChevronLeft}
             />
             Back
           </button>
-        <Button type="primary" onClick={handleAdd}>
-          Add New
-        </Button>
-      </div>
-      <div className="table-container pt-0">
+          <Button type="primary" onClick={handleAdd}>
+            Add New
+          </Button>
+        </div>
+        <div className="table-container pt-0">
 
-      <Table
-        columns={columns}
-        dataSource={data}
-        rowKey="id"
-        loading={loading}
-      //   pagination={{ pageSize: 10, 
-      //     showTotal: () => (
-      //    <div className="d-flex align-items-center gap-3">
-      //      <span style={{ marginRight: "auto" }}>
-      //        Total {data.length} items
-      //      </span>
-      //    </div>
-      //  ), }}
-      pagination={{
-        onChange:()=>{
-          scrollToElementsTop("table-container");
-        },
-       
-        showTotal: (total, range) => (
-          <div className="d-flex align-items-center gap-3">
-            <span style={{ marginRight: "auto" }}>
-              Showing {range[0]}-{range[1]} of {total} items
-            </span>
+          <Table
+            columns={columns}
+            dataSource={data}
+            rowKey="id"
+            loading={loading}
+            //   pagination={{ pageSize: 10, 
+            //     showTotal: () => (
+            //    <div className="d-flex align-items-center gap-3">
+            //      <span style={{ marginRight: "auto" }}>
+            //        Total {data.length} items
+            //      </span>
+            //    </div>
+            //  ), }}
+            pagination={{
+              onChange: () => {
+                scrollToElementsTop("table-container");
+              },
 
-           
-          </div>
-        ),
-        itemRender: (_, __, originalElement) => originalElement,
-      }}
-      />
-      </div>
-      <Modal
-        title={isViewMode?"View Item":editingItem ? "Edit Item" : "Add Item"}
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        onOk={() => !isViewMode && form.submit()}
-        okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
-        cancelButtonProps={{ className:"btn btn-outline-primary"}} 
-        footer={
-          isViewMode
-            ? null 
-            : undefined 
-        }
-             >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSave}
-          initialValues={{ EquipmentName: "", IsActive: false }}
+              showTotal: (total, range) => (
+                <div className="d-flex align-items-center gap-3">
+                  <span style={{ marginRight: "auto" }}>
+                    Showing {range[0]}-{range[1]} of {total} items
+                  </span>
+
+
+                </div>
+              ),
+              itemRender: (_, __, originalElement) => originalElement,
+            }}
+          />
+        </div>
+        <Modal
+          title={isViewMode ? "View Item" : editingItem ? "Edit Item" : "Add Item"}
+          open={modalVisible}
+          onCancel={() => setModalVisible(false)}
+          onOk={() => !isViewMode && form.submit()}
+          okButtonProps={{ disabled: isViewMode, className: "btn btn-primary" }}
+          cancelButtonProps={{ className: "btn btn-outline-primary" }}
+          footer={
+            isViewMode
+              ? null
+              : undefined
+          }
         >
-          <Form.Item
-            name="SubMachineName"
-            label="Sub Machine Name"
-            rules={[{ required: true, message: "Please enter Sub Machine Name" },
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSave}
+            initialValues={{ EquipmentName: "", IsActive: false }}
+          >
+            <Form.Item
+              name="SubMachineName"
+              label="Sub Machine Name"
+              rules={[{ required: true, message: "Please enter Sub Machine Name" },
               {
                 validator: (_, value) => {
                   if (value && value.trim() === "") {
@@ -361,51 +356,51 @@ const SubMachineMasterPage: React.FC = () => {
                   return Promise.resolve();
                 },
               },
-            ]}
-          >
-            <Input type="text" disabled={isViewMode} />
-          </Form.Item>
-
-          <Form.Item
-                label="Machine Name"
-                name="MachineId"
-                rules={[{ required: true, message: "Please select Machine Name" }]}
-                >
-                <Select
-                  allowClear
-                  disabled={isViewMode}
-                  showSearch
-                  filterOption={(input, option) =>
-                    (option?.label ?? "")
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  placeholder="Select Machine Name"
-                  options={[
-                    ...(machinesResult?.ReturnValue?.map((machine) => ({
-                      label: machine.MachineName,
-                      value: machine.MachineId,
-                    })) || []),
-                    ...(machinesResult?.ReturnValue
-                      ? [{ label: "Other", value: -1 }]
-                      : []),
-                  ]}
-                />
-              </Form.Item>
-          
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <Form.Item
-              name="IsActive"
-              valuePropName="checked"
-              style={{ marginBottom: 0 }}
+              ]}
             >
-              <Checkbox disabled={isViewMode}>Is Active</Checkbox>
+              <Input type="text" disabled={isViewMode} />
             </Form.Item>
-          </div>
-          
-        </Form>
-      </Modal>
-    </div>
+
+            <Form.Item
+              label="Machine Name"
+              name="MachineId"
+              rules={[{ required: true, message: "Please select Machine Name" }]}
+            >
+              <Select
+                allowClear
+                disabled={isViewMode}
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                placeholder="Select Machine Name"
+                options={[
+                  ...(machinesResult?.ReturnValue?.map((machine) => ({
+                    label: machine.MachineName,
+                    value: machine.MachineId,
+                  })) || []),
+                  ...(machinesResult?.ReturnValue
+                    ? [{ label: "Other", value: -1 }]
+                    : []),
+                ]}
+              />
+            </Form.Item>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <Form.Item
+                name="IsActive"
+                valuePropName="checked"
+                style={{ marginBottom: 0 }}
+              >
+                <Checkbox disabled={isViewMode}>Is Active</Checkbox>
+              </Form.Item>
+            </div>
+
+          </Form>
+        </Modal>
+      </div>
     </Page>
   );
 };

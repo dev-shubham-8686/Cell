@@ -3,30 +3,29 @@ import { ICustomAxiosConfig } from "../interface";
 import apiClient from "../utils/axiosInstance";
 
 export interface IApproveAskToAmendPayload {
-    ApproverTaskId: number;
-    CurrentUserId: number;
-    Type: 1 | 2 | 3; // 1 for Approve, 2 for Reject and 3 for Ask to Amend
-    Comment: string;
-    AdjustmentId: number;
-    AdvisorId?: number;
-    AdditionalDepartmentHeads?: IAdditionalDepartmentHeads[];
-    IsDivHeadRequired?:boolean;
+  ApproverTaskId: number;
+  CurrentUserId: number;
+  Type: 1 | 2 | 3; // 1 for Approve, 2 for Reject and 3 for Ask to Amend
+  Comment: string;
+  AdjustmentId: number;
+  AdvisorId?: number;
+  AdditionalDepartmentHeads?: IAdditionalDepartmentHeads[];
+  IsDivHeadRequired?: boolean;
 }
 
 export interface IAdditionalDepartmentHeads {
-    EmployeeId: number;
-    DepartmentId: number;
-    ApprovalSequence: number;
+  EmployeeId: number;
+  DepartmentId: number;
+  ApprovalSequence: number;
 }
 
 export const updateApproveAskToAmend = async (
-    payload: IApproveAskToAmendPayload
+  payload: IApproveAskToAmendPayload
 ): Promise<boolean> => {
-    const config: ICustomAxiosConfig = {
-        SHOW_NOTIFICATION: true,
-      };
-    const url = `${basePathwithprefix}/AdjustmentReport/UpdateApproveAskToAmend`; // need to change
-    console.log(JSON.stringify(payload))
-    const response = await apiClient.post<boolean>(url, payload,config);
-    return response.data;
+  const config: ICustomAxiosConfig = {
+    SHOW_NOTIFICATION: true,
+  };
+  const url = `${basePathwithprefix}/AdjustmentReport/UpdateApproveAskToAmend`; // need to change
+  const response = await apiClient.post<boolean>(url, payload, config);
+  return response.data;
 };

@@ -20,7 +20,7 @@ import {
 } from "../../../GLOBAL_CONSTANT";
 import { Button, Modal, Spin } from "antd";
 import dayjs from "dayjs";
-import {  useUserContext } from "../../../context/UserContext";
+import { useUserContext } from "../../../context/UserContext";
 import { useDeleteAdjustmentReport } from "../../../hooks/useDeleteAdjustmentReport";
 import { useGetAdjustmentReportPDF } from "../../../hooks/useGetAdjustmentReportPDF";
 import { displayRequestStatus } from "../../../utils/utility";
@@ -28,32 +28,28 @@ import Table from "../../table/table";
 import { IAdjustmentReportInfo } from "../../../interface";
 import ColumnFilter from "../../table/columnFilter/columnFilter";
 
-const MyRequest: React.FC<{}> = ({}) => {
+const MyRequest: React.FC<{}> = ({ }) => {
   const navigate = useNavigate();
   const { user } = useUserContext();
   const { mutate: deleteAdjustment } = useDeleteAdjustmentReport();
   const { mutate: pdfDownload, isLoading: pdfLoading } = useGetAdjustmentReportPDF();
   const [refetchKey, setrefetchKey] = useState<number>(0);
-  const location = useLocation();
-  const {  currentTabState } = location.state || {};
-console.log("location",location.state)
+
   const handlePDF = (id: number, AdjustmentReportNo: any) => {
     try {
 
       pdfDownload(
         { id, AdjustmentReportNo },
         {
-          onSuccess: (pdfResponse:any) => {
-            console.log("PDF Response: ", pdfResponse);
+          onSuccess: (pdfResponse: any) => {
             // window.open(pdfResponse, "_blank");  //this will Open the PDF in a new tab
           },
 
-          onError: (error:any) => {
+          onError: (error: any) => {
             console.error("Export error:", error);
           },
         }
       );
-      console.log("PDF downloaded ");
     } catch (error) {
       console.error("Export error:", error);
     }
@@ -76,15 +72,14 @@ console.log("location",location.state)
       cancelButtonProps: { className: "btn btn-outline-primary" },
       okButtonProps: { className: "btn btn-primary" },
       onOk() {
-        
+
         deleteAdjustment(id, {
-          onSuccess: (Response:any) => {
-            console.log("ATA Response: ", Response);
+          onSuccess: (Response: any) => {
             setrefetchKey((prevKey) => prevKey + 1);
             // window.location.reload();
           },
 
-          onError: (error:any) => {
+          onError: (error: any) => {
             console.error("Export error:", error);
           },
         });
@@ -102,7 +97,7 @@ console.log("location",location.state)
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
-           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
     {
@@ -118,12 +113,12 @@ console.log("location",location.state)
       ),
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
-           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
-   
 
-  
+
+
     {
       title: "Area",
       dataIndex: "AreaName",
@@ -143,7 +138,7 @@ console.log("location",location.state)
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
-           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
     {
@@ -165,14 +160,14 @@ console.log("location",location.state)
       sorter: true,
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
-           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
     {
       title: "Current Approver",
       dataIndex: "CurrentApprover",
       key: "CurrentApprover",
-      width: 160, 
+      width: 160,
       sorter: true,
       render: (text) => (
         <span style={{ display: "flex", justifyContent: "center" }}>
@@ -181,7 +176,7 @@ console.log("location",location.state)
       ),
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
-           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
     {
@@ -192,17 +187,16 @@ console.log("location",location.state)
       sorter: true,
       render: (text) => (
         <span
-        className={`status-badge status-badge-${
-          STATUS_COLOUR_CLASS[text] ?? ""
-        }`}
+          className={`status-badge status-badge-${STATUS_COLOUR_CLASS[text] ?? ""
+            }`}
 
-      >
-        {displayRequestStatus(text)}
-      </span>
+        >
+          {displayRequestStatus(text)}
+        </span>
       ),
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
-           <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
+        <SearchOutlined style={{ color: filtered ? "#c50017" : undefined }} />
       ),
     },
     {
@@ -222,21 +216,20 @@ console.log("location",location.state)
             <FontAwesomeIcon title="View" icon={faEye} />
           </button>
 
-        {(user?.isAdmin ||
+          {(user?.isAdmin ||
             ((record.Status === REQUEST_STATUS.Draft ||
               record.Status === REQUEST_STATUS.UnderAmendment) &&
               record.CreatedBy == user?.employeeId)) && (
-            <button
-              type="button"   
-              style={{ background: "none", border: "none" }}
-              onClick={() =>
-                navigate(`/form/edit/${record.AdjustmentReportId}`)
-              }
-            >
-              <FontAwesomeIcon title="Edit" icon={faEdit} />
-            </button>
-          )}
-{console.log("My Req Data",record)}
+              <button
+                type="button"
+                style={{ background: "none", border: "none" }}
+                onClick={() =>
+                  navigate(`/form/edit/${record.AdjustmentReportId}`)
+                }
+              >
+                <FontAwesomeIcon title="Edit" icon={faEdit} />
+              </button>
+            )}
           {record.Status === REQUEST_STATUS.Completed && (
             <button
               type="button"
@@ -252,7 +245,7 @@ console.log("location",location.state)
             </button>
           )}
 
-{record.Status === REQUEST_STATUS.Draft &&
+          {record.Status === REQUEST_STATUS.Draft &&
             record.CreatedBy == user?.employeeId && (
               <button
                 type="button"
@@ -271,16 +264,16 @@ console.log("location",location.state)
   return (
     <>
       <div className="tab-content">
-     
+
         <Table
           columns={columns}
           paginationRequired={true}
           url="/api/AdjustmentReport/MyAdjustmentReq"
           refetchKey={refetchKey}
         />
-              <Spin spinning={pdfLoading} fullscreen />
+        <Spin spinning={pdfLoading} fullscreen />
       </div>
-      
+
     </>
   );
 };

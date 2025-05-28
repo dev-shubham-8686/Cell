@@ -44,8 +44,6 @@ const ReportFormPage = () => {
   const { user } = useUserContext();
   const isViewMode = mode === "view";
   const isEditMode = mode === "edit";
-  console.log({ user });
-  console.log({ mode });
   const { mutate: addUpdateReport } = useAddUpdateReport();
   const [submitted, setsubmitted] = React.useState(false);
   const [underAmmendment, setunderAmmendment] = React.useState(false);
@@ -71,8 +69,7 @@ const ReportFormPage = () => {
   const { data: departmentHead } = useGetDepartmentHead(
     id ? parseInt(id, 10) : 0
   );
-  console.log("approval data", approvalData);
-  console.log("CURRRRRRRTAABBBB", currentTabState);
+
   const handleTabChange = (key: string) => {
     setActiveTabKey(key);
   };
@@ -84,8 +81,8 @@ const ReportFormPage = () => {
           (isApproverRequest || currentTabState == "myapproval-tab")
             ? "myapproval-tab"
             : (allReq || currentTabState == "allrequest-tab")
-            ? "allrequest-tab"
-            : "myrequest-tab",
+              ? "allrequest-tab"
+              : "myrequest-tab",
       },
     });
   };
@@ -94,10 +91,8 @@ const ReportFormPage = () => {
     if (isEditMode || isViewMode) {
       setexistingAdjustmentReport(reportData?.ReturnValue);
 
-      console.log(user?.employeeId, head?.ReturnValue);
       setadvisorRequired(user?.employeeId == parseInt(head?.ReturnValue, 10));
 
-      console.log(user?.employeeId, departmentHead?.ReturnValue);
       setisdepartmentHead(
         user?.employeeId == parseInt(departmentHead?.ReturnValue, 10)
       );
@@ -120,18 +115,10 @@ const ReportFormPage = () => {
         },
         {
           onSuccess: (data) => {
-            console.log("getCurrentApprover data", data);
             setcurrentApproverTask(data.ReturnValue);
           },
         }
       );
-
-      console.log(
-        id ? parseInt(id, 10) : 0,
-        { currentApproverTask },
-        user?.employeeId ? user?.employeeId : 0
-      );
-      
     }
   };
 
@@ -144,9 +131,7 @@ const ReportFormPage = () => {
       );
       setCurrentApprover(approverInReview || null);
     }
-  }, [reportData, isEditMode, isViewMode,approvalData]);
-
-  console.log("ALLREQUEST123", location.state);
+  }, [reportData, isEditMode, isViewMode, approvalData]);
 
   const items: TabsProps["items"] = [
     {
@@ -182,7 +167,7 @@ const ReportFormPage = () => {
     <div>
       {true && (
         <WorkFlowButtons
-        currentApprover={currentApprover}
+          currentApprover={currentApprover}
           currentApproverTask={currentApproverTask}
           existingAdjustmentReport={existingAdjustmentReport}
           //isFormModified={isEditMode && isViewMode == false ? true : false}

@@ -4,27 +4,19 @@ import http from "../../http";
 import { CLOSE_REQUEST } from "../../URLS";
 
 export interface ICloseRequestPayload {
-    MaterialConsumptionId: number;
-    isScraped: boolean;
-    scrapTicketNo: string;
-    scrapRemarks: string;
-    userId: number;
-  }
+  MaterialConsumptionId: number;
+  isScraped: boolean;
+  scrapTicketNo: string;
+  scrapRemarks: string;
+  userId: number;
+}
 
-const CloseRequest = async (
-    payload: ICloseRequestPayload
-) => {
-  console.log("CLOSE PAYLOAD ",payload)
+const CloseRequest = async (payload: ICloseRequestPayload) => {
   const config: ICustomAxiosConfig = {
     SHOW_NOTIFICATION: true,
   };
-  
-  const response = await http.post<string>(
-    CLOSE_REQUEST,
-    payload,
-    config
-  );
-  console.log("Close RESPONSE ",response)
+
+  const response = await http.post<string>(CLOSE_REQUEST, payload, config);
 
   return response.data;
 };
@@ -33,7 +25,7 @@ const useClose = () =>
   useMutation<string, null, ICloseRequestPayload>({
     mutationKey: ["close-request"],
     mutationFn: CloseRequest,
-    cacheTime:0
+    cacheTime: 0,
   });
 
 export default useClose;

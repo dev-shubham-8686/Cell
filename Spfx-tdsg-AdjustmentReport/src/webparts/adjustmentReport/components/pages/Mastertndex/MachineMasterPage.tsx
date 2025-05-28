@@ -36,7 +36,7 @@ const MachineMasterPage: React.FC = () => {
   const [form] = Form.useForm();
   const { user } = useUserContext();
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
- 
+
   const fetchData = () => {
     setLoading(true);
     getAllMachineMaster()
@@ -92,23 +92,23 @@ const MachineMasterPage: React.FC = () => {
         MachineId: editingItem.MachineId,
         MachineName: values.MachineName,
         IsActive: values.IsActive,
-        ModifiedBy:user?.employeeId
+        ModifiedBy: user?.employeeId
       })
         .then((response) => {
-           let result = response?.ReturnValue;
-          
-                    if (result.MachineId == -1) {
-                      void displayjsx.showInfo("Duplicate record found");
-                      return false;
-                    }
+          let result = response?.ReturnValue;
+
+          if (result.MachineId == -1) {
+            void displayjsx.showInfo("Duplicate record found");
+            return false;
+          }
           void displayjsx.showSuccess("Record updated successfully");
-          
+
           fetchData();
           setModalVisible(false);
         })
         .catch(() => {
           void displayjsx.showErrorMsg("Failed to update record");
-          
+
         });
     } else {
       // Create new record
@@ -122,19 +122,19 @@ const MachineMasterPage: React.FC = () => {
 
           let result = response.ReturnValue;
 
-          if(result.MachineId == -1){
+          if (result.MachineId == -1) {
             void displayjsx.showInfo("Duplicate record found");
-             return false;
+            return false;
           }
 
           void displayjsx.showSuccess("Record created successfully");
-          
+
           fetchData();
           setModalVisible(false);
         })
         .catch(() => {
           void displayjsx.showErrorMsg("Failed to create record");
-         
+
         });
     }
   };
@@ -175,12 +175,10 @@ const MachineMasterPage: React.FC = () => {
       dataIndex: "CreatedByName",
       key: "CreatedBy",
       render: (text) => {
-        return <p className="text-cell">{text??"-"}</p>;
+        return <p className="text-cell">{text ?? "-"}</p>;
       },
-      sorter: (a: any, b: any) =>
-        {
-          console.log("DATA",a,b);
-          return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
+      sorter: (a: any, b: any) => {
+        return (a.CreatedByName || "").localeCompare(b.CreatedByName || "");
       },
     },
     {
@@ -200,14 +198,12 @@ const MachineMasterPage: React.FC = () => {
       dataIndex: "ModifiedByName",
       key: "ModifiedByName",
       render: (text) => {
-        return <p className="text-cell">{text??"-"}</p>;
+        return <p className="text-cell">{text ?? "-"}</p>;
       },
-      sorter: (a: any, b: any) =>
-        {
-          console.log("DATA",a,b);
-          return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
+      sorter: (a: any, b: any) => {
+        return (a.ModifiedByName || "").localeCompare(b.ModifiedByName || "");
       },
-    
+
     },
     {
       title: "Actions",
@@ -232,14 +228,14 @@ const MachineMasterPage: React.FC = () => {
             onConfirm={() => handleDelete(record.MachineId!)}
             okText="Yes"
             cancelText="No"
-            okButtonProps={{ disabled: isViewMode , className:"btn btn-primary"}}
-            cancelButtonProps={{ className:"btn btn-outline-primary"}}
+            okButtonProps={{ disabled: isViewMode, className: "btn btn-primary" }}
+            cancelButtonProps={{ className: "btn btn-outline-primary" }}
           >
             <Button
               title="Delete"
               className="action-btn"
               icon={<FontAwesomeIcon title="Delete" icon={faTrash} />}
-              //onClick={() => handleDelete(record.EquipmentId)}
+            //onClick={() => handleDelete(record.EquipmentId)}
             />
           </Popconfirm>}
         </span>
@@ -249,78 +245,78 @@ const MachineMasterPage: React.FC = () => {
 
   return (
     <Page title="Machine Master">
-    <div className="content flex-grow-1 p-4">
-      <div className="d-flex justify-content-between items-center mb-3">
-      <button
+      <div className="content flex-grow-1 p-4">
+        <div className="d-flex justify-content-between items-center mb-3">
+          <button
             className="btn btn-link btn-back"
             type="button"
             onClick={() => navigate(`/master`)}
           >
             <FontAwesomeIcon
-            className="me-2"
+              className="me-2"
               icon={faCircleChevronLeft}
             />
             Back
           </button>
-        <Button type="primary" onClick={handleAdd}>
-          Add New
-        </Button>
-      </div>
-      <div className="table-container pt-0">
+          <Button type="primary" onClick={handleAdd}>
+            Add New
+          </Button>
+        </div>
+        <div className="table-container pt-0">
 
-      <Table
-        columns={columns}
-        dataSource={data}
-        rowKey="id"
-        loading={loading}
-      //   pagination={{ pageSize: 10, 
-      //     showTotal: () => (
-      //    <div className="d-flex align-items-center gap-3">
-      //      <span style={{ marginRight: "auto" }}>
-      //        Total {data.length} items
-      //      </span>
-      //    </div>
-      //  ), }}
-       pagination={{
-              onChange:()=>{
+          <Table
+            columns={columns}
+            dataSource={data}
+            rowKey="id"
+            loading={loading}
+            //   pagination={{ pageSize: 10, 
+            //     showTotal: () => (
+            //    <div className="d-flex align-items-center gap-3">
+            //      <span style={{ marginRight: "auto" }}>
+            //        Total {data.length} items
+            //      </span>
+            //    </div>
+            //  ), }}
+            pagination={{
+              onChange: () => {
                 scrollToElementsTop("table-container");
               },
-             
+
               showTotal: (total, range) => (
                 <div className="d-flex align-items-center gap-3">
                   <span style={{ marginRight: "auto" }}>
                     Showing {range[0]}-{range[1]} of {total} items
                   </span>
-      
-                 
+
+
                 </div>
               ),
               itemRender: (_, __, originalElement) => originalElement,
             }}
-      />
-      </div>
-      <Modal
-        title={isViewMode?"View Item":editingItem ? "Edit Item" : "Add Item"}
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        onOk={() => !isViewMode && form.submit()}
-        okButtonProps={{ disabled: isViewMode }}
-        footer={
-          isViewMode
-            ? null 
-            : undefined 
-        }
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSave}
-          initialValues={{ EquipmentName: "", IsActive: false }}
+          />
+        </div>
+        <Modal
+          title={isViewMode ? "View Item" : editingItem ? "Edit Item" : "Add Item"}
+          open={modalVisible}
+          onCancel={() => setModalVisible(false)}
+          onOk={() => !isViewMode && form.submit()}
+          okButtonProps={{ disabled: isViewMode }}
+          footer={
+            isViewMode
+              ? null
+              : undefined
+          }
         >
-          <Form.Item
-            name="MachineName"
-            label="Machine Name"
-            rules={[{ required: true, message: "Please enter Machine Name" },
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSave}
+            initialValues={{ EquipmentName: "", IsActive: false }}
+          >
+            <Form.Item
+              name="MachineName"
+              label="Machine Name"
+              rules={[{ required: true, message: "Please enter Machine Name" },
               {
                 validator: (_, value) => {
                   if (value && value.trim() === "") {
@@ -329,22 +325,22 @@ const MachineMasterPage: React.FC = () => {
                   return Promise.resolve();
                 },
               },
-            ]}
-          >
-            <Input type="text" disabled={isViewMode} />
-          </Form.Item>
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <Form.Item
-              name="IsActive"
-              valuePropName="checked"
-              style={{ marginBottom: 0 }}
+              ]}
             >
-              <Checkbox disabled={isViewMode}>Is Active</Checkbox>
+              <Input type="text" disabled={isViewMode} />
             </Form.Item>
-          </div>
-        </Form>
-      </Modal>
-    </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <Form.Item
+                name="IsActive"
+                valuePropName="checked"
+                style={{ marginBottom: 0 }}
+              >
+                <Checkbox disabled={isViewMode}>Is Active</Checkbox>
+              </Form.Item>
+            </div>
+          </Form>
+        </Modal>
+      </div>
     </Page>
   );
 };

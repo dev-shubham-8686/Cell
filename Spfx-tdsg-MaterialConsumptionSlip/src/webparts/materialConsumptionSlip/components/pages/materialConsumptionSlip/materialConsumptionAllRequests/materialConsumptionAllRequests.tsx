@@ -2,14 +2,25 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEdit, faFileExport, faFilePdf, faFileExcel, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEye,
+  faEdit,
+  faFileExport,
+  faFilePdf,
+  faFileExcel,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import { SearchOutlined } from "@ant-design/icons";
 import { ColumnsType } from "antd/es/table/interface";
 import { AnyObject } from "antd/es/_util/type";
 
 import Table from "../../../table";
 import ColumnFilter from "../../../table/columnFilter";
-import { DATE_FORMAT, REQUEST_STATUS, STATUS_COLOUR_CLASS } from "../../../../GLOBAL_CONSTANT";
+import {
+  DATE_FORMAT,
+  REQUEST_STATUS,
+  STATUS_COLOUR_CLASS,
+} from "../../../../GLOBAL_CONSTANT";
 import useExportToExcel from "../../../../apis/exportToExcel/exportMaterialRequest/useExportToExcel";
 import { displayRequestStatus } from "../../../../utility/utility";
 import { useContext } from "react";
@@ -20,16 +31,17 @@ import useDeleteMaterialConsumptionSlip from "../../../../apis/materialConsumpti
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
-const MaterialConsumptionTable: React.FC = () => {
+const MaterialConsumptionAllRequests: React.FC = () => {
   const navigate = useNavigate();
-  const { mutate: exportToExcel, isLoading: excelLoading } = useExportToExcel()
-  const { mutate: pdfDownload, isLoading: pdfLoading } = usePDFViewer()
-  const { mutate: deleteMaterialConsumption } = useDeleteMaterialConsumptionSlip();
+  const { mutate: exportToExcel, isLoading: excelLoading } = useExportToExcel();
+  const { mutate: pdfDownload, isLoading: pdfLoading } = usePDFViewer();
+  const { mutate: deleteMaterialConsumption } =
+    useDeleteMaterialConsumptionSlip();
   const user = useContext(UserContext);
 
   const handleExportToExcel = (id: any, materialNo: any) => {
     try {
-      exportToExcel({ id, materialNo })
+      exportToExcel({ id, materialNo });
     } catch (error) {
       console.error("Export error:", error);
     }
@@ -37,11 +49,15 @@ const MaterialConsumptionTable: React.FC = () => {
 
   const handlePDF = (id: any, materialNo: any) => {
     try {
-      pdfDownload({ id, materialNo }, {
-        onError: (error) => {
-          console.error("Export error:", error);
-        },
-      });
+
+      pdfDownload(
+        { id, materialNo },
+        {
+          onError: (error) => {
+            console.error("Export error:", error);
+          },
+        }
+      );
     } catch (error) {
       console.error("Export error:", error);
     }
@@ -72,15 +88,11 @@ const MaterialConsumptionTable: React.FC = () => {
           onError: (error) => {
             console.error("Export error:", error);
           },
-
-        })
+        });
       },
       // centered: true,
     });
-  }
-
-
-
+  };
 
   const columns: ColumnsType<AnyObject> = [
     {
@@ -138,7 +150,7 @@ const MaterialConsumptionTable: React.FC = () => {
       width: "15%",
       sorter: true,
       render: (text) => (
-        <p className="text-cell">  {text ? format(text, DATE_FORMAT) : "-"}</p>
+        <p className="text-cell"> {text ? format(text, DATE_FORMAT) : "-"}</p>
       ),
       filterDropdown: ColumnFilter,
       filterIcon: (filtered: boolean) => (
@@ -173,9 +185,7 @@ const MaterialConsumptionTable: React.FC = () => {
             type="button"
             style={{ background: "none", border: "none" }}
             onClick={() =>
-              navigate(
-                `/form/view/${row.MaterialConsumptionSlipId}`
-              )
+              navigate(`/form/view/${row.MaterialConsumptionSlipId}`)
             }
           >
             <FontAwesomeIcon title="View" icon={faEye} />
@@ -189,9 +199,7 @@ const MaterialConsumptionTable: React.FC = () => {
                 type="button"
                 style={{ background: "none", border: "none" }}
                 onClick={() =>
-                  navigate(
-                    `/form/edit/${row.MaterialConsumptionSlipId}`
-                  )
+                  navigate(`/form/edit/${row.MaterialConsumptionSlipId}`)
                 }
               >
                 <FontAwesomeIcon title="Edit" icon={faEdit} />
@@ -239,9 +247,7 @@ const MaterialConsumptionTable: React.FC = () => {
                 type="button"
                 style={{ background: "none", border: "none" }}
                 onClick={() => {
-                  handleDelete(
-                    row.MaterialConsumptionSlipId
-                  );
+                  handleDelete(row.MaterialConsumptionSlipId);
                 }}
               >
                 <FontAwesomeIcon title="Delete" icon={faTrash} />
@@ -259,11 +265,11 @@ const MaterialConsumptionTable: React.FC = () => {
       <Table
         columns={columns}
         paginationRequired={true}
-        url="/api/Material/Get"
+        url="/api/Material/GetAllMCSData"
       />
-      <Spin spinning={(excelLoading || pdfLoading)} fullscreen />
+      <Spin spinning={excelLoading || pdfLoading} fullscreen />
     </>
   );
 };
 
-export default MaterialConsumptionTable;
+export default MaterialConsumptionAllRequests;

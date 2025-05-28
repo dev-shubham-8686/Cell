@@ -7,32 +7,53 @@ import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import Page from "../../page";
 import MaterialConsumptionTable from "./materialConsumptionTable";
 import MaterialConsumptionApproverTable from "./materialConsumptionApproverTable";
-
-const tabs = [
-  {
-    id: "myrequest-tab",
-    name: "Requests",
-  },
-  {
-    id: "myapproval-tab",
-    name: "Approvals",
-  },
-];
+import MaterialConsumptionAllRequests from "./materialConsumptionAllRequests/materialConsumptionAllRequests";
+import { UserContext } from "../../../context/userContext";
 
 const MaterialConsumptionSlips: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const user = React.useContext(UserContext);
   const { isApproverRequest, currentTabState } = location.state || {};
   const [currentTab, setCurrentTab] = useState(
     currentTabState ?? "myrequest-tab"
   );
-  console.log("CUREENTTAB", location.state, currentTab);
+
+  const tabs = [
+    {
+      id: "myrequest-tab",
+      name: "Requests",
+    },
+    {
+      id: "myapproval-tab",
+      name: "Approvals",
+    },
+    ...(user?.isITSupportUser && !user?.isAdmin
+      ? [
+        {
+          id: "allrequests-tab",
+          name: "All Requests",
+        },
+      ]
+      : []),
+  ];
+
+  React.useEffect(() => {
+    if (user?.isITSupportUser && !user?.isAdmin) {
+      setCurrentTab("allrequests-tab");
+    }
+  }, [user]);
+
+  if (user?.isITSupportUser && !user?.isAdmin) {
+    tabs.shift();
+    tabs.shift();
+  }
 
   return (
     <Page title="Material Consumption Dashboard">
       <div className="content flex-grow-1 p-4">
         <div className="request-btn d-flex align-items-center justify-content-between">
-        {/* {<button
+          {/* {<button
             className="btn btn-primary masterbutton"
             onClick={() => navigate("/master")}
           >
@@ -49,7 +70,6 @@ const MaterialConsumptionSlips: React.FC = () => {
               </Link>
             </div>
           )}
-          
         </div>
 
         <ul className="nav nav-tab-bar nav-underline" id="myTab" role="tablist">
@@ -57,9 +77,8 @@ const MaterialConsumptionSlips: React.FC = () => {
             return (
               <li key={tab.id} className="nav-item" role="presentation">
                 <button
-                  className={`nav-link ${
-                    currentTab === tab.id ? "active" : ""
-                  }`}
+                  className={`nav-link ${currentTab === tab.id ? "active" : ""
+                    }`}
                   id={tab.id}
                   data-bs-toggle="tab"
                   data-bs-target={`#${tab.id}-pane`}
@@ -101,6 +120,9 @@ const MaterialConsumptionSlips: React.FC = () => {
               {currentTab === "myrequest-tab" && <MaterialConsumptionTable />}
               {currentTab === "myapproval-tab" && (
                 <MaterialConsumptionApproverTable />
+              )}
+              {currentTab === "allrequests-tab" && (
+                <MaterialConsumptionAllRequests />
               )}
             </div>
           </div>

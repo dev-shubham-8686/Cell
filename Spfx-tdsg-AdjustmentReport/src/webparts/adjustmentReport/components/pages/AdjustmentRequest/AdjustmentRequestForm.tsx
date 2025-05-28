@@ -39,11 +39,8 @@
 //       null
 //     );
 
-//     console.log(user?.Email)
-//     console.log("in AdjustmentRequestForm")
 //     useUser(user?.Email);
 //     const { data } = useGetAllMachines();
-//     console.log({ data });
 
 //     const onFinish = (values: any) => {
 //       values.ChangeRiskManagementRequired = selectedValue;

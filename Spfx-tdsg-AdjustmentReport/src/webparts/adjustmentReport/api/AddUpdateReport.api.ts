@@ -1,7 +1,13 @@
 import * as dayjs from "dayjs";
 import { basePathwithprefix } from "../GLOBAL_CONSTANT";
 import apiClient from "../utils/axiosInstance";
-import { IAdjustmentReportPhoto, IAfterImages, IBeforeImages, IChangeRiskData, ICustomAxiosConfig } from "../interface";
+import {
+  IAdjustmentReportPhoto,
+  IAfterImages,
+  IBeforeImages,
+  IChangeRiskData,
+  ICustomAxiosConfig,
+} from "../interface";
 
 // interface Image {
 //   DocumentName: string;
@@ -16,7 +22,7 @@ interface Photos {
 }
 
 export interface ChangeRiskManagement {
-  ChangeRiskManagementId?:number
+  ChangeRiskManagementId?: number;
   Changes?: string;
   RiskAssociated?: string;
   Factor?: string;
@@ -28,18 +34,18 @@ export interface ChangeRiskManagement {
 }
 
 export interface IAddUpdateReportPayload {
-  AdjustmentReportId?: number,
-  EmployeeId?: number,
-  AdvisorId?:number,
-  SectionId?: number,
+  AdjustmentReportId?: number;
+  EmployeeId?: number;
+  AdvisorId?: number;
+  SectionId?: number;
   ReportNo?: string;
   RequestBy?: string;
   CheckedBy?: number;
   When?: dayjs.Dayjs;
   Area?: number[];
   MachineName?: number;
-  OtherMachineName?:string;
-  OtherSubMachineName?:string;
+  OtherMachineName?: string;
+  OtherSubMachineName?: string;
   SubMachineName?: number[];
   DescribeProblem?: string;
   Observation?: string;
@@ -55,11 +61,11 @@ export interface IAddUpdateReportPayload {
   ModifiedBy?: number;
   ModifiedDate?: dayjs.Dayjs;
   Status?: string;
-  BeforeImages?:IBeforeImages[],
-  AfterImages?:IAfterImages[],
-  IsAmendReSubmitTask?: boolean,
-  DeputyDivHead?:number,
-  DepartmentHeadId?:number
+  BeforeImages?: IBeforeImages[];
+  AfterImages?: IAfterImages[];
+  IsAmendReSubmitTask?: boolean;
+  DeputyDivHead?: number;
+  DepartmentHeadId?: number;
 }
 
 export interface IAdjustmentReport {
@@ -101,7 +107,6 @@ export const addUpdateReport = async (
     SHOW_NOTIFICATION: true,
   };
   const url = `${basePathwithprefix}/AdjustmentReport/AddOrUpdate`; // need to change
-  console.log(JSON.stringify(payload))
-  const response = await apiClient.post<boolean>(url, payload,config);
+  const response = await apiClient.post<boolean>(url, payload, config);
   return response.data;
 };

@@ -31,8 +31,8 @@ const VALIDATIONS = {
       "message/rfc822" // .eml (generic email)
     ],
     uploadAcceptTypes: ".jpeg,.pdf,.jpg,.png,.xlsx,.xls,.msg,.eml",
-    noOfFiles:"Maximum 2 Files are allowed! ",
-    maxFileCount:2
+    noOfFiles: "Maximum 2 Files are allowed! ",
+    maxFileCount: 2
   },
 };
 
@@ -44,7 +44,7 @@ interface IFileUpload {
   onAddFile: (documentName: string, documentFilePath: string) => void;
   onRemoveFile: (documentName: string) => void;
   disabled?: boolean; // disabled when mode is view and submitted 
-  isLoading?:boolean;
+  isLoading?: boolean;
 }
 
 const FileUpload: FC<IFileUpload> = ({
@@ -57,20 +57,15 @@ const FileUpload: FC<IFileUpload> = ({
   disabled,
   isLoading
 }) => {
-  console.log("DISABLEUPLOAD" , disabled)
   const webPartContext = React.useContext(WebPartContext);
   const [itemLoading, setItemLoading] = React.useState(false);
 
-
-
-
   const onBeforeUpload = (file: ExtendedUploadFile): boolean | string => {
-    
+
     const maxSize = VALIDATIONS.attachment.fileSize;
     let description = null;
     if (files.length >= VALIDATIONS.attachment.maxFileCount) {
       description = ` ${VALIDATIONS.attachment.noOfFiles}`;
-      
     }
 
     if (file.size && file.size > maxSize) {
@@ -88,9 +83,9 @@ const FileUpload: FC<IFileUpload> = ({
     ) {
       description = `Only JPEG, PDF, JPG, PNG , Excel and Email Attachments are allowed.`;
     }
-    
+
     if (description) {
-      
+
       void displayjsx.showErrorMsg(description)
       // notification.displayErrorNoti("", description);
       return Upload.LIST_IGNORE;
@@ -102,7 +97,7 @@ const FileUpload: FC<IFileUpload> = ({
     const confirm = await DeleteFileModal(file.name);
     if (confirm) {
       onRemoveFile(file.name);
-      void  displayjsx.showSuccess("File deleted successfully ")
+      void displayjsx.showSuccess("File deleted successfully ")
       return true;
     } else {
       return false;
@@ -121,7 +116,7 @@ const FileUpload: FC<IFileUpload> = ({
   };
 
   const onPreviewFile = async (file: UploadFile): Promise<void> => {
-    
+
     if (file.url) {
       const sharePointUrl = file.url.startsWith(WEB_URL)
         ? file.url
@@ -130,7 +125,7 @@ const FileUpload: FC<IFileUpload> = ({
     } else {
       const fileName = encodeURIComponent(file.name);
       const sharePointUrl = `${WEB_URL}/${libraryName}/${folderName}/${fileName}`;
-      
+
       window.open(sharePointUrl, "_blank");
     }
   };
@@ -141,7 +136,7 @@ const FileUpload: FC<IFileUpload> = ({
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
       }
-     
+
       const url = `${webPartContext.pageContext.web.absoluteUrl}/_api/Web/Lists/getByTitle('${libraryName}')/RootFolder/folders('${folderName}')/Files/Add(url='${fileName}', overwrite=true)?$expand=ListItemAllFields`;
       const response = await webPartContext.spHttpClient.post(
         url,
@@ -184,7 +179,7 @@ const FileUpload: FC<IFileUpload> = ({
 
   const uploadAttachment = async (file: File, fileName: string) => {
     try {
-      
+
       if (!webPartContext) {
         throw new Error("SharePoint context is not available.");
       }
@@ -225,7 +220,7 @@ const FileUpload: FC<IFileUpload> = ({
 
   const onUpload = async (event: any) => {
     try {
-      
+
       setIsLoading(true);
 
       if (
@@ -247,33 +242,33 @@ const FileUpload: FC<IFileUpload> = ({
 
   return (
     <>
-   {itemLoading && <Spin />} 
+      {itemLoading && <Spin />}
 
-    <Upload
-    maxCount={2}
-    disabled={disabled}
-      onRemove={onDelete}
-      beforeUpload={onBeforeUpload}
-      onDownload={onDownload}
-      showUploadList={{
-        showRemoveIcon: !disabled,
-        showPreviewIcon: true,
-        showDownloadIcon: true,
-        downloadIcon: <DownloadOutlined onClick={(e) => e.stopPropagation()} />,
-      }}
-      onPreview={onPreviewFile}
-      onChange={async (event) => {
-        if (event.fileList.length > 0) {
-          const res =await onUpload(event);
-          if(res){
-           void  displayjsx.showSuccess("File uploaded successfully ")
+      <Upload
+        maxCount={2}
+        disabled={disabled}
+        onRemove={onDelete}
+        beforeUpload={onBeforeUpload}
+        onDownload={onDownload}
+        showUploadList={{
+          showRemoveIcon: !disabled,
+          showPreviewIcon: true,
+          showDownloadIcon: true,
+          downloadIcon: <DownloadOutlined onClick={(e) => e.stopPropagation()} />,
+        }}
+        onPreview={onPreviewFile}
+        onChange={async (event) => {
+          if (event.fileList.length > 0) {
+            const res = await onUpload(event);
+            if (res) {
+              void displayjsx.showSuccess("File uploaded successfully ")
+            }
           }
-        }
-      }}
-      fileList={files}
-    >
-      <Button disabled={disabled} icon={<UploadOutlined />}>Attach Document</Button>
-    </Upload>
+        }}
+        fileList={files}
+      >
+        <Button disabled={disabled} icon={<UploadOutlined />}>Attach Document</Button>
+      </Upload>
     </>
   );
 };

@@ -18,7 +18,7 @@ interface ITable {
   columns: ColumnsType<AnyObject> | any;
   paginationRequired: boolean;
   refetchKey?: number;
-  classname?:string
+  classname?: string
 }
 
 interface IColumnFilter {
@@ -34,7 +34,7 @@ export const pageSizeOptions: DefaultOptionType[] = [
   { label: "100 / page", value: 100 },
 ];
 
-const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey,classname}) => {
+const Table: React.FC<ITable> = ({ columns, url, paginationRequired, refetchKey, classname }) => {
   const { user } = useUserContext();
   const { isLoading, data, mutate } = useTable();
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,10 +44,10 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey,c
   const [columnFilter, setColumnFilter] = useState<IColumnFilter | null>(null);
   const [searchText, setSearchText] = useState("");
   const { id } = useParams();
-  
+
   const exportReportBoxRef = useRef(null);
 
-  
+
   const handleExportButtonClick = () => {
     if (exportReportBoxRef.current) {
       exportReportBoxRef.current.openModal();
@@ -95,10 +95,9 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey,c
         | React.MouseEvent<HTMLButtonElement, MouseEvent>
         | React.KeyboardEvent<HTMLInputElement>
     ) => {
-      
+
       e?.preventDefault();
       const trimmedSearchText = searchText.replace(/\s+/g, '');
-      console.log("trimmedtext",trimmedSearchText)
       setColumnFilter({ columnName: "", columnFilterText: trimmedSearchText.trim() });
       setCurrentPage(1);
     },
@@ -106,11 +105,11 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey,c
   );
 
   useEffect(() => {
-    if (url) {   
+    if (url) {
       let params;
-      if(paginationRequired){
-        
-        params={
+      if (paginationRequired) {
+
+        params = {
           createdBy: user?.employeeId,
           skip: (currentPage - 1) * pageSize,
           take: pageSize,
@@ -121,22 +120,21 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey,c
         }
       }
       else {
-         params={
-          adjustmentId:id
+        params = {
+          adjustmentId: id
         }
       }
-      
+
       mutate({
-        
+
         url: url,
-        params:params,
-        listingScreen:paginationRequired
+        params: params,
+        listingScreen: paginationRequired
       });
-      
-      console.log("data",data,columns)
+
     }
-  }, [url, currentPage, pageSize, order, orderBy, columnFilter,id,user?.employeeId,refetchKey]);
-  console.log("DATA",data)
+  }, [url, currentPage, pageSize, order, orderBy, columnFilter, id, user?.employeeId, refetchKey]);
+
   return (
     <>
       <div className="row">
@@ -158,24 +156,22 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey,c
                 }}
               />
             )}
-            {console.log("SEARCHTEXT",searchText)}
-            
             <div className="position-relative">
               {searchText && (
-               <FontAwesomeIcon className="me-1 position-absolute text-gray font-18" icon={faXmark} 
+                <FontAwesomeIcon className="me-1 position-absolute text-gray font-18" icon={faXmark}
                   style={{
                     right: "7.5rem",
                     top: "50%",
                     transform: "translateY(-50%)",
                     cursor: "pointer",
-                
+
                   }}
                   onClick={() => {
                     setSearchText("");
                     setColumnFilter(null);
                   }}
-                /> 
-           )} 
+                />
+              )}
               {paginationRequired && (
                 <button
                   className="btn btn-primary text-nowrap"
@@ -188,27 +184,27 @@ const Table: React.FC<ITable> = ({ columns, url ,paginationRequired,refetchKey,c
           </div>
         </div>
         <div className="col-md-4" />
-        {paginationRequired &&<div className="col-md-4 text-end">
-          <button className="btn btn-outline-darkgrey text-nowrap" 
-                      onClick={handleExportButtonClick}
->
+        {paginationRequired && !user?.isITSupportUser && <div className="col-md-4 text-end">
+          <button className="btn btn-outline-darkgrey text-nowrap"
+            onClick={handleExportButtonClick}
+          >
             <i className="fa-solid fa-file-export me-1 font -16" />
             Export to Excel
           </button>
-        </div>} 
+        </div>}
       </div>
       <ExportReportBox
-            ref={exportReportBoxRef}
-            // onFinish={handleExportFormSubmit}
-            buttonText=""
-            onCancel={undefined}
-          />
-         {/* <div className="table"> */}
+        ref={exportReportBoxRef}
+        // onFinish={handleExportFormSubmit}
+        buttonText=""
+        onCancel={undefined}
+      />
+      {/* <div className="table"> */}
       <AntdTable
-      className={classname??""}
+        className={classname ?? ""}
         columns={columns}
         dataSource={data}
-        scroll={{ x: "max-content", y:"300px" }}
+        scroll={{ x: "max-content", y: "300px" }}
         loading={isLoading}
         onChange={onChange}
         pagination={{
