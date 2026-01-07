@@ -1,7 +1,0 @@
-import * as dayjs from "dayjs";
-import { RangePickerProps } from "antd/es/date-picker";
-
-export const disabledDate: RangePickerProps["disabledDate"] = (current) => {
-  // Can not select days before today and today
-  return current && current < dayjs().endOf("day");
-};
