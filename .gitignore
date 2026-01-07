@@ -40,3 +40,6 @@ obj
 *.scss.ts
 /TDSGCellFormatFormsServices/TDSGCellFormat/Properties/PublishProfiles
 /TDSGCellFormatFormsServices/TDSGCellFormat/TDSGCellFormat.csproj.user
+
+TDSGCellFormatFormsServices/TDSG.TroubleReport.Scheduler.zip
+TDSGCellFormatFormsServices/Adj_Publish/Select.Html.dep
